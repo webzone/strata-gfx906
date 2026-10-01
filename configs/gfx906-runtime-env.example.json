@@ -1,0 +1,10 @@
+{
+  "backend": "hip",
+  "experimental_gfx906": true,
+  "gpu": [0, 1],
+  "env": {
+    "GPU_MAX_HW_QUEUES": "8",
+    "HSA_ENABLE_SDMA": "0",
+    "HSA_FORCE_FINE_GRAIN_PCIE": "1"
+  }
+}
