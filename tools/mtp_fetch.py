@@ -19,11 +19,14 @@ import shutil
 import struct
 import sys
 import time
+import urllib.error
 import urllib.request
 
-# Pin the checkpoint used for this fork's IQ2_XS acceptance, not mutable `main`.
+# The fork and upstream 0.1.31 pin the same checkpoint. Keep acceptance reproducible:
+# do not silently fall back to mutable main or override the source of resumed tensors.
 MTP_REVISION = "de4b8e4d43b917e7706784d8bb445c9af86a3540"
-REPO = f"https://huggingface.co/Qwen/Qwen3.8-Flash-Next/resolve/{MTP_REVISION}/"
+REVISION = MTP_REVISION
+REPO = f"https://huggingface.co/Qwen/Qwen3.8-Flash-Next/resolve/{REVISION}/"
 DTYPE_BYTES = {"BF16": 2, "F16": 2, "F32": 4, "F8_E4M3": 1, "I64": 8, "I32": 4}
 RATE_MIB = 20.0  # CLI-overridable; do not saturate the household uplink.
 
@@ -63,6 +66,22 @@ def get(url, start=None, end=None, retries=4):
                 raise
             time.sleep(2 ** attempt)
             print("retry %s: %s" % (url, e), file=sys.stderr)
+
+
+def resolve_repo():
+    """Probe the pinned checkpoint without changing the source identity on failure."""
+    try:
+        req = urllib.request.Request(REPO + "model.safetensors.index.json", method="HEAD",
+                                     headers={"User-Agent": "strata-mtp-fetch"})
+        urllib.request.urlopen(req, timeout=120).close()
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise RuntimeError(f"MTP checkpoint unavailable at pinned revision {REVISION}; "
+                               "refusing to fall back to mutable main") from e
+        raise
+    except OSError:
+        pass                                        # no answer: get() retries and reports it
+    return REPO
 
 
 def shard_header(shard):
@@ -164,6 +183,7 @@ def main():
         ap.error("--rate-mib must be finite and positive")
     global RATE_MIB
     RATE_MIB = a.rate_mib
+    resolve_repo()
     inventory(a.out) if a.cmd == "inventory" else fetch(a.out, a.only)
 
 

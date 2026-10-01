@@ -1,0 +1,27 @@
+test_bf16_halfway_rounds_to_even (tools.test_iq_pack.CompatibilityTests.test_bf16_halfway_rounds_to_even) ... ok
+test_default_still_refuses_inexact_f32_router (tools.test_iq_pack.CompatibilityTests.test_default_still_refuses_inexact_f32_router) ... ok
+test_existing_bf16_pack_remains_byte_identical (tools.test_iq_pack.CompatibilityTests.test_existing_bf16_pack_remains_byte_identical) ... ok
+test_nonfinite_conversion_refused (tools.test_iq_pack.CompatibilityTests.test_nonfinite_conversion_refused) ... ok
+test_projection_conversion_and_native_bytes (tools.test_iq_pack.CompatibilityTests.test_projection_conversion_and_native_bytes) ... ok
+test_q2_ple_and_large_tensors_stay_native (tools.test_iq_pack.CompatibilityTests.test_q2_ple_and_large_tensors_stay_native) ... ok
+test_quantized_control_weights_need_explicit_conversion (tools.test_iq_pack.CompatibilityTests.test_quantized_control_weights_need_explicit_conversion) ... ok
+test_snapshot_symlinks_keep_split_discovery (tools.test_iq_pack.CompatibilityTests.test_snapshot_symlinks_keep_split_discovery) ... ok
+test_exact_f32_to_bf16_by_default (tools.test_iq_pack.ConversionTests.test_exact_f32_to_bf16_by_default) ... ok
+test_inexact_f32_rounds_only_with_compat (tools.test_iq_pack.ConversionTests.test_inexact_f32_rounds_only_with_compat) ... ok
+test_non_finite_is_refused (tools.test_iq_pack.ConversionTests.test_non_finite_is_refused) ... ok
+test_ple_conv1d_f32_is_narrowed_by_the_loader (tools.test_iq_pack.ConversionTests.test_ple_conv1d_f32_is_narrowed_by_the_loader) ... ok
+test_q8_0_projections_need_compat_and_are_recorded (tools.test_iq_pack.ConversionTests.test_q8_0_projections_need_compat_and_are_recorded) ... ok
+test_duplicate_tensor_across_shards (tools.test_iq_pack.SplitArtifactTests.test_duplicate_tensor_across_shards) ... ok
+test_four_shards_and_a_layer_split_per_role (tools.test_iq_pack.SplitArtifactTests.test_four_shards_and_a_layer_split_per_role) ... ok
+test_interrupted_pack (tools.test_iq_pack.SplitArtifactTests.test_interrupted_pack) ... ok
+test_missing_shard (tools.test_iq_pack.SplitArtifactTests.test_missing_shard) ... ok
+test_shard_of_another_split (tools.test_iq_pack.SplitArtifactTests.test_shard_of_another_split) ... ok
+test_stale_same_size_experts_bin (tools.test_iq_pack.SplitArtifactTests.test_stale_same_size_experts_bin) ... ok
+test_truncated_shard (tools.test_iq_pack.SplitArtifactTests.test_truncated_shard) ... ok
+test_unsplit_layers_keep_the_v3_file (tools.test_iq_pack.SplitArtifactTests.test_unsplit_layers_keep_the_v3_file) ... ok
+test_wrong_type_or_shape_leaves_the_pack_alone (tools.test_iq_pack.SplitArtifactTests.test_wrong_type_or_shape_leaves_the_pack_alone) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.250s
+
+OK

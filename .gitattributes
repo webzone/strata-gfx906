@@ -7,3 +7,6 @@ bench/prompts/** -text
 
 # Raw audit logs retain exact bytes and intentional CLI trailing whitespace.
 docs/gfx906-results/**/*.log -text -whitespace
+
+# copies of real packs' native_experts.txt, parsed byte for byte by tests/core/expert_layout_test.cpp
+tests/data/native_experts/** -text

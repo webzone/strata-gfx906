@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-01",
+  "upstream": {
+    "version": "0.1.31",
+    "commit": "9259cad4cfa3543cd3b8decab5962672b968c649"
+  },
+  "fork_pre_merge": "b8fe485a937ee373f615ba2dd023c25ca0c43f25",
+  "original_port_base": "30ec18ec7094550fcc594fd948220d511d80464e",
+  "llama_cpp_commit": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+  "validation_host": {
+    "os": "macOS",
+    "architecture": "arm64",
+    "python": "3.14.7",
+    "cmake": "4.4.3"
+  },
+  "final_results": {
+    "gfx906": {
+      "passed": 28,
+      "skipped": 0,
+      "failed": 0
+    },
+    "upstream_python": {
+      "passed": 61,
+      "skipped": 0,
+      "failed": 0
+    },
+    "pack": {
+      "passed": 22,
+      "skipped": 0,
+      "failed": 0
+    },
+    "serve": {
+      "passed": 93,
+      "skipped": 7,
+      "failed": 0
+    },
+    "selected_cpu_ctest": {
+      "passed": 7,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "full_engine_build": false,
+  "hip_build": false,
+  "gpu_validation": "pending: unresolved T5810 host RAM ECC/MCE hardware hold",
+  "real_model_generation": false,
+  "mi60_hardware_validation": false,
+  "raw_log_sha256": {
+    "cpu-ctest.log": "4475d9c18453bdd9d877d5d89fdf16982d623c8539f690d340a7e8f9dfa8d88d",
+    "gfx906-cmake-first.log": "7b94bff6d2e790bae49a0d7556cd648bac92b536a6abedc8a3d4c0a5cd32bf1d",
+    "gfx906-first.log": "43a4d18c9a5d4bdebd3a50d24e8d79b2d4ffc7d8af2801500d735907c28e85ee",
+    "gfx906.log": "52d371a7d318d52042257d875f35cba210e4e320fc9eea3ea39b4d6976520bdd",
+    "pack.log": "a2801d3fe679ecfd39a03e8331714e967b867ae18dfdbf3e3d650a653ec13044",
+    "serve.log": "6e4a3dd9b5811dd7c1c6fdb01140571975688d52ba10d80a3e2b0b9bf1d19a25",
+    "upstream-python.log": "7d1416b941c1deedcba3c38039ee5a7a68defe58bf1579ce538487041db08701"
+  },
+  "first_attempts": [
+    "gfx906-first.log",
+    "gfx906-cmake-first.log"
+  ]
+}

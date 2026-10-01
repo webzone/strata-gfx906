@@ -1,7 +1,11 @@
 # strata-gfx906 — Development Rules
 
-This is an experimental MI50 port of `Niko1221/Strata@30ec18ec7094550fcc594fd948220d511d80464e`.
-The working branch is `gfx906`; `origin` is `webzone/strata-gfx906`; `upstream` is for comparison only.
+This is a dedicated experimental MI50/MI60 gfx906 fork of `Niko1221/Strata`, synchronized through
+v0.1.31 / `9259cad4cfa3543cd3b8decab5962672b968c649` (original port: v0.1.30 / `30ec18e`).
+The working branch is `gfx906`; `origin` is `webzone/strata-gfx906`. Absorb upstream updates with
+reviewed merge commits, never rebasing published fork history or pushing to `upstream`.
+Preserving and optimizing real gfx906 support is the fork's purpose: upstream's wave32-only GPU
+support must not replace it. MI50 has archived hardware validation; MI60 still needs its own testing.
 All project documentation and maintenance notes must be written in English. Preserve raw test inputs and captured output verbatim as evidence.
 
 1. **Read the device record before operating the machine.** The T5810 authority record is

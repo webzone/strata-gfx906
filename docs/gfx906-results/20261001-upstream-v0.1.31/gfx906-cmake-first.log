@@ -1,0 +1,42 @@
+test_corrupt_existing_file_is_not_overwritten (test_gfx906_setup.Downloads.test_corrupt_existing_file_is_not_overwritten) ... ok
+test_hash_check_and_pinned_url (test_gfx906_setup.Downloads.test_hash_check_and_pinned_url) ... ok
+test_resume_rejects_ignored_range (test_gfx906_setup.Downloads.test_resume_rejects_ignored_range) ... ok
+test_cuda_mask_unchanged (test_gfx906_setup.Frontend.test_cuda_mask_unchanged) ... ok
+test_hip_mask_clears_conflicting_masks (test_gfx906_setup.Frontend.test_hip_mask_clears_conflicting_masks) ... ok
+test_layer_split_and_selection (test_gfx906_setup.Frontend.test_layer_split_and_selection) ... ok
+test_builder_compiles_all_architectures_and_saves_opt_in (test_gfx906_setup.Selection.test_builder_compiles_all_architectures_and_saves_opt_in) ... ok
+test_builder_default_rejects_gfx906 (test_gfx906_setup.Selection.test_builder_default_rejects_gfx906) ... ok
+test_check_is_read_only_and_amd_multigpu (test_gfx906_setup.Selection.test_check_is_read_only_and_amd_multigpu) ... ok
+test_opt_in_default_off (test_gfx906_setup.Selection.test_opt_in_default_off) ... ok
+test_order_and_all (test_gfx906_setup.Selection.test_order_and_all) ... ok
+test_rejections (test_gfx906_setup.Selection.test_rejections) ... ok
+test_start_keeps_amd_list_and_uses_hip_builder (test_gfx906_setup.Selection.test_start_keeps_amd_list_and_uses_hip_builder) ... ok
+test_complete_model_recheck_needs_only_safety_floor (test_gfx906_setup.StorageAndRanges.test_complete_model_recheck_needs_only_safety_floor) ... ok
+test_ignored_tensor_range_rejected_before_reading_body (test_gfx906_setup.StorageAndRanges.test_ignored_tensor_range_rejected_before_reading_body) ... ok
+test_inventory_revision_must_match (test_gfx906_setup.StorageAndRanges.test_inventory_revision_must_match) ... ok
+test_oversized_safetensors_header (test_gfx906_setup.StorageAndRanges.test_oversized_safetensors_header) ... ok
+test_valid_tensor_range (test_gfx906_setup.StorageAndRanges.test_valid_tensor_range) ... ok
+test_gfx906_default_off (test_gfx906_upstream.CmakeArchitectureGate.test_gfx906_default_off) ... FAIL
+test_gfx906_real_arch_and_feature_suffix (test_gfx906_upstream.CmakeArchitectureGate.test_gfx906_real_arch_and_feature_suffix) ... ok
+test_opt_in_does_not_admit_other_wave64_architectures (test_gfx906_upstream.CmakeArchitectureGate.test_opt_in_does_not_admit_other_wave64_architectures) ... ok
+test_rdna_community_architectures_remain_available (test_gfx906_upstream.CmakeArchitectureGate.test_rdna_community_architectures_remain_available) ... ok
+test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag (test_gfx906_upstream.UpstreamIntegration.test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag) ... ok
+test_missing_system_sdk_never_uses_rdna_wheels (test_gfx906_upstream.UpstreamIntegration.test_missing_system_sdk_never_uses_rdna_wheels) ... ok
+test_saved_amd_start_all_uses_saved_opt_in_not_nvidia_detection (test_gfx906_upstream.UpstreamIntegration.test_saved_amd_start_all_uses_saved_opt_in_not_nvidia_detection) ... ok
+test_update_preserves_gfx906_and_other_compiled_architectures (test_gfx906_upstream.UpstreamIntegration.test_update_preserves_gfx906_and_other_compiled_architectures) ... ok
+test_upstream_parser_preserves_gfx906_opt_in_and_order (test_gfx906_upstream.UpstreamIntegration.test_upstream_parser_preserves_gfx906_opt_in_and_order) ... ok
+test_version_and_acceptance_pins (test_gfx906_upstream.UpstreamIntegration.test_version_and_acceptance_pins) ... ok
+
+======================================================================
+FAIL: test_gfx906_default_off (test_gfx906_upstream.CmakeArchitectureGate.test_gfx906_default_off)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tests/test_gfx906_upstream.py", line 141, in test_gfx906_default_off
+    self.assertIn("requires -DSTRATA_EXPERIMENTAL_GFX906=ON", result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'requires -DSTRATA_EXPERIMENTAL_GFX906=ON' not found in "CMake Error at /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-KJwoB1/tmp1_x6eaku/gate.cmake:28 (message):\n  Strata HIP supports wave32 gfx1100, gfx1101, gfx1200 and gfx1201\n  (unvalidated: gfx1102); gfx906 (MI50/MI60) requires\n  -DSTRATA_EXPERIMENTAL_GFX906=ON; CMAKE_HIP_ARCHITECTURES is 'gfx906'\n\n\n"
+
+----------------------------------------------------------------------
+Ran 28 tests in 1.536s
+
+FAILED (failures=1)

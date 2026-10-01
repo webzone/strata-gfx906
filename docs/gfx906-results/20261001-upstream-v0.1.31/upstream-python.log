@@ -1,0 +1,83 @@
+test_all_is_every_supported_card_most_vram_first (tools.test_setup_amd.GpuLists.test_all_is_every_supported_card_most_vram_first) ... ok
+test_build_for_every_arch (tools.test_setup_amd.GpuLists.test_build_for_every_arch)
+build_engine_hip compiles for the set of the chosen cards' archs and records it in BUILD.json. ... ok
+test_list_in_order (tools.test_setup_amd.GpuLists.test_list_in_order) ... ok
+test_refusals (tools.test_setup_amd.GpuLists.test_refusals) ... ok
+test_wheels_hold_one_family (tools.test_setup_amd.GpuLists.test_wheels_hold_one_family) ... ok
+test_every_family (tools.test_setup_amd.KfdDetection.test_every_family) ... ok
+test_no_kfd (tools.test_setup_amd.KfdDetection.test_no_kfd) ... ok
+test_rocm_index_per_family (tools.test_setup_amd.KfdDetection.test_rocm_index_per_family) ... ok
+test_an_explicit_choice_says_so (tools.test_setup_lowram.OneGpuWhy.test_an_explicit_choice_says_so) ... ok
+test_auto_shows_the_ram_math (tools.test_setup_lowram.OneGpuWhy.test_auto_shows_the_ram_math) ... ok
+test_interactive (tools.test_setup_lowram.PagingQuestion.test_interactive) ... ok
+test_yes_with_auto_still_stops (tools.test_setup_lowram.PagingQuestion.test_yes_with_auto_still_stops) ... ok
+test_yes_with_low_ram_off_installs (tools.test_setup_lowram.PagingQuestion.test_yes_with_low_ram_off_installs) ... ok
+test_an_installed_engine_is_kept (tools.test_setup_pins.Engine.test_an_installed_engine_is_kept) ... ok
+test_bases (tools.test_setup_pins.Engine.test_bases) ... ok
+test_latest_when_it_is_not_published (tools.test_setup_pins.Engine.test_latest_when_it_is_not_published) ... /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_the_checkout_s_release_first (tools.test_setup_pins.Engine.test_the_checkout_s_release_first) ... ok
+test_a_gone_revision_fails_without_changing_partial_bytes (tools.test_setup_pins.HuggingFacePins.test_a_gone_revision_fails_without_changing_partial_bytes) ... ok
+test_every_model_url_is_pinned (tools.test_setup_pins.HuggingFacePins.test_every_model_url_is_pinned) ... ok
+test_mtp_fetch_is_pinned_and_fails_closed (tools.test_setup_pins.HuggingFacePins.test_mtp_fetch_is_pinned_and_fails_closed) ... ok
+test_unpinned (tools.test_setup_pins.HuggingFacePins.test_unpinned) ... ok
+test_a_changed_pin_is_installed (tools.test_setup_pins.Requirements.test_a_changed_pin_is_installed) ... ok
+test_an_install_from_before_the_pins_is_left_alone (tools.test_setup_pins.Requirements.test_an_install_from_before_the_pins_is_left_alone) ... ok
+test_every_package_is_pinned (tools.test_setup_pins.Requirements.test_every_package_is_pinned) ... ok
+test_fresh_install_gets_every_pin (tools.test_setup_pins.Requirements.test_fresh_install_gets_every_pin) ... ok
+test_free_form_contexts_get_the_exact_ratio (tools.test_setup_rope.DerivedFactor.test_free_form_contexts_get_the_exact_ratio) ... ok
+test_the_clamp_is_what_keeps_128k_at_one (tools.test_setup_rope.DerivedFactor.test_the_clamp_is_what_keeps_128k_at_one) ... ok
+test_the_task_table (tools.test_setup_rope.DerivedFactor.test_the_task_table) ... ok
+test_512k_on_a_small_ram_machine_resolves_to_128k_factor_1 (tools.test_setup_rope.ResolveRope.test_512k_on_a_small_ram_machine_resolves_to_128k_factor_1) ... ok
+test_a_chosen_method_within_trained_gets_factor_1 (tools.test_setup_rope.ResolveRope.test_a_chosen_method_within_trained_gets_factor_1) ... ok
+test_a_scale_alone_within_trained_is_rejected (tools.test_setup_rope.ResolveRope.test_a_scale_alone_within_trained_is_rejected) ... ok
+test_an_explicit_override_survives_a_context_reduction (tools.test_setup_rope.ResolveRope.test_an_explicit_override_survives_a_context_reduction) ... ok
+test_deterministic_for_yes (tools.test_setup_rope.ResolveRope.test_deterministic_for_yes) ... ok
+test_explicit_method_and_factor_are_kept_verbatim (tools.test_setup_rope.ResolveRope.test_explicit_method_and_factor_are_kept_verbatim) ... ok
+test_explicit_method_gets_the_derived_factor (tools.test_setup_rope.ResolveRope.test_explicit_method_gets_the_derived_factor) ... ok
+test_explicit_none_past_trained_is_refused (tools.test_setup_rope.ResolveRope.test_explicit_none_past_trained_is_refused) ... ok
+test_explicit_none_within_trained_is_the_stock_model (tools.test_setup_rope.ResolveRope.test_explicit_none_within_trained_is_the_stock_model) ... ok
+test_linear_gets_the_same_rule_as_yarn (tools.test_setup_rope.ResolveRope.test_linear_gets_the_same_rule_as_yarn) ... ok
+test_no_reduction_384k_and_512k_resolve_as_documented (tools.test_setup_rope.ResolveRope.test_no_reduction_384k_and_512k_resolve_as_documented) ... ok
+test_omitted_384k_gets_yarn_and_1_5 (tools.test_setup_rope.ResolveRope.test_omitted_384k_gets_yarn_and_1_5) ... ok
+test_omitted_512k_gets_yarn_and_2 (tools.test_setup_rope.ResolveRope.test_omitted_512k_gets_yarn_and_2) ... ok
+test_omitted_method_with_an_explicit_factor (tools.test_setup_rope.ResolveRope.test_omitted_method_with_an_explicit_factor) ... ok
+test_omitted_within_trained_adds_nothing (tools.test_setup_rope.ResolveRope.test_omitted_within_trained_adds_nothing) ... ok
+test_the_short_context_table (tools.test_setup_rope.ResolveRope.test_the_short_context_table) ... ok
+test_matching_hash_passes (tools.test_shards.PackVerifyHash.test_matching_hash_passes) ... /Users/chris/dev/strata-gfx906/tools/strata_pack.py:351: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-0XQbAp/tmps2y79jra/m-00001-of-00002.gguf'>
+  head, flen = open_shard(gguf)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_no_hash_or_limit_skips (tools.test_shards.PackVerifyHash.test_no_hash_or_limit_skips) ... /Users/chris/dev/strata-gfx906/tools/strata_pack.py:351: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-0XQbAp/tmpwm_ff05z/m-00001-of-00002.gguf'>
+  head, flen = open_shard(gguf)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_wrong_hash_fails_naming_both (tools.test_shards.PackVerifyHash.test_wrong_hash_fails_naming_both) ... ok
+test_missing_shard_is_named (tools.test_shards.ShardCheck.test_missing_shard_is_named) ... ok
+test_short_shard_names_file_and_sizes (tools.test_shards.ShardCheck.test_short_shard_names_file_and_sizes) ... ok
+test_truncated_header_is_refused (tools.test_shards.ShardCheck.test_truncated_header_is_refused) ... ok
+test_whole_shards_pass (tools.test_shards.ShardCheck.test_whole_shards_pass) ... ok
+test_apply (tools.test_calibrate.Calibrate.test_apply) ... ok
+test_defaults_kept_when_flat (tools.test_calibrate.Calibrate.test_defaults_kept_when_flat) ... ok
+test_fewer_workers (tools.test_calibrate.Calibrate.test_fewer_workers) ... ok
+test_finds_pcie_and_min_p (tools.test_calibrate.Calibrate.test_finds_pcie_and_min_p) ... ok
+test_old_calibration_is_the_baseline_reset (tools.test_calibrate.Calibrate.test_old_calibration_is_the_baseline_reset) ... ok
+test_pick (tools.test_calibrate.Calibrate.test_pick) ... ok
+test_small_gain_is_noise (tools.test_calibrate.Calibrate.test_small_gain_is_noise) ... ok
+test_worker_candidates (tools.test_calibrate.Calibrate.test_worker_candidates) ... ok
+test_calibrate_config_writes_and_remembers (tools.test_calibrate.SetupIntegration.test_calibrate_config_writes_and_remembers) ... 
+  Tuning Strata for this PC: the output speed is measured with a few engine settings (the PCIe share, the
+  draft depth, the CPU threads). It takes about 5-10 minutes; the PC is busy meanwhile.
+  [ok] tuned for this PC: --pcie-frac 0.20 (61.2 tok/s)
+ok
+test_failed_calibration_keeps_defaults (tools.test_calibrate.SetupIntegration.test_failed_calibration_keeps_defaults) ... 
+  Tuning Strata for this PC: the output speed is measured with a few engine settings (the PCIe share, the
+  draft depth, the CPU threads). It takes about 5-10 minutes; the PC is busy meanwhile.
+  [!]  the tuning did not finish (the engine exited before it was ready): the default settings stay
+ok
+
+----------------------------------------------------------------------
+Ran 61 tests in 0.056s
+
+OK

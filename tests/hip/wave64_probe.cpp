@@ -20,7 +20,7 @@ static void check(hipError_t e, const char* what) {
 
 struct Result {
     unsigned ballot;
-    int dot, overflow, broadcast, down8, up32, xor16;
+    int dot, overflow, broadcast, down8, down8_1, down8_2, up32, xor16;
     float sum;
     double xor_double;
     unsigned long long broadcast64;
@@ -39,6 +39,10 @@ __global__ static void probe(Result* out) {
     r.overflow = __dp4a(0x7f7f7f7f, 0x7f7f7f7f, std::numeric_limits<int>::max());
     r.broadcast = __shfl_sync(mask, (int)id, 0);
     r.down8 = __shfl_down_sync(mask, (int)id, 4, 8);
+    // Upstream 0.1.31's Q2_0 chunk reduction uses width-8 offsets in the order 4, 1, 2.
+    // Exercise each offset in both logical half-warps, including 2D/3D blocks.
+    r.down8_1 = __shfl_down_sync(mask, (int)id, 1, 8);
+    r.down8_2 = __shfl_down_sync(mask, (int)id, 2, 8);
     r.up32 = __shfl_up_sync(mask, (int)id, 1);
     r.xor16 = __shfl_xor_sync(mask, (int)id, 8, 16);
     float sum = (float)id;
@@ -90,12 +94,14 @@ int main(int argc, char** argv) {
                 oe += r.overflow != dot_ref(0x7f7f7f7fu,0x7f7f7f7fu,0x7fffffffu);
                 oe += r.broadcast != (int)base;
                 oe += r.down8 != (int)(id + (lane%8 < 4 ? 4 : 0));
+                oe += r.down8_1 != (int)(id + (lane%8 < 7 ? 1 : 0));
+                oe += r.down8_2 != (int)(id + (lane%8 < 6 ? 2 : 0));
                 oe += r.up32 != (int)(lane ? id-1 : id);
                 oe += r.xor16 != (int)(base + (lane ^ 8));
                 oe += r.sum != (float)(32*base+496);
                 oe += r.xor_double != (double)(base+(lane^1))+.25;
                 oe += r.broadcast64 != 0x1234567800000000ull+base;
-                checks += 10;
+                checks += 12;
             }
             std::printf("shape=%u,%u,%u threads=%u ballot_errors=%d other_errors=%d\n",shape.x,shape.y,shape.z,threads,be,oe);
             ballot_errors += be; other_errors += oe; HIP(hipFree(d));

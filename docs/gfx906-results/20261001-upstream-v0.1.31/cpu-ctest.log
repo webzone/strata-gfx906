@@ -1,0 +1,19 @@
+Test project /Users/chris/dev/strata-gfx906/build-source-sync-cpu
+    Start 1: gguf_reader_test
+1/7 Test #1: gguf_reader_test .................   Passed    0.09 sec
+    Start 2: gguf_split_test
+2/7 Test #2: gguf_split_test ..................   Passed    0.10 sec
+    Start 3: suffix_drafter_test
+3/7 Test #3: suffix_drafter_test ..............   Passed    0.10 sec
+    Start 4: controller_test
+4/7 Test #4: controller_test ..................   Passed    0.09 sec
+    Start 5: draft_policy_test
+5/7 Test #5: draft_policy_test ................   Passed    0.09 sec
+    Start 6: conv_cache_test
+6/7 Test #6: conv_cache_test ..................   Passed    0.10 sec
+    Start 7: coupled_draft_test
+7/7 Test #7: coupled_draft_test ...............   Passed    0.09 sec
+
+100% tests passed out of 7
+
+Total Test time (real) =   0.66 sec

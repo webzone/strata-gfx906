@@ -1,0 +1,54 @@
+test_corrupt_existing_file_is_not_overwritten (test_gfx906_setup.Downloads.test_corrupt_existing_file_is_not_overwritten) ... ok
+test_hash_check_and_pinned_url (test_gfx906_setup.Downloads.test_hash_check_and_pinned_url) ... ok
+test_resume_rejects_ignored_range (test_gfx906_setup.Downloads.test_resume_rejects_ignored_range) ... ok
+test_cuda_mask_unchanged (test_gfx906_setup.Frontend.test_cuda_mask_unchanged) ... ok
+test_hip_mask_clears_conflicting_masks (test_gfx906_setup.Frontend.test_hip_mask_clears_conflicting_masks) ... ok
+test_layer_split_and_selection (test_gfx906_setup.Frontend.test_layer_split_and_selection) ... ok
+test_builder_compiles_all_architectures_and_saves_opt_in (test_gfx906_setup.Selection.test_builder_compiles_all_architectures_and_saves_opt_in) ... ok
+test_builder_default_rejects_gfx906 (test_gfx906_setup.Selection.test_builder_default_rejects_gfx906) ... ok
+test_check_is_read_only_and_amd_multigpu (test_gfx906_setup.Selection.test_check_is_read_only_and_amd_multigpu) ... ok
+test_opt_in_default_off (test_gfx906_setup.Selection.test_opt_in_default_off) ... ok
+test_order_and_all (test_gfx906_setup.Selection.test_order_and_all) ... ok
+test_rejections (test_gfx906_setup.Selection.test_rejections) ... ok
+test_start_keeps_amd_list_and_uses_hip_builder (test_gfx906_setup.Selection.test_start_keeps_amd_list_and_uses_hip_builder) ... ok
+test_complete_model_recheck_needs_only_safety_floor (test_gfx906_setup.StorageAndRanges.test_complete_model_recheck_needs_only_safety_floor) ... ok
+test_ignored_tensor_range_rejected_before_reading_body (test_gfx906_setup.StorageAndRanges.test_ignored_tensor_range_rejected_before_reading_body) ... ok
+test_inventory_revision_must_match (test_gfx906_setup.StorageAndRanges.test_inventory_revision_must_match) ... ok
+test_oversized_safetensors_header (test_gfx906_setup.StorageAndRanges.test_oversized_safetensors_header) ... ok
+test_valid_tensor_range (test_gfx906_setup.StorageAndRanges.test_valid_tensor_range) ... ok
+test_gfx906_default_off (test_gfx906_upstream.CmakeArchitectureGate.test_gfx906_default_off) ... skipped 'CMake unavailable; architecture-gate check not run'
+test_gfx906_real_arch_and_feature_suffix (test_gfx906_upstream.CmakeArchitectureGate.test_gfx906_real_arch_and_feature_suffix) ... skipped 'CMake unavailable; architecture-gate check not run'
+test_opt_in_does_not_admit_other_wave64_architectures (test_gfx906_upstream.CmakeArchitectureGate.test_opt_in_does_not_admit_other_wave64_architectures) ... skipped 'CMake unavailable; architecture-gate check not run'
+test_rdna_community_architectures_remain_available (test_gfx906_upstream.CmakeArchitectureGate.test_rdna_community_architectures_remain_available) ... skipped 'CMake unavailable; architecture-gate check not run'
+test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag (test_gfx906_upstream.UpstreamIntegration.test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag) ... ERROR
+test_missing_system_sdk_never_uses_rdna_wheels (test_gfx906_upstream.UpstreamIntegration.test_missing_system_sdk_never_uses_rdna_wheels) ... ok
+test_saved_amd_start_all_uses_saved_opt_in_not_nvidia_detection (test_gfx906_upstream.UpstreamIntegration.test_saved_amd_start_all_uses_saved_opt_in_not_nvidia_detection) ... ok
+test_update_preserves_gfx906_and_other_compiled_architectures (test_gfx906_upstream.UpstreamIntegration.test_update_preserves_gfx906_and_other_compiled_architectures) ... ok
+test_upstream_parser_preserves_gfx906_opt_in_and_order (test_gfx906_upstream.UpstreamIntegration.test_upstream_parser_preserves_gfx906_opt_in_and_order) ... ok
+test_version_and_acceptance_pins (test_gfx906_upstream.UpstreamIntegration.test_version_and_acceptance_pins) ... ok
+
+======================================================================
+ERROR: test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag (test_gfx906_upstream.UpstreamIntegration.test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tests/test_gfx906_upstream.py", line 117, in test_builder_does_not_reuse_a_stamp_missing_the_experimental_flag
+    setup.build_engine_hip(CARDS[0], Path("unused"), True)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/chris/dev/strata-gfx906/setup.py", line 1037, in build_engine_hip
+    stamp.write_text(json.dumps({"source": "local-hip", "backend": "hip", "version": source_version(),
+                                                                                     ~~~~~~~~~~~~~~^^
+  File "/Users/chris/dev/strata-gfx906/setup.py", line 1648, in source_version
+    m = re.search(r"project\(strata VERSION ([\d.]+)", (ROOT / "CMakeLists.txt").read_text(encoding="utf-8"))
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-9qi1BX/tmp_ikv0g0c/CMakeLists.txt'
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.336s
+
+FAILED (errors=1, skipped=4)
