@@ -23,7 +23,7 @@
     "JUnit has truncated stdout; full LastTest log preserved"
   ],
   "artifact_sha256": {
-    "README.md": "f35df8a83f378be0e683bfccb90e59e33493f5b5f629cd57980b05ccc55152ae",
+    "README.md": "3b46c4b06a6614d3e64a1e32fb40528628504a8529be70d49767c4293f727545",
     "api-arithmetic.request.json": "b6a3867ef4cdfbe8ed94da19960a05c25d9ab16d1b751a6c8e1813cda530703d",
     "api-arithmetic.response.json": "fb5e1419c5b6f750745ff995d46e4e62d757f31c20ba3d75e644d8492a0b24f3",
     "api-literal.request.json": "ce28ce21b389b00629d67b83728cb2fe83ea2a687fb5da527278d5cdaf12eda1",

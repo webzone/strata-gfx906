@@ -20,8 +20,11 @@ and per-device mapped-memory layer handoff. Upstream RDNA/NVIDIA support is not 
 **Source synchronization is not GPU acceptance.** The historical timings and GPU results below predate
 this merge. A subsequent [v0.1.31 MI50 deployment](docs/gfx906-results/20261001-deployment-v0.1.31/README.md)
 completed the HIP build, 44 selected CTests (one additional hipBLASLt skip), and short IQ2_XS single/dual/
-reversed-card generation checks. A loopback API is running with a configured 262K capacity; full-length
-and long-soak acceptance are still outstanding. No MI60 hardware has been tested here.
+reversed-card generation checks. The validation started a loopback API with a configured 262K capacity;
+a later read-only host snapshot found that listener stopped and a server on `0.0.0.0:8082` with no API key.
+See the [deployment follow-up](docs/GFX906.md#post-deployment-listener-follow-up) and have the owner review
+that network exposure. Full-length and long-soak acceptance are still outstanding. No MI60 hardware has
+been tested here.
 
 ### Changes absorbed from v0.1.31
 

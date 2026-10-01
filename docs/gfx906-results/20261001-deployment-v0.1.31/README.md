@@ -48,6 +48,16 @@ were reused, with no new model preparation or duplicate main-model expert file.
 Private host logs/backups: `/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/`.
 No further GPU tests were run after the API retained both GPUs.
 
+## Later read-only listener check
+
+A later snapshot found the initial loopback listener on `127.0.0.1:8095` stopped. A Strata process pair
+was running separately on port 8082 with the same v0.1.31 binary/config and both MI50s resident. It was
+bound to `0.0.0.0:8082`; neither the saved config nor the live server environment had an API key. The
+engine process still received the requested tuning variables and `HIP_VISIBLE_DEVICES=0,1`. The server's
+origin/startup is unknown. No stop, restart, config edit, network change, or further GPU work was performed.
+This later binding is unauthenticated and requires owner review; the initial 8095 smoke result is historical,
+not evidence that the current server still uses that loopback binding.
+
 ## Performance boundary
 
 The 128-token counting prompt's real decoder windows were 2,933.6 ms (one card), 2,246.3 ms (two cards)
