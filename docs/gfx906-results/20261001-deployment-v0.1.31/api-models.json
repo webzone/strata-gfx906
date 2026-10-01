@@ -1,0 +1,1 @@
+{"object": "list", "data": [{"id": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS", "object": "model", "status": {"value": "loaded"}, "meta": {"n_ctx": 262144}, "architecture": {"input_modalities": ["text"], "output_modalities": ["text"]}}]}

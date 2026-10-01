@@ -1,0 +1,79 @@
+{
+  "status": "passed_build_identity_and_ctest",
+  "source": "6188acba7d48056312675a0c97940f5015bb5343",
+  "started_utc": "2026-10-01T20:25:05.534059+00:00",
+  "steps": [
+    {
+      "name": "configure",
+      "command": [
+        "cmake",
+        "--preset",
+        "hip-gfx906-multigpu"
+      ],
+      "started": 1790886305.6614025,
+      "exit": 0,
+      "seconds": 5.001816272735596
+    },
+    {
+      "name": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "--preset",
+        "hip-gfx906-multigpu"
+      ],
+      "started": 1790886310.6645727,
+      "exit": 0,
+      "seconds": 330.1381733417511
+    },
+    {
+      "name": "ctest",
+      "command": [
+        "ctest",
+        "--preset",
+        "hip-gfx906-multigpu",
+        "--output-junit",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/ctest.xml"
+      ],
+      "started": 1790886903.494118,
+      "exit": 0,
+      "seconds": 50.01557183265686
+    }
+  ],
+  "runtime_env": {
+    "GPU_MAX_HW_QUEUES": "8",
+    "HSA_ENABLE_SDMA": "0",
+    "HSA_FORCE_FINE_GRAIN_PCIE": "1",
+    "HIP_VISIBLE_DEVICES": "0,1"
+  },
+  "edac_baseline": {
+    "/sys/devices/system/edac/mc/mc0/ce_count": 0,
+    "/sys/devices/system/edac/mc/mc0/ue_count": 0
+  },
+  "free_bytes": 6101221376,
+  "edac_current": {
+    "/sys/devices/system/edac/mc/mc0/ce_count": 0,
+    "/sys/devices/system/edac/mc/mc0/ue_count": 0
+  },
+  "phase": "ctest",
+  "model_identity": [
+    {
+      "file": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+      "bytes": 39225954592,
+      "sha256": "92cee27ae5bbadcd732416a0f7a7f0acc092399dbbe8f5a5efa707c2ec0a49d7"
+    },
+    {
+      "file": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf",
+      "bytes": 28800138432,
+      "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"
+    }
+  ],
+  "ctest": {
+    "total": 45,
+    "failed": 0,
+    "skipped": [
+      "hip_prefill_hipblaslt_gemm"
+    ]
+  },
+  "finished_utc": "2026-10-01T20:35:53.512325+00:00"
+}

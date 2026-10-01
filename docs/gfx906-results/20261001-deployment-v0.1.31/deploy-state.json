@@ -1,0 +1,80 @@
+{
+  "status": "deployed_and_running",
+  "steps": [
+    {
+      "name": "smoke-single",
+      "command": [
+        "/home/chris/dev/strata-gfx906/.venv/bin/python",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/model-smoke.py",
+        "--gpus",
+        "0",
+        "--out",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/smoke-single.json"
+      ],
+      "started": 1790887140.8283825,
+      "exit": 0,
+      "seconds": 30.011477947235107
+    },
+    {
+      "name": "smoke-dual",
+      "command": [
+        "/home/chris/dev/strata-gfx906/.venv/bin/python",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/model-smoke.py",
+        "--gpus",
+        "0,1",
+        "--out",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/smoke-dual.json"
+      ],
+      "started": 1790887170.9758034,
+      "exit": 0,
+      "seconds": 30.01175022125244
+    },
+    {
+      "name": "smoke-reverse",
+      "command": [
+        "/home/chris/dev/strata-gfx906/.venv/bin/python",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/model-smoke.py",
+        "--gpus",
+        "1,0",
+        "--out",
+        "/home/chris/dev/strata-gfx906/logs/deploy-v0.1.31-20261001T202157Z/smoke-reverse.json"
+      ],
+      "started": 1790887201.1218975,
+      "exit": 0,
+      "seconds": 30.0120370388031
+    }
+  ],
+  "started_utc": "2026-10-01T20:39:00.697822+00:00",
+  "source": "6188acba7d48056312675a0c97940f5015bb5343",
+  "build_gate": "passed_build_identity_and_ctest",
+  "free_bytes": 6101045248,
+  "edac_current": {
+    "/sys/devices/system/edac/mc/mc0/ce_count": 0,
+    "/sys/devices/system/edac/mc/mc0/ue_count": 0
+  },
+  "phase": "complete",
+  "model_checks": {
+    "modes": 3,
+    "prompts_per_mode": 4,
+    "tokens_per_mode": 153,
+    "matching_ids": true,
+    "limitations": "4K short-prompt agreement, not CPU-logit parity or 262K/long-soak validation"
+  },
+  "server_pid": 26976,
+  "engine_pid": 26981,
+  "runtime_receipt": {
+    "GPU_MAX_HW_QUEUES": "8",
+    "HSA_ENABLE_SDMA": "0",
+    "HSA_FORCE_FINE_GRAIN_PCIE": "1",
+    "HIP_VISIBLE_DEVICES": "0,1"
+  },
+  "gfx_override_absent": true,
+  "api_tests": {
+    "arithmetic": "12",
+    "literal": "MI50 ready."
+  },
+  "endpoint": "http://127.0.0.1:8095/v1",
+  "context_configured": 262144,
+  "autoboot": false,
+  "finished_utc": "2026-10-01T20:40:57.583149+00:00"
+}

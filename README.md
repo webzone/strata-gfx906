@@ -17,8 +17,11 @@ We will continue absorbing upstream fixes and features while retaining and optim
 HIP path: two logical wave32 groups per physical wave64, native signed dot4, per-card clock calibration,
 and per-device mapped-memory layer handoff. Upstream RDNA/NVIDIA support is not a replacement for gfx906 support.
 
-**Source synchronization is not GPU acceptance.** The MI50 timings and GPU test results below predate this
-merge; v0.1.31 HIP build/operator/model revalidation is pending. No MI60 hardware has been tested here.
+**Source synchronization is not GPU acceptance.** The historical timings and GPU results below predate
+this merge. A subsequent [v0.1.31 MI50 deployment](docs/gfx906-results/20261001-deployment-v0.1.31/README.md)
+completed the HIP build, 44 selected CTests (one additional hipBLASLt skip), and short IQ2_XS single/dual/
+reversed-card generation checks. A loopback API is running with a configured 262K capacity; full-length
+and long-soak acceptance are still outstanding. No MI60 hardware has been tested here.
 
 ### Changes absorbed from v0.1.31
 

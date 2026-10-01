@@ -1,0 +1,21 @@
+device0 AMD Instinct MI50/MI60 gfx906 wave64
+device0 active wall_clock64 approximately 24.9965 MHz
+device1 AMD Instinct MI50/MI60 gfx906 wave64
+device1 active wall_clock64 approximately 24.9971 MHz
+P2P capability=1; transport uses pinned HOST memory, no peer access is enabled
+verify transport GPU0->GPU1 T=1: 821504 exact checks, 32 graph replays OK
+verify transport GPU0->GPU1 T=2: 1640960 exact checks, 32 graph replays OK
+verify transport GPU0->GPU1 T=4: 3279872 exact checks, 32 graph replays OK
+verify transport GPU0->GPU1 T=8: 6557696 exact checks, 32 graph replays OK
+prefill transport GPU0->GPU1 T=32: 2621440 exact checks, two-buffer pipeline OK
+prefill transport GPU0->GPU1 T=128: 10485760 exact checks, two-buffer pipeline OK
+prefill transport GPU0->GPU1 T=512: 41943040 exact checks, two-buffer pipeline OK
+verify transport GPU1->GPU0 T=1: 821504 exact checks, 32 graph replays OK
+verify transport GPU1->GPU0 T=2: 1640960 exact checks, 32 graph replays OK
+verify transport GPU1->GPU0 T=4: 3279872 exact checks, 32 graph replays OK
+verify transport GPU1->GPU0 T=8: 6557696 exact checks, 32 graph replays OK
+prefill transport GPU1->GPU0 T=32: 2621440 exact checks, two-buffer pipeline OK
+prefill transport GPU1->GPU0 T=128: 10485760 exact checks, two-buffer pipeline OK
+prefill transport GPU1->GPU0 T=512: 41943040 exact checks, two-buffer pipeline OK
+verify transport GPU0->GPU0 T=4: 3279872 exact checks, 32 graph replays OK
+hip_layer_handoff OK: 137980416 exact float/guard checks; no model-level claim

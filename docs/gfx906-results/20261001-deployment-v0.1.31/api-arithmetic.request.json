@@ -1,0 +1,15 @@
+{
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS",
+  "messages": [
+    {
+      "role": "user",
+      "content": "只回答一个数字：7+5等于几？"
+    }
+  ],
+  "temperature": 0,
+  "max_tokens": 32,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  },
+  "stream": false
+}

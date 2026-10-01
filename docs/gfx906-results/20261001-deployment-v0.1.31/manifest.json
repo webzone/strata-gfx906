@@ -1,0 +1,48 @@
+{
+  "source": "6188acba7d48056312675a0c97940f5015bb5343",
+  "upstream": "9259cad4cfa3543cd3b8decab5962672b968c649",
+  "release": "v0.1.31",
+  "ggml_pin": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+  "ctest": {
+    "selected": 45,
+    "passed": 44,
+    "skipped": [
+      "hip_prefill_hipblaslt_gemm"
+    ],
+    "failed": 0,
+    "preset_excluded": [
+      "ple_parity",
+      "platform_memory_test"
+    ]
+  },
+  "limitations": [
+    "short-prompt/4K model agreement, not full CPU-logit parity",
+    "262K configured capacity, not full-length acceptance",
+    "not a runtime-environment performance A/B",
+    "no long-soak, optional GR v3, other-model or MI60 validation",
+    "JUnit has truncated stdout; full LastTest log preserved"
+  ],
+  "artifact_sha256": {
+    "README.md": "f35df8a83f378be0e683bfccb90e59e33493f5b5f629cd57980b05ccc55152ae",
+    "api-arithmetic.request.json": "b6a3867ef4cdfbe8ed94da19960a05c25d9ab16d1b751a6c8e1813cda530703d",
+    "api-arithmetic.response.json": "fb5e1419c5b6f750745ff995d46e4e62d757f31c20ba3d75e644d8492a0b24f3",
+    "api-literal.request.json": "ce28ce21b389b00629d67b83728cb2fe83ea2a687fb5da527278d5cdaf12eda1",
+    "api-literal.response.json": "c5e3728ea8e70f34692a0971f8fd3a304700c9013b33dd261dd03f39ef228c77",
+    "api-models.json": "98dac297411d9275da3871897d81a63f60ff12c13d7cab176e85dc1020b6bc62",
+    "build-state.json": "cb3b1b5d7dc0e21304f145236e6bada038aaac9316b89aac605943ae13ba891f",
+    "ctest-full.log": "00138704cf0c7ba180a5c9058a565d31549c008b53a88bcfdddf93be8e3a68ae",
+    "ctest.log": "b9e674a5a473a866a6048a39366a080ca2226c520c268556e7071fc483d43a2f",
+    "ctest.xml": "3ab484d1551fc55ef80f3b8141659c867e5419da7e7e6b30e145a09433d35ff8",
+    "deploy-state.json": "77761c5b37231db19f7b91b0ce93aed0df37a8d0580086e83f00958aa66c2f8e",
+    "deployment-receipt.json": "d8035eb0326aec1b0486cf46ea6839c9d18a752dad6b31b4b1e418d1f163dd4c",
+    "gfx906-python.log": "a7e379504b3fcf70dce254b049e4ef6a465913a13d04a64298ff438642068dd7",
+    "hip_device1.log": "4b8759b33a720b174a39c3c795aebb60d8ceb924479927e80d6cff1dce23a9f7",
+    "hip_layer_handoff.log": "4a60f35a03701a4fd8e1745cf8db57279f497ef2c360df7c5f5171af3cffd728",
+    "hip_wave64_probe.log": "ec82446d04630630352af58344227ff82ef0991483baa1041923167bb9a13b5c",
+    "model-sha256.log": "601bb4309226364d68cbd06601465b2594d24c279f05a5f7f39b1b6f041e2c6c",
+    "model-smoke.py": "38f50c746e9a766c12ec2c501b89d5f14a6d7c43377ab42bf00e6b1c35db89e7",
+    "smoke-dual.json": "e3ae00256ecde38b2438d8d4bde2ab2d3f9143fe0711ec2a9b62b7c25bfcb824",
+    "smoke-reverse.json": "e0b056a9790f62b9f0ab5d00b590fce7442fd398d21c77b29f465226a41ca5f1",
+    "smoke-single.json": "f159b19caa9209b27d5d1e7627884f2b38f7510a8eebff972a58c828c55d1e77"
+  }
+}

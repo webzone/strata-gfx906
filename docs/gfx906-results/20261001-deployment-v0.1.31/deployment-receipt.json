@@ -1,0 +1,22 @@
+{
+  "source": "6188acba7d48056312675a0c97940f5015bb5343",
+  "ggml_pin": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+  "ggml_matched_source_files": 1583,
+  "ggml_source_mismatches": 0,
+  "binary_sha256": "090836e9965364a1acc184bd1c075ad061498ecd0b95b0e3f8bf724e7b1a20b3",
+  "checked_utc": "2026-10-01T20:55:54.921790+00:00",
+  "server_alive": true,
+  "engine_alive": true,
+  "models_endpoint": 200,
+  "listener": "127.0.0.1:8095",
+  "config": "run-iq2-xs.json",
+  "config_mode": "0o600",
+  "launch_script": "run-iq2-xs.sh",
+  "runtime_env": {
+    "GPU_MAX_HW_QUEUES": "8",
+    "HSA_ENABLE_SDMA": "0",
+    "HSA_FORCE_FINE_GRAIN_PCIE": "1",
+    "HIP_VISIBLE_DEVICES": "0,1"
+  },
+  "gfx_override_absent": true
+}

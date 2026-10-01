@@ -1,0 +1,1626 @@
+Start testing: Oct 01 20:35 UTC
+----------------------------------------------------------
+1/45 Testing: file_expert_source_test
+1/45 Test: file_expert_source_test
+Command: "/home/chris/dev/strata-gfx906/build-hip/file_expert_source_test"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"file_expert_source_test" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+file_expert_source_test: PASS
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"file_expert_source_test" end time: Oct 01 20:35 UTC
+"file_expert_source_test" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/45 Testing: hip_expert_cache_staging
+2/45 Test: hip_expert_cache_staging
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_expert_cache_staging"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_expert_cache_staging" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+HIP expert staging: variable slots, repeated payloads, close/reopen passed
+<end of output>
+Test time =   0.35 sec
+----------------------------------------------------------
+Test Passed.
+"hip_expert_cache_staging" end time: Oct 01 20:35 UTC
+"hip_expert_cache_staging" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/45 Testing: hip_intrinsics
+3/45 Test: hip_intrinsics
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_intrinsics"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_intrinsics" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+HIP intrinsics parity OK: dynamic signed dot4/overflow, byte permute, packed integer boundaries, wave32 shuffles, ballot and sleep
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"hip_intrinsics" end time: Oct 01 20:35 UTC
+"hip_intrinsics" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/45 Testing: hip_handoff
+4/45 Test: hip_handoff
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_handoff"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_handoff" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+PASS asynchronous mapped-memory handoff: 100 CPU-to-GPU waits, 100 separate copy/rings, 100 fused publishes; 1232800 values checked
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"hip_handoff" end time: Oct 01 20:35 UTC
+"hip_handoff" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/45 Testing: hip_layer_handoff
+5/45 Test: hip_layer_handoff
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_layer_handoff"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_layer_handoff" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device0 AMD Instinct MI50/MI60 gfx906 wave64
+device0 active wall_clock64 approximately 24.9965 MHz
+device1 AMD Instinct MI50/MI60 gfx906 wave64
+device1 active wall_clock64 approximately 24.9971 MHz
+P2P capability=1; transport uses pinned HOST memory, no peer access is enabled
+verify transport GPU0->GPU1 T=1: 821504 exact checks, 32 graph replays OK
+verify transport GPU0->GPU1 T=2: 1640960 exact checks, 32 graph replays OK
+verify transport GPU0->GPU1 T=4: 3279872 exact checks, 32 graph replays OK
+verify transport GPU0->GPU1 T=8: 6557696 exact checks, 32 graph replays OK
+prefill transport GPU0->GPU1 T=32: 2621440 exact checks, two-buffer pipeline OK
+prefill transport GPU0->GPU1 T=128: 10485760 exact checks, two-buffer pipeline OK
+prefill transport GPU0->GPU1 T=512: 41943040 exact checks, two-buffer pipeline OK
+verify transport GPU1->GPU0 T=1: 821504 exact checks, 32 graph replays OK
+verify transport GPU1->GPU0 T=2: 1640960 exact checks, 32 graph replays OK
+verify transport GPU1->GPU0 T=4: 3279872 exact checks, 32 graph replays OK
+verify transport GPU1->GPU0 T=8: 6557696 exact checks, 32 graph replays OK
+prefill transport GPU1->GPU0 T=32: 2621440 exact checks, two-buffer pipeline OK
+prefill transport GPU1->GPU0 T=128: 10485760 exact checks, two-buffer pipeline OK
+prefill transport GPU1->GPU0 T=512: 41943040 exact checks, two-buffer pipeline OK
+verify transport GPU0->GPU0 T=4: 3279872 exact checks, 32 graph replays OK
+hip_layer_handoff OK: 137980416 exact float/guard checks; no model-level claim
+<end of output>
+Test time =   1.41 sec
+----------------------------------------------------------
+Test Passed.
+"hip_layer_handoff" end time: Oct 01 20:35 UTC
+"hip_layer_handoff" time elapsed: 00:00:01
+----------------------------------------------------------
+
+6/45 Testing: hip_device1
+6/45 Test: hip_device1
+Command: "/home/chris/dev/strata-gfx906/build-hip/strata-device" "--device" "1" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_device1" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device 1: AMD Instinct MI50/MI60
+  HIP arch            gfx906 wave64 (compiled for gfx906)
+  multiprocessors     60
+  VRAM total / free   31.984 GiB (34342961152 B) / 31.963 GiB (34319892480 B)
+  driver / runtime    70253211 / 70253211
+
+memory plan  --max-context 20480
+  KV + indexer keys   0.267387 GB
+  recurrent state     0.000000 GB  (GDN recurrence + conv history, NOT evictable)
+  expert cache        5.675613 GB  (4105 slots of 1,382,400 B)
+  VRAM pool           5.943000 GB
+  expert arena (DRAM) 0.000000 GB
+  card free           31.963 GiB (34319892480 B)
+  plan + KV vs free   FITS
+
+selftest: arena 0.062 GiB (67108864 B), used 0.002 GiB (2097152 B) after two 1 MiB allocations
+selftest: over-allocation refused as required
+strata-device selftest OK
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"hip_device1" end time: Oct 01 20:35 UTC
+"hip_device1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/45 Testing: hip_wave64_probe
+7/45 Test: hip_wave64_probe
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_wave64_probe"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_wave64_probe" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- physical_wave=64
+shape=32,1,1 threads=32 ballot_errors=0 other_errors=0
+shape=64,1,1 threads=64 ballot_errors=0 other_errors=0
+shape=96,1,1 threads=96 ballot_errors=0 other_errors=0
+shape=128,1,1 threads=128 ballot_errors=0 other_errors=0
+shape=256,1,1 threads=256 ballot_errors=0 other_errors=0
+shape=16,4,2 threads=128 ballot_errors=0 other_errors=0
+shape=8,4,4 threads=128 ballot_errors=0 other_errors=0
+checks=29952 ballot_errors=0 other_errors=0
+wall_clock_mhz=24.9979 host_elapsed_ms=100.250
+dot4_bench rep=0 ms=0.3582 Gdot4_per_s=749.3174
+dot4_bench rep=1 ms=0.3587 Gdot4_per_s=748.3147
+dot4_bench rep=2 ms=0.3573 Gdot4_per_s=751.3287
+dot4_bench rep=3 ms=0.3571 Gdot4_per_s=751.6653
+dot4_bench rep=4 ms=0.3587 Gdot4_per_s=748.3127
+dot4_bench rep=5 ms=0.3635 Gdot4_per_s=738.4318
+dot4_bench rep=6 ms=0.3550 Gdot4_per_s=756.0689
+PASS: independent wave64 half-warp parity and timed dot4 CPU reference
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"hip_wave64_probe" end time: Oct 01 20:35 UTC
+"hip_wave64_probe" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/45 Testing: hip_native_qsa_score
+8/45 Test: hip_native_qsa_score
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_native_qsa_score"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_native_qsa_score" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+native QSA HIP scalar parity OK: FMA order, per-head ReLU, bias, partial tail and padding
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"hip_native_qsa_score" end time: Oct 01 20:35 UTC
+"hip_native_qsa_score" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/45 Testing: hip_prefill_native_batch
+9/45 Test: hip_prefill_native_batch
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_prefill_native_batch"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_prefill_native_batch" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+Native prefill batch parity: PASS
+<end of output>
+Test time =   0.19 sec
+----------------------------------------------------------
+Test Passed.
+"hip_prefill_native_batch" end time: Oct 01 20:35 UTC
+"hip_prefill_native_batch" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/45 Testing: hip_prefill_hipblaslt_gemm
+10/45 Test: hip_prefill_hipblaslt_gemm
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_prefill_hipblaslt_gemm"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_prefill_hipblaslt_gemm" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+SKIP: set STRATA_HIPBLASLT_TUNING to a calibrated matching table
+<end of output>
+Test time =   0.21 sec
+----------------------------------------------------------
+Test Passed.
+"hip_prefill_hipblaslt_gemm" end time: Oct 01 20:35 UTC
+"hip_prefill_hipblaslt_gemm" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/45 Testing: dequant_s2_parity
+11/45 Test: dequant_s2_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/dequant_s2_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"dequant_s2_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  non-vacuity: 4 of 4 codes present, 8 distinct values in the first elements
+dequant_s2: 200000 blocks, 12800000 elements, 0 mismatched
+  bit-exact against the scalar dequantizer that dequant_xcheck proved equal to ggml
+dequant_s2_parity OK
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"dequant_s2_parity" end time: Oct 01 20:35 UTC
+"dequant_s2_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/45 Testing: s2_gemv_parity
+12/45 Test: s2_gemv_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/s2_gemv_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"s2_gemv_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+s2_gemv: n_in 2560, n_out 640, 0 rows over tolerance, worst rel 0.000e+00 (tol 1.0e-05)
+  reference spread [-1155, 5062]
+  agrees with the scalar decode that dequant_xcheck proved equal to ggml
+s2_gemv_parity OK
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"s2_gemv_parity" end time: Oct 01 20:35 UTC
+"s2_gemv_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/45 Testing: iq_parity_fixtures
+13/45 Test: iq_parity_fixtures
+Command: "/home/chris/dev/strata-gfx906/.venv/bin/python3" "/home/chris/dev/strata-gfx906/tools/iq_fixture.py" "--out" "/home/chris/dev/strata-gfx906/build-hip/iq_fixture"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"iq_parity_fixtures" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  IQ2_XXS  type 16  32 x 256  2112 block bytes, 8192 reference floats
+  IQ2_XS   type 17  32 x 256  2368 block bytes, 8192 reference floats
+  IQ2_S    type 22  32 x 256  2624 block bytes, 8192 reference floats
+  IQ3_XXS  type 18  32 x 256  3136 block bytes, 8192 reference floats
+  IQ3_S    type 21  32 x 256  3520 block bytes, 8192 reference floats
+  IQ1_M    type 29  32 x 256  1792 block bytes, 8192 reference floats
+  IQ4_NL   type 20  32 x 256  4608 block bytes, 8192 reference floats
+  IQ4_XS   type 23  32 x 256  4352 block bytes, 8192 reference floats
+  Q2_0     type 42  32 x 256  2304 block bytes, 8192 reference floats
+  Q3_K     type 11  32 x 256  3520 block bytes, 8192 reference floats
+iq_fixture: 10 fixtures in /home/chris/dev/strata-gfx906/build-hip/iq_fixture (seed 7)
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"iq_parity_fixtures" end time: Oct 01 20:35 UTC
+"iq_parity_fixtures" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/45 Testing: iq_parity
+14/45 Test: iq_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/iq_parity" "/home/chris/dev/strata-gfx906/build-hip/iq_fixture"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"iq_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+IQ2_XXS  type 16   32 x   256  dequant rel 0.00e+00  mmvq rel 4.75e-03 (ncols 1..8)  ok
+IQ2_XS   type 17   32 x   256  dequant rel 0.00e+00  mmvq rel 5.27e-03 (ncols 1..8)  ok
+IQ2_S    type 22   32 x   256  dequant rel 0.00e+00  mmvq rel 5.13e-03 (ncols 1..8)  ok
+IQ3_XXS  type 18   32 x   256  dequant rel 0.00e+00  mmvq rel 5.73e-03 (ncols 1..8)  ok
+IQ3_S    type 21   32 x   256  dequant rel 0.00e+00  mmvq rel 4.63e-03 (ncols 1..8)  ok
+IQ1_M    type 29   32 x   256  dequant rel 0.00e+00  mmvq rel 5.53e-03 (ncols 1..8)  ok
+IQ4_NL   type 20   32 x   256  dequant rel 0.00e+00  mmvq rel 5.06e-03 (ncols 1..8)  ok
+IQ4_XS   type 23   32 x   256  dequant rel 0.00e+00  mmvq rel 5.09e-03 (ncols 1..8)  ok
+Q2_0     type 42   32 x   256  dequant rel 0.00e+00  mmvq rel 4.57e-03 (ncols 1..8)  ok
+Q3_K     type 11   32 x   256  dequant rel 0.00e+00  mmvq rel 4.82e-03 (ncols 1..8)  ok
+iq_parity: 0 failures
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"iq_parity" end time: Oct 01 20:35 UTC
+"iq_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/45 Testing: iq_multi_parity
+15/45 Test: iq_multi_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/iq_multi_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"iq_multi_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+IQ2_XXS  type 16     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 3.13e-05)
+IQ2_XXS  type 16      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 3.53e-05)
+IQ2_XS   type 17     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 3.66e-05)
+IQ2_XS   type 17      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 3.56e-05)
+IQ3_XXS  type 18     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 9.59e-06)
+IQ3_XXS  type 18      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 9.44e-06)
+IQ4_NL   type 20     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 7.89e-08)
+IQ4_NL   type 20      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 7.65e-08)
+IQ3_S    type 21     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 6.84e-08)
+IQ3_S    type 21      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 5.04e-08)
+IQ2_S    type 22     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 3.21e-05)
+IQ2_S    type 22      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 5.66e-05)
+IQ4_XS   type 23     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 6.98e-08)
+IQ4_XS   type 23      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 1.63e-07)
+IQ1_M    type 29     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 6.77e-08)
+IQ1_M    type 29      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 6.65e-08)
+Q2_0     type 42     67 x  2560  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 7.04e-08)
+Q2_0     type 42      5 x  1024  iq_mmvq ncols 1..8, 11: bitwise equal to the old kernel (ref rel <= 8.68e-08)
+IQ2_XXS /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_XXS /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_XXS /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_XS  /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_XS  /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_XS  /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ3_XXS /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ3_XXS /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ3_XXS /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ3_S   /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ3_S   /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ3_S   /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_S   /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_S   /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ2_S   /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ4_XS  /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ4_XS  /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ4_XS  /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ1_M   /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ1_M   /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+IQ1_M   /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+Q2_0    /IQ4_NL   2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+Q2_0    /Q2_0     2560 x  640  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+Q2_0    /IQ4_XS   1024 x  512  native_expert_grouped, 9 groups, 35 entries: bitwise equal to the old kernels
+iq_multi_parity: 0 failures
+<end of output>
+Test time =   2.07 sec
+----------------------------------------------------------
+Test Passed.
+"iq_multi_parity" end time: Oct 01 20:35 UTC
+"iq_multi_parity" time elapsed: 00:00:02
+----------------------------------------------------------
+
+16/45 Testing: shared_expert_parity
+16/45 Test: shared_expert_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/shared_expert_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"shared_expert_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  silu-on-gate vs silu-on-up is observable yes (100.00% apart)
+  structure vs reference                   worst rel 3.461e-04 over 256 outputs (mean |ref| 4716.8804)
+  the fixture's SwiGLU stays in fp16 range yes (max |h| 677.2, fp16 max 65504)
+  native shared scalar gate: pass (ref rel 0.000e+00, BF16 separation 1.048e-03, missing input refused)
+  native shared captured selection: byte-identical
+  restored shared default: byte-identical
+  routed sum left UNWEIGHTED is observable   yes  (92.39% apart)
+  shared output router-WEIGHTED is observable yes  (84.60% apart)
+  moe_combine vs reference                   rel 0.000e+00
+  a null `shared` is observable              yes (98.62% apart - null shared really omits it)
+
+shared_expert: 0 failures
+shared_expert_parity OK
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"shared_expert_parity" end time: Oct 01 20:35 UTC
+"shared_expert_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/45 Testing: gr_parity
+17/45 Test: gr_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/gr_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"gr_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  per-stream RMSNorm vs whole-stack        yes  (89.6091% apart, floor 5.000%)
+  /hc inside the silu vs outside           yes  (8.1439% apart, floor 5.000%)
+  SiLU on lo / sigmoid on gate, swapped    yes  (91.4869% apart, floor 5.000%)
+  mean over streams vs sum                 yes  (300.0000% apart, floor 50.000%)
+  BF16 vs FP32 activation contracts        yes  (0.1028% apart, floor 0.010%)
+
+  mixed vs reference                       worst 2.924e-08 (mean |ref| 0.2105)
+  inject vs reference                      rel 2.845e-08
+  FP32 activations vs reference: pass (mixed 7.782e-08, inject 1.138e-07)
+  restoring default activation contract: byte-identical
+  weight orientation is observable         yes (56.9% apart)
+  null w_inject writes nothing             yes
+  zero injection -> plain residual add     yes (worst rel 5.948e-08)
+  1*sigmoid vs 2*sigmoid is observable     yes (readings 50% apart, kernel within 4.36e-07)
+  every stream adds the same block output  yes (worst rel 8.733e-08)
+
+  real dims 2560/4/320 BF16 pass (mixed 8.373e-08, inject 1.986e-07)
+
+  real dims 2560/4/320 FP32 pass (mixed 1.656e-07, inject 3.281e-07)
+
+  real dims 2560/4/320 native pinned GR pass (mixed 1.706e-07, inject 1.757e-07)
+  fused GR multi max-T=8 LDS launch and changing graph replay pass
+  scalar gamma 1.00000000 BF16 activation/capture pass (mixed 0.614394009, ref 0.614394009)
+  scalar final mixer BF16 pass
+  scalar gamma 1.00000000 FP32 activation/capture pass (mixed 0.614636600, ref 0.614636600)
+  scalar final mixer FP32 pass
+  scalar gamma 1.00000000 native pinned GR activation/capture pass (mixed 0.614636600, ref 0.614636600)
+  scalar final mixer native pinned GR pass
+  scalar gamma 1.00390625 BF16 activation/capture pass (mixed 0.616793990, ref 0.616793990)
+  scalar final mixer BF16 pass
+  scalar gamma 1.00390625 FP32 activation/capture pass (mixed 0.617553174, ref 0.617553174)
+  scalar final mixer FP32 pass
+  scalar gamma 1.00390625 native pinned GR activation/capture pass (mixed 0.617553174, ref 0.617553174)
+  scalar final mixer native pinned GR pass
+
+gr_read/gr_write: 0 failures
+gr_parity OK
+<end of output>
+Test time =   0.26 sec
+----------------------------------------------------------
+Test Passed.
+"gr_parity" end time: Oct 01 20:35 UTC
+"gr_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/45 Testing: gdn_parity
+18/45 Test: gdn_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/gdn_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"gdn_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  modulo vs interleave head pairing          yes  (142.03% apart)
+  decay before vs after the update           yes  (76.95% apart)
+
+  o vs reference                             rel 2.001e-07
+  state (read via (S,h_v,S)) vs reference    rel 3.736e-08
+  gate=beta=0 from a zero state is a no-op   yes
+
+  conv weight layout is observable           yes  (182.5% apart)
+  conv out vs reference                      rel 2.477e-08
+  conv state slide (mapped) vs reference     rel 0.000e+00
+
+  eps on sum vs on mean is observable        yes  (1031.4% apart)
+  l2_norm vs reference                       rel 0.000e+00
+
+  out norm (rms * ssm_norm * sigmoid z)      rel 2.026e-09
+  sigmoid vs SiLU on the gate is observable  yes  (86.78% apart)
+
+gdn: 0 failures
+gdn_parity OK
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"gdn_parity" end time: Oct 01 20:35 UTC
+"gdn_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/45 Testing: s2_gemv_q8_parity
+19/45 Test: s2_gemv_q8_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/s2_gemv_q8_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"s2_gemv_q8_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  q8-activation GEMV vs host reference   matches (0 of 64 over 1e-4, worst rel 3.731e-05, mean |ref| 0.290)
+  fp16-activation vs q8-activation       0.8022% of the reference magnitude
+
+s2_gemv_q8: 0 failures
+s2_gemv_q8_parity OK
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"s2_gemv_q8_parity" end time: Oct 01 20:35 UTC
+"s2_gemv_q8_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/45 Testing: sampler_parity
+20/45 Test: sampler_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/sampler_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"sampler_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  sampled path: split top_k (default)
+  greedy argmax                      matches (0 of 4 differ)
+  order is observable on this fixture yes (survivors: spec 16, temp-first 12)
+  greedy over this fixture           matches (0 of 4 differ)
+  greedy ignores the seed            matches (seed-independent: 0 differ; vs reference: 0 wrong)
+  multiply-or-divide is observable   yes (multiply-rule 1, divide-always 0)
+  penalties: repeat on negatives     matches (0 of 2 differ)
+  presence penalty is a boolean      want token 1 (with present=1.5, token 0 goes 5.0/2 - 1.5 = 1.0 vs token 1 at 3.4)
+  penalties: presence is boolean     matches (0 of 2 differ)
+  T=0 greedy=false is the argmax     matches (0 of 4 differ)
+  T=0 greedy=true  is the argmax     matches (0 of 4 differ)
+  T=1 greedy=true  is the argmax     matches (0 of 4 differ)
+  sampled penalties are observable   yes (penalised picks 3/2, clean 0/0)
+  sampled chain: penalties + top_k/p matches (0 of 2 differ)
+  min_p cut is observable            yes (survivors: min_p 0 -> 12, 0.5 -> 4, 0.9 -> 2)
+  sampled chain: min_p=0.0           matches (0 of 2 differ)
+  sampled chain: min_p=0.5           matches (0 of 2 differ)
+  sampled chain: min_p=0.9           matches (0 of 2 differ)
+  penalty window clamp is observable yes (clamped pick 0, full-history pick 3)
+  penalty window: tail only          matches (0 of 1 differ)
+  one penalties stage (#53)          yes (token 0 drawn 0.1040 of 8000, expected 0.1050; twice-penalised would be 0.0255)
+  sampled chain: #53's example       matches (0 of 8000 differ)
+  top_p before min_p is observable   yes (token 2 drawn 58 of 256 times)
+  sampled chain: top_p then min_p    matches (0 of 256 differ)
+  stale history, last_n=0 (sampled)  matches (0 of 4 differ)
+  stale history, last_n=0 (greedy)   matches (0 of 4 differ)
+  per-row history T=1 H=1 greedy     matches (0 of 1 differ)
+  per-row history T=1 H=1 sampled    matches (0 of 1 differ)
+  per-row history T=1 H=64 greedy    matches (0 of 1 differ)
+  per-row history T=1 H=64 sampled   matches (0 of 1 differ)
+  per-row history T=1 H=1024 greedy  matches (0 of 1 differ)
+  per-row history T=1 H=1024 sampled matches (0 of 1 differ)
+  per-row history T=1 H=4096 greedy  matches (0 of 1 differ)
+  per-row history T=1 H=4096 sampled matches (0 of 1 differ)
+  per-row history T=2 H=1 greedy     matches (0 of 2 differ)
+  per-row history T=2 H=1 sampled    matches (0 of 2 differ)
+  per-row history T=2 H=64 greedy    matches (0 of 2 differ)
+  per-row history T=2 H=64 sampled   matches (0 of 2 differ)
+  per-row history T=2 H=1024 greedy  matches (0 of 2 differ)
+  per-row history T=2 H=1024 sampled matches (0 of 2 differ)
+  per-row history T=2 H=4096 greedy  matches (0 of 2 differ)
+  per-row history T=2 H=4096 sampled matches (0 of 2 differ)
+  per-row history T=4 H=1 greedy     matches (0 of 4 differ)
+  per-row history T=4 H=1 sampled    matches (0 of 4 differ)
+  per-row history T=4 H=64 greedy    matches (0 of 4 differ)
+  per-row history T=4 H=64 sampled   matches (0 of 4 differ)
+  per-row history T=4 H=1024 greedy  matches (0 of 4 differ)
+  per-row history T=4 H=1024 sampled matches (0 of 4 differ)
+  per-row history T=4 H=4096 greedy  matches (0 of 4 differ)
+  per-row history T=4 H=4096 sampled matches (0 of 4 differ)
+  per-row history T=8 H=1 greedy     matches (0 of 8 differ)
+  per-row history T=8 H=1 sampled    matches (0 of 8 differ)
+  per-row history T=8 H=64 greedy    matches (0 of 8 differ)
+  per-row history T=8 H=64 sampled   matches (0 of 8 differ)
+  per-row history T=8 H=1024 greedy  matches (0 of 8 differ)
+  per-row history T=8 H=1024 sampled matches (0 of 8 differ)
+  per-row history T=8 H=4096 greedy  matches (0 of 8 differ)
+  per-row history T=8 H=4096 sampled matches (0 of 8 differ)
+  per-row histories are observable   yes (21 drafted rows pick differently with row 0's history, of 60 rows)
+  out-of-vocab history ids (greedy)  matches (0 of 4 differ)
+  out-of-vocab history ids (sampled) matches (0 of 4 differ)
+  sampled top_k=64                   matches (0 of 4 differ)
+  sampled top_k=0 means 64           matches (0 of 4 differ)
+  sampled top_k=100 means 64         matches (0 of 4 differ)
+  sampled top_k=-3 means 64          matches (0 of 4 differ)
+  penalty_rows layout                matches (0 of 420 rows differ)
+  sampler draw counter segmentation/repeat: PASS
+  top_k list under ties              matches (0 of 1340 positions differ; 280 sentinel positions)
+  sampled draws under ties           matches (0 of 1632 draws differ; 1057 picks tie with another kept token)
+  fallbacks: graph capture, row cap  matches (0 of 143 draws differ)
+
+sampler: 0 failures
+sampler_parity OK
+<end of output>
+Test time =   1.76 sec
+----------------------------------------------------------
+Test Passed.
+"sampler_parity" end time: Oct 01 20:35 UTC
+"sampler_parity" time elapsed: 00:00:01
+----------------------------------------------------------
+
+21/45 Testing: sampler_parity_one_block
+21/45 Test: sampler_parity_one_block
+Command: "/home/chris/dev/strata-gfx906/build-hip/sampler_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"sampler_parity_one_block" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  sampled path: one block (STRATA_SAMPLER_ONE_BLOCK)
+  greedy argmax                      matches (0 of 4 differ)
+  order is observable on this fixture yes (survivors: spec 16, temp-first 12)
+  greedy over this fixture           matches (0 of 4 differ)
+  greedy ignores the seed            matches (seed-independent: 0 differ; vs reference: 0 wrong)
+  multiply-or-divide is observable   yes (multiply-rule 1, divide-always 0)
+  penalties: repeat on negatives     matches (0 of 2 differ)
+  presence penalty is a boolean      want token 1 (with present=1.5, token 0 goes 5.0/2 - 1.5 = 1.0 vs token 1 at 3.4)
+  penalties: presence is boolean     matches (0 of 2 differ)
+  T=0 greedy=false is the argmax     matches (0 of 4 differ)
+  T=0 greedy=true  is the argmax     matches (0 of 4 differ)
+  T=1 greedy=true  is the argmax     matches (0 of 4 differ)
+  sampled penalties are observable   yes (penalised picks 3/2, clean 0/0)
+  sampled chain: penalties + top_k/p matches (0 of 2 differ)
+  min_p cut is observable            yes (survivors: min_p 0 -> 12, 0.5 -> 4, 0.9 -> 2)
+  sampled chain: min_p=0.0           matches (0 of 2 differ)
+  sampled chain: min_p=0.5           matches (0 of 2 differ)
+  sampled chain: min_p=0.9           matches (0 of 2 differ)
+  penalty window clamp is observable yes (clamped pick 0, full-history pick 3)
+  penalty window: tail only          matches (0 of 1 differ)
+  one penalties stage (#53)          yes (token 0 drawn 0.1040 of 8000, expected 0.1050; twice-penalised would be 0.0255)
+  sampled chain: #53's example       matches (0 of 8000 differ)
+  top_p before min_p is observable   yes (token 2 drawn 58 of 256 times)
+  sampled chain: top_p then min_p    matches (0 of 256 differ)
+  stale history, last_n=0 (sampled)  matches (0 of 4 differ)
+  stale history, last_n=0 (greedy)   matches (0 of 4 differ)
+  per-row history T=1 H=1 greedy     matches (0 of 1 differ)
+  per-row history T=1 H=1 sampled    matches (0 of 1 differ)
+  per-row history T=1 H=64 greedy    matches (0 of 1 differ)
+  per-row history T=1 H=64 sampled   matches (0 of 1 differ)
+  per-row history T=1 H=1024 greedy  matches (0 of 1 differ)
+  per-row history T=1 H=1024 sampled matches (0 of 1 differ)
+  per-row history T=1 H=4096 greedy  matches (0 of 1 differ)
+  per-row history T=1 H=4096 sampled matches (0 of 1 differ)
+  per-row history T=2 H=1 greedy     matches (0 of 2 differ)
+  per-row history T=2 H=1 sampled    matches (0 of 2 differ)
+  per-row history T=2 H=64 greedy    matches (0 of 2 differ)
+  per-row history T=2 H=64 sampled   matches (0 of 2 differ)
+  per-row history T=2 H=1024 greedy  matches (0 of 2 differ)
+  per-row history T=2 H=1024 sampled matches (0 of 2 differ)
+  per-row history T=2 H=4096 greedy  matches (0 of 2 differ)
+  per-row history T=2 H=4096 sampled matches (0 of 2 differ)
+  per-row history T=4 H=1 greedy     matches (0 of 4 differ)
+  per-row history T=4 H=1 sampled    matches (0 of 4 differ)
+  per-row history T=4 H=64 greedy    matches (0 of 4 differ)
+  per-row history T=4 H=64 sampled   matches (0 of 4 differ)
+  per-row history T=4 H=1024 greedy  matches (0 of 4 differ)
+  per-row history T=4 H=1024 sampled matches (0 of 4 differ)
+  per-row history T=4 H=4096 greedy  matches (0 of 4 differ)
+  per-row history T=4 H=4096 sampled matches (0 of 4 differ)
+  per-row history T=8 H=1 greedy     matches (0 of 8 differ)
+  per-row history T=8 H=1 sampled    matches (0 of 8 differ)
+  per-row history T=8 H=64 greedy    matches (0 of 8 differ)
+  per-row history T=8 H=64 sampled   matches (0 of 8 differ)
+  per-row history T=8 H=1024 greedy  matches (0 of 8 differ)
+  per-row history T=8 H=1024 sampled matches (0 of 8 differ)
+  per-row history T=8 H=4096 greedy  matches (0 of 8 differ)
+  per-row history T=8 H=4096 sampled matches (0 of 8 differ)
+  per-row histories are observable   yes (21 drafted rows pick differently with row 0's history, of 60 rows)
+  out-of-vocab history ids (greedy)  matches (0 of 4 differ)
+  out-of-vocab history ids (sampled) matches (0 of 4 differ)
+  sampled top_k=64                   matches (0 of 4 differ)
+  sampled top_k=0 means 64           matches (0 of 4 differ)
+  sampled top_k=100 means 64         matches (0 of 4 differ)
+  sampled top_k=-3 means 64          matches (0 of 4 differ)
+  penalty_rows layout                matches (0 of 420 rows differ)
+  sampler draw counter segmentation/repeat: PASS
+  top_k list under ties              matches (0 of 1340 positions differ; 280 sentinel positions)
+  sampled draws under ties           matches (0 of 1632 draws differ; 1057 picks tie with another kept token)
+  fallbacks: graph capture, row cap  matches (0 of 143 draws differ)
+
+sampler: 0 failures
+sampler_parity OK
+<end of output>
+Test time =   2.54 sec
+----------------------------------------------------------
+Test Passed.
+"sampler_parity_one_block" end time: Oct 01 20:35 UTC
+"sampler_parity_one_block" time elapsed: 00:00:02
+----------------------------------------------------------
+
+22/45 Testing: sampler_parity_old
+22/45 Test: sampler_parity_old
+Command: "/home/chris/dev/strata-gfx906/build-hip/sampler_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"sampler_parity_old" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  sampled path: sampler_kernel (STRATA_OLD_SAMPLER)
+  greedy argmax                      matches (0 of 4 differ)
+  order is observable on this fixture yes (survivors: spec 16, temp-first 12)
+  greedy over this fixture           matches (0 of 4 differ)
+  greedy ignores the seed            matches (seed-independent: 0 differ; vs reference: 0 wrong)
+  multiply-or-divide is observable   yes (multiply-rule 1, divide-always 0)
+  penalties: repeat on negatives     matches (0 of 2 differ)
+  presence penalty is a boolean      want token 1 (with present=1.5, token 0 goes 5.0/2 - 1.5 = 1.0 vs token 1 at 3.4)
+  penalties: presence is boolean     matches (0 of 2 differ)
+  T=0 greedy=false is the argmax     matches (0 of 4 differ)
+  T=0 greedy=true  is the argmax     matches (0 of 4 differ)
+  T=1 greedy=true  is the argmax     matches (0 of 4 differ)
+  sampled penalties are observable   yes (penalised picks 3/2, clean 0/0)
+  sampled chain: penalties + top_k/p matches (0 of 2 differ)
+  min_p cut is observable            yes (survivors: min_p 0 -> 12, 0.5 -> 4, 0.9 -> 2)
+  sampled chain: min_p=0.0           matches (0 of 2 differ)
+  sampled chain: min_p=0.5           matches (0 of 2 differ)
+  sampled chain: min_p=0.9           matches (0 of 2 differ)
+  penalty window clamp is observable yes (clamped pick 0, full-history pick 3)
+  penalty window: tail only          matches (0 of 1 differ)
+  one penalties stage (#53)          yes (token 0 drawn 0.1040 of 8000, expected 0.1050; twice-penalised would be 0.0255)
+  sampled chain: #53's example       matches (0 of 8000 differ)
+  top_p before min_p is observable   yes (token 2 drawn 58 of 256 times)
+  sampled chain: top_p then min_p    matches (0 of 256 differ)
+  stale history, last_n=0 (sampled)  matches (0 of 4 differ)
+  stale history, last_n=0 (greedy)   matches (0 of 4 differ)
+  per-row history T=1 H=1 greedy     matches (0 of 1 differ)
+  per-row history T=1 H=1 sampled    matches (0 of 1 differ)
+  per-row history T=1 H=64 greedy    matches (0 of 1 differ)
+  per-row history T=1 H=64 sampled   matches (0 of 1 differ)
+  per-row history T=1 H=1024 greedy  matches (0 of 1 differ)
+  per-row history T=1 H=1024 sampled matches (0 of 1 differ)
+  per-row history T=1 H=4096 greedy  matches (0 of 1 differ)
+  per-row history T=1 H=4096 sampled matches (0 of 1 differ)
+  per-row history T=2 H=1 greedy     matches (0 of 2 differ)
+  per-row history T=2 H=1 sampled    matches (0 of 2 differ)
+  per-row history T=2 H=64 greedy    matches (0 of 2 differ)
+  per-row history T=2 H=64 sampled   matches (0 of 2 differ)
+  per-row history T=2 H=1024 greedy  matches (0 of 2 differ)
+  per-row history T=2 H=1024 sampled matches (0 of 2 differ)
+  per-row history T=2 H=4096 greedy  matches (0 of 2 differ)
+  per-row history T=2 H=4096 sampled matches (0 of 2 differ)
+  per-row history T=4 H=1 greedy     matches (0 of 4 differ)
+  per-row history T=4 H=1 sampled    matches (0 of 4 differ)
+  per-row history T=4 H=64 greedy    matches (0 of 4 differ)
+  per-row history T=4 H=64 sampled   matches (0 of 4 differ)
+  per-row history T=4 H=1024 greedy  matches (0 of 4 differ)
+  per-row history T=4 H=1024 sampled matches (0 of 4 differ)
+  per-row history T=4 H=4096 greedy  matches (0 of 4 differ)
+  per-row history T=4 H=4096 sampled matches (0 of 4 differ)
+  per-row history T=8 H=1 greedy     matches (0 of 8 differ)
+  per-row history T=8 H=1 sampled    matches (0 of 8 differ)
+  per-row history T=8 H=64 greedy    matches (0 of 8 differ)
+  per-row history T=8 H=64 sampled   matches (0 of 8 differ)
+  per-row history T=8 H=1024 greedy  matches (0 of 8 differ)
+  per-row history T=8 H=1024 sampled matches (0 of 8 differ)
+  per-row history T=8 H=4096 greedy  matches (0 of 8 differ)
+  per-row history T=8 H=4096 sampled matches (0 of 8 differ)
+  per-row histories are observable   yes (21 drafted rows pick differently with row 0's history, of 60 rows)
+  out-of-vocab history ids (greedy)  matches (0 of 4 differ)
+  out-of-vocab history ids (sampled) matches (0 of 4 differ)
+  sampled top_k=64                   matches (0 of 4 differ)
+  sampled top_k=0 means 64           matches (0 of 4 differ)
+  sampled top_k=100 means 64         matches (0 of 4 differ)
+  sampled top_k=-3 means 64          matches (0 of 4 differ)
+  penalty_rows layout                matches (0 of 420 rows differ)
+  sampler draw counter segmentation/repeat: PASS
+  top_k list under ties              matches (0 of 1340 positions differ; 280 sentinel positions)
+  sampled draws under ties           matches (0 of 1632 draws differ; 1057 picks tie with another kept token)
+  fallbacks: graph capture, row cap  matches (0 of 143 draws differ)
+
+sampler: 0 failures
+sampler_parity OK
+<end of output>
+Test time =  13.52 sec
+----------------------------------------------------------
+Test Passed.
+"sampler_parity_old" end time: Oct 01 20:35 UTC
+"sampler_parity_old" time elapsed: 00:00:13
+----------------------------------------------------------
+
+23/45 Testing: rope_parity
+23/45 Test: rope_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/rope_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"rope_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  rope table vs float64 reference   bit-exact (0 of 2048 entries differ, worst 0.0e+00)
+  rope rotation vs host reference   agrees (0 of 49152 over 1e-6, worst rel 1.089e-07)
+  pairing: dim 0 set -> NEOX moves dim 32 (o[half]=0.656987), adjacent would move dim 1 (o[1]=0.000000)   NEOX confirmed
+  scaled table, None vs unscaled builder  bit-identical
+  scaled table, linear factor 4          bit-exact (0 of 2048 entries differ)
+  linear(4) @ p == none @ p/4            bit-identical (0 of 32 rows differ)
+  scaled table, yarn factor 4            bit-exact (0 of 2048 entries differ)
+  yarn structure: cos_tab[0]==mscale 1.1386, first pair extrapolates, last interpolates   confirmed
+  observability: none vs linear(2) at position 100   visible (|0.8623 - 0.9650|)
+  rope rotation over the yarn table      agrees (0 of 49152 over 1e-6, worst rel 1.031e-07)
+  native path vs table path, yarn factor 2   agrees (0 of 98304 over 3e-3, worst rel 6.010e-05)
+  native path vs table path, none            agrees (0 of 98304 over 3e-3, worst rel 5.618e-05)
+
+rope: 0 failures
+rope_parity OK
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"rope_parity" end time: Oct 01 20:35 UTC
+"rope_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/45 Testing: quantize_act_parity
+24/45 Test: quantize_act_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/quantize_act_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"quantize_act_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  random normal              blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  small magnitude (1e-6)     blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  all zero                   blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  exact .5 boundaries        blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  one extreme per block      blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+
+quantize_q8_0: 0 failures over 5 distributions x 131072 elements
+  f32->f16 overflow saturates, not NaN         yes (0 of 11 wrong)
+  f16->f32 keeps subnormals                    yes (0x0001 -> 5.96046448e-08, want 2^-24)
+
+Q8_K  (ggml block_q8_K: 292 bytes / 256 elements, {f32 d; i8 qs[256]; i16 bsums[16]})
+  random normal              blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  small magnitude (1e-7)     blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  all zero                   blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+  exact .5 ties (half-to-even) blocks byte-exact (0 bad bytes)   round trip bit-exact (0 differ)
+    tie fixture discriminates 522240 ties, 260096 where half-to-even != half-away (49.8%)
+  -127 vs -128 scale observable yes  (0.915% of magnitude, 172016 bytes differ)
+
+quantize_act: 0 failures over 5 Q8_0 + 4 Q8_K distributions
+quantize_act_parity OK
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"quantize_act_parity" end time: Oct 01 20:35 UTC
+"quantize_act_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/45 Testing: router_top10_parity
+25/45 Test: router_top10_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/router_top10_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"router_top10_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  random normal              ids exact (0 bad)   weights worst rel 1.378e-07 (0 over tol)   |sum-1| 2.2e-08
+  all equal (ties)           ids exact (0 bad)   weights worst rel 0.000e+00 (0 over tol)   |sum-1| 1.5e-08
+  12-way exact tie           ids exact (0 bad)   weights worst rel 1.347e-07 (0 over tol)   |sum-1| 2.2e-08
+  dominant expert            ids exact (0 bad)   weights worst rel 5.960e-08 (0 over tol)   |sum-1| 1.9e-08
+  clamp reachability         top-10 sum >= k/n = 0.01953, clamp is 6.104e-05 -> margin 320x  (CLAMP IS UNREACHABLE, asserted)
+
+router_top10: 0 failures over 4 distributions x 64 tokens x 512 experts, top-10
+router_top10_parity OK
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"router_top10_parity" end time: Oct 01 20:35 UTC
+"router_top10_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/45 Testing: s_gemv_parity
+26/45 Test: s_gemv_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/s_gemv_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"s_gemv_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  S2/Q2_0    128 rows, 0 over tol, worst rel 0.000e+00   ref spread [494.9, 9440]
+  S4/Q4_0    128 rows, 0 over tol, worst rel 6.634e-07   ref spread [-1.524e+04, 1.491e+04]
+  S4/IQ4_NL  128 rows, 0 over tol, worst rel 9.278e-06   ref spread [-2.514e+05, 1.171e+05]
+  S8/Q8_0    128 rows, 0 over tol, worst rel 9.649e-06   ref spread [-1.885e+05, 1.493e+05]
+s_gemv: 4 type cases, 0 rows over tolerance (tol 1.0e-04)
+  S4/Q4_K    128 rows, 0 over tol, worst rel-to-terms 2.814e-07 (rel-to-result 1.350e-06)
+             ref spread [-6.365e+06, 1.949e+07], condition (sum|term|) up to 2.775e+07
+             CPU planes vs CPU raw block: max |diff| = 0.000e+00 -> the test is SELF-CONSISTENT
+s_gemv total: 0 rows over tolerance
+s_gemv_parity OK
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"s_gemv_parity" end time: Oct 01 20:35 UTC
+"s_gemv_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/45 Testing: elementwise_parity
+27/45 Test: elementwise_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/elementwise_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"elementwise_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  the fixture crosses the branch               yes (16 above 20, 5 above 88)
+  the fixture's ssm_a is negative              yes (0 of 48 non-negative)
+  gdn_gate vs the reference                    rel 2.477e-08
+  the softplus large-x branch is observable    yes (inf% apart, 4 non-finite, 4 heads differ, first at x = 94.5)
+  exp(gate) < 1 for every head                 yes (0 of 48 not < 1)
+
+  silu (double) vs the reference               rel 0.000e+00
+  scale_inplace is exact                       0 of 1024 differ
+  f32_to_f16_bulk uses the shared conversion   0 of 1024 differ
+  sum-vs-mean is observable                    89.36% apart
+  with-w-vs-without-w is observable            70.20% apart
+  rms_norm_weighted vs f64 oracle              rel 3.292e-08  worst 1.658e-07  nonfinite 0
+  a null weight is legal                       0 of 6144 differ
+  embedding gather: 108 row cases, 0 bit mismatches, 0 guard failures, 8141 FMA differences
+  f32 -> bf16 (NaN kept): bulk 0 of 4096 differ from ggml, dequant_bf16 0 of 64 wrong
+
+elementwise: 0 failures
+elementwise_parity OK
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"elementwise_parity" end time: Oct 01 20:35 UTC
+"elementwise_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/45 Testing: bf16_gemv_parity
+28/45 Test: bf16_gemv_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/bf16_gemv_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"bf16_gemv_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  ssm_alpha.weight  [2560, 48]       naive 3.85e-07  warp 9.07e-08  split256 5.99e-08
+      bf16 vs fp16 activation        yes (0.1447% apart)
+  indexer.k_proj   [2560, 128]       naive 8.22e-08  warp 8.22e-08  split256 6.62e-08
+      bf16 vs fp16 activation        yes (0.1561% apart)
+  indexer.q_proj   [2560, 512]       naive 7.73e-08  warp 7.73e-08  split256 7.08e-08
+      bf16 vs fp16 activation        yes (0.1456% apart)
+  ple_value        [2560, 2560]      naive 8.00e-08  warp 8.00e-08  split256 6.80e-08
+      bf16 vs fp16 activation        yes (0.1411% apart)
+
+bf16_gemv: 0 failures
+bf16_gemv_parity OK
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"bf16_gemv_parity" end time: Oct 01 20:35 UTC
+"bf16_gemv_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/45 Testing: s_gemv_q8k_parity
+29/45 Test: s_gemv_q8k_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/s_gemv_q8k_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"s_gemv_q8k_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  IQ4_XS  S4 g32 no-offset     naive 3.135e-07   warp 8.166e-08
+  IQ4_XS  S4 g32 no-offset     Q8_0 act 7.310e-08
+      Q8_K vs fp16 activation  yes (0.6855% apart, tolerance 0.1%)
+  Q4_K    S4 g32 offset        naive 3.073e-07   warp 1.120e-07
+  Q4_K    S4 g32 offset        Q8_0 act 1.136e-07
+      Q8_K vs fp16 activation  yes (1.0580% apart, tolerance 0.1%)
+  Q5_K    S8 g32 offset        naive 3.644e-07   warp 9.330e-08
+  Q5_K    S8 g32 offset        Q8_0 act 1.073e-07
+      Q8_K vs fp16 activation  yes (1.4897% apart, tolerance 0.1%)
+
+  IQ4_XS  S4 g32 no-offset     Q8_K n_out   1: rel 0.000e+00, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_0 n_out   1: rel 1.437e-08, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_K n_out   7: rel 5.110e-09, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_0 n_out   7: rel 3.474e-09, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_K n_out   9: rel 5.952e-09, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_0 n_out   9: rel 5.354e-09, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_K n_out  61: rel 5.648e-09, guard words written 0  ok
+  IQ4_XS  S4 g32 no-offset     Q8_0 n_out  61: rel 3.748e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_K n_out   1: rel 1.496e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_0 n_out   1: rel 7.475e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_K n_out   7: rel 3.355e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_0 n_out   7: rel 5.628e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_K n_out   9: rel 5.325e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_0 n_out   9: rel 5.904e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_K n_out  61: rel 5.047e-09, guard words written 0  ok
+  Q4_K    S4 g32 offset        Q8_0 n_out  61: rel 4.622e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_K n_out   1: rel 4.147e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_0 n_out   1: rel 2.073e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_K n_out   7: rel 4.556e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_0 n_out   7: rel 5.250e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_K n_out   9: rel 3.339e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_0 n_out   9: rel 4.004e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_K n_out  61: rel 5.125e-09, guard words written 0  ok
+  Q5_K    S8 g32 offset        Q8_0 n_out  61: rel 4.440e-09, guard words written 0  ok
+
+s_gemv_q8k: 0 failures
+s_gemv_q8k_parity OK
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"s_gemv_q8k_parity" end time: Oct 01 20:35 UTC
+"s_gemv_q8k_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/45 Testing: qsa_parity
+30/45 Test: qsa_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/qsa_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"qsa_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+qsa_parity: n_head 24  n_head_kv 2  head_dim 256  indexer 4x128 r=4 top_k 2048  page (from the shapes) 4   [sparse]
+
+  the fixture's r is the artifact's IDX_BLOCK      ok     r = 4
+  f32->f16 matches numpy's float16 on every vector ok     395 vectors, 125 subnormal
+  f16->f32 is exact on all 65,536 bit patterns     ok     0 wrong
+  kv_append at page_size 1: the pool is BIT-EXACT  ok     0 of 563200 bits wrong
+    the page table is observable at page_size 1    yes    99.99% apart (linear vs declared)
+    kv_gather is BIT-EXACT at page_size 1          ok     0 wrong bits
+  kv_append at page_size 4: the pool is BIT-EXACT  ok     0 of 563200 bits wrong
+    the page table is observable at page_size 4    yes    100.00% apart (linear vs declared)
+    head-major-in-page is observable at page_size 4 yes    74.99% apart (cell-major vs head-major)
+    kv_gather is BIT-EXACT at page_size 4          ok     0 wrong bits
+  kv_append at page_size 512: the pool is BIT-EXACT ok     0 of 563200 bits wrong
+    the page table is observable at page_size 512  yes    99.91% apart (linear vs declared)
+    head-major-in-page is observable at page_size 512 yes    99.76% apart (cell-major vs head-major)
+    kv_gather is BIT-EXACT at page_size 512        ok     0 wrong bits
+  the spare slot's key (rms_norm of cell 0) is BIT-EXACT ok     0 of 128 wrong
+  the spare slot is at row n_bid and nowhere else  ok     10 cells / r=4 -> 2 complete blocks
+  pooled block keys vs the reference               rel/|rope terms| 9.443e-08
+  the incomplete tail is NOT pooled into the spare slot yes    132.46% apart
+  rotating at the block's LAST cell is observable  yes    10.19% apart
+  norm-then-pool vs pool-then-norm is observable   yes    50.78% apart
+  the spare key from the LAST raw key is observable yes    46.03% apart
+  rotating the RAW indexer keys is observable      yes    27.92% apart
+  the rotation's POSITION BASE (pos_base) is observable yes    20.39% apart
+  the 1/r divisor IS observable in the RAW pooled value yes    300.00% apart (sum vs mean, before any norm)
+  the same divisor AFTER the norm                       1.569e-09  <-- below EVERY score tolerance; the divisor cannot be
+                                                        checked downstream at all, which is why the raw value is the
+                                                        only place the mean/sum question is answerable.
+  indexer cell scores vs the reference             rel/Sum|terms| 5.293e-09
+  cells of one block share its score (0..3)        ok     
+  cells 8,9 (the tail) take the SPARE slot's score, not block 1's ok     got[8] == got[9] != got[7]
+  relu PER HEAD vs relu(sum of heads) is observable yes    29.71% apart
+  dropping the relu is observable                  yes    29.71% apart
+  dropping the per-block bias is observable        yes    49.63% apart
+  tail static n=1                                  ok     
+  tail captured n=1                                ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2                                  ok     
+  tail captured n=2                                ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=3                                  ok     
+  tail captured n=3                                ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=4                                  ok     
+  tail captured n=4                                ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=511                                ok     
+  tail captured n=511                              ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=512                                ok     
+  tail captured n=512                              ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=513                                ok     
+  tail captured n=513                              ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2046                               ok     
+  tail captured n=2046                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2047                               ok     
+  tail captured n=2047                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2048                               ok     
+  tail captured n=2048                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2049                               ok     
+  tail captured n=2049                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2050                               ok     
+  tail captured n=2050                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2051                               ok     
+  tail captured n=2051                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2052                               ok     
+  tail captured n=2052                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2053                               ok     
+  tail captured n=2053                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2054                               ok     
+  tail captured n=2054                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2055                               ok     
+  tail captured n=2055                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2056                               ok     
+  tail captured n=2056                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2057                               ok     
+  tail captured n=2057                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2058                               ok     
+  tail captured n=2058                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2059                               ok     
+  tail captured n=2059                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=2060                               ok     
+  tail captured n=2060                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=4095                               ok     
+  tail captured n=4095                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=4096                               ok     
+  tail captured n=4096                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=4097                               ok     
+  tail captured n=4097                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=8191                               ok     
+  tail captured n=8191                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=8192                               ok     
+  tail captured n=8192                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=8193                               ok     
+  tail captured n=8193                             ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=20477                              ok     
+  tail captured n=20477                            ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=20478                              ok     
+  tail captured n=20478                            ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=20479                              ok     
+  tail captured n=20479                            ok     
+    only incomplete cells receive the bias         ok     
+  tail static n=20480                              ok     
+  tail captured n=20480                            ok     
+    only incomplete cells receive the bias         ok     
+  topk_512 n_kv = 1                                ok     1 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 7 (random)                       ok     7 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 2048 (the plan's threshold)      ok     2048 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 2051 (the reference's own bound) ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 2052 (two past the plan's number) ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 5000 (random)                    ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 32768 (= kTopkMaxCells)          ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 with 2052 EQUAL scores (every cell ties) ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 with a 100-cell tie straddling the cut  ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+  topk_512 n_kv = 2048 selects every cell (identity) ok     2048 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+    ...and it really is 0,1,2,...                  ok     
+  topk_512 n_kv = 2051 selects every cell (identity) ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+    ...and it really is 0,1,2,...                  ok     
+  topk_512 n_kv = 2052 is NOT the identity         ok     2051 ids, width = min(n_kv, top_k + r - 1)
+    ...ascending and unique                        ok     
+    ...exactly one cell is dropped, and it is the smallest score ok     1 dropped
+  with every cell selected the loud cell dominates its head 0 yes    out[0][0] = 9.8800
+  with the loud cell unselected it contributes EXACTLY nothing ok     out[0][0] = 1.000000
+  the returned weights sum to 1 per head           max |1 - sum| 1.537e-08
+  q % 2 vs q / 12 for the kv head is observable    yes    81.62% apart
+    (the scale trap is measured on the random fixture) --     this fixture's softmax is saturated
+  attending to the unselected cell is observable   yes    81.62% apart
+  the selected set matches the reference (2100 cells, width 2051) ok     2051 ids
+  the cut                                               THE CUT IS A TIE at 0.000000: 71 selected, 49 rejected
+    ...and the kernel picks the same ones as the reference ok     
+  qsa_attend vs the reference on the SAME fp16 cache rel 9.190e-07
+  omitting 1/sqrt(head_dim) is observable (random fixture) yes    2355.71% apart
+  the fp16 KV cache's OWN cost (f32 keys vs fp16 keys) rel 2.993e-04
+  the returned weights vs the reference (head 0)   rel 2.709e-07
+  qsa_gate_apply vs the double reference           rel (f16 out quant ~2.4e-4) 1.768e-04
+  fp16 gate bits differing from the reference           0 of 6144 (CUDA's double exp vs libm's, in the last bits)
+  the gate from the FIRST half is observable       yes    71.93% apart
+  silu instead of sigmoid on the QSA gate is observable yes    128.35% apart
+  below the bound, dense and sparse are the SAME selection ok     
+  dense differs from sparse at n_kv = 2100 (> 2051) yes    14.40% apart
+  an EMPTY selection gives a zero attention, not a NaN ok     all 6144 elements zero
+
+-- indexer_key_append under graph capture
+  the pooled kernel is capturable              1 nodes for one call
+  the first block's row survives replay B      128 of 128 unchanged
+  the SECOND block's row arrives through the same graph 128 of 128 non-zero
+  the two pooled rows are different keys       128 of 128 differ
+
+-- the native indexer's batched append vs the sequential one
+  batch vs sequential, none                    bit-identical (0 of 33409 state words differ)
+  batch vs sequential, linear 2                bit-identical (0 of 33409 state words differ)
+  the scaling is visible, linear 2             128 of 32896 pooled words differ from the none baseline
+  batch vs sequential, yarn 2                  bit-identical (0 of 33409 state words differ)
+  the scaling is visible, yarn 2               192 of 32896 pooled words differ from the none baseline
+
+-- the spare key (position 0) under rope scaling: table indexer vs native indexer
+    none: row 0 of the table is (c, 0)             ok     0 nonzero sines
+    none: the table spare is the unscaled spare times row 0, BIT-EXACT ok     0 of 128 wrong
+    none: the table's pooled[0] is its spare       ok     0 wrong
+    none: the native spare carries the same row-0 factor ok     worst relative 0.000000
+    linear 2: row 0 of the table is (c, 0)         ok     0 nonzero sines
+    linear 2: the table spare is the unscaled spare times row 0, BIT-EXACT ok     0 of 128 wrong
+    linear 2: the table's pooled[0] is its spare   ok     0 wrong
+    linear 2: the native spare carries the same row-0 factor ok     worst relative 0.000000
+    yarn 2: row 0 of the table is (c, 0)           ok     0 nonzero sines
+    yarn 2: the table spare is the unscaled spare times row 0, BIT-EXACT ok     0 of 128 wrong
+    yarn 2: the table's pooled[0] is its spare     ok     0 wrong
+    yarn 2: the native spare carries the same row-0 factor ok     worst relative 0.000000
+    yarn 2: the magnitude correction is observable on the table spare ok     row0 cos 1.069315, 64 dims moved
+
+qsa: 0 failures
+qsa_parity OK
+<end of output>
+Test time =   0.92 sec
+----------------------------------------------------------
+Test Passed.
+"qsa_parity" end time: Oct 01 20:35 UTC
+"qsa_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/45 Testing: kv_q8_parity
+31/45 Test: kv_q8_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/kv_q8_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"kv_q8_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+kv_q8_parity: OK (worst INT8-vs-FP16 error 0.590 quantization steps)
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"kv_q8_parity" end time: Oct 01 20:35 UTC
+"kv_q8_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/45 Testing: kv_stream_parity
+32/45 Test: kv_stream_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/kv_stream_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"kv_stream_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+kv_stream_parity: streamed vs resident KV, bitwise
+  int8: 306 batches, 703691 block lookups, 71338 misses (89.9% hit), overflow 0, 0 failures
+  int8 ring restore: identical
+  fp16: 306 batches, 672800 block lookups, 69577 misses (89.7% hit), overflow 0, 0 failures
+  fp16 ring restore: identical
+  q4_0: 306 batches, 680672 block lookups, 69168 misses (89.8% hit), overflow 0, 0 failures
+  q4_0 ring restore: identical
+PASS
+<end of output>
+Test time =   8.68 sec
+----------------------------------------------------------
+Test Passed.
+"kv_stream_parity" end time: Oct 01 20:35 UTC
+"kv_stream_parity" time elapsed: 00:00:08
+----------------------------------------------------------
+
+33/45 Testing: kv_hybrid_parity
+33/45 Test: kv_hybrid_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/kv_hybrid_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"kv_hybrid_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+=== Running kv_hybrid_parity test ===
+[1/3] composed appends: PASS (0 bad values of 786432 K / 24576 V)
+[2/3] composed gathers: PASS (0 bad of 786432)
+       (per-query max: q0 7.82e-08, q1 7.08e-08)
+[4/4] mode-3 BATCHED attention (verify's form): PASS (vs dequant ref 7.82e-08)
+[5/5] qsa_prompt_attn mode 3: PASS (refused on HIP - the old kernel runs)
+[3/3] mode-3 attention + output fwht: PASS (vs dequant ref 1.12e-07, vs true fp32 4.40e-03)
+=== kv_hybrid_parity: ALL PASS ===
+<end of output>
+Test time =   0.30 sec
+----------------------------------------------------------
+Test Passed.
+"kv_hybrid_parity" end time: Oct 01 20:35 UTC
+"kv_hybrid_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/45 Testing: kv_q4_parity
+34/45 Test: kv_q4_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/kv_q4_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"kv_q4_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+=== Running kv_q4_parity test ===
+[1/4] Verifying FWHT-256 CUDA kernel vs exact mathematical reference...
+  -> FWHT-256 bitwise match with host reference (max diff = 0.000000e+00, OK)
+  -> FWHT-256 self-inverse property verified H*H*x == x (max diff = 4.768372e-07, OK)
+[2/4] Verifying Attention Score Invariance: <H*q, H*k> == <q, k>...
+  -> Dot product invariant under rotation: |<Hq,Hk> - <q,k>| = 5.827417e-06 (OK)
+[3/4] Verifying Q4_0 KV append and gather against host reference...
+  -> All Q4_0 pool blocks bitwise equal to host quantizer (OK)
+[4/4] Verifying Q4_0 gather unpacking and dequantization...
+  -> Max reconstruction error after 4-bit quant + dequant: 0.7921 (OK)
+=== kv_q4_parity: ALL TESTS PASSED SUCCESSFULLY! ===
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"kv_q4_parity" end time: Oct 01 20:35 UTC
+"kv_q4_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/45 Testing: cvec_parity
+35/45 Test: cvec_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/cvec_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"cvec_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+  covers(): steered layers only                                      ok
+project
+    max |err| 4.86e-07, max |h'.v + h.v| 1.64e-06
+  project matches h - s (h.v) v (s = 2)                              ok
+  the component along v is reflected (s = 2)                         ok
+    max |h'.v| 7.65e-07
+  s = 1 projects the direction out                                   ok
+  a layer without a direction is untouched                           ok
+switched off
+  cvec_enabled() follows the switch                                  ok
+  off, no pending write: R unchanged                                 ok
+  off, pending write: bitwise the fused read's folded write          ok
+    write + project: max |err| 4.75e-07
+  on, pending write: the write, then the projection                  ok
+add
+  add is h + d in every stream (bitwise)                             ok
+cvec_parity: all passed
+<end of output>
+Test time =   0.20 sec
+----------------------------------------------------------
+Test Passed.
+"cvec_parity" end time: Oct 01 20:35 UTC
+"cvec_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/45 Testing: s2_expert_grouped_parity
+36/45 Test: s2_expert_grouped_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/s2_expert_grouped_parity" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"s2_expert_grouped_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+s2_expert_grouped_parity: new expert kernels vs the previous ones, bitwise
+  moe_hit_grouped_s2 (fp32 scales)             bitwise identical
+  moe_hit_grouped_s2 (fp32 scales)             host reference: 2601 rows, 0 outside tolerance, worst 8.90e-08 of sum|term|
+  moe_hit_grouped_s2 (fp16 d)                  bitwise identical
+  moe_hit_grouped_s2 (fp16 d)                  host reference: 2601 rows, 0 outside tolerance, worst 9.22e-08 of sum|term|
+  moe_hit_grouped_s2_dev (count 7 of 10)       bitwise identical
+  moe_hit_grouped_s2_dev (count 7 of 10)       host reference: 2023 rows, 0 outside tolerance, worst 8.90e-08 of sum|term|
+  moe_hit_grouped_s2_dev (count 7 of 10)       rows past the count written: 0
+  moe_hit_grouped_s2_multi (4 tokens, 29 hits) bitwise identical
+  moe_hit_grouped_s2_multi (4 tokens, 29 hits) host reference: 8381 rows, 0 outside tolerance, worst 8.90e-08 of sum|term|
+  moe_grouped_s2 (20 groups, fp32 scales)      bitwise identical
+  moe_grouped_s2 (20 groups, fp32 scales)      host reference: 23120 rows, 0 outside tolerance, worst 9.76e-08 of sum|term|
+  moe_grouped_s2 (20 groups, fp16 d)           bitwise identical
+  moe_grouped_s2 (20 groups, fp16 d)           host reference: 23120 rows, 0 outside tolerance, worst 1.03e-07 of sum|term|
+  moe_group_resident + moe_grouped_s2 (fp32)   bitwise identical
+  moe_group_resident + moe_grouped_s2 (fp32)   host reference: 14450 rows, 0 outside tolerance, worst 9.05e-08 of sum|term|
+  moe_group_resident + moe_grouped_s2 (fp16)   bitwise identical
+  moe_group_resident + moe_grouped_s2 (fp16)   host reference: 14450 rows, 0 outside tolerance, worst 9.45e-08 of sum|term|
+  moe_hit_grouped_s2 (2-byte aligned x)        bitwise identical
+  moe_hit_grouped_s2 (2-byte aligned x)        host reference: 867 rows, 0 outside tolerance, worst 7.27e-08 of sum|term|
+  moe_hit_grouped_s2 (slot stride BLOB + 4)    bitwise identical
+  moe_hit_grouped_s2 (slot stride BLOB + 4)    host reference: 1156 rows, 0 outside tolerance, worst 7.39e-08 of sum|term|
+  moe_hit_grouped_s2 (arena 4 mod 8)           bitwise identical
+  moe_hit_grouped_s2 (arena 4 mod 8)           host reference: 1156 rows, 0 outside tolerance, worst 7.39e-08 of sum|term|
+s2_expert_grouped_parity: 0 failures
+PASS
+<end of output>
+Test time =   0.33 sec
+----------------------------------------------------------
+Test Passed.
+"s2_expert_grouped_parity" end time: Oct 01 20:35 UTC
+"s2_expert_grouped_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/45 Testing: pinned_shared_test
+37/45 Test: pinned_shared_test
+Command: "/home/chris/dev/strata-gfx906/build-hip/pinned_shared_test"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"pinned_shared_test" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+pinned_shared_test: OK
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"pinned_shared_test" end time: Oct 01 20:35 UTC
+"pinned_shared_test" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/45 Testing: ple_reader_selftest
+38/45 Test: ple_reader_selftest
+Command: "/home/chris/dev/strata-gfx906/build-hip/ple_reader_test" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"ple_reader_selftest" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+ple_reader selftest: OK
+<end of output>
+Test time =   1.01 sec
+----------------------------------------------------------
+Test Passed.
+"ple_reader_selftest" end time: Oct 01 20:35 UTC
+"ple_reader_selftest" time elapsed: 00:00:01
+----------------------------------------------------------
+
+39/45 Testing: hip_device_selftest
+39/45 Test: hip_device_selftest
+Command: "/home/chris/dev/strata-gfx906/build-hip/strata-device" "--selftest"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_device_selftest" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device 0: AMD Instinct MI50/MI60
+  HIP arch            gfx906 wave64 (compiled for gfx906)
+  multiprocessors     60
+  VRAM total / free   31.984 GiB (34342961152 B) / 31.963 GiB (34319892480 B)
+  driver / runtime    70253211 / 70253211
+
+memory plan  --max-context 20480
+  KV + indexer keys   0.267387 GB
+  recurrent state     0.000000 GB  (GDN recurrence + conv history, NOT evictable)
+  expert cache        5.675613 GB  (4105 slots of 1,382,400 B)
+  VRAM pool           5.943000 GB
+  expert arena (DRAM) 0.000000 GB
+  card free           31.963 GiB (34319892480 B)
+  plan + KV vs free   FITS
+
+selftest: arena 0.062 GiB (67108864 B), used 0.002 GiB (2097152 B) after two 1 MiB allocations
+selftest: over-allocation refused as required
+strata-device selftest OK
+<end of output>
+Test time =   0.06 sec
+----------------------------------------------------------
+Test Passed.
+"hip_device_selftest" end time: Oct 01 20:35 UTC
+"hip_device_selftest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/45 Testing: hip_prefill_mmq_parity
+40/45 Test: hip_prefill_mmq_parity
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_prefill_mmq_parity"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_prefill_mmq_parity" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+synthetic-Q2_0-GU-pass0: type=42 rows=7 experts=3 ref_rms=1.98041 rel_l2=0.00106754 max_abs/ref_rms=0.00380476 zero_row_max=0
+synthetic-Q2_0-down-pass0: type=42 rows=7 experts=3 ref_rms=2.10697 rel_l2=0.000617685 max_abs/ref_rms=0.00253579 zero_row_max=0
+synthetic-Q2_0-GU-pass1: type=42 rows=7 experts=3 ref_rms=1.98512 rel_l2=0.0011973 max_abs/ref_rms=0.00416649 zero_row_max=0
+synthetic-Q2_0-down-pass1: type=42 rows=7 experts=3 ref_rms=2.12958 rel_l2=0.000538054 max_abs/ref_rms=0.00216068 zero_row_max=0
+synthetic-Q2_0-GU-pass2: type=42 rows=5 experts=2 ref_rms=1.90121 rel_l2=0.00125928 max_abs/ref_rms=0.00443003 zero_row_max=0
+synthetic-Q2_0-down-pass2: type=42 rows=5 experts=2 ref_rms=2.0192 rel_l2=0.000491595 max_abs/ref_rms=0.00196968 zero_row_max=0
+MMQ parity screen passed
+<end of output>
+Test time =   0.86 sec
+----------------------------------------------------------
+Test Passed.
+"hip_prefill_mmq_parity" end time: Oct 01 20:35 UTC
+"hip_prefill_mmq_parity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/45 Testing: hip_gfx906_mmvq_oracle
+41/45 Test: hip_gfx906_mmvq_oracle
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_gfx906_operators" "mmvq"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_gfx906_mmvq_oracle" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- wave=64
+RESULT kind=mmvq dtype=iq2_xxs N=640 K=2560 T=1 us=7.475210 dequant_rel2=0 rel2=0.0036591151
+RESULT kind=mmvq dtype=iq2_xxs N=640 K=2560 T=4 us=10.232010 dequant_rel2=0 rel2=0.0036311999
+RESULT kind=mmvq dtype=iq2_xxs N=640 K=2560 T=8 us=14.760040 dequant_rel2=0 rel2=0.0037569346
+RESULT kind=mmvq dtype=iq2_xs N=640 K=2560 T=1 us=6.604810 dequant_rel2=0 rel2=0.003836604
+RESULT kind=mmvq dtype=iq2_xs N=640 K=2560 T=4 us=10.755219 dequant_rel2=0 rel2=0.0036229068
+RESULT kind=mmvq dtype=iq2_xs N=640 K=2560 T=8 us=15.747240 dequant_rel2=0 rel2=0.0037278964
+RESULT kind=mmvq dtype=iq3_xxs N=640 K=2560 T=1 us=7.352020 dequant_rel2=0 rel2=0.0037825537
+RESULT kind=mmvq dtype=iq3_xxs N=640 K=2560 T=4 us=11.049629 dequant_rel2=0 rel2=0.0037072209
+RESULT kind=mmvq dtype=iq3_xxs N=640 K=2560 T=8 us=14.950440 dequant_rel2=0 rel2=0.0038033266
+RESULT kind=mmvq dtype=iq3_s N=640 K=2560 T=1 us=8.081620 dequant_rel2=0 rel2=0.0037618514
+RESULT kind=mmvq dtype=iq3_s N=640 K=2560 T=4 us=12.075220 dequant_rel2=0 rel2=0.0036188533
+RESULT kind=mmvq dtype=iq3_s N=640 K=2560 T=8 us=16.038440 dequant_rel2=0 rel2=0.0037236819
+RESULT kind=mmvq dtype=iq2_s N=640 K=2560 T=1 us=7.092810 dequant_rel2=0 rel2=0.0037278253
+RESULT kind=mmvq dtype=iq2_s N=640 K=2560 T=4 us=10.998430 dequant_rel2=0 rel2=0.0036998778
+RESULT kind=mmvq dtype=iq2_s N=640 K=2560 T=8 us=16.518440 dequant_rel2=0 rel2=0.003808944
+RESULT kind=mmvq dtype=iq1_m N=640 K=2560 T=1 us=6.430420 dequant_rel2=0 rel2=0.0036074809
+RESULT kind=mmvq dtype=iq1_m N=640 K=2560 T=4 us=10.689620 dequant_rel2=0 rel2=0.0037262905
+RESULT kind=mmvq dtype=iq1_m N=640 K=2560 T=8 us=15.016030 dequant_rel2=0 rel2=0.0036991463
+RESULT kind=mmvq dtype=iq4_xs N=640 K=2560 T=1 us=10.254420 dequant_rel2=0 rel2=0.0038594725
+RESULT kind=mmvq dtype=iq4_xs N=640 K=2560 T=4 us=15.329640 dequant_rel2=0 rel2=0.0037829995
+RESULT kind=mmvq dtype=iq4_xs N=640 K=2560 T=8 us=24.904051 dequant_rel2=0 rel2=0.003763431
+RESULT kind=mmvq dtype=iq4_nl N=640 K=2560 T=1 us=6.532820 dequant_rel2=0 rel2=0.0037281279
+RESULT kind=mmvq dtype=iq4_nl N=640 K=2560 T=4 us=12.166430 dequant_rel2=0 rel2=0.0038229852
+RESULT kind=mmvq dtype=iq4_nl N=640 K=2560 T=8 us=20.788839 dequant_rel2=0 rel2=0.0037416839
+RESULT kind=mmvq dtype=q2_0 N=640 K=2560 T=1 us=7.083220 dequant_rel2=0 rel2=0.0044019151
+RESULT kind=mmvq dtype=q2_0 N=640 K=2560 T=4 us=14.081750 dequant_rel2=0 rel2=0.0041204349
+RESULT kind=mmvq dtype=q2_0 N=640 K=2560 T=8 us=21.568220 dequant_rel2=0 rel2=0.0038917913
+RESULT kind=mmvq dtype=iq4_nl N=2560 K=640 T=1 us=11.875230 dequant_rel2=0 rel2=0.0036616805
+RESULT kind=mmvq dtype=iq4_nl N=2560 K=640 T=4 us=27.052851 dequant_rel2=0 rel2=0.0037213069
+RESULT kind=mmvq dtype=iq4_nl N=2560 K=640 T=8 us=60.321722 dequant_rel2=0 rel2=0.0037315415
+RESULT kind=mmvq dtype=q2_0 N=2560 K=640 T=1 us=11.668820 dequant_rel2=0 rel2=0.0035655605
+RESULT kind=mmvq dtype=q2_0 N=2560 K=640 T=4 us=22.649641 dequant_rel2=0 rel2=0.0036855495
+RESULT kind=mmvq dtype=q2_0 N=2560 K=640 T=8 us=52.536101 dequant_rel2=0 rel2=0.0037042736
+PASS: independent synthetic operator oracle (no real model)
+<end of output>
+Test time =   1.35 sec
+----------------------------------------------------------
+Test Passed.
+"hip_gfx906_mmvq_oracle" end time: Oct 01 20:35 UTC
+"hip_gfx906_mmvq_oracle" time elapsed: 00:00:01
+----------------------------------------------------------
+
+42/45 Testing: hip_gfx906_expert_oracle
+42/45 Test: hip_gfx906_expert_oracle
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_gfx906_operators" "expert"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_gfx906_expert_oracle" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- wave=64
+RESULT kind=expert dtype=iq2_xs/iq4_nl G=10 H=2560 FF=640 T=1 bytes=18688000 us=118.504250 rel2=0.010331931
+RESULT kind=expert dtype=iq2_xs/iq4_nl G=10 H=2560 FF=640 T=4 bytes=18688000 us=197.968447 rel2=0.01016933
+RESULT kind=expert dtype=iq3_xxs/iq4_nl G=10 H=2560 FF=640 T=1 bytes=21760000 us=127.520251 rel2=0.010534096
+RESULT kind=expert dtype=iq3_xxs/iq4_nl G=10 H=2560 FF=640 T=4 bytes=21760000 us=206.168389 rel2=0.010523406
+RESULT kind=expert dtype=iq3_s/iq4_nl G=10 H=2560 FF=640 T=1 bytes=23296000 us=139.240301 rel2=0.010461995
+RESULT kind=expert dtype=iq3_s/iq4_nl G=10 H=2560 FF=640 T=4 bytes=23296000 us=216.808438 rel2=0.01044627
+RESULT kind=expert dtype=iq2_xxs/q2_0 G=10 H=2560 FF=640 T=1 bytes=13056000 us=107.080197 rel2=0.010946538
+RESULT kind=expert dtype=iq2_xxs/q2_0 G=10 H=2560 FF=640 T=4 bytes=13056000 us=189.232397 rel2=0.0106744
+RESULT kind=expert dtype=iq2_s/q2_0 G=10 H=2560 FF=640 T=1 bytes=15104000 us=114.512253 rel2=0.0095418201
+RESULT kind=expert dtype=iq2_s/q2_0 G=10 H=2560 FF=640 T=4 bytes=15104000 us=195.848405 rel2=0.010210703
+RESULT kind=expert dtype=iq1_m/q2_0 G=10 H=2560 FF=640 T=1 bytes=11776000 us=107.024205 rel2=0.0088433152
+RESULT kind=expert dtype=iq1_m/q2_0 G=10 H=2560 FF=640 T=4 bytes=11776000 us=189.416397 rel2=0.0095206837
+PASS: independent synthetic operator oracle (no real model)
+<end of output>
+Test time =   4.33 sec
+----------------------------------------------------------
+Test Passed.
+"hip_gfx906_expert_oracle" end time: Oct 01 20:35 UTC
+"hip_gfx906_expert_oracle" time elapsed: 00:00:04
+----------------------------------------------------------
+
+43/45 Testing: hip_gfx906_bf16_oracle
+43/45 Test: hip_gfx906_bf16_oracle
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_gfx906_operators" "bf16"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_gfx906_bf16_oracle" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- wave=64
+RESULT kind=gemm dtype=BF16 T=1 N=2560 K=2560 us=192.480397 TFLOPS=0.068096 rel2=1.9108523e-07
+RESULT kind=gemm dtype=BF16 T=32 N=2560 K=2560 us=200.256491 TFLOPS=2.094466 rel2=1.5432617e-07
+RESULT kind=gemm dtype=BF16 T=128 N=2560 K=2560 us=478.353500 TFLOPS=3.507284 rel2=2.9013735e-07
+RESULT kind=gemm dtype=BF16 T=512 N=2560 K=2560 us=1299.874687 TFLOPS=5.162718 rel2=4.9222906e-07
+PASS: independent synthetic operator oracle (no real model)
+<end of output>
+Test time =   0.57 sec
+----------------------------------------------------------
+Test Passed.
+"hip_gfx906_bf16_oracle" end time: Oct 01 20:35 UTC
+"hip_gfx906_bf16_oracle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+44/45 Testing: hip_gfx906_f16_oracle
+44/45 Test: hip_gfx906_f16_oracle
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_gfx906_operators" "f16"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_gfx906_f16_oracle" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- wave=64
+RESULT kind=gemm dtype=FP16 T=1 N=2560 K=2560 us=109.696198 TFLOPS=0.119486 rel2=1.101171e-06
+RESULT kind=gemm dtype=FP16 T=32 N=2560 K=2560 us=136.960196 TFLOPS=3.062426 rel2=7.689637e-07
+RESULT kind=gemm dtype=FP16 T=128 N=2560 K=2560 us=257.024503 TFLOPS=6.527477 rel2=1.0816669e-06
+RESULT kind=gemm dtype=FP16 T=512 N=2560 K=2560 us=683.601189 TFLOPS=9.816961 rel2=5.9992627e-07
+PASS: independent synthetic operator oracle (no real model)
+<end of output>
+Test time =   0.76 sec
+----------------------------------------------------------
+Test Passed.
+"hip_gfx906_f16_oracle" end time: Oct 01 20:35 UTC
+"hip_gfx906_f16_oracle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+45/45 Testing: hip_gfx906_mmq_oracle
+45/45 Test: hip_gfx906_mmq_oracle
+Command: "/home/chris/dev/strata-gfx906/build-hip/hip_gfx906_operators" "mmq"
+Directory: /home/chris/dev/strata-gfx906/build-hip
+"hip_gfx906_mmq_oracle" start time: Oct 01 20:35 UTC
+Output:
+----------------------------------------------------------
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- wave=64
+RESULT kind=mmq dtype=iq2_xs T=32 N=640 K=2560 us=120.943451 effective_TFLOPS=0.866997 sampled_rel2=0.0033101325
+RESULT kind=mmq dtype=iq2_xs T=128 N=640 K=2560 us=194.471645 effective_TFLOPS=2.156769 sampled_rel2=0.004286341
+RESULT kind=mmq dtype=iq2_xs T=512 N=640 K=2560 us=202.664042 effective_TFLOPS=8.278339 sampled_rel2=0.004035389
+RESULT kind=mmq dtype=iq3_xxs T=32 N=640 K=2560 us=115.512097 effective_TFLOPS=0.907763 sampled_rel2=0.0034356842
+RESULT kind=mmq dtype=iq3_xxs T=128 N=640 K=2560 us=184.000146 effective_TFLOPS=2.279511 sampled_rel2=0.0034142797
+RESULT kind=mmq dtype=iq3_xxs T=512 N=640 K=2560 us=195.376146 effective_TFLOPS=8.587136 sampled_rel2=0.0039986231
+RESULT kind=mmq dtype=iq4_nl T=32 N=640 K=2560 us=93.864101 effective_TFLOPS=1.117121 sampled_rel2=0.0036846298
+RESULT kind=mmq dtype=iq4_nl T=128 N=640 K=2560 us=144.712150 effective_TFLOPS=2.898377 sampled_rel2=0.004290987
+RESULT kind=mmq dtype=iq4_nl T=512 N=640 K=2560 us=152.040195 effective_TFLOPS=11.034724 sampled_rel2=0.0041560366
+RESULT kind=mmq dtype=q2_0 T=32 N=640 K=2560 us=157.960248 effective_TFLOPS=0.663823 sampled_rel2=0.0049427597
+RESULT kind=mmq dtype=q2_0 T=128 N=640 K=2560 us=263.424397 effective_TFLOPS=1.592223 sampled_rel2=0.0036803315
+RESULT kind=mmq dtype=q2_0 T=512 N=640 K=2560 us=278.484201 effective_TFLOPS=6.024477 sampled_rel2=0.0040732119
+RESULT kind=mmq dtype=iq4_nl T=32 N=2560 K=640 us=34.336501 effective_TFLOPS=3.053823 sampled_rel2=0.0034055593
+RESULT kind=mmq dtype=iq4_nl T=128 N=2560 K=640 us=54.776847 effective_TFLOPS=7.657074 sampled_rel2=0.0037278791
+RESULT kind=mmq dtype=iq4_nl T=512 N=2560 K=640 us=146.337748 effective_TFLOPS=11.464722 sampled_rel2=0.0036539653
+RESULT kind=mmq dtype=q2_0 T=32 N=2560 K=640 us=49.672601 effective_TFLOPS=2.110975 sampled_rel2=0.0036844285
+RESULT kind=mmq dtype=q2_0 T=128 N=2560 K=640 us=86.777049 effective_TFLOPS=4.833425 sampled_rel2=0.0045737768
+RESULT kind=mmq dtype=q2_0 T=512 N=2560 K=640 us=257.032394 effective_TFLOPS=6.527277 sampled_rel2=0.0040011951
+PASS: independent synthetic operator oracle (no real model)
+<end of output>
+Test time =   0.84 sec
+----------------------------------------------------------
+Test Passed.
+"hip_gfx906_mmq_oracle" end time: Oct 01 20:35 UTC
+"hip_gfx906_mmq_oracle" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 01 20:35 UTC
+
+gfx906 =   8.04 sec*proc
+
+hip =   9.52 sec*proc
+
+multigpu =   1.48 sec*proc
+
+oracle =   7.85 sec*proc
+
+synthetic =   9.52 sec*proc
+

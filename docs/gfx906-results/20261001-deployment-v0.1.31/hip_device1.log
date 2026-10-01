@@ -1,0 +1,18 @@
+device 1: AMD Instinct MI50/MI60
+  HIP arch            gfx906 wave64 (compiled for gfx906)
+  multiprocessors     60
+  VRAM total / free   31.984 GiB (34342961152 B) / 31.963 GiB (34319892480 B)
+  driver / runtime    70253211 / 70253211
+
+memory plan  --max-context 20480
+  KV + indexer keys   0.267387 GB
+  recurrent state     0.000000 GB  (GDN recurrence + conv history, NOT evictable)
+  expert cache        5.675613 GB  (4105 slots of 1,382,400 B)
+  VRAM pool           5.943000 GB
+  expert arena (DRAM) 0.000000 GB
+  card free           31.963 GiB (34319892480 B)
+  plan + KV vs free   FITS
+
+selftest: arena 0.062 GiB (67108864 B), used 0.002 GiB (2097152 B) after two 1 MiB allocations
+selftest: over-allocation refused as required
+strata-device selftest OK
