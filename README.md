@@ -6,38 +6,6 @@ This fork is specifically tuned to run **Qwen3.8-Flash-Next** using model weight
 
 The gfx906 backend is experimental and must be enabled explicitly. The validation documented in this repository has been performed on MI50 hardware. MI60 is an intended same-architecture target, but has not been independently validated here.
 
-## Upstream version and fork policy
-
-**Synchronized with upstream Strata v0.1.31**, commit
-[`9259cad4cfa3543cd3b8decab5962672b968c649`](https://github.com/Niko1221/Strata/commit/9259cad4cfa3543cd3b8decab5962672b968c649),
-by merging into `gfx906` (not rebasing the published fork history). The original port was based on v0.1.30 / `30ec18e`.
-
-This is a dedicated **MI50 / MI60 gfx906 fork because upstream does not support these wave64 GPUs**.
-We will continue absorbing upstream fixes and features while retaining and optimizing the real gfx906
-HIP path: two logical wave32 groups per physical wave64, native signed dot4, per-card clock calibration,
-and per-device mapped-memory layer handoff. Upstream RDNA/NVIDIA support is not a replacement for gfx906 support.
-
-**Source synchronization is not GPU acceptance.** The historical timings and GPU results below predate
-this merge. A subsequent [v0.1.31 MI50 deployment](docs/gfx906-results/20261001-deployment-v0.1.31/README.md)
-completed the HIP build, 44 selected CTests (one additional hipBLASLt skip), and short IQ2_XS single/dual/
-reversed-card generation checks. The validation started a loopback API with a configured 262K capacity;
-a later read-only host snapshot found that listener stopped and a server on `0.0.0.0:8082` with no API key.
-See the [deployment follow-up](docs/GFX906.md#post-deployment-listener-follow-up) and have the owner review
-that network exposure. Full-length and long-soak acceptance are still outstanding. No MI60 hardware has
-been tested here.
-
-### Changes absorbed from v0.1.31
-
-| Upstream change | Meaning for this fork |
-| --- | --- |
-| HIP byte permutation and packed-byte arithmetic optimizations; IQ and Q2_0 kernel improvements | Retained alongside our gfx906 dot4/ballot fixes; performance and numerical behavior must be rechecked on gfx906. |
-| AMD `--gpus` layer splitting and compilation for every selected architecture | Integrated with the explicit gfx906 gate and system-ROCm requirement; no RDNA wheel substitution. |
-| Split-GGUF handling, GGUF-in-place expert reads, RAM/SSD expert tiers and routing prefetch | Avoids a duplicate main-model `experts.bin`; tier budgets and counters are described in [DETAILS](docs/DETAILS.md). |
-| Experimental Unsloth UD-Q4_K_XL import; Q4_K/Q5_K/Q5_1/Q8_0 native expert support | Source support is included; this is a manual import, **not a gfx906 model-validation claim**. See [UNSLOTH_Q4](docs/UNSLOTH_Q4.md). GSQ-RCO IQ2_XS remains the acceptance model. |
-| Server status/history race, truncated tool-call handling, long-word tokenizer fixes and opt-in reasoning budget | Included without changing the serialized-request model or adding HIP image support. |
-| Reproducible package/model pins and improved parity fixtures | Kept with stricter fork source-identity protection: missing pinned model/MTP revisions fail rather than silently switching to mutable `main`. |
-| Community benchmark reports and submission guide | See [COMMUNITY_BENCHMARKS](docs/COMMUNITY_BENCHMARKS.md); upstream NVIDIA/RDNA numbers must not be reported as MI50/MI60 results. |
-
 ## Recent MI50 workload results
 
 These are the **current v0.1.31** GSQ-RCO IQ2_XS workload observations from the dual-MI50 T5810 server
