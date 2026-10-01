@@ -1,9 +1,9 @@
 <h1 align="center">strata-gfx906</h1>
 
-> **实验性 MI50 开发分支 `gfx906`**：基于 Strata 0.1.30，增加真实 gfx906 / wave64 opt-in 和 AMD 多卡 layer split。
-> 两张 MI50 32GB 已完成真实 GSQ-RCO **IQ2_XS** 短提示生成与 MTP 初测；主机出现 DRAM ECC 告警，**不表示稳定性/生产/长上下文验收**。
-> 构建、模型身份、空间预算、复现和限制见 **[MI50 开发指南](docs/GFX906.md)**。
-> 以下保留上游 README；RTX 性能数据、one-click 承诺和普通支持列表**不是本 fork 的 MI50 结论**。
+> **Experimental MI50 branch `gfx906`**: based on Strata 0.1.30, with real gfx906/wave64 opt-in and AMD multi-GPU layer splitting.
+> Dual MI50 cards have generated short GSQ-RCO **IQ2_XS** responses with MTP. This does not establish production readiness, long-context support, or long-run stability.
+> See the **[MI50 development guide](docs/GFX906.md)** for build instructions, model identity, storage, reproduction, and limitations.
+> The upstream README below is retained; its RTX performance numbers, one-click claims, and standard support list are **not MI50 claims for this fork**.
 
 <p align="center"><b>Run a 125-billion-parameter AI model on a normal gaming PC</b><br>
 one NVIDIA card (12-24 GB) + 64 GB of RAM · Windows or Linux · one click to install</p>

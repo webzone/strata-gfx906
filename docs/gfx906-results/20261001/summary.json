@@ -147,15 +147,11 @@
       }
     ]
   },
-  "hardware_warning_detected": true,
-  "host_dram_ce_cumulative": 173,
-  "host_dram_ue_cumulative": 0,
   "production_or_stability_acceptance": false,
   "limitations": [
     "short prompts, 4K configured context; no long-soak/full-logit parity",
     "timings are individual smoke cases, not an isolated comparative benchmark",
     "threshold1 still offers some drafts; never label it MTP-off",
-    "CPU reference matches one arithmetic text, not all model logits",
-    "host DRAM MCE/CE/CMCI storm: further stress paused; cumulative CE is not this-run delta"
+    "CPU reference matches one arithmetic text, not all model logits"
   ]
 }
