@@ -2,6 +2,8 @@
 
 **`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA; this fork adds a native AMD HIP/ROCm path tuned for the wave64 architecture in AMD Instinct MI50 and MI60 cards. It targets the real `gfx906` architecture and does not spoof another GPU generation.
 
+This fork is specifically tuned to run **Qwen3.8-Flash-Next** using model weights in **GGUF** format. The model's native/trained context length is **262,144 tokens**. The `--context` setting configures runtime capacity; hardware limits may justify choosing less. Native context is not an extended-RoPE setting, and it does not imply that full-length inference has completed acceptance testing on every system.
+
 The gfx906 backend is experimental and must be enabled explicitly. The validation documented in this repository has been performed on MI50 hardware. MI60 is an intended same-architecture target, but has not been independently validated here.
 
 ## Recent MI50 workload results
@@ -20,7 +22,7 @@ These are operational observations, not a controlled single-card-versus-dual-car
 ## What this fork supports
 
 - AMD Instinct **MI50 / MI60 (`gfx906`)** with Linux, ROCm, HIP, and hipBLAS. MI50 is the hardware validated so far; consult the guide before assuming MI60 compatibility in a particular system.
-- The **GSQ-RCO IQ2_XS** Qwen3.8-Flash-Next model path used by the current validation. The model's expert tensors use several quantization types; the filename does not describe every tensor.
+- **Qwen3.8-Flash-Next GGUF** weights. The current engineering/validation configuration uses **GSQ-RCO IQ2_XS**, but that is not the only supported quantization. The setup supports Qwen GGUF variants including Q2_0, IQ2_XS, IQ3_XXS, and IQ3_S; the Coder family also offers IQ1_M. Choose among available variants according to the desired quality, RAM/VRAM, disk capacity, and speed. The GGUF filename describes the pack variant, not every tensor's internal quant type.
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
@@ -32,7 +34,7 @@ This is not a general claim that every feature or model in upstream Strata is av
 
 - Linux with the AMD GPU driver/KFD and an existing **ROCm 7 HIP + hipBLAS** installation. ROCm 7.2.4 is the version used in the documented MI50 validation. For the setup script, if ROCm is outside `/opt/rocm`, set `ROCM_PATH` to its installation directory. The example CMake preset itself points to `/opt/rocm`.
 - Python 3.10 or newer with `venv`/`pip`, Git, and a C++ compiler. `setup.sh` creates a project-local `.venv` and installs Python dependencies there; the HIP engine is compiled locally for gfx906.
-- For a clean **IQ2_XS** install, plan for roughly **80 GB or more** of free disk space across the model/data volume and keep at least 4 GiB free on the system volume. The installer checks required space before downloading. You can place model data on a larger disk with `--data-dir`.
+- Disk requirements depend on model and quantization. A clean **IQ2_XS** install needs roughly **80 GB or more** of free space across the model/data volume; keep at least 4 GiB free on the system volume. The installer checks required space before downloading. Use `--data-dir` to place model data on a larger disk.
 
 ### Recommended install (build engine, prepare model, do not start yet)
 
@@ -40,15 +42,18 @@ This is not a general claim that every feature or model in upstream Strata is av
 git clone --branch gfx906 https://github.com/webzone/strata-gfx906.git
 cd strata-gfx906
 
+export STRATA_API_KEY="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+
 ./setup.sh \
   --backend hip \
   --experimental-gfx906 \
   --family qwen \
   --model IQ2_XS \
   --gpus 0,1 \
-  --context 65536 \
+  --context 262144 \
   --kv int8 \
-  --host 127.0.0.1 \
+  --host 0.0.0.0 \
+  --api-key "$STRATA_API_KEY" \
   --port 8095 \
   --yes \
   --no-start
@@ -56,7 +61,7 @@ cd strata-gfx906
 
 This first run creates `.venv`, fetches the pinned llama.cpp source, downloads the two model shards (about 68 GB) and selected MTP tensors (about 5.2 GB), builds the HIP engine for the selected card(s), prepares the model, and writes a config plus a `run-*.sh` launcher. It may take a while and requires a large download. The example selects two GPUs; use `--gpu 0` for one card instead of `--gpus 0,1`. GPU numbers are the AMD indices printed by the installer. The default layer placement is automatic; for two MI50s you may explicitly set `--layer-split 24`.
 
-`--context 65536` is an example capacity for prompts around 48K tokens plus answer space, not a promise that every machine has enough memory or that every long-context workload is validated. Reduce it if the setup reports insufficient RAM/VRAM. Omit `--no-start` if you want setup to launch the server immediately after installation.
+The install example configures the model's native **262,144-token** context. A lower value can reduce memory use on a constrained system, but it is a runtime cap below the model's native length. Omit `--no-start` if you want setup to launch the server immediately after installation.
 
 For a lower-level developer rebuild after setup has fetched the pinned dependency, use:
 
@@ -75,7 +80,7 @@ After the install command above, start the generated launcher (for the example, 
 ./run-iq2_xs.sh
 ```
 
-It starts the server in the foreground and opens the local web app when the model is ready. The default binding is local-only; with the example settings, open **<http://127.0.0.1:8095/>**. The OpenAI-compatible API is at `http://127.0.0.1:8095/v1`.
+It starts the server in the foreground and opens the local web app when the model is ready. The example listens on all interfaces and requires the API key generated above. On the server itself, open **<http://localhost:8095/>**; from another device, use the MI50 host's IP address and provide the API key. The OpenAI-compatible API is at `http://<MI50-host>:8095/v1`.
 
 To run without the generated launcher or browser-opening behavior, start the server directly:
 
@@ -83,13 +88,13 @@ To run without the generated launcher or browser-opening behavior, start the ser
 .venv/bin/python serve/server.py \
   --engine strata \
   --config strata-iq2_xs.json \
-  --host 127.0.0.1 \
+  --host 0.0.0.0 \
   --port 8095
 ```
 
-Stop it with **Ctrl+C** in the server terminal. The server shuts down the HTTP listener and engine gracefully; if needed, a second Ctrl+C forces the engine to exit. Restart by running the launcher again. Changes to the setup options below require stopping the server first.
+The generated config contains the API key, so the server enforces it when started directly. Stop it with **Ctrl+C** in the server terminal. The server shuts down the HTTP listener and engine gracefully; if needed, a second Ctrl+C forces the engine to exit. Restart by running the launcher again. Changes to the setup options below require stopping the server first.
 
-For LAN access, set both `--host 0.0.0.0` and a strong `--api-key <secret>`; do not expose an unauthenticated server. For remote access, a loopback-only server plus an SSH tunnel is preferable.
+`0.0.0.0` exposes the listener on all network interfaces. Always configure a strong API key and firewall restrictions; never publish the generated config or API key. If you need only local access, use a loopback bind instead.
 
 ## Startup and tuning options
 
@@ -100,18 +105,19 @@ There are two groups of options. `setup.sh` options choose and save the model/se
 | Option | Purpose |
 | --- | --- |
 | `--backend hip --experimental-gfx906` | Required for the experimental MI50/gfx906 path. Keep both on initial install or when creating a new gfx906 model config. |
+| `--model Q2_0|IQ2_XS|IQ3_XXS|IQ3_S` | Choose a Qwen3.8-Flash-Next GGUF quantization. For the Coder family, use `--family coder --model IQ1_M`. The tested IQ2_XS option is not the only supported one. |
 | `--gpu 0` / `--gpus 0,1` | Select one AMD GPU or an ordered multi-GPU layer split. `--gpus` saves the selection; GPU numbering follows the AMD indices reported by setup. |
 | `--layer-split 24` | Optional layer boundary for a two-card run; omit it to let the engine place the split automatically. This is a layer/pipeline split, not tensor parallelism. |
-| `--context 65536` | Set the model's context capacity. Larger contexts need more memory and may leave less VRAM for expert caching. |
+| `--context 262144` | Set the runtime capacity up to the model's native 262,144 tokens. Lower it only if hardware memory requires it. |
 | `--kv int8`, `--kv q4_0`, `--kv k8v4` | Choose the KV-cache format when supported by the selected context. The installer's default is context-dependent. |
 | `--port 8095` | Set the HTTP port. |
-| `--host 127.0.0.1` / `--api-key SECRET` | Bind locally by default; use `0.0.0.0` only with a strong API key. |
+| `--host 0.0.0.0` / `--api-key SECRET` | Listen on all interfaces; always use a strong API key and firewall rules. |
 | `--data-dir DIR` | Place the model data, packs, and MTP files on another disk. |
 | `--models-dir DIR` / `--gguf-dir DIR` | Choose the GGUF download directory or reuse an existing folder containing the model shards. |
 | `--no-start` | Finish installation and write the launcher without starting inference. |
-| `--setup` | Reconfigure an existing installation. Repeat the backend, GPU/model selection, host, and port you want to keep, e.g. `./setup.sh --setup --backend hip --experimental-gfx906 --family qwen --model IQ2_XS --gpus 0,1 --context 65536 --kv int8 --host 127.0.0.1 --port 8095 --yes --no-start`. |
+| `--setup` | Reconfigure an existing installation. Repeat backend, GPU/model, host, port, and API key choices, e.g. `./setup.sh --setup --backend hip --experimental-gfx906 --family qwen --model IQ2_XS --gpus 0,1 --context 262144 --kv int8 --host 0.0.0.0 --api-key "$STRATA_API_KEY" --port 8095 --yes --no-start`. |
 
-The first setup also compiles the HIP engine automatically; `--build` is not needed for this AMD path. The installer may be run again with `--setup` to change saved options; stop the running server first, repeat the GPU/model/host/port choices you want to preserve, then relaunch the generated script.
+The first setup also compiles the HIP engine automatically; `--build` is not needed for this AMD path. The installer may be run again with `--setup` to change saved options; stop the running server first, repeat the GPU/model/host/port/API-key choices you want to preserve, then relaunch the generated script. The API key is stored in the local generated config; keep that file private. Set `STRATA_API_KEY` to the same saved key before using the reconfiguration example.
 
 ### Direct server options
 
@@ -119,7 +125,7 @@ When invoking `serve/server.py` directly, `--engine strata` and `--config <file>
 
 | Option | Purpose |
 | --- | --- |
-| `--host 127.0.0.1` | Bind to this host only (default and recommended). |
+| `--host 0.0.0.0` | Listen on all interfaces; use with `--api-key` and firewall restrictions. |
 | `--port 8095` | Override the configured HTTP port for this start. |
 | `--api-key SECRET` | Require a key on API routes; required if listening on `0.0.0.0`. |
 | `--gpu 0` | Choose GPU(s) for this start; the AMD indices are those reported by the setup script. |
