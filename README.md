@@ -40,52 +40,40 @@ been tested here.
 
 ## Recent MI50 workload results
 
-The following figures summarize GSQ-RCO IQ2_XS quantized workload observations on MI50 **before the v0.1.31 merge**. They describe different stages and cache conditions; they are not directly comparable to one another or to measurements from the original NVIDIA-oriented project.
+These are the **current v0.1.31** GSQ-RCO IQ2_XS workload observations from the dual-MI50 T5810 server
+(ROCm 7.2.4), replacing the earlier pre-v0.1.31 numbers in this README. The live window includes repeated
+turns, a warm prompt/KV cache, speculative decoding, and a large active context; it is an operational
+snapshot, **not a controlled benchmark**.
 
-| Stage | Observed result | Workload / interpretation |
-| --- | ---: | --- |
-| Decode | **~15.1 tokens/s** (13.2–17.5) | Stable observed range for the current quantized model under CPU/GPU hybrid execution. |
-| Uncached prefill, compute throughput | **~490 tokens/s** | Long-text input with approximately 32K new tokens and no KV-cache reuse; this is the raw prefill-compute baseline. |
-| End-to-end prefill after a KV-cache hit | **11,000–27,800 effective tokens/s** | Prompt handling with very high KV-cache reuse. The effective rate includes reused prompt tokens. |
-| First-token latency after a cache hit | **~1.6–4.4 s** | Approximately 48K-token prompt with substantial KV reuse; this is not a fresh, uncached 48K prefill. |
-
-These are operational observations, not a controlled single-card-versus-dual-card benchmark; complete raw timing/configuration records for this summary are not archived here. In particular, cache-assisted effective throughput must not be read as uncached prefill compute speed. The separate short-prompt smoke measurements and their conditions are documented in the [gfx906 development guide](docs/GFX906.md).
-
-### Live T5810 workload telemetry (v0.1.31)
-
-The following assessment summarizes the live IQ2_XS server counters and recent request history reported
-while the T5810 deployment was in use. These are **workload observations, not a controlled benchmark**:
-the lifetime window includes repeated turns, a warm prompt/KV cache, MTP speculation, and a large active
-context. Do not compare its decode rate directly with the pre-v0.1.31 or uncached-prefill figures above,
-or interpret it as an isolated gain from the three ROCm environment settings.
-
-| Metric | Observed value | Interpretation |
+| Metric | v0.1.31 observation | Workload / interpretation |
 | --- | ---: | --- |
 | Lifetime decode mean | **42.39 tok/s** | 18,757 generated tokens over 442.5 seconds of decoder time. |
 | Recent request decode | **40.0–49.8 tok/s** | Per-request observations in the recent history. |
 | Live-history bursts | **51–59 tok/s** | Brief peaks during high-speculation phases, not sustained throughput. |
-| Speculative decoding | **`spec: 4`, `spec_min_p: 0.50`** | MTP speculation is enabled and contributes to the observed decode rate. |
+| Speculative decoding | **`spec: 4`, `spec_min_p: 0.50`** | MTP is enabled and contributes to the observed decode rate. |
 | Lifetime prompt/KV reuse | **96.9%** | 2,606,953 reused tokens out of 2,690,006 total prompt tokens. |
 | Recent prompt/KV reuse | **~97–99.9%** | Recent 83K–100K-token contexts were mostly cache hits; one example reused 100,097 of 100,150 tokens (~99.95%). |
 | TTFT, warm/high-hit cache | **~0.8–1.05 s** | Time to first token with a high cache hit rate. |
 | TTFT, partial cache miss | **~2.0–9.4 s** | Requests had roughly 800–3,000 new tokens; latency varies with the miss and request. |
 
-The cache-reuse ratio describes tokens reused, **not** the speed of computing uncached prompt tokens.
-Similarly, the warm-cache TTFT is not an uncached prefill rate. The active 262K context configuration
-makes these long-context, high-reuse observations; it does not mean every request processed 262K new
-tokens.
+The configured context capacity is 262,144 tokens; this does not mean each request processed that many
+new tokens. Cache-reuse percentage counts reused prompt tokens, **not** uncached prefill throughput, and
+warm-cache TTFT is not a fresh-prefill measurement.
 
 **Resource snapshot while serving:** system RAM use was approximately **40.4 GB of 115.9 GB** (~34.9%).
-The dashboard summarized the model/arena reservation as **~33.8 GB** (`arena_mib: 33812`). The raw
-counter in MiB converts to about **33.0 GiB** (35.4 decimal GB), so use the raw field—not the rounded
-GB label—for precise comparisons. Free VRAM was **11,012 MiB** (~10.75 GiB).
-Aggregate CPU utilization was approximately **17–18%** on the 12-logical-thread Xeon E5-1650 v3, or about
-two logical CPUs' worth of load at that moment.
+The dashboard summarized model/arena reservation as **~33.8 GB** (`arena_mib: 33812`); the raw MiB counter
+is about **33.0 GiB** (35.4 decimal GB), so use the raw field—not the rounded GB label—for precise
+comparisons. Free VRAM was **11,012 MiB** (~10.75 GiB). Aggregate CPU utilization was approximately
+**17–18%** on the 12-logical-thread Xeon E5-1650 v3 (roughly two logical CPUs' worth of load).
 
-These figures are a live operating snapshot, not a long-soak or isolated environment A/B. The high cache
-reuse and speculative decoding materially affect the observed rates; workload and cache state should be
-matched before using them for comparisons. The bounded v0.1.31 build/model/API validation and its scope
-are recorded in the [deployment evidence](docs/gfx906-results/20261001-deployment-v0.1.31/README.md).
+This live result is substantially above the earlier pre-v0.1.31 decode observation, which is no longer
+presented here as the current baseline. The two observations used different software and workload windows;
+the gain cannot be attributed to a single upstream kernel or to the three ROCm environment settings
+without a matched A/B. Cache state and speculative decoding materially affect the rates, so compare only
+matched prompts, context, cache state, MTP settings and runtime environment. This is not a long-soak result.
+The bounded v0.1.31 build/model/API validation and its limitations are recorded in the
+[deployment evidence](docs/gfx906-results/20261001-deployment-v0.1.31/README.md); separate short-prompt
+GPU checks are documented in the [gfx906 development guide](docs/GFX906.md).
 
 ## What this fork supports
 
