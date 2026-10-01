@@ -4,3 +4,6 @@ bench/prompts/** -text
 # launchers keep their platform line endings wherever the repository is cloned
 *.sh text eol=lf
 *.bat text eol=crlf
+
+# Raw audit logs retain exact bytes and intentional CLI trailing whitespace.
+docs/gfx906-results/**/*.log -text -whitespace

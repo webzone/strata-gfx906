@@ -26,11 +26,12 @@ struct DeviceInfo {
     uint64_t free_bytes = 0;
     int driver_version = 0, runtime_version = 0;
     int multi_processor_count = 0;
+    int warp_size = 0;             // physical wave/warp width; gfx906 is 64, logical kernel groups remain 32
     std::string arch;              // HIP: gcnArchName without its feature suffix ("gfx1201"); empty on CUDA
 };
 
 // HIP builds: whether GPU `ordinal` can run this binary - its architecture must be one the binary was COMPILED
-// for (STRATA_HIP_ARCHS, set by cmake/hip_backend.cmake) and it must run wave32.  "" when it can (or when there
+// for (STRATA_HIP_ARCHS, set by cmake/hip_backend.cmake). Wave64 gfx906 requires STRATA_EXPERIMENTAL_GFX906.  "" when it can (or when there
 // is no such device: the caller's own device errors apply), else the reason in a sentence.  A binary carried to
 // another card would otherwise fail later with "invalid device function".  CUDA builds: always "".
 std::string gpu_arch_problem(int ordinal);

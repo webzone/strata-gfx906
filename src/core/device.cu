@@ -56,6 +56,11 @@ std::string arch_problem(const cudaDeviceProp& p, int ordinal) {
                "); compile it for this card (./setup.sh --backend hip, or -DCMAKE_HIP_ARCHITECTURES=" + arch +
                ", docs/AMD_HIP.md) or choose another GPU with HIP_VISIBLE_DEVICES";
     }
+#if defined(STRATA_EXPERIMENTAL_GFX906)
+    // Only the explicit experimental build accepts physical wave64, retaining
+    // logical 32-lane reductions/shuffles and fixing each half's ballot.
+    if (arch == "gfx906" && p.warpSize == 64) return "";
+#endif
     if (p.warpSize != 32) {
         return card + " runs wave" + std::to_string(p.warpSize) + "; Strata's HIP kernels need wave32";
     }
@@ -117,6 +122,7 @@ DeviceInfo device_info(int ordinal) {
     d.cc_major = p.major;
     d.cc_minor = p.minor;
     d.multi_processor_count = p.multiProcessorCount;
+    d.warp_size = p.warpSize;
 
     size_t free_b = 0, total_b = 0;
     check(cudaMemGetInfo(&free_b, &total_b), "cudaMemGetInfo");

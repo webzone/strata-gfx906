@@ -1,0 +1,24 @@
+{
+  "repo": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF",
+  "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+  "model": "IQ2_XS",
+  "directory": "/home/chris/dev/strata-gfx906/models/IQ2_XS",
+  "model_bytes": 68026093024,
+  "remaining_bytes": 0,
+  "free_bytes": 6104031232,
+  "reserve_bytes": 4294967296,
+  "fits": true,
+  "experts_bin": false,
+  "files": [
+    {
+      "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+      "bytes": 39225954592,
+      "sha256": "92cee27ae5bbadcd732416a0f7a7f0acc092399dbbe8f5a5efa707c2ec0a49d7"
+    },
+    {
+      "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf",
+      "bytes": 28800138432,
+      "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"
+    }
+  ]
+}

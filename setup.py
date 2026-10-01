@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Strata one-click setup and start (Windows and Linux, NVIDIA GPUs).
+"""Strata setup (NVIDIA, Linux HIP, opt-in MI50 gfx906 layer split).
 
     START-HERE.bat  (Windows)   /   ./setup.sh  (Linux)      - they install Python if needed and run this file
 
@@ -712,14 +712,15 @@ def cuda_lib_dirs():
 # The RX 7900 XT / XTX (gfx1100) and the RX 9070 series / Radeon AI PRO R9700 (gfx1201) on Linux, through the HIP
 # backend (docs/AMD_HIP.md).  There is no ready-made AMD engine: ROCm comes from AMD's TheRock Python wheels into .venv
 # (no sudo; a system ROCm 7 in /opt/rocm is used when it has hipcc and hipBLAS) and the engine is compiled here for
-# the card.  One GPU, no images yet.
+# the card. Layer-split AMD multi-GPU is available; gfx906 requires explicit opt-in and system ROCm.
 ROCM_INDEXES = {"gfx1100": "https://rocm.nightlies.amd.com/v2/gfx110X-dgpu/",   # TheRock's wheels per GPU family
                 "gfx1201": "https://rocm.nightlies.amd.com/v2/gfx120X-all/"}
 ROCM_VERSION = os.environ.get("STRATA_ROCM_VERSION", "7.10.0a20251120")   # what Strata's HIP build was tested with
 ROCM_SYSTEM_MIN = (7, 0)       # an older system ROCm is passed over for the wheels (gfx1201 needs ROCm 6.4 or newer)
 AMD_ARCHS = ("gfx1100", "gfx1201")
 AMD_NAMES = {"gfx1100": "AMD Radeon RX 7900 series (gfx1100)",   # when sysfs has no product name
-             "gfx1201": "AMD Radeon RX 9070 series / AI PRO R9700 (gfx1201)"}
+             "gfx1201": "AMD Radeon RX 9070 series / AI PRO R9700 (gfx1201)",
+             "gfx906": "AMD Radeon Instinct MI50 (gfx906, experimental)"}
 AMD_CARDS = "the RX 7900 XT / XTX (gfx1100) and the RX 9070 / 9070 XT / Radeon AI PRO R9700 (gfx1201)"
 
 
@@ -762,10 +763,38 @@ def amd_gpus():
     return found
 
 
-def amd_problem(g):
+def amd_problem(g, experimental_gfx906=False):
+    if g["arch"] == "gfx906":
+        return None if experimental_gfx906 else "gfx906 is experimental; explicitly pass --experimental-gfx906 (docs/GFX906.md)"
     if g["arch"] not in AMD_ARCHS:
         return f"not supported - Strata's AMD backend runs on {AMD_CARDS} only, this is {g['arch']}"
     return None
+
+
+def select_amd_gpus(text, found, experimental_gfx906=False):
+    """Single default or an explicit ordered AMD layer split; never mixes GPU vendors."""
+    usable = [g for g in found if amd_problem(g, experimental_gfx906) is None]
+    if text is None:
+        if not usable:
+            fail("no supported AMD GPU found", "MI50: --backend hip --experimental-gfx906")
+        return [max(usable, key=lambda g: (round(g["vram_gb"]), -g["index"]))["index"]]
+    multiple = isinstance(text, (list, tuple)) or "," in str(text) or str(text).strip().lower() == "all"
+    if str(text).strip().lower() == "all":
+        sel = [g["index"] for g in usable]
+    else:
+        try:
+            sel = [int(x) for x in (text if isinstance(text, (list, tuple)) else str(text).split(","))]
+        except (TypeError, ValueError):
+            fail("AMD GPU selection takes the KFD/HIP numbers shown above, e.g. --gpus 0,1 or --gpus all")
+    if not sel or len(set(sel)) != len(sel) or (multiple and len(sel) < 2):
+        fail("--gpus takes two or more different AMD GPUs (one card: --gpu N)")
+    byid = {g["index"]: g for g in found}
+    for i in sel:
+        if i not in byid:
+            fail(f"AMD GPU {i} not found")
+        if problem := amd_problem(byid[i], experimental_gfx906):
+            fail(f"AMD GPU {i}: {problem}")
+    return sel
 
 
 def rocm_version(root):
@@ -787,6 +816,9 @@ def rocm_root(arch):
             return sysroot, [str(sysroot / "lib")]
         warn(f"the ROCm in {sysroot} is {ver[0]}.{ver[1]}; Strata needs {ROCM_SYSTEM_MIN[0]}.{ROCM_SYSTEM_MIN[1]} or "
              "newer: using AMD's wheels in .venv instead")
+    if arch == "gfx906":
+        fail("experimental gfx906 requires an existing system ROCm 7 with HIP and hipBLAS",
+             "set ROCM_PATH to that SDK; RDNA TheRock wheels are not a gfx906 SDK (docs/GFX906.md)")
     index = rocm_index(arch)
     stamp = Path(sys.prefix) / ".strata-rocm.json"
     have = json.loads(stamp.read_text()) if stamp.exists() else {}
@@ -846,14 +878,20 @@ def hipblaslt_table(arch, lib_dirs):
     return None
 
 
-def build_engine_hip(gpu, llama) -> Path:
-    """Compile the HIP engine for this AMD GPU into engine/ (again only when its source changed: a `git pull`)."""
+def build_engine_hip(gpu, llama, experimental_gfx906=False) -> Path:
+    """Compile for EVERY selected AMD architecture; never use NVIDIA prebuilt engines or RDNA wheels for MI50."""
+    archs = sorted(set(gpu.get("archs") or [gpu["arch"]]))
+    gfx906 = "gfx906" in archs
+    if gfx906 and not experimental_gfx906:
+        fail("gfx906 engine build requires --experimental-gfx906")
     eng = ROOT / "engine"
     eng.mkdir(exist_ok=True)
     stamp = eng / "BUILD.json"
     meta = json.loads(stamp.read_text()) if stamp.exists() else {}
     src = source_hash(ENGINE_SOURCES)
-    if meta.get("backend") == "hip" and (eng / EXE).exists() and meta.get("src") == src and             gpu["arch"] in meta.get("archs", []):
+    if (meta.get("backend") == "hip" and (eng / EXE).exists() and meta.get("src") == src
+            and set(archs).issubset(meta.get("archs", []))
+            and (not gfx906 or meta.get("experimental_gfx906") is True)):
         ok("engine already built for this PC")
         return eng
     if not (shutil.which("c++") or shutil.which("g++")) or not shutil.which("git"):
@@ -872,14 +910,16 @@ def build_engine_hip(gpu, llama) -> Path:
         else "  Compiling the Strata engine for your AMD GPU (10-20 minutes, once) ...")
     cmake_build(ROOT, ROOT / "build-hip", "strata",
                 ["-DSTRATA_ENABLE_HIP=ON", "-DSTRATA_ENABLE_CUDA=OFF", "-DSTRATA_BUILD_TESTS=OFF",
-                 "-DSTRATA_PREFILL_MMQ=ON", f"-DCMAKE_HIP_ARCHITECTURES={gpu['arch']}",
+                 "-DSTRATA_PREFILL_MMQ=ON", "-DCMAKE_HIP_ARCHITECTURES=" + ";".join(archs),
+                 "-DSTRATA_EXPERIMENTAL_GFX906=" + ("ON" if gfx906 else "OFF"),
                  f"-DCMAKE_HIP_COMPILER={root / 'llvm' / 'bin' / 'clang++'}", f"-DCMAKE_HIP_COMPILER_ROCM_ROOT={root}",
                  "-DCMAKE_PREFIX_PATH=" + ";".join([str(root), *libs]),
                  f"-DCMAKE_HIP_FLAGS=--rocm-path={root} --rocm-device-lib-path={bitcode}",
                  f"-DSTRATA_GGML_DIR={llama}"], None, "")
     shutil.copy2(ROOT / "build-hip" / EXE, eng / EXE)
     stamp.write_text(json.dumps({"source": "local-hip", "backend": "hip", "version": source_version(),
-                                 "archs": [gpu["arch"]], "vision": "none", "lib_dirs": dirs, "src": src}, indent=1))
+                                 "archs": archs, "experimental_gfx906": gfx906,
+                                 "vision": "none", "lib_dirs": dirs, "src": src}, indent=1))
     ok(f"engine compiled: {eng / EXE}")
     return eng
 
@@ -982,11 +1022,12 @@ def update_installed_engine(url_base) -> None:
     if meta.get("backend") == "hip":                   # AMD: compiled here, again when its source changed
         if meta.get("src") != source_hash(ENGINE_SOURCES):
             try:
-                usable = [x for x in amd_gpus() if amd_problem(x) is None]
+                experimental = meta.get("experimental_gfx906") is True
+                usable = [x for x in amd_gpus() if amd_problem(x, experimental) is None]
                 g = next((x for x in usable if x["arch"] in meta.get("archs", [])), usable[0] if usable else None)
                 if g is None:
                     raise RuntimeError("no supported AMD GPU found")
-                build_engine_hip(g, get_llama_cpp())
+                build_engine_hip({**g, "archs": meta.get("archs") or [g["arch"]]}, get_llama_cpp(), experimental)
             except (Exception, SystemExit) as e:
                 warn(f"could not compile the updated engine{'' if isinstance(e, SystemExit) else f' ({e})'}: "
                      "starting the installed one")
@@ -1533,9 +1574,11 @@ def upgrade_config(cfg_path: Path, cfg: dict) -> dict:
 
 
 def start(cfg_path: Path, port: int | None, gpu: int | list | None = None, open_browser=True, yes=False,
-          layer_split=None, keep=None) -> int:
+          layer_split=None, keep=None, experimental_gfx906=False) -> int:
     """keep: settings given on this start that the model keeps from now on (--host, --api-key, --draft-vocab)."""
     cfg = upgrade_config(cfg_path, json.loads(cfg_path.read_text(encoding="utf-8-sig")))
+    if cfg.get("backend") == "hip" and experimental_gfx906:
+        cfg["experimental_gfx906"] = True
     missing = [p for p in [cfg["exe"], *[a for a in cfg["args"] if a.endswith(".gguf")]] if not Path(p).exists()]
     if missing:
         fail(f"{cfg_path.name} refers to missing files: {missing[0]}", "run it again with --setup to repair")
@@ -1550,19 +1593,27 @@ def start(cfg_path: Path, port: int | None, gpu: int | list | None = None, open_
         refresh_draft_vocab(Path(cfg["args"][cfg["args"].index("--mtp") + 1]), cfg.get("draft_vocab", "cjk"))
     cmd = [sys.executable, str(ROOT / "serve" / "server.py"), "--engine", "strata", "--config", str(cfg_path),
            "--port", str(port or cfg.get("port", 8080))]
-    if cfg.get("backend") == "hip":                    # AMD: one card, numbered as HIP numbers them
-        if isinstance(gpu, list):
-            fail("several GPUs sharing one model: NVIDIA only for now", "use one AMD card (--gpu N)")
-        if gpu is not None:
-            cmd += ["--gpu", str(gpu)]
-        found = []
-        use = gpu if gpu is not None else cfg.get("gpu")
-        g = next((x for x in amd_gpus() if x["index"] == (use if use is not None else x["index"])
-                  and amd_problem(x) is None), None)
-        if g is not None:
-            ok(f"GPU: {g['name']} ({g['vram_gb']:.0f} GB, AMD)")
+    if cfg.get("backend") == "hip":                    # AMD: the config's ordered HIP device list
+        found = amd_gpus()
+        experimental = cfg.get("experimental_gfx906") is True
+        sel = select_amd_gpus(gpu if gpu is not None else cfg.get("gpu"), found, experimental)
+        cards = [next(g for g in found if g["index"] == i) for i in sel]
+        eng = build_engine_hip({**cards[0], "archs": sorted({g["arch"] for g in cards})}, get_llama_cpp(), experimental)
+        meta = json.loads((eng / "BUILD.json").read_text())
+        cfg["exe"], cfg["lib_dirs"] = str(eng / EXE), meta["lib_dirs"]
+        if isinstance(gpu, (list, str)):
+            cfg["gpu"], cfg["gpus_asked"] = sel if len(sel) > 1 else sel[0], True
+            cfg["layer_split"] = layer_split or cfg.get("layer_split") or "auto"
+        elif gpu is not None:
+            cmd += ["--gpu", str(sel[0])]
+        else:
+            cfg["gpu"] = sel if len(sel) > 1 else sel[0]
+        cfg_path.write_text(json.dumps(cfg, indent=1), encoding="utf-8")
+        ok("AMD GPUs: " + " + ".join(g["name"] for g in cards))
     else:
         found = gpus()
+        if isinstance(gpu, str):
+            gpu = parse_gpus(gpu, found)
     if cfg.get("backend") == "hip":
         pass
     elif isinstance(gpu, list):                        # --gpus: saved, this model runs on these cards from now on
@@ -1769,6 +1820,8 @@ def main() -> int:
     ap.add_argument("--backend", choices=["cuda", "hip"],
                     help="cuda = NVIDIA (default), hip = AMD RX 7900 XT/XTX or RX 9070 / AI PRO R9700 on Linux (experimental; chosen by itself "
                          "when the PC has no NVIDIA card Strata can use)")
+    ap.add_argument("--experimental-gfx906", action="store_true",
+                    help="EXPERIMENTAL MI50/gfx906 wave64 port; requires system ROCm (docs/GFX906.md)")
     ap.add_argument("--skip-build", action="store_true", help=argparse.SUPPRESS)
     a = ap.parse_args()
     if a.gpu is not None:                              # --gpu 0,2 means --gpus 0,2 (a user tried it: issue report)
@@ -1779,7 +1832,9 @@ def main() -> int:
         else:
             ap.error(f"--gpu takes a GPU number as nvidia-smi numbers them, e.g. --gpu 1 (or --gpus 0,2), not {a.gpu!r}")
     say("Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)")
-    data, elsewhere = data_folder(a.data_dir)          # the model files: in the data folder, found from any copy
+    # --check must not migrate model files or write installer settings.
+    data, elsewhere = ((Path(a.data_dir).expanduser().resolve() if a.data_dir else ROOT.parent / "Strata-data", [])
+                       if a.check else data_folder(a.data_dir))
     roots = [data, *elsewhere]
     if a.models_dir is None:
         a.models_dir = str(data / "models")
@@ -1810,7 +1865,8 @@ def main() -> int:
     # starting an installed model: --gpus 0,2 (or all) saves those cards for it and starts on them (it used to start
     # on the first one alone unless given with --setup), --gpu N runs this start on one card; neither: the saved
     # choice, and asked once when the PC has cards that could share the model
-    run_gpu = (parse_gpus(a.gpus, gpus()) if a.gpus else None) or a.gpu
+    # Resolve --gpus after the saved config tells us the vendor; HIP must not query nvidia-smi.
+    run_gpu = a.gpus if a.gpus else a.gpu
     port = a.port or 8080                              # a new install's port (issue #32: --port for an existing one)
     if have and a.calibrate and not (a.setup or a.model or a.family or a.check):
         if not a.build:
@@ -1823,12 +1879,14 @@ def main() -> int:
             pick_cfg = have[int(ask("Tune which one?", [str(i) for i in range(1, len(have) + 1)], "1", a.yes)) - 1]
         calibrate_config(pick_cfg)
         return 0 if a.no_start else start(pick_cfg, a.port, run_gpu, yes=a.yes, layer_split=a.layer_split,
+                     experimental_gfx906=a.experimental_gfx906,
                      keep={"host": a.host, "api_key": a.api_key, "draft_vocab": a.draft_vocab})
     if have and not (a.setup or a.model or a.family or a.check or a.no_start):
         if not a.build:
             update_installed_engine(a.prebuilt)
         if len(have) == 1:
             return start(have[0], a.port, run_gpu, yes=a.yes, layer_split=a.layer_split,
+                     experimental_gfx906=a.experimental_gfx906,
                      keep={"host": a.host, "api_key": a.api_key, "draft_vocab": a.draft_vocab})
         say()
         for i, c in enumerate(have, 1):
@@ -1837,6 +1895,7 @@ def main() -> int:
         pick = int(ask("Which one?", [str(i) for i in range(1, len(have) + 2)], "1", a.yes))
         if pick <= len(have):
             return start(have[pick - 1], a.port, run_gpu, yes=a.yes, layer_split=a.layer_split,
+                     experimental_gfx906=a.experimental_gfx906,
                      keep={"host": a.host, "api_key": a.api_key, "draft_vocab": a.draft_vocab})
 
     # ---- 1. the PC
@@ -1844,7 +1903,7 @@ def main() -> int:
     found = gpus()
     amd = [] if WIN else amd_gpus()
     nv_ok = any(gpu_problem(g) is None for g in found)
-    amd_ok = [g for g in amd if amd_problem(g) is None]
+    amd_ok = [g for g in amd if amd_problem(g, a.experimental_gfx906) is None]
     hip = a.backend == "hip" or (a.backend is None and not nv_ok and bool(amd_ok))
     if a.backend is None and nv_ok and amd_ok:
         # both kinds of card: asked (a first run on such a PC used to take NVIDIA without mentioning the Radeon)
@@ -1857,26 +1916,20 @@ def main() -> int:
         hip = ask("Which cards?", ["1", "2"], "1", a.yes or a.check) == "2"
         if a.check and not hip:
             say("  (the AMD card: ./setup.sh --backend hip)")
-    if hip:                                            # AMD (experimental): one card, compiled here
+    if hip:                                            # AMD (experimental): one or several layer-split cards
         if WIN:
             fail("Strata's AMD backend runs on Linux only", "use an NVIDIA RTX 20 series or newer card on Windows")
         say("  Your AMD GPUs:" if amd else "  No AMD GPU found (the amdgpu driver's KFD topology is empty).")
         for g in amd:
-            say(f"    GPU {g['index']}: {g['name']}, {g['vram_gb']:.0f} GB VRAM - " + (amd_problem(g) or "can be used"))
-        usable = [g for g in amd if amd_problem(g) is None]
-        if not usable:
-            fail("no AMD GPU Strata can use", f"the AMD backend runs on {AMD_CARDS} on Linux")
-        if a.gpus:
-            fail("several GPUs sharing one model: NVIDIA only for now", "use one AMD card (--gpu N)")
-        if a.gpu is not None:
-            gpu = next((g for g in usable if g["index"] == a.gpu), None)
-            if gpu is None:
-                fail(f"AMD GPU {a.gpu} cannot be used", "use one of: " + ", ".join(f"--gpu {g['index']}" for g in usable))
-        else:
-            gpu = max(usable, key=lambda x: (round(x["vram_gb"]), -x["index"]))
-        gpu = {**gpu, "count": len(amd), "archs": [gpu["arch"]]}
-        sel, multi, chosen = [gpu["index"]], [], [gpu]
+            say(f"    GPU {g['index']}: {g['name']}, {g['vram_gb']:.0f} GB VRAM - " +
+                (amd_problem(g, a.experimental_gfx906) or "can be used"))
+        sel = select_amd_gpus(a.gpus if a.gpus else a.gpu, amd, a.experimental_gfx906)
+        chosen = [next(g for g in amd if g["index"] == i) for i in sel]
+        multi = sel if len(sel) > 1 else []
+        gpu = {**chosen[0], "count": len(amd), "archs": sorted({g["arch"] for g in chosen})}
         a.gpu = gpu["index"] if len(amd) > 1 else a.gpu
+        if multi:
+            ok("AMD layer split: " + " + ".join(g["name"] for g in chosen))
         ok(f"GPU: {gpu['name']}, {gpu['vram_gb']:.1f} GB VRAM, {gpu['arch']} (AMD, experimental: docs/AMD_HIP.md)")
     else:
         if not found:
@@ -1929,7 +1982,10 @@ def main() -> int:
                            "of its experts, " + ("the rest stays in RAM)" if low_ram_resident(m, ram, gpu["vram_gb"])
                                                  else "the rest is read from the SSD as needed)"))
             say(f"  {m:8s} needs ~{d['ram_gb']} GB RAM: {verdict}")
-        say("\nThis PC can run Strata. Run it again without --check to install.")
+        if hip and "gfx906" in gpu["archs"]:
+            say("\nExperimental MI50 prerequisites detected; this is NOT model-level acceptance (docs/GFX906.md).")
+        else:
+            say("\nThis PC can run Strata. Run it again without --check to install.")
         return 0
 
     # ---- 2. the questions
@@ -2128,7 +2184,7 @@ def main() -> int:
                 warn(f"the ready-made image encoder has no code for your GPU (sm_{gpu['arch']}): compiling it")
                 eng = None
     if eng is None:
-        eng = build_engine_hip(gpu, llama) if hip else build_engine(gpu, vision, a.yes, llama)
+        eng = build_engine_hip(gpu, llama, a.experimental_gfx906) if hip else build_engine(gpu, vision, a.yes, llama)
     meta = json.loads((eng / "BUILD.json").read_text())
     lib_dirs = meta.get("lib_dirs") or meta.get("cuda_dirs") or cuda_lib_dirs()
     ok(f"engine: {eng / EXE}")
@@ -2246,6 +2302,7 @@ def main() -> int:
            "lib_dirs": lib_dirs, "port": port}
     if hip:
         cfg["backend"] = "hip"
+        cfg["experimental_gfx906"] = "gfx906" in gpu["archs"]
         # the dense prompt GEMMs through hipBLASLt with kernels measured on this GPU generation (tools/hip; +40-60%
         # prompt speed on the 7900 XTX): only a table for this card's arch AND the installed hipBLASLt version (the
         # engine refuses any other one and falls back to plain hipBLAS)

@@ -21,6 +21,7 @@
 #include "strata/core/expert_source.hpp"
 #include "strata/core/remote_experts.hpp"
 #include "strata/core/on_device.hpp"
+#include "strata/core/mapped_handoff.hpp"
 #include "strata/core/layer.hpp"
 #include "strata/core/layout.hpp"
 #include "strata/core/session.hpp"
@@ -3613,24 +3614,27 @@ int main(int argc, char** argv) {
         };
         auto pcie_num_of = [](double f) { return std::max(0, std::min(256, (int) (f * 256.0 + 0.5))); };
         const int n_stages = split_devs.empty() ? 1 : (int) split_at.size() + 1;
+        // Keep bridges alive for the whole serve loop, not just this initialization block.
+        std::vector<std::unique_ptr<strata::core::MappedHandoff>> hand;
+        auto stage_device = [&](int st) { return st == 0 || split_same ? 0 : stages[(size_t) st - 1]->dev; };
         if (n_stages > 1) {
             const size_t hb = (size_t) strata::kernels::kVerifyMaxT *
                               (size_t) strata::core::Verifier::handoff_floats(g) * sizeof(float);
-            std::vector<float*> hand((size_t) n_stages - 1, nullptr);
-            for (float*& h : hand) {
-                float* hh = nullptr;
-                if (cudaHostAlloc((void**) &hh, hb, cudaHostAllocMapped | cudaHostAllocPortable) != cudaSuccess ||
-                    cudaHostGetDevicePointer((void**) &h, hh, 0) != cudaSuccess) {
-                    std::fprintf(stderr, "strata serve: the layer-split hand-off allocation failed\n");
+            for (int st = 0; st + 1 < n_stages; ++st) {
+                auto h = std::make_unique<strata::core::MappedHandoff>();
+                if (!h->init(hb, {stage_device(st), stage_device(st + 1)}, err)) {
+                    std::fprintf(stderr, "strata serve: %s\n", err.c_str());
                     return 1;
                 }
-                std::memset(hh, 0, hb);
+                std::memset(h->host_data(), 0, hb);
+                hand.push_back(std::move(h));
             }
             split_drive.base = &drive;
             split_drive.n = n_stages;
             for (int st = 0; st < n_stages; ++st) {
                 stage_ver(st).set_stage(st == 0 ? 0 : split_at[(size_t) st - 1], st + 1 < n_stages ? split_at[(size_t) st] : -1,
-                                        st == 0 ? nullptr : hand[(size_t) st - 1], st + 1 < n_stages ? hand[(size_t) st] : nullptr);
+                                        st == 0 ? nullptr : hand[(size_t) st - 1]->device_data(stage_device(st)),
+                                        st + 1 < n_stages ? hand[(size_t) st]->device_data(stage_device(st)) : nullptr);
                 split_drive.end[st] = st + 1 < n_stages ? split_at[(size_t) st] : g.n_layers;
                 split_drive.cache_base[st] = drive.d.cache_base;
                 split_drive.cache_slot_off[st] = drive.d.cache_slot_off;

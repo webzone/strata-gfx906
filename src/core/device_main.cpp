@@ -6,6 +6,7 @@
 #include "strata/core/device.hpp"
 #include "strata/plan/plan.hpp"
 
+#include <charconv>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -19,10 +20,20 @@ static std::string human(uint64_t b) {
 
 int main(int argc, char** argv) {
     bool selftest = false;
+    int ordinal = 0;
     for (int i = 1; i < argc; ++i) {
         if (std::strcmp(argv[i], "--selftest") == 0) selftest = true;
+        else if (std::strcmp(argv[i], "--device") == 0 && i + 1 < argc) {
+            const char* value = argv[++i];
+            const char* end = value + std::strlen(value);
+            const auto parsed = std::from_chars(value, end, ordinal);
+            if (parsed.ec != std::errc{} || parsed.ptr != end || ordinal < 0) {
+                std::fprintf(stderr, "--device needs a nonnegative GPU ordinal\n");
+                return 2;
+            }
+        }
         else if (std::strcmp(argv[i], "--help") == 0 || std::strcmp(argv[i], "-h") == 0) {
-            std::printf("usage: strata-device [--selftest]\n");
+            std::printf("usage: strata-device [--device N] [--selftest]\n");
             return 0;
         } else {
             std::fprintf(stderr, "unknown argument: %s\n", argv[i]);
@@ -31,10 +42,10 @@ int main(int argc, char** argv) {
     }
 
     try {
-        const strata::core::DeviceInfo d = strata::core::device_info(0);
+        const strata::core::DeviceInfo d = strata::core::device_info(ordinal);
         std::printf("device %d: %s\n", d.ordinal, d.name.c_str());
 #if defined(STRATA_USE_HIP)
-        std::printf("  HIP arch            %s wave32 (compiled for %s)\n", d.arch.c_str(),
+        std::printf("  HIP arch            %s wave%d (compiled for %s)\n", d.arch.c_str(), d.warp_size,
                     strata::core::compiled_gpu_archs());
 #else
         std::printf("  compute capability  %d.%d   (sm_%d%d)\n", d.cc_major, d.cc_minor, d.cc_major, d.cc_minor);
@@ -56,7 +67,7 @@ int main(int argc, char** argv) {
             // path leaves NaNs rather than zeros.  A GPU test that only asks the driver for its name does not
             // test the runtime this file exists to provide.
             const uint64_t bytes = 64ull << 20;      // 64 MiB, small enough to be safe on any card
-            strata::core::DeviceArena arena(bytes, 0, /*poison=*/true);
+            strata::core::DeviceArena arena(bytes, ordinal, /*poison=*/true);
             void* a = arena.alloc(1 << 20, 256);
             void* b = arena.alloc(1 << 20, 4096);
             if (((uintptr_t) a % 256) || ((uintptr_t) b % 4096)) {

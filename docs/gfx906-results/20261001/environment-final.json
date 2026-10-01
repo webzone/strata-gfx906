@@ -1,0 +1,43 @@
+{
+  "timestamp_utc": "2026-10-01T03:31:21Z",
+  "disk_free_bytes": 6104027136,
+  "rocm_smi": {
+    "exit": 0,
+    "stdout": "\n\n============================ ROCm System Management Interface ============================\n=================================== % time GPU is busy ===================================\nGPU[0]\t\t: GPU use (%): 0\nGPU[1]\t\t: GPU use (%): 0\n==========================================================================================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 34342961152\nGPU[0]\t\t: VRAM Total Used Memory (B): 10866688\nGPU[1]\t\t: VRAM Total Memory (B): 34342961152\nGPU[1]\t\t: VRAM Total Used Memory (B): 10866688\n==========================================================================================\n================================== End of ROCm SMI Log ===================================\n",
+    "stderr": ""
+  },
+  "docker_ps": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "listeners": {
+    "exit": 0,
+    "stdout": "State  Recv-Q Send-Q               Local Address:Port  Peer Address:Port\nLISTEN 0      4096                 127.0.0.53%lo:53         0.0.0.0:*   \nLISTEN 0      4096                       0.0.0.0:22         0.0.0.0:*   \nLISTEN 0      4096                     127.0.0.1:46709      0.0.0.0:*   \nLISTEN 0      4096                    127.0.0.54:53         0.0.0.0:*   \nLISTEN 0      4096                 100.101.16.72:35626      0.0.0.0:*   \nLISTEN 0      4096                          [::]:22            [::]:*   \nLISTEN 0      4096   [fd7a:115c:a1e0::b737:1048]:61940         [::]:*   \n",
+    "stderr": ""
+  },
+  "services": {
+    "exit": 0,
+    "stdout": "active\nactive\n",
+    "stderr": ""
+  },
+  "memory": {
+    "exit": 0,
+    "stdout": "               total        used        free      shared  buff/cache   available\nMem:           121Gi       3.1Gi        34Gi       2.6Mi        85Gi       118Gi\nSwap:          4.0Gi        88Mi       3.9Gi\n",
+    "stderr": ""
+  },
+  "disk": {
+    "exit": 0,
+    "stdout": "Filesystem                         Size  Used Avail Use% Mounted on\n/dev/mapper/ubuntu--vg-ubuntu--lv  232G  216G  5.7G  98% /\n",
+    "stderr": ""
+  },
+  "kernel_recent": {
+    "exit": 0,
+    "stdout": "2026-10-01T02:44:58+00:00 t5810 kernel: workqueue: svm_range_deferred_list_work [amdgpu] hogged CPU for >10000us 11 times, consider switching to WQ_UNBOUND\n2026-10-01T02:44:59+00:00 t5810 kernel: workqueue: delayed_fput hogged CPU for >10000us 7 times, consider switching to WQ_UNBOUND\n2026-10-01T03:09:13+00:00 t5810 kernel: workqueue: svm_range_restore_work [amdgpu] hogged CPU for >10000us 67 times, consider switching to WQ_UNBOUND\n2026-10-01T03:25:10+00:00 t5810 kernel: mce: [Hardware Error]: Machine check events logged\n2026-10-01T03:25:10+00:00 t5810 kernel: mce: [Hardware Error]: Machine check events logged\n2026-10-01T03:25:10+00:00 t5810 kernel: mce: [Hardware Error]: Machine check events logged\n2026-10-01T03:25:10+00:00 t5810 kernel: RAS: Soft-offlining pfn: 0x17a8e9a\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: HANDLING MCE MEMORY ERROR\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: CPU 0: Machine Check Event: 0 Bank 10: 8c000042000800c1\n2026-10-01T03:25:10+00:00 t5810 kernel: mce: [Hardware Error]: Machine check events logged\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: TSC ab82411c80125 \n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: ADDR 17a8e9a000 \n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: MISC 122941101000048c \n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: PROCESSOR 0:306f2 TIME 1790825110 SOCKET 0 APIC 0\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC MC0: 1 CE memory scrubbing error on CPU_SrcID#0_Ha#0_Chan#1_DIMM#0 or CPU_SrcID#0_Ha#0_Chan#1_DIMM#1 (channel:1 page:0x17a8e9a offset:0x0 grain:32 syndrome:0x0 -  area:DRAM err_code:0008:00c1 socket:0 ha:0 channel_mask:2 rank:255 )\n2026-10-01T03:25:10+00:00 t5810 kernel: CPU0 BANK10 CMCI storm detected\n2026-10-01T03:25:10+00:00 t5810 kernel: mce: [Hardware Error]: Machine check events logged\n2026-10-01T03:25:10+00:00 t5810 kernel: Soft offline: 0x17a8e9a: page already poisoned\n2026-10-01T03:25:10+00:00 t5810 kernel: RAS: Soft-offlining pfn: 0x17a8e9b\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: HANDLING MCE MEMORY ERROR\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: CPU 0: Machine Check Event: 0 Bank 10: 8c000042000800c1\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: TSC ab82411cf96b0 \n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: ADDR 17a8e9b000 \n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: MISC 122940100010048c \n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC sbridge MC0: PROCESSOR 0:306f2 TIME 1790825110 SOCKET 0 APIC 0\n2026-10-01T03:25:10+00:00 t5810 kernel: EDAC MC0: 1 CE memory scrubbing error on CPU_SrcID#0_Ha#0_Chan#1_DIMM#0 or CPU_SrcID#0_Ha#0_Chan#1_DIMM#1 (channel:1 page:0x17a8e9b offset:0x0 grain:32 syndrome:0x0 -  area:DRAM err_code:0008:00c1 socket:0 ha:0 channel_mask:2 rank:255 )\n2026-10-01T03:25:10+00:00 t5810 kernel: Soft offline: 0x17a8e9b: page already poisoned\n2026-10-01T03:25:11+00:00 t5810 kernel: mce: [Hardware Error]: Machine check events logged\n2026-10-01T03:25:41+00:00 t5810 kernel: CPU0 BANK10 CMCI storm subsided\n",
+    "stderr": ""
+  },
+  "umc": {
+    "/sys/class/drm/card1/device/ras/umc_err_count": "ue: 0\nce: 0\nde: 0\n",
+    "/sys/class/drm/card0/device/ras/umc_err_count": "ue: 0\nce: 0\nde: 0\n"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "ctest": {
+    "Passed": 40,
+    "Skipped": 1,
+    "Failed": 0
+  },
+  "python_passed": 18,
+  "handoff_exact_checks": 137980416,
+  "all_four_model_modes_token_parity": true,
+  "cli_no_mtp_arithmetic_parity": true,
+  "cpu_reference_arithmetic_text_match": true,
+  "models": {
+    "smoke-dual": [
+      {
+        "name": "arithmetic",
+        "tokens": 3,
+        "decode_tok_s": 7.876082961407194,
+        "drafts_accepted": 3,
+        "drafts_offered": 3,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "literal",
+        "tokens": 6,
+        "decode_tok_s": 10.368066355624675,
+        "drafts_accepted": 6,
+        "drafts_offered": 6,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "code",
+        "tokens": 16,
+        "decode_tok_s": 15.698587127158556,
+        "drafts_accepted": 12,
+        "drafts_offered": 12,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "sequence",
+        "tokens": 128,
+        "decode_tok_s": 17.78939029644351,
+        "drafts_accepted": 96,
+        "drafts_offered": 96,
+        "cache_hit_fraction": 1.0
+      }
+    ],
+    "smoke-single": [
+      {
+        "name": "arithmetic",
+        "tokens": 3,
+        "decode_tok_s": 7.62001524003048,
+        "drafts_accepted": 3,
+        "drafts_offered": 3,
+        "cache_hit_fraction": 0.87875
+      },
+      {
+        "name": "literal",
+        "tokens": 6,
+        "decode_tok_s": 10.053619302949063,
+        "drafts_accepted": 6,
+        "drafts_offered": 6,
+        "cache_hit_fraction": 0.9004629629629629
+      },
+      {
+        "name": "code",
+        "tokens": 16,
+        "decode_tok_s": 14.57062198342592,
+        "drafts_accepted": 12,
+        "drafts_offered": 12,
+        "cache_hit_fraction": 0.8436274509803922
+      },
+      {
+        "name": "sequence",
+        "tokens": 128,
+        "decode_tok_s": 16.115223850531297,
+        "drafts_accepted": 96,
+        "drafts_offered": 96,
+        "cache_hit_fraction": 0.7708494832041344
+      }
+    ],
+    "smoke-dual-threshold1": [
+      {
+        "name": "arithmetic",
+        "tokens": 3,
+        "decode_tok_s": 6.461339651087659,
+        "drafts_accepted": 0,
+        "drafts_offered": 0,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "literal",
+        "tokens": 6,
+        "decode_tok_s": 6.792709158836183,
+        "drafts_accepted": 0,
+        "drafts_offered": 0,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "code",
+        "tokens": 16,
+        "decode_tok_s": 6.635149705565231,
+        "drafts_accepted": 0,
+        "drafts_offered": 0,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "sequence",
+        "tokens": 128,
+        "decode_tok_s": 7.786409066300056,
+        "drafts_accepted": 22,
+        "drafts_offered": 22,
+        "cache_hit_fraction": 1.0
+      }
+    ],
+    "smoke-reverse": [
+      {
+        "name": "arithmetic",
+        "tokens": 3,
+        "decode_tok_s": 7.953340402969247,
+        "drafts_accepted": 3,
+        "drafts_offered": 3,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "literal",
+        "tokens": 6,
+        "decode_tok_s": 10.478519035976248,
+        "drafts_accepted": 6,
+        "drafts_offered": 6,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "code",
+        "tokens": 16,
+        "decode_tok_s": 15.866719555731853,
+        "drafts_accepted": 12,
+        "drafts_offered": 12,
+        "cache_hit_fraction": 1.0
+      },
+      {
+        "name": "sequence",
+        "tokens": 128,
+        "decode_tok_s": 17.91763487219687,
+        "drafts_accepted": 96,
+        "drafts_offered": 96,
+        "cache_hit_fraction": 1.0
+      }
+    ]
+  },
+  "hardware_warning_detected": true,
+  "host_dram_ce_cumulative": 173,
+  "host_dram_ue_cumulative": 0,
+  "production_or_stability_acceptance": false,
+  "limitations": [
+    "short prompts, 4K configured context; no long-soak/full-logit parity",
+    "timings are individual smoke cases, not an isolated comparative benchmark",
+    "threshold1 still offers some drafts; never label it MTP-off",
+    "CPU reference matches one arithmetic text, not all model logits",
+    "host DRAM MCE/CE/CMCI storm: further stress paused; cumulative CE is not this-run delta"
+  ]
+}

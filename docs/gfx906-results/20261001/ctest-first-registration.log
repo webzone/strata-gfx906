@@ -1,0 +1,102 @@
+Test project /home/chris/dev/strata-gfx906/build-hip
+      Start  1: file_expert_source_test
+ 1/40 Test  #1: file_expert_source_test ..........   Passed    0.02 sec
+      Start  2: hip_expert_cache_staging
+ 2/40 Test  #2: hip_expert_cache_staging .........   Passed    0.08 sec
+      Start  3: hip_intrinsics
+ 3/40 Test  #3: hip_intrinsics ...................   Passed    0.07 sec
+      Start  4: hip_handoff
+ 4/40 Test  #4: hip_handoff ......................   Passed    0.10 sec
+      Start  5: hip_layer_handoff
+ 5/40 Test  #5: hip_layer_handoff ................   Passed    0.62 sec
+      Start  6: hip_device1
+ 6/40 Test  #6: hip_device1 ......................   Passed    0.07 sec
+      Start  7: hip_wave64_probe
+ 7/40 Test  #7: hip_wave64_probe .................   Passed    0.18 sec
+      Start  8: hip_native_qsa_score
+ 8/40 Test  #8: hip_native_qsa_score .............   Passed    0.07 sec
+      Start  9: hip_prefill_native_batch
+ 9/40 Test  #9: hip_prefill_native_batch .........   Passed    0.20 sec
+      Start 10: hip_prefill_hipblaslt_gemm
+10/40 Test #10: hip_prefill_hipblaslt_gemm .......***Skipped   0.06 sec
+      Start 11: dequant_s2_parity
+11/40 Test #11: dequant_s2_parity ................   Passed    0.19 sec
+      Start 12: s2_gemv_parity
+12/40 Test #12: s2_gemv_parity ...................   Passed    0.08 sec
+      Start 13: shared_expert_parity
+13/40 Test #13: shared_expert_parity .............   Passed    0.08 sec
+      Start 14: gr_parity
+14/40 Test #14: gr_parity ........................   Passed    0.29 sec
+      Start 15: gdn_parity
+15/40 Test #15: gdn_parity .......................   Passed    0.15 sec
+      Start 16: s2_gemv_q8_parity
+16/40 Test #16: s2_gemv_q8_parity ................   Passed    0.08 sec
+      Start 17: sampler_parity
+17/40 Test #17: sampler_parity ...................   Passed    1.74 sec
+      Start 18: sampler_parity_one_block
+18/40 Test #18: sampler_parity_one_block .........   Passed    2.56 sec
+      Start 19: sampler_parity_old
+19/40 Test #19: sampler_parity_old ...............   Passed   13.52 sec
+      Start 20: rope_parity
+20/40 Test #20: rope_parity ......................   Passed    0.09 sec
+      Start 21: quantize_act_parity
+21/40 Test #21: quantize_act_parity ..............   Passed    0.14 sec
+      Start 22: router_top10_parity
+22/40 Test #22: router_top10_parity ..............   Passed    0.08 sec
+      Start 23: s_gemv_parity
+23/40 Test #23: s_gemv_parity ....................   Passed    0.11 sec
+      Start 24: elementwise_parity
+24/40 Test #24: elementwise_parity ...............   Passed    0.09 sec
+      Start 25: bf16_gemv_parity
+25/40 Test #25: bf16_gemv_parity .................   Passed    0.25 sec
+      Start 26: s_gemv_q8k_parity
+26/40 Test #26: s_gemv_q8k_parity ................   Passed    0.09 sec
+      Start 27: qsa_parity
+27/40 Test #27: qsa_parity .......................   Passed    0.94 sec
+      Start 28: kv_q8_parity
+28/40 Test #28: kv_q8_parity .....................   Passed    0.16 sec
+      Start 29: kv_stream_parity
+29/40 Test #29: kv_stream_parity .................   Passed    8.74 sec
+      Start 30: kv_hybrid_parity
+30/40 Test #30: kv_hybrid_parity .................   Passed    0.29 sec
+      Start 31: kv_q4_parity
+31/40 Test #31: kv_q4_parity .....................   Passed    0.11 sec
+      Start 32: cvec_parity
+32/40 Test #32: cvec_parity ......................   Passed    0.20 sec
+      Start 33: pinned_shared_test
+33/40 Test #33: pinned_shared_test ...............   Passed    0.04 sec
+      Start 34: ple_reader_selftest
+34/40 Test #34: ple_reader_selftest ..............   Passed    0.93 sec
+      Start 35: hip_device_selftest
+35/40 Test #35: hip_device_selftest ..............   Passed    0.06 sec
+      Start 36: hip_prefill_mmq_parity
+36/40 Test #36: hip_prefill_mmq_parity ...........   Passed    0.91 sec
+      Start 37: hip_gfx906_mmvq_oracle
+37/40 Test #37: hip_gfx906_mmvq_oracle ...........   Passed    2.54 sec
+      Start 38: hip_gfx906_expert_oracle
+38/40 Test #38: hip_gfx906_expert_oracle .........   Passed    2.60 sec
+      Start 39: hip_gfx906_gemm_oracle
+39/40 Test #39: hip_gfx906_gemm_oracle ...........***Failed    0.09 sec
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- wave=64
+FAIL: mode must be mmvq/expert/bf16/f16/mmq
+
+      Start 40: hip_gfx906_mmq_oracle
+40/40 Test #40: hip_gfx906_mmq_oracle ............   Passed    0.85 sec
+
+98% tests passed, 1 tests failed out of 40
+
+Label Time Summary:
+gfx906       =   6.26 sec*proc (5 tests)
+hip          =   6.95 sec*proc (7 tests)
+multigpu     =   0.69 sec*proc (2 tests)
+oracle       =   6.08 sec*proc (4 tests)
+synthetic    =   6.95 sec*proc (7 tests)
+
+Total Test time (real) =  39.50 sec
+
+The following tests did not run:
+	 10 - hip_prefill_hipblaslt_gemm (Skipped)
+
+The following tests FAILED:
+	 39 - hip_gfx906_gemm_oracle (Failed)                   gfx906 hip oracle synthetic
+Errors while running CTest

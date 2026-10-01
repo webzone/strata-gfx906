@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
+#include <string>
 
 #define CHECK(call)                                                                                                  \
     do {                                                                                                             \
@@ -93,7 +94,11 @@ int main() {
     CHECK(hipGetDevice(&device));
     hipDeviceProp_t properties{};
     CHECK(hipGetDeviceProperties(&properties, device));
-    if (properties.warpSize != kLanes) {
+    bool experimental_wave64 = false;
+#if defined(STRATA_EXPERIMENTAL_GFX906)
+    experimental_wave64 = properties.warpSize == 64 && std::string(properties.gcnArchName).starts_with("gfx906");
+#endif
+    if (properties.warpSize != kLanes && !experimental_wave64) {
         std::fprintf(stderr, "expected wave32, got wave%d\n", properties.warpSize);
         return 1;
     }

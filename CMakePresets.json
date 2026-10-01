@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {"major": 3, "minor": 24, "patch": 0},
+  "configurePresets": [
+    {
+      "name": "hip-gfx906",
+      "displayName": "Experimental MI50 gfx906, ROCm /opt/rocm, portable AVX2 host",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-hip",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_HIP_COMPILER": "/opt/rocm/llvm/bin/clang++",
+        "CMAKE_HIP_COMPILER_ROCM_ROOT": "/opt/rocm",
+        "CMAKE_PREFIX_PATH": "/opt/rocm",
+        "CMAKE_HIP_ARCHITECTURES": "gfx906",
+        "STRATA_ENABLE_HIP": "ON",
+        "STRATA_ENABLE_CUDA": "OFF",
+        "STRATA_EXPERIMENTAL_GFX906": "ON",
+        "STRATA_PREFILL_MMQ": "ON",
+        "STRATA_PORTABLE": "ON",
+        "STRATA_BUILD_TESTS": "OFF",
+        "STRATA_HIP_MULTIGPU_TESTS": "OFF",
+        "STRATA_GGML_DIR": "${sourceDir}/third_party/llama.cpp"
+      }
+    },
+    {
+      "name": "hip-gfx906-multigpu",
+      "inherits": "hip-gfx906",
+      "displayName": "MI50 gfx906 with tests requiring two visible GPUs",
+      "cacheVariables": {"STRATA_HIP_MULTIGPU_TESTS": "ON"}
+    }
+  ],
+  "buildPresets": [
+    {"name": "hip-gfx906", "configurePreset": "hip-gfx906", "jobs": 2},
+    {"name": "hip-gfx906-multigpu", "configurePreset": "hip-gfx906-multigpu", "jobs": 2}
+  ],
+  "testPresets": [
+    {
+      "name": "hip-gfx906",
+      "configurePreset": "hip-gfx906",
+      "output": {"outputOnFailure": true},
+      "execution": {"jobs": 1},
+      "filter": {"exclude": {"name": "^(ple_parity|platform_memory_test)$"}},
+      "environment": {"HIP_VISIBLE_DEVICES": "0", "ROCR_VISIBLE_DEVICES": null, "CUDA_VISIBLE_DEVICES": null}
+    },
+    {
+      "name": "hip-gfx906-multigpu",
+      "configurePreset": "hip-gfx906-multigpu",
+      "output": {"outputOnFailure": true},
+      "execution": {"jobs": 1},
+      "filter": {"exclude": {"name": "^(ple_parity|platform_memory_test)$"}},
+      "environment": {"HIP_VISIBLE_DEVICES": "0,1", "ROCR_VISIBLE_DEVICES": null, "CUDA_VISIBLE_DEVICES": null}
+    }
+  ]
+}

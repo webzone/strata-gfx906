@@ -21,6 +21,9 @@ __device__ __forceinline__ int dp4a(int a, int b, int c) {
     // both packed operands signed to preserve CUDA __dp4a semantics; keep the
     // portable path for other HIP compilers/targets.
     return __builtin_amdgcn_sudot4(true, a, true, b, c, false);
+#elif defined(__gfx906__) && __has_builtin(__builtin_amdgcn_sdot4) && !defined(STRATA_MI50_SCALAR_DP4A)
+    // MI50: native signed dot4, wrapping accumulator (no saturation).
+    return __builtin_amdgcn_sdot4(a, b, c, false);
 #else
     const uint32_t ua = static_cast<uint32_t>(a);
     const uint32_t ub = static_cast<uint32_t>(b);
@@ -105,7 +108,15 @@ __device__ __forceinline__ T shfl_sync(uint32_t mask, T value, int source_lane, 
 
 __device__ __forceinline__ unsigned ballot_sync(uint32_t mask, int predicate) {
     require_full_wave_mask(mask);
+#if defined(__gfx906__)
+    // One physical wave64 contains two independent CUDA-shaped logical warps.
+    // HIP ballot returns 64 bits: the upper half must not reuse the lower half's votes.
+    // Use the linear workgroup index, not threadIdx.x (kernels also launch 2D/3D blocks).
+    const unsigned linear = threadIdx.x + blockDim.x * (threadIdx.y + blockDim.y * threadIdx.z);
+    return static_cast<unsigned>(__ballot(predicate) >> (linear & 32u));
+#else
     return static_cast<unsigned>(__ballot(predicate));
+#endif
 }
 
 }  // namespace strata::hip_compat

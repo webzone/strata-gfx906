@@ -1,0 +1,64 @@
+warning: no usable GPU found, --gpu-layers option will be ignored
+warning: one possible reason is that llama.cpp was compiled without GPU support
+warning: consult docs/build.md for compilation instructions
+0.00.006.942 I llama_completion: llama backend init
+0.00.006.949 I llama_completion: load the model and apply lora adapter, if any
+0.03.311.216 I cmn          init: llama threadpool init, n_threads = 6
+0.03.324.625 I 
+0.03.324.662 I system_info: n_threads = 6 (n_threads_batch = 6) / 12 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | 
+0.03.324.663 I 
+0.03.324.757 I llama_completion: prompt: '<|im_start|>user
+只回答一个数字：7+5等于几？<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+'
+0.03.324.760 I llama_completion: number of tokens in prompt = 23
+0.03.324.761 I 248045 -> '<|im_start|>'
+0.03.324.761 I    846 -> 'user'
+0.03.324.761 I    198 -> '
+'
+0.03.324.762 I  96227 -> '只'
+0.03.324.762 I  97913 -> '回答'
+0.03.324.763 I  96125 -> '一个'
+0.03.324.763 I  99129 -> '数字'
+0.03.324.763 I   4960 -> '：'
+0.03.324.764 I     22 -> '7'
+0.03.324.764 I     10 -> '+'
+0.03.324.764 I     20 -> '5'
+0.03.324.765 I 102149 -> '等于'
+0.03.324.765 I  96370 -> '几'
+0.03.324.765 I  10992 -> '？'
+0.03.324.766 I 248046 -> '<|im_end|>'
+0.03.324.767 I    198 -> '
+'
+0.03.324.767 I 248045 -> '<|im_start|>'
+0.03.324.767 I  74455 -> 'assistant'
+0.03.324.767 I    198 -> '
+'
+0.03.324.768 I 248068 -> '<think>'
+0.03.324.768 I    271 -> '
+
+'
+0.03.324.768 I 248069 -> '</think>'
+0.03.324.768 I    198 -> '
+'
+0.03.324.769 I 
+0.03.324.771 I sampler seed: 807132472
+0.03.324.777 I sampler params: 
+	repeat_last_n = 64, repeat_penalty = 1.000, frequency_penalty = 0.000, presence_penalty = 0.000
+	dry_multiplier = 0.000, dry_base = 1.750, dry_allowed_length = 2, dry_penalty_last_n = 64
+	top_k = 20, top_p = 0.950, min_p = 0.050, xtc_probability = 0.000, xtc_threshold = 0.100, typical_p = 1.000, top_n_sigma = -1.000, temp = 0.000
+	mirostat = 0, mirostat_lr = 0.100, mirostat_ent = 5.000, adaptive_target = -1.000, adaptive_decay = 0.900
+0.03.324.963 I sampler chain: logits -> ?penalties -> ?dry -> ?top-n-sigma -> top-k -> ?typical -> top-p -> min-p -> ?xtc -> temp-ext -> dist 
+0.03.324.966 I generate: n_ctx = 4096, n_batch = 2048, n_predict = 3, n_keep = 0
+0.03.324.966 I 
+0.06.168.389 I common_perf_print:    sampling time =       8.24 ms
+0.06.168.390 I common_perf_print:    samplers time =       1.05 ms /    26 tokens
+0.06.168.392 I common_perf_print:        load time =    2357.46 ms
+0.06.168.394 I common_perf_print: prompt eval time =    2357.10 ms /    23 tokens (  102.48 ms per token,     9.76 tokens per second)
+0.06.168.395 I common_perf_print:        eval time =     478.00 ms /     2 runs   (  239.00 ms per token,     4.18 tokens per second)
+0.06.168.396 I common_perf_print:       total time =    2843.77 ms /    25 tokens
+0.06.168.397 I common_perf_print: unaccounted time =       0.43 ms /   0.0 %      (total - sampling - prompt eval - eval) / (total)
+0.06.168.397 I common_perf_print:    graphs reused =          1

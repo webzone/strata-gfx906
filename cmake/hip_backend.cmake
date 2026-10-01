@@ -7,12 +7,15 @@ endif()
 # Validated on real cards: gfx1100 (RX 7900 XT / XTX) and gfx1201 (RX 9070 / 9070 XT, Radeon AI PRO R9700).
 # The other RDNA3 / RDNA4 wave32 chips have the same LDS limit and dot4 instruction and build the same code, but
 # the maintainers have not run them (community reports: gfx1102 #192, gfx1200 #176).
+option(STRATA_EXPERIMENTAL_GFX906 "EXPERIMENTAL: MI50 wave64 with two logical wave32 groups; requires parity validation" OFF)
 set(_strata_hip_validated gfx1100 gfx1201)
 set(_strata_hip_unvalidated gfx1101 gfx1102 gfx1200)
 set(STRATA_HIP_ARCH_LIST "")
 foreach(_arch IN LISTS CMAKE_HIP_ARCHITECTURES)
   string(REGEX REPLACE ":.*$" "" _base "${_arch}")      # gfx1100:xnack- -> gfx1100
-  if(_base IN_LIST _strata_hip_validated)
+  if(_base STREQUAL "gfx906" AND STRATA_EXPERIMENTAL_GFX906)
+    message(WARNING "Strata EXPERIMENTAL gfx906 wave64: not upstream-supported; model-level validation required")
+  elseif(_base IN_LIST _strata_hip_validated)
   elseif(_base IN_LIST _strata_hip_unvalidated)
     message(WARNING "Strata HIP: ${_base} builds, but it is not validated on a real card yet; please report results")
   else()
@@ -56,6 +59,9 @@ add_library(strata_hip_runtime INTERFACE)
 target_include_directories(strata_hip_runtime BEFORE INTERFACE
   "${STRATA_HIP_COMPAT_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_definitions(strata_hip_runtime INTERFACE STRATA_USE_HIP=1 "STRATA_HIP_ARCHS=\"${STRATA_HIP_ARCHS}\"")
+if(STRATA_EXPERIMENTAL_GFX906)
+  target_compile_definitions(strata_hip_runtime INTERFACE STRATA_EXPERIMENTAL_GFX906=1)
+endif()
 target_link_libraries(strata_hip_runtime INTERFACE hip::host)
 foreach(_language IN ITEMS CXX HIP)
   target_compile_options(strata_hip_runtime INTERFACE
@@ -71,7 +77,8 @@ file(GLOB_RECURSE _strata_hip_sources CONFIGURE_DEPENDS
 if(_strata_hip_sources)
   set_source_files_properties(${_strata_hip_sources} PROPERTIES LANGUAGE HIP)
 endif()
-foreach(_source IN ITEMS tests/hip/intrinsics.cpp tests/hip/native_qsa_score.cpp)
+foreach(_source IN ITEMS tests/hip/intrinsics.cpp tests/hip/native_qsa_score.cpp
+                         tests/hip/wave64_probe.cpp tests/hip/operator_probe.cpp tests/hip/layer_handoff.cpp)
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_source}")
     set_source_files_properties("${_source}" PROPERTIES LANGUAGE HIP)
   endif()

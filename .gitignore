@@ -49,3 +49,6 @@ build-vision.bat
 *.done
 /third_party/*.zip
 
+# Small, reviewed audit evidence only; model/binary/build outputs stay ignored.
+!/docs/gfx906-results/**/*.log
+

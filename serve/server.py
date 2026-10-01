@@ -529,13 +529,16 @@ class Vision:
 
 
 def gpu_list(cfg: dict) -> list[int]:
-    """The config's "gpu": one card (2), or several for a layer split ([0, 2] or "0,2"), numbered as nvidia-smi
-    numbers them; [] when it names none."""
+    """The config's GPU selection: NVIDIA nvidia-smi ordinals, or AMD KFD/HIP ordinals.
+    One card (2) or an ordered layer split ([0, 2] or "0,2"); [] when unspecified."""
     g = cfg.get("gpu")
     if g is None or g == "":
         return []
     items = g if isinstance(g, (list, tuple)) else str(g).split(",")
-    return [int(str(x).strip()) for x in items if str(x).strip() != ""]
+    result = [int(str(x).strip()) for x in items if str(x).strip() != ""]
+    if any(i < 0 for i in result) or len(set(result)) != len(result):
+        raise ValueError("GPU ordinals must be nonnegative and distinct")
+    return result
 
 
 def engine_args(cfg: dict) -> list[str]:
@@ -551,13 +554,17 @@ def child_env(cfg: dict) -> dict:
     """The engine's environment: the CUDA libraries setup installed (pip's nvidia packages, or the toolkit that
     compiled it) first on the library search path."""
     env = dict(os.environ)
-    if gpu_list(cfg) and cfg.get("backend") == "hip":   # AMD: numbered as HIP numbers them (setup's KFD order)
-        env["HIP_VISIBLE_DEVICES"] = ",".join(str(i) for i in gpu_list(cfg))
-    elif gpu_list(cfg):                              # issue #51: the GPU(s) to run on, numbered as nvidia-smi does; CUDA's
+    if gpu_list(cfg) and cfg.get("backend") != "hip":                              # issue #51: the GPU(s) to run on, numbered as nvidia-smi does; CUDA's
         env["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"      # own default order (fastest first) can number the cards otherwise
         env["CUDA_VISIBLE_DEVICES"] = ",".join(str(i) for i in gpu_list(cfg))
     for k, v in (cfg.get("env") or {}).items():      # engine settings the config carries (AMD: the GEMM tuning table)
         env[str(k)] = str(v)
+    if gpu_list(cfg) and cfg.get("backend") == "hip":
+        # An explicit config owns the HIP mask. A stale parent ROCR/CUDA mask
+        # would otherwise hide GPU1, or remap an ordered list a second time.
+        env.pop("ROCR_VISIBLE_DEVICES", None)
+        env.pop("CUDA_VISIBLE_DEVICES", None)
+        env["HIP_VISIBLE_DEVICES"] = ",".join(str(i) for i in gpu_list(cfg))
     dirs = [d for d in cfg.get("lib_dirs") or [] if Path(d).is_dir()]
     if dirs:
         var = "PATH" if os.name == "nt" else "LD_LIBRARY_PATH"
