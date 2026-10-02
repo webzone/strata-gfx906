@@ -204,15 +204,20 @@ class Downloads(unittest.TestCase):
 
 class StorageAndRanges(unittest.TestCase):
     def test_complete_model_recheck_needs_only_safety_floor(self):
+        # main() picks the pack from MODEL_FILES[args.model], so the fake pack replaces the
+        # whole model menu; index 1 is the PLE shard the --share-ple-from path expects.
+        pack = (("test.gguf", 5, "unused"), ("test-ple.gguf", 5, "unused"))
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
             (folder / "test.gguf").write_bytes(b"ready")
-            with patch.object(model, "FILES", (("test.gguf", 5, "unused"),)), \
+            (folder / "test-ple.gguf").write_bytes(b"ready")
+            with patch.object(model, "MODEL_FILES", {"IQ2_XS": pack}), \
                  patch.object(model.shutil, "disk_usage", return_value=type("Disk", (), {"free": 5*model.GIB})()), \
                  patch.object(sys, "argv", ["model", "--directory", directory]), \
                  contextlib.redirect_stdout(io.StringIO()) as out:
                 model.main()
             plan = json.loads(out.getvalue())
+            self.assertEqual(plan["remaining_bytes"], 0)
             self.assertTrue(plan["fits"])
             self.assertEqual(plan["reserve_bytes"], 4*model.GIB)
 
