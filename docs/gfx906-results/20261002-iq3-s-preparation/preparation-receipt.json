@@ -1,0 +1,105 @@
+{
+  "started_utc": "2026-10-02T03:55:42.607310+00:00",
+  "model": "IQ3_S",
+  "checkout": "/home/chris/dev/strata-gfx906",
+  "source_commit": "6abb5a94a99d02cb2a63ba5fb13964ae8a527680",
+  "repo": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF",
+  "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+  "model_directory": "/home/chris/dev/strata-gfx906/models/IQ3_S",
+  "pack": "/home/chris/dev/strata-gfx906/packs/iq3_s",
+  "configuration": "/home/chris/dev/strata-gfx906/run-iq3-s.json",
+  "launcher": "/home/chris/dev/strata-gfx906/run-iq3-s.sh",
+  "private_logs": "/home/chris/dev/strata-gfx906/logs/prepare-IQ3_S-20261002T035542Z",
+  "initial_root_free_bytes": 118596861952,
+  "additional_gguf_budget_bytes": 54817524224,
+  "shared_ple_bytes": 28800138432,
+  "pack_budget_bytes": 21474836480,
+  "safety_floor_bytes": 4294967296,
+  "additional_mtp_source_bytes": 0,
+  "additional_mtp_runtime_bytes": 0,
+  "mtp_reused": "/home/chris/dev/strata-gfx906/mtp/rt",
+  "mtp_revision": "de4b8e4d43b917e7706784d8bb445c9af86a3540",
+  "tests_run": false,
+  "new_model_started": false,
+  "services_stopped": false,
+  "ready_for_manual_start": true,
+  "commands": [
+    [
+      "/home/chris/dev/strata-gfx906/.venv/bin/python",
+      "/home/chris/dev/strata-gfx906/tools/mtp_fetch.py",
+      "verify",
+      "--out",
+      "/home/chris/dev/strata-gfx906/mtp/bf16"
+    ],
+    [
+      "/home/chris/dev/strata-gfx906/.venv/bin/python",
+      "/home/chris/dev/strata-gfx906/tools/gfx906_model.py",
+      "--model",
+      "IQ3_S",
+      "--directory",
+      "/home/chris/dev/strata-gfx906/models/IQ3_S",
+      "--share-ple-from",
+      "/home/chris/dev/strata-gfx906/models/IQ2_XS/Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf",
+      "--rate-mib",
+      "40",
+      "--reserve-gib",
+      "24",
+      "--fetch"
+    ],
+    [
+      "/home/chris/dev/strata-gfx906/.venv/bin/python",
+      "/home/chris/dev/strata-gfx906/tools/iq_pack.py",
+      "--gguf",
+      "/home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+      "--out",
+      "/home/chris/dev/strata-gfx906/packs/iq3_s",
+      "--compat-bf16"
+    ]
+  ],
+  "phase": "ready-without-startup",
+  "updated_utc": "2026-10-02T04:22:22.470370+00:00",
+  "mtp-source-integrity_exit": 0,
+  "download_exit": 0,
+  "gguf_full_sha256_verified": true,
+  "ple_hard_linked": true,
+  "gguf_files": [
+    {
+      "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+      "bytes": 54817524224,
+      "sha256": "4c1eb2ceb4915e1192f4f386021897bde56a97f40a0bb78bb86465e0f7d2aca3"
+    },
+    {
+      "name": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf",
+      "bytes": 28800138432,
+      "sha256": "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"
+    }
+  ],
+  "dense_output_bytes_from_headers": 1538035200,
+  "pack_metadata_allowance_bytes": 67108864,
+  "expert_tensor_formats": {
+    "IQ4_NL": 39,
+    "IQ3_XXS": 34,
+    "Q2_0": 9,
+    "IQ2_S": 40,
+    "IQ3_S": 20,
+    "IQ4_XS": 2
+  },
+  "conservative_conversion_ram_bytes": 1258291200,
+  "pack_exit": 0,
+  "pack_bytes": 1547978412,
+  "original_config_written": false,
+  "original_config_unchanged_since_job_start": true,
+  "original_config_sha256": "47af6363523c875345b6224fe4483304c9ca62271c0f648dfb857f7c540a95a7",
+  "root_free_bytes": 62231109632,
+  "api_key_enabled": false,
+  "host": "0.0.0.0",
+  "port": 8082,
+  "gpu": [
+    0,
+    1
+  ],
+  "layer_split": "24",
+  "max_context": "262144",
+  "kv": "int8",
+  "current_8082_listener": ""
+}

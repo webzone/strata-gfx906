@@ -1,0 +1,10 @@
+{
+  "git_status": "## gfx906...origin/gfx906",
+  "binary_unchanged": true,
+  "configuration_ready": true,
+  "original_config_unchanged": true,
+  "launchers_syntax_checked_without_execution": true,
+  "port_8082_listener": "",
+  "model_server_started": false,
+  "tests_run": false
+}
