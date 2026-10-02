@@ -1,0 +1,152 @@
+test_all_is_every_supported_card_most_vram_first (test_setup_amd.GpuLists.test_all_is_every_supported_card_most_vram_first) ... ok
+test_build_for_every_arch (test_setup_amd.GpuLists.test_build_for_every_arch)
+build_engine_hip compiles for the set of the chosen cards' archs and records it in BUILD.json. ... ok
+test_list_in_order (test_setup_amd.GpuLists.test_list_in_order) ... ok
+test_refusals (test_setup_amd.GpuLists.test_refusals) ... ok
+test_wheels_hold_one_family (test_setup_amd.GpuLists.test_wheels_hold_one_family) ... ok
+test_every_family (test_setup_amd.KfdDetection.test_every_family) ... ok
+test_no_kfd (test_setup_amd.KfdDetection.test_no_kfd) ... ok
+test_rocm_index_per_family (test_setup_amd.KfdDetection.test_rocm_index_per_family) ... ok
+test_adapters (test_setup_amd.WindowsDetection.test_adapters) ... ok
+test_arch_names (test_setup_amd.WindowsDetection.test_arch_names) ... ok
+test_hip_card (test_setup_amd.WindowsDetection.test_hip_card) ... ok
+test_list_devices (test_setup_amd.WindowsDetection.test_list_devices) ... ok
+test_no_hip_engine_no_probe (test_setup_amd.WindowsDetection.test_no_hip_engine_no_probe) ... ok
+test_prebuilt_hip_zip (test_setup_amd.WindowsDetection.test_prebuilt_hip_zip)
+get_prebuilt_hip: a published zip (here a local folder) is unpacked into engine/; one without code for the ... ok
+test_registry_alone (test_setup_amd.WindowsDetection.test_registry_alone)
+No WMI answer: the registry's own list (which can hold a removed card). ... ok
+test_the_card_by_its_hip_ordinal (test_setup_amd.WindowsDetection.test_the_card_by_its_hip_ordinal)
+#325: setup's GPU 0 (the 9070 XT, display order) is HIP's device 1 behind the iGPU. ... ok
+test_windows_dispatch (test_setup_amd.WindowsDetection.test_windows_dispatch)
+amd_gpus() on Windows: HIP's numbering once the HIP engine answers, the display adapters before. ... ok
+test_no_cpu_encoder_on_windows (test_setup_amd.WindowsHipVision.test_no_cpu_encoder_on_windows) ... ok
+test_find_nvcc_below (test_setup_choices.ExperimentalSm60.test_find_nvcc_below) ... ok
+test_pascal_takes_cuda_12 (test_setup_choices.ExperimentalSm60.test_pascal_takes_cuda_12) ... ok
+test_pascal_without_cuda_12_stops (test_setup_choices.ExperimentalSm60.test_pascal_without_cuda_12_stops) ... ok
+test_the_build_flag (test_setup_choices.ExperimentalSm60.test_the_build_flag) ... ok
+test_the_gate (test_setup_choices.ExperimentalSm60.test_the_gate) ... ok
+test_another_split_of_a_setup_size (test_setup_choices.GgufDirShards.test_another_split_of_a_setup_size) ... ok
+test_four_unsloth_shards (test_setup_choices.GgufDirShards.test_four_unsloth_shards) ... ok
+test_nothing_recognisable_keeps_the_published_names (test_setup_choices.GgufDirShards.test_nothing_recognisable_keeps_the_published_names) ... ok
+test_the_published_two_shards (test_setup_choices.GgufDirShards.test_the_published_two_shards) ... ok
+test_the_choice (test_setup_choices.HipVision.test_the_choice) ... ok
+test_the_cpu_encoder_is_built_once (test_setup_choices.HipVision.test_the_cpu_encoder_is_built_once) ... ok
+test_without_images_nothing_changes (test_setup_choices.HipVision.test_without_images_nothing_changes) ... ok
+test_a_card_the_encoder_has_no_code_for_gets_the_cpu_encoder (test_setup_choices.PrebuiltVision.test_a_card_the_encoder_has_no_code_for_gets_the_cpu_encoder) ... ok
+test_covered_cards_keep_the_gpu_encoder (test_setup_choices.PrebuiltVision.test_covered_cards_keep_the_gpu_encoder) ... ok
+test_other_choices_are_left_alone (test_setup_choices.PrebuiltVision.test_other_choices_are_left_alone) ... ok
+test_cyrillic_replaces_a_shipped_subset_and_stays (test_setup_draft_vocab.Refresh.test_cyrillic_replaces_a_shipped_subset_and_stays) ...   [ok] draft layer: the token subset with the Cyrillic script
+ok
+test_a_config_keeps_its_choice (test_setup_draft_vocab.SavedChoice.test_a_config_keeps_its_choice) ... ok
+test_no_choice_without_a_valid_config (test_setup_draft_vocab.SavedChoice.test_no_choice_without_a_valid_config) ... ok
+test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) ... ok
+test_the_baseline_covers_every_kind_of_pc (test_setup_golden.Golden.test_the_baseline_covers_every_kind_of_pc) ... ok
+test_the_refusals_with_yes_alone_stay (test_setup_golden.Golden.test_the_refusals_with_yes_alone_stay)
+A size the baseline refused with --yes and no explicit --model still stops (--yes alone is no consent). ... ok
+test_yes (test_setup_golden.Golden.test_yes) ... ok
+test_an_explicit_choice_says_so (test_setup_lowram.OneGpuWhy.test_an_explicit_choice_says_so) ... ok
+test_auto_shows_the_ram_math (test_setup_lowram.OneGpuWhy.test_auto_shows_the_ram_math) ... ok
+test_interactive (test_setup_lowram.PagingQuestion.test_interactive) ... ok
+test_yes_with_auto_still_stops (test_setup_lowram.PagingQuestion.test_yes_with_auto_still_stops) ... ok
+test_yes_with_low_ram_off_installs (test_setup_lowram.PagingQuestion.test_yes_with_low_ram_off_installs) ... ok
+test_a_refused_archive_is_not_kept (test_setup_pins.Engine.test_a_refused_archive_is_not_kept)
+PR #324: a refused archive (too old, or no code for the GPU) kept its zip and .done mark, and every later ... ok
+test_an_installed_engine_is_kept (test_setup_pins.Engine.test_an_installed_engine_is_kept) ... ok
+test_bases (test_setup_pins.Engine.test_bases) ... ok
+test_latest_when_it_is_not_published (test_setup_pins.Engine.test_latest_when_it_is_not_published) ... /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_the_checkout_s_release_first (test_setup_pins.Engine.test_the_checkout_s_release_first) ... ok
+test_a_gone_revision_fails_without_changing_partial_bytes (test_setup_pins.HuggingFacePins.test_a_gone_revision_fails_without_changing_partial_bytes) ... ok
+test_every_model_url_is_pinned (test_setup_pins.HuggingFacePins.test_every_model_url_is_pinned) ... ok
+test_mtp_fetch_is_pinned_and_fails_closed (test_setup_pins.HuggingFacePins.test_mtp_fetch_is_pinned_and_fails_closed) ... ok
+test_unpinned (test_setup_pins.HuggingFacePins.test_unpinned) ... ok
+test_a_changed_pin_is_installed (test_setup_pins.Requirements.test_a_changed_pin_is_installed) ... ok
+test_an_install_from_before_the_pins_is_left_alone (test_setup_pins.Requirements.test_an_install_from_before_the_pins_is_left_alone) ... ok
+test_every_package_is_pinned (test_setup_pins.Requirements.test_every_package_is_pinned) ... ok
+test_fresh_install_gets_every_pin (test_setup_pins.Requirements.test_fresh_install_gets_every_pin) ... ok
+test_eof_never_starts_an_installer (test_setup_prompts.BuildTools.test_eof_never_starts_an_installer) ... ok
+test_yes_still_installs_missing_windows_tools (test_setup_prompts.BuildTools.test_yes_still_installs_missing_windows_tools) ... ok
+test_enter_and_explicit_answers (test_setup_prompts.Prompts.test_enter_and_explicit_answers) ... ok
+test_eof_after_invalid_answer_stops (test_setup_prompts.Prompts.test_eof_after_invalid_answer_stops) ... ok
+test_eof_stops_with_guidance (test_setup_prompts.Prompts.test_eof_stops_with_guidance) ... ok
+test_invalid_answer_reprompts_and_preserves_choice_case (test_setup_prompts.Prompts.test_invalid_answer_reprompts_and_preserves_choice_case) ... ok
+test_yes_accepts_the_default_without_reading_input (test_setup_prompts.Prompts.test_yes_accepts_the_default_without_reading_input) ... ok
+test_interactive_default_is_no (test_setup_risk.ConfirmRisk.test_interactive_default_is_no) ... ok
+test_paging_with_an_explicit_model (test_setup_risk.ConfirmRisk.test_paging_with_an_explicit_model) ... ok
+test_yes_alone_keeps_the_stop (test_setup_risk.ConfirmRisk.test_yes_alone_keeps_the_stop) ... ok
+test_yes_with_an_explicit_choice_is_consent (test_setup_risk.ConfirmRisk.test_yes_with_an_explicit_choice_is_consent) ... ok
+test_a_picked_256k_is_kept_and_the_menu_says_the_risk (test_setup_risk.Context.test_a_picked_256k_is_kept_and_the_menu_says_the_risk) ... ok
+test_an_explicit_256k_is_kept (test_setup_risk.Context.test_an_explicit_256k_is_kept) ... ok
+test_low_ram_mode_keeps_262k_without_a_ram_note (test_setup_risk.Context.test_low_ram_mode_keeps_262k_without_a_ram_note) ... ok
+test_the_earlier_install_keeps_its_context (test_setup_risk.Context.test_the_earlier_install_keeps_its_context)
+An update (a new copy of Strata) set up like the earlier install keeps its 256K instead of capping it. ... ok
+test_the_ram_rule (test_setup_risk.Context.test_the_ram_rule) ... ok
+test_budget_flag_on_another_size (test_setup_risk.KvStreaming.test_budget_flag_on_another_size) ... ok
+test_off (test_setup_risk.KvStreaming.test_off) ... ok
+test_on_past_the_ram_test (test_setup_risk.KvStreaming.test_on_past_the_ram_test) ... ok
+test_on_where_it_cannot (test_setup_risk.KvStreaming.test_on_where_it_cannot) ... ok
+test_asked_and_answered_two (test_setup_risk.LowRamGpus.test_asked_and_answered_two) ... ok
+test_explicit_gpus_are_kept_with_the_mapped_variant (test_setup_risk.LowRamGpus.test_explicit_gpus_are_kept_with_the_mapped_variant) ... ok
+test_low_ram_resident_alone_keeps_one_gpu_without_asking (test_setup_risk.LowRamGpus.test_low_ram_resident_alone_keeps_one_gpu_without_asking) ... ok
+test_low_ram_resident_with_gpus (test_setup_risk.LowRamGpus.test_low_ram_resident_with_gpus) ... ok
+test_the_share_counts_every_card (test_setup_risk.LowRamGpus.test_the_share_counts_every_card) ... ok
+test_yes_and_enter_keep_one_gpu (test_setup_risk.LowRamGpus.test_yes_and_enter_keep_one_gpu) ... ok
+test_an_explicit_model_goes_on (test_setup_risk.RamFloor.test_an_explicit_model_goes_on) ... ok
+test_yes_alone_stops (test_setup_risk.RamFloor.test_yes_alone_stops) ... ok
+test_named_and_enter_stops (test_setup_risk.SmallCard.test_named_and_enter_stops) ... ok
+test_named_with_yes (test_setup_risk.SmallCard.test_named_with_yes) ... ok
+test_not_named_is_not_offered (test_setup_risk.SmallCard.test_not_named_is_not_offered) ... ok
+test_offer_together_recommends_one_gpu_for_a_resident_config (test_setup_risk.StartOnSeveralGpus.test_offer_together_recommends_one_gpu_for_a_resident_config) ... ok
+test_split_mmap (test_setup_risk.StartOnSeveralGpus.test_split_mmap) ... ok
+test_start_with_gpus (test_setup_risk.StartOnSeveralGpus.test_start_with_gpus) ... ok
+test_free_form_contexts_get_the_exact_ratio (test_setup_rope.DerivedFactor.test_free_form_contexts_get_the_exact_ratio) ... ok
+test_the_clamp_is_what_keeps_128k_at_one (test_setup_rope.DerivedFactor.test_the_clamp_is_what_keeps_128k_at_one) ... ok
+test_the_task_table (test_setup_rope.DerivedFactor.test_the_task_table) ... ok
+test_512k_on_a_small_ram_machine_resolves_to_128k_factor_1 (test_setup_rope.ResolveRope.test_512k_on_a_small_ram_machine_resolves_to_128k_factor_1) ... ok
+test_a_chosen_method_within_trained_gets_factor_1 (test_setup_rope.ResolveRope.test_a_chosen_method_within_trained_gets_factor_1) ... ok
+test_a_scale_alone_within_trained_is_rejected (test_setup_rope.ResolveRope.test_a_scale_alone_within_trained_is_rejected) ... ok
+test_an_explicit_override_survives_a_context_reduction (test_setup_rope.ResolveRope.test_an_explicit_override_survives_a_context_reduction) ... ok
+test_deterministic_for_yes (test_setup_rope.ResolveRope.test_deterministic_for_yes) ... ok
+test_explicit_method_and_factor_are_kept_verbatim (test_setup_rope.ResolveRope.test_explicit_method_and_factor_are_kept_verbatim) ... ok
+test_explicit_method_gets_the_derived_factor (test_setup_rope.ResolveRope.test_explicit_method_gets_the_derived_factor) ... ok
+test_explicit_none_past_trained_is_refused (test_setup_rope.ResolveRope.test_explicit_none_past_trained_is_refused) ... ok
+test_explicit_none_within_trained_is_the_stock_model (test_setup_rope.ResolveRope.test_explicit_none_within_trained_is_the_stock_model) ... ok
+test_linear_gets_the_same_rule_as_yarn (test_setup_rope.ResolveRope.test_linear_gets_the_same_rule_as_yarn) ... ok
+test_no_reduction_384k_and_512k_resolve_as_documented (test_setup_rope.ResolveRope.test_no_reduction_384k_and_512k_resolve_as_documented) ... ok
+test_omitted_384k_gets_yarn_and_1_5 (test_setup_rope.ResolveRope.test_omitted_384k_gets_yarn_and_1_5) ... ok
+test_omitted_512k_gets_yarn_and_2 (test_setup_rope.ResolveRope.test_omitted_512k_gets_yarn_and_2) ... ok
+test_omitted_method_with_an_explicit_factor (test_setup_rope.ResolveRope.test_omitted_method_with_an_explicit_factor) ... ok
+test_omitted_within_trained_adds_nothing (test_setup_rope.ResolveRope.test_omitted_within_trained_adds_nothing) ... ok
+test_the_short_context_table (test_setup_rope.ResolveRope.test_the_short_context_table) ... ok
+test_ram_less_24 (test_setup_unsloth.Budget.test_ram_less_24) ... ok
+test_choices_from_config (test_setup_unsloth.Config.test_choices_from_config) ... ok
+test_amd_is_asked_before_the_download (test_setup_unsloth.Main.test_amd_is_asked_before_the_download)
+#429: UD-Q4_K_XL has not run on AMD (CUDA-only prompt kernels): --yes alone stops before the 111 GB ... ok
+test_budget_flag (test_setup_unsloth.Main.test_budget_flag)
+S4: --resident-budget-gib N is kept; more than the recommendation says what it risks. ... ok
+test_budget_flag_needs_a_positive_number (test_setup_unsloth.Main.test_budget_flag_needs_a_positive_number) ... ok
+test_budget_flag_with_kv_streaming_is_kept (test_setup_unsloth.Main.test_budget_flag_with_kv_streaming_is_kept) ... ok
+test_install (test_setup_unsloth.Main.test_install) ... ok
+test_kv_streaming_comes_out_of_the_budget (test_setup_unsloth.Main.test_kv_streaming_comes_out_of_the_budget) ... ok
+test_more_ram_bigger_budget (test_setup_unsloth.Main.test_more_ram_bigger_budget) ... ok
+test_old_engine_stops_before_the_download (test_setup_unsloth.Main.test_old_engine_stops_before_the_download) ... ok
+test_one_gpu_and_no_images (test_setup_unsloth.Main.test_one_gpu_and_no_images) ... ok
+test_recommended_context_on_12_gb (test_setup_unsloth.Main.test_recommended_context_on_12_gb) ... ok
+test_resumed_download_needs_room_for_the_rest_only (test_setup_unsloth.Main.test_resumed_download_needs_room_for_the_rest_only)
+#425: the disk check counts the finished shards and .part files already there (sizes scaled down: a ... ok
+test_too_little_ram (test_setup_unsloth.Main.test_too_little_ram) ... ok
+test_too_little_ram_with_an_explicit_model_installs (test_setup_unsloth.Main.test_too_little_ram_with_an_explicit_model_installs)
+S6 (the owner's rule): --model with --yes is the consent; the risk is said. ... ok
+test_not_in_the_other_families (test_setup_unsloth.Pins.test_not_in_the_other_families) ... ok
+test_the_four_shards (test_setup_unsloth.Pins.test_the_four_shards) ... ok
+test_a_download_mark_alone_is_not_enough (test_setup_unsloth.Sha256.test_a_download_mark_alone_is_not_enough) ... ok
+test_good_file_marked_once (test_setup_unsloth.Sha256.test_good_file_marked_once) ... ok
+test_wrong_hash_deletes_it (test_setup_unsloth.Sha256.test_wrong_hash_deletes_it) ... ok
+test_wrong_size (test_setup_unsloth.Sha256.test_wrong_size) ... ok
+
+----------------------------------------------------------------------
+Ran 132 tests in 0.289s
+
+OK

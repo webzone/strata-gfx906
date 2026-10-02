@@ -1,6 +1,6 @@
 #pragma once
 
-// CUDA-shaped intrinsics for RDNA3 / RDNA4 wave32 and this fork's MI50 / MI60 logical-wave32-on-wave64 path.
+// CUDA-shaped intrinsics for RDNA2 / RDNA3 / RDNA4 wave32 and this fork's MI50 / MI60 logical-wave32-on-wave64 path.
 // This header is included only from the HIP cuda_runtime compatibility shim.
 #if defined(__HIPCC__)
 
@@ -23,6 +23,10 @@ __device__ __forceinline__ int dp4a(int a, int b, int c) {
     return __builtin_amdgcn_sudot4(true, a, true, b, c, false);
 #elif defined(__gfx906__) && __has_builtin(__builtin_amdgcn_sdot4) && !defined(STRATA_MI50_SCALAR_DP4A)
     // MI50: native signed dot4, wrapping accumulator (no saturation).
+    return __builtin_amdgcn_sdot4(a, b, c, false);
+#elif (defined(__gfx1030__) || defined(__gfx1031__) || defined(__gfx1032__)) && __has_builtin(__builtin_amdgcn_sdot4)
+    // RDNA2 has no sudot4 (that is gfx11+), but it has the plain signed v_dot4_i32_i8 (dot1-insts): the same
+    // signed x signed byte products accumulated modulo 2^32, no clamp.
     return __builtin_amdgcn_sdot4(a, b, c, false);
 #else
     const uint32_t ua = static_cast<uint32_t>(a);

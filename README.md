@@ -8,7 +8,7 @@ The gfx906 backend is experimental and must be enabled explicitly. The validatio
 
 ## Recent MI50 workload results
 
-These are the **current v0.1.31** GSQ-RCO IQ2_XS workload observations from the dual-MI50 T5810 server
+These are the **deployed v0.1.31** GSQ-RCO IQ2_XS workload observations from the dual-MI50 T5810 server
 (ROCm 7.2.4), replacing the earlier pre-v0.1.31 numbers in this README. The live window includes repeated
 turns, a warm prompt/KV cache, speculative decoding, and a large active context; it is an operational
 snapshot, **not a controlled benchmark**.
@@ -50,7 +50,7 @@ GPU checks are documented in the [gfx906 development guide](docs/GFX906.md).
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
-This is not a general claim that every feature or model in upstream Strata is available on gfx906. For example, HIP image input is not available in the current validated path, and the HTTP server processes requests serially.
+This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server processes requests serially. Upstream now offers an optional Linux CPU image encoder (`--vision cpu`); it is integrated in source but has not been validated with the gfx906 model. There is no HIP GPU image encoder.
 
 ## Install and build
 
@@ -98,7 +98,7 @@ cmake --build --preset hip-gfx906
 This compiles the engine only; it does not download model files or create a serving config. See the [gfx906 development guide](docs/GFX906.md) for the dual-GPU test preset and the full regression coverage. Do not set `HSA_OVERRIDE_GFX_VERSION` or use a wheel built for a different GPU architecture.
 
 Upstream's RDNA paths are retained: gfx1100, gfx1101, gfx1200 and gfx1201, including community-validated
-RX 7800 XT / 7700 XT and RX 9060 XT support. See [AMD_HIP](docs/AMD_HIP.md) for their scope and
+RX 7800 XT / 7700 XT and RX 9060 XT support, plus community-reported gfx1030 (RX 6800 / 6900). See [AMD_HIP](docs/AMD_HIP.md) for their scope and
 [Multi-GPU](docs/MULTI_GPU.md) for pipeline details. Those cards may use family-specific TheRock wheels;
 **MI50 / MI60 may not** and always require `--experimental-gfx906` plus an existing system ROCm SDK.
 
@@ -182,18 +182,22 @@ For the engine's complete option list, run `./engine/strata --help` after instal
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.1.31 / `9259cad`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.1.34 / `1678de3`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,
 compatibility limitations, source-sync validation, and reproducible evidence, start with the
-[gfx906 development guide](docs/GFX906.md).
+[gfx906 development guide](docs/GFX906.md). The deployed v0.1.31 measurements above do not validate
+newer source or establish a post-merge speedup. General upstream model choices, installation, MCP tools
+and architecture explanations are in [MODELS](docs/MODELS.md), [INSTALL](docs/INSTALL.md),
+[MCP_SERVER](docs/MCP_SERVER.md) and [HOW_IT_WORKS](docs/HOW_IT_WORKS.md); use this fork's MI50 instructions
+rather than their RDNA wheel/prebuilt defaults.
 
 ## Where things are stored
 
 - **Chats stay in the browser.** The Chat tab keeps conversation history, settings and the entered API key
   in local storage (`strata.*` keys), not in server files. Another browser or private session starts empty;
-  clearing site data removes those chats. HIP image input is not supported.
+  clearing site data removes those chats. CPU image input has not been validated on gfx906.
 - **Launch settings stay in the checkout:** `strata-<model>.json`, `run-<model>.sh`,
   `strata-<model>.log`, and optionally `strata-<model>.shared-settings.json`. Do not publish API keys.
 - **Model data stays outside the checkout by default:** `models/`, `packs/` and `mtp/` live in
@@ -210,7 +214,7 @@ is unavailable, stop and verify its identity rather than replacing it with files
 Check disk/RAM/GPU availability before retrying; never stop another workload or delete unrelated models
 to make room. A host ECC/MCE warning requires hardware investigation, not repeated model stress tests.
 
-For other issues, use the [upstream troubleshooting guide](docs/DETAILS.md#troubleshooting) and attach a
+For other issues, use the [upstream troubleshooting guide](docs/TROUBLESHOOTING.md) and attach a
 sanitized engine log. The [community benchmark guide](docs/COMMUNITY_BENCHMARKS.md) provides a report template;
 state the fork/upstream commits, GPU architecture, exact weights, prompt and cache conditions, MTP settings,
 and skipped tests. NVIDIA/RDNA benchmarks do not establish gfx906 speed or parity.

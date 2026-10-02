@@ -1,0 +1,3259 @@
+test_all_is_every_supported_card_most_vram_first (test_setup_amd.GpuLists.test_all_is_every_supported_card_most_vram_first) ... ok
+test_build_for_every_arch (test_setup_amd.GpuLists.test_build_for_every_arch)
+build_engine_hip compiles for the set of the chosen cards' archs and records it in BUILD.json. ... ok
+test_list_in_order (test_setup_amd.GpuLists.test_list_in_order) ... ok
+test_refusals (test_setup_amd.GpuLists.test_refusals) ... ok
+test_wheels_hold_one_family (test_setup_amd.GpuLists.test_wheels_hold_one_family) ... ok
+test_every_family (test_setup_amd.KfdDetection.test_every_family) ... ok
+test_no_kfd (test_setup_amd.KfdDetection.test_no_kfd) ... ok
+test_rocm_index_per_family (test_setup_amd.KfdDetection.test_rocm_index_per_family) ... ok
+test_adapters (test_setup_amd.WindowsDetection.test_adapters) ... ok
+test_arch_names (test_setup_amd.WindowsDetection.test_arch_names) ... ok
+test_hip_card (test_setup_amd.WindowsDetection.test_hip_card) ... ok
+test_list_devices (test_setup_amd.WindowsDetection.test_list_devices) ... ok
+test_no_hip_engine_no_probe (test_setup_amd.WindowsDetection.test_no_hip_engine_no_probe) ... ok
+test_prebuilt_hip_zip (test_setup_amd.WindowsDetection.test_prebuilt_hip_zip)
+get_prebuilt_hip: a published zip (here a local folder) is unpacked into engine/; one without code for the ... FAIL
+test_registry_alone (test_setup_amd.WindowsDetection.test_registry_alone)
+No WMI answer: the registry's own list (which can hold a removed card). ... ok
+test_the_card_by_its_hip_ordinal (test_setup_amd.WindowsDetection.test_the_card_by_its_hip_ordinal)
+#325: setup's GPU 0 (the 9070 XT, display order) is HIP's device 1 behind the iGPU. ... ok
+test_windows_dispatch (test_setup_amd.WindowsDetection.test_windows_dispatch)
+amd_gpus() on Windows: HIP's numbering once the HIP engine answers, the display adapters before. ... ok
+test_no_cpu_encoder_on_windows (test_setup_amd.WindowsHipVision.test_no_cpu_encoder_on_windows) ... ok
+test_find_nvcc_below (test_setup_choices.ExperimentalSm60.test_find_nvcc_below) ... ok
+test_pascal_takes_cuda_12 (test_setup_choices.ExperimentalSm60.test_pascal_takes_cuda_12) ... ok
+test_pascal_without_cuda_12_stops (test_setup_choices.ExperimentalSm60.test_pascal_without_cuda_12_stops) ... ok
+test_the_build_flag (test_setup_choices.ExperimentalSm60.test_the_build_flag) ... ok
+test_the_gate (test_setup_choices.ExperimentalSm60.test_the_gate) ... ok
+test_another_split_of_a_setup_size (test_setup_choices.GgufDirShards.test_another_split_of_a_setup_size) ... ok
+test_four_unsloth_shards (test_setup_choices.GgufDirShards.test_four_unsloth_shards) ... ok
+test_nothing_recognisable_keeps_the_published_names (test_setup_choices.GgufDirShards.test_nothing_recognisable_keeps_the_published_names) ... ok
+test_the_published_two_shards (test_setup_choices.GgufDirShards.test_the_published_two_shards) ... ok
+test_the_choice (test_setup_choices.HipVision.test_the_choice) ... ok
+test_the_cpu_encoder_is_built_once (test_setup_choices.HipVision.test_the_cpu_encoder_is_built_once) ... ok
+test_without_images_nothing_changes (test_setup_choices.HipVision.test_without_images_nothing_changes) ... ok
+test_a_card_the_encoder_has_no_code_for_gets_the_cpu_encoder (test_setup_choices.PrebuiltVision.test_a_card_the_encoder_has_no_code_for_gets_the_cpu_encoder) ... ok
+test_covered_cards_keep_the_gpu_encoder (test_setup_choices.PrebuiltVision.test_covered_cards_keep_the_gpu_encoder) ... ok
+test_other_choices_are_left_alone (test_setup_choices.PrebuiltVision.test_other_choices_are_left_alone) ... ok
+test_cyrillic_replaces_a_shipped_subset_and_stays (test_setup_draft_vocab.Refresh.test_cyrillic_replaces_a_shipped_subset_and_stays) ...   [ok] draft layer: the token subset with the Cyrillic script
+ok
+test_a_config_keeps_its_choice (test_setup_draft_vocab.SavedChoice.test_a_config_keeps_its_choice) ... ok
+test_no_choice_without_a_valid_config (test_setup_draft_vocab.SavedChoice.test_no_choice_without_a_valid_config) ... ok
+test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) ... 
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen recommended] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen Q2_0] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen IQ3_XXS] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen IQ3_S] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB unsloth UD-Q4_K_XL] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen recommended] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen Q2_0] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen IQ3_XXS] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen IQ3_S] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen recommended] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen Q2_0] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen IQ3_XXS] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen IQ3_S] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen recommended] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen Q2_0] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen IQ3_XXS] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen IQ3_S] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB unsloth UD-Q4_K_XL] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen recommended] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen Q2_0] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen IQ3_XXS] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen IQ3_S] ... FAIL
+  test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB unsloth UD-Q4_K_XL] ... FAIL
+test_the_baseline_covers_every_kind_of_pc (test_setup_golden.Golden.test_the_baseline_covers_every_kind_of_pc) ... ok
+test_the_refusals_with_yes_alone_stay (test_setup_golden.Golden.test_the_refusals_with_yes_alone_stay)
+A size the baseline refused with --yes and no explicit --model still stops (--yes alone is no consent). ... ok
+test_yes (test_setup_golden.Golden.test_yes) ... 
+  test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen recommended] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen Q2_0] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen IQ3_XXS] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen IQ3_S] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB unsloth UD-Q4_K_XL] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen recommended] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen Q2_0] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen IQ3_XXS] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen IQ3_S] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen recommended] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen Q2_0] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen IQ3_XXS] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen IQ3_S] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen recommended] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen Q2_0] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen IQ3_XXS] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen IQ3_S] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB unsloth UD-Q4_K_XL] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen recommended] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen Q2_0] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen IQ3_XXS] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen IQ3_S] ... FAIL
+  test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB unsloth UD-Q4_K_XL] ... FAIL
+test_an_explicit_choice_says_so (test_setup_lowram.OneGpuWhy.test_an_explicit_choice_says_so) ... ok
+test_auto_shows_the_ram_math (test_setup_lowram.OneGpuWhy.test_auto_shows_the_ram_math) ... ok
+test_interactive (test_setup_lowram.PagingQuestion.test_interactive) ... ok
+test_yes_with_auto_still_stops (test_setup_lowram.PagingQuestion.test_yes_with_auto_still_stops) ... ok
+test_yes_with_low_ram_off_installs (test_setup_lowram.PagingQuestion.test_yes_with_low_ram_off_installs) ... ok
+test_a_refused_archive_is_not_kept (test_setup_pins.Engine.test_a_refused_archive_is_not_kept)
+PR #324: a refused archive (too old, or no code for the GPU) kept its zip and .done mark, and every later ... ok
+test_an_installed_engine_is_kept (test_setup_pins.Engine.test_an_installed_engine_is_kept) ... ok
+test_bases (test_setup_pins.Engine.test_bases) ... ok
+test_latest_when_it_is_not_published (test_setup_pins.Engine.test_latest_when_it_is_not_published) ... /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_the_checkout_s_release_first (test_setup_pins.Engine.test_the_checkout_s_release_first) ... ok
+test_a_gone_revision_fails_without_changing_partial_bytes (test_setup_pins.HuggingFacePins.test_a_gone_revision_fails_without_changing_partial_bytes) ... ok
+test_every_model_url_is_pinned (test_setup_pins.HuggingFacePins.test_every_model_url_is_pinned) ... ok
+test_mtp_fetch_is_pinned_and_fails_closed (test_setup_pins.HuggingFacePins.test_mtp_fetch_is_pinned_and_fails_closed) ... ok
+test_unpinned (test_setup_pins.HuggingFacePins.test_unpinned) ... ok
+test_a_changed_pin_is_installed (test_setup_pins.Requirements.test_a_changed_pin_is_installed) ... ok
+test_an_install_from_before_the_pins_is_left_alone (test_setup_pins.Requirements.test_an_install_from_before_the_pins_is_left_alone) ... ok
+test_every_package_is_pinned (test_setup_pins.Requirements.test_every_package_is_pinned) ... ok
+test_fresh_install_gets_every_pin (test_setup_pins.Requirements.test_fresh_install_gets_every_pin) ... ok
+test_eof_never_starts_an_installer (test_setup_prompts.BuildTools.test_eof_never_starts_an_installer) ... ok
+test_yes_still_installs_missing_windows_tools (test_setup_prompts.BuildTools.test_yes_still_installs_missing_windows_tools) ... ok
+test_enter_and_explicit_answers (test_setup_prompts.Prompts.test_enter_and_explicit_answers) ... ok
+test_eof_after_invalid_answer_stops (test_setup_prompts.Prompts.test_eof_after_invalid_answer_stops) ... ok
+test_eof_stops_with_guidance (test_setup_prompts.Prompts.test_eof_stops_with_guidance) ... ok
+test_invalid_answer_reprompts_and_preserves_choice_case (test_setup_prompts.Prompts.test_invalid_answer_reprompts_and_preserves_choice_case) ... ok
+test_yes_accepts_the_default_without_reading_input (test_setup_prompts.Prompts.test_yes_accepts_the_default_without_reading_input) ... ok
+test_interactive_default_is_no (test_setup_risk.ConfirmRisk.test_interactive_default_is_no) ... ok
+test_paging_with_an_explicit_model (test_setup_risk.ConfirmRisk.test_paging_with_an_explicit_model) ... ok
+test_yes_alone_keeps_the_stop (test_setup_risk.ConfirmRisk.test_yes_alone_keeps_the_stop) ... ok
+test_yes_with_an_explicit_choice_is_consent (test_setup_risk.ConfirmRisk.test_yes_with_an_explicit_choice_is_consent) ... ok
+test_a_picked_256k_is_kept_and_the_menu_says_the_risk (test_setup_risk.Context.test_a_picked_256k_is_kept_and_the_menu_says_the_risk) ... ok
+test_an_explicit_256k_is_kept (test_setup_risk.Context.test_an_explicit_256k_is_kept) ... ok
+test_low_ram_mode_keeps_262k_without_a_ram_note (test_setup_risk.Context.test_low_ram_mode_keeps_262k_without_a_ram_note) ... ok
+test_the_earlier_install_keeps_its_context (test_setup_risk.Context.test_the_earlier_install_keeps_its_context)
+An update (a new copy of Strata) set up like the earlier install keeps its 256K instead of capping it. ... ok
+test_the_ram_rule (test_setup_risk.Context.test_the_ram_rule) ... ok
+test_budget_flag_on_another_size (test_setup_risk.KvStreaming.test_budget_flag_on_another_size) ... ok
+test_off (test_setup_risk.KvStreaming.test_off) ... ok
+test_on_past_the_ram_test (test_setup_risk.KvStreaming.test_on_past_the_ram_test) ... ok
+test_on_where_it_cannot (test_setup_risk.KvStreaming.test_on_where_it_cannot) ... ok
+test_asked_and_answered_two (test_setup_risk.LowRamGpus.test_asked_and_answered_two) ... ok
+test_explicit_gpus_are_kept_with_the_mapped_variant (test_setup_risk.LowRamGpus.test_explicit_gpus_are_kept_with_the_mapped_variant) ... ok
+test_low_ram_resident_alone_keeps_one_gpu_without_asking (test_setup_risk.LowRamGpus.test_low_ram_resident_alone_keeps_one_gpu_without_asking) ... ok
+test_low_ram_resident_with_gpus (test_setup_risk.LowRamGpus.test_low_ram_resident_with_gpus) ... ok
+test_the_share_counts_every_card (test_setup_risk.LowRamGpus.test_the_share_counts_every_card) ... ok
+test_yes_and_enter_keep_one_gpu (test_setup_risk.LowRamGpus.test_yes_and_enter_keep_one_gpu) ... ok
+test_an_explicit_model_goes_on (test_setup_risk.RamFloor.test_an_explicit_model_goes_on) ... ok
+test_yes_alone_stops (test_setup_risk.RamFloor.test_yes_alone_stops) ... ok
+test_named_and_enter_stops (test_setup_risk.SmallCard.test_named_and_enter_stops) ... ok
+test_named_with_yes (test_setup_risk.SmallCard.test_named_with_yes) ... ok
+test_not_named_is_not_offered (test_setup_risk.SmallCard.test_not_named_is_not_offered) ... ok
+test_offer_together_recommends_one_gpu_for_a_resident_config (test_setup_risk.StartOnSeveralGpus.test_offer_together_recommends_one_gpu_for_a_resident_config) ... ok
+test_split_mmap (test_setup_risk.StartOnSeveralGpus.test_split_mmap) ... ok
+test_start_with_gpus (test_setup_risk.StartOnSeveralGpus.test_start_with_gpus) ... ok
+test_free_form_contexts_get_the_exact_ratio (test_setup_rope.DerivedFactor.test_free_form_contexts_get_the_exact_ratio) ... ok
+test_the_clamp_is_what_keeps_128k_at_one (test_setup_rope.DerivedFactor.test_the_clamp_is_what_keeps_128k_at_one) ... ok
+test_the_task_table (test_setup_rope.DerivedFactor.test_the_task_table) ... ok
+test_512k_on_a_small_ram_machine_resolves_to_128k_factor_1 (test_setup_rope.ResolveRope.test_512k_on_a_small_ram_machine_resolves_to_128k_factor_1) ... ok
+test_a_chosen_method_within_trained_gets_factor_1 (test_setup_rope.ResolveRope.test_a_chosen_method_within_trained_gets_factor_1) ... ok
+test_a_scale_alone_within_trained_is_rejected (test_setup_rope.ResolveRope.test_a_scale_alone_within_trained_is_rejected) ... ok
+test_an_explicit_override_survives_a_context_reduction (test_setup_rope.ResolveRope.test_an_explicit_override_survives_a_context_reduction) ... ok
+test_deterministic_for_yes (test_setup_rope.ResolveRope.test_deterministic_for_yes) ... ok
+test_explicit_method_and_factor_are_kept_verbatim (test_setup_rope.ResolveRope.test_explicit_method_and_factor_are_kept_verbatim) ... ok
+test_explicit_method_gets_the_derived_factor (test_setup_rope.ResolveRope.test_explicit_method_gets_the_derived_factor) ... ok
+test_explicit_none_past_trained_is_refused (test_setup_rope.ResolveRope.test_explicit_none_past_trained_is_refused) ... ok
+test_explicit_none_within_trained_is_the_stock_model (test_setup_rope.ResolveRope.test_explicit_none_within_trained_is_the_stock_model) ... ok
+test_linear_gets_the_same_rule_as_yarn (test_setup_rope.ResolveRope.test_linear_gets_the_same_rule_as_yarn) ... ok
+test_no_reduction_384k_and_512k_resolve_as_documented (test_setup_rope.ResolveRope.test_no_reduction_384k_and_512k_resolve_as_documented) ... ok
+test_omitted_384k_gets_yarn_and_1_5 (test_setup_rope.ResolveRope.test_omitted_384k_gets_yarn_and_1_5) ... ok
+test_omitted_512k_gets_yarn_and_2 (test_setup_rope.ResolveRope.test_omitted_512k_gets_yarn_and_2) ... ok
+test_omitted_method_with_an_explicit_factor (test_setup_rope.ResolveRope.test_omitted_method_with_an_explicit_factor) ... ok
+test_omitted_within_trained_adds_nothing (test_setup_rope.ResolveRope.test_omitted_within_trained_adds_nothing) ... ok
+test_the_short_context_table (test_setup_rope.ResolveRope.test_the_short_context_table) ... ok
+test_ram_less_24 (test_setup_unsloth.Budget.test_ram_less_24) ... ok
+test_choices_from_config (test_setup_unsloth.Config.test_choices_from_config) ... ok
+test_amd_is_asked_before_the_download (test_setup_unsloth.Main.test_amd_is_asked_before_the_download)
+#429: UD-Q4_K_XL has not run on AMD (CUDA-only prompt kernels): --yes alone stops before the 111 GB ... ok
+test_budget_flag (test_setup_unsloth.Main.test_budget_flag)
+S4: --resident-budget-gib N is kept; more than the recommendation says what it risks. ... ok
+test_budget_flag_needs_a_positive_number (test_setup_unsloth.Main.test_budget_flag_needs_a_positive_number) ... ok
+test_budget_flag_with_kv_streaming_is_kept (test_setup_unsloth.Main.test_budget_flag_with_kv_streaming_is_kept) ... ok
+test_install (test_setup_unsloth.Main.test_install) ... ok
+test_kv_streaming_comes_out_of_the_budget (test_setup_unsloth.Main.test_kv_streaming_comes_out_of_the_budget) ... ok
+test_more_ram_bigger_budget (test_setup_unsloth.Main.test_more_ram_bigger_budget) ... ok
+test_old_engine_stops_before_the_download (test_setup_unsloth.Main.test_old_engine_stops_before_the_download) ... ok
+test_one_gpu_and_no_images (test_setup_unsloth.Main.test_one_gpu_and_no_images) ... ok
+test_recommended_context_on_12_gb (test_setup_unsloth.Main.test_recommended_context_on_12_gb) ... ok
+test_resumed_download_needs_room_for_the_rest_only (test_setup_unsloth.Main.test_resumed_download_needs_room_for_the_rest_only)
+#425: the disk check counts the finished shards and .part files already there (sizes scaled down: a ... ok
+test_too_little_ram (test_setup_unsloth.Main.test_too_little_ram) ... ok
+test_too_little_ram_with_an_explicit_model_installs (test_setup_unsloth.Main.test_too_little_ram_with_an_explicit_model_installs)
+S6 (the owner's rule): --model with --yes is the consent; the risk is said. ... ok
+test_not_in_the_other_families (test_setup_unsloth.Pins.test_not_in_the_other_families) ... ok
+test_the_four_shards (test_setup_unsloth.Pins.test_the_four_shards) ... ok
+test_a_download_mark_alone_is_not_enough (test_setup_unsloth.Sha256.test_a_download_mark_alone_is_not_enough) ... ok
+test_good_file_marked_once (test_setup_unsloth.Sha256.test_good_file_marked_once) ... ok
+test_wrong_hash_deletes_it (test_setup_unsloth.Sha256.test_wrong_hash_deletes_it) ... ok
+test_wrong_size (test_setup_unsloth.Sha256.test_wrong_size) ... ok
+
+======================================================================
+FAIL: test_prebuilt_hip_zip (test_setup_amd.WindowsDetection.test_prebuilt_hip_zip)
+get_prebuilt_hip: a published zip (here a local folder) is unpacked into engine/; one without code for the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_amd.py", line 291, in test_prebuilt_hip_zip
+    self.assertEqual(eng, root / "engine")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != PosixPath('/var/folders/2c/mn75xkw528l3zv[51 chars]ine')
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. :  2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens   (needs ~70 GB RAM, this PC has 64: may run out of memory)
+  6) 384K tokens   (experimental: setup adds rope scaling)   (needs ~72 GB RAM, this PC has 64: may run out of memory)
+  7) 512K tokens   (experimental: setup adds rope scaling)   (needs ~74 GB RAM, this PC has 64: may run out of memory)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpxfi8eo_0/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpxfi8eo_0/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpxfi8eo_0/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[621 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [622 chars]zer'}
+Diff is 1053 characters long. Set self.maxDiff to None to see it. :  GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpiu5nhpcl/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpiu5nhpcl/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpiu5nhpcl/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. :  2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens   (needs ~70 GB RAM, this PC has 64: may run out of memory)
+  6) 384K tokens   (experimental: setup adds rope scaling)   (needs ~72 GB RAM, this PC has 64: may run out of memory)
+  7) 512K tokens   (experimental: setup adds rope scaling)   (needs ~74 GB RAM, this PC has 64: may run out of memory)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpjljjrt5d/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpjljjrt5d/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpjljjrt5d/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[603 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[604 chars]zer'}
+Diff is 1012 characters long. Set self.maxDiff to None to see it. :   [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens   (needs ~78 GB RAM, this PC has 64: may run out of memory)
+  6) 384K tokens   (experimental: setup adds rope scaling)   (needs ~80 GB RAM, this PC has 64: may run out of memory)
+  7) 512K tokens   (experimental: setup adds rope scaling)   (needs ~81 GB RAM, this PC has 64: may run out of memory)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy8hx18_s/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy8hx18_s/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy8hx18_s/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [64GB-1x32GB unsloth UD-Q4_K_XL]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[608 chars]True} != {'args': ['--pack', '<T>/data/packs/unsloth[609 chars]zer'}
+Diff is 1030 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next (Unsloth)
+
+  1) UD-Q4_K_XL 4-bit (Unsloth Dynamic), EXPERIMENTAL: the best quality, but most experts come from the SSD on a 64 GB PC (7-8.5 tokens/s measured); download 111 GB, keeps ~40 GB of its 77 GB of experts in RAM
+  [!]  UD-Q4_K_XL is EXPERIMENTAL (docs/UNSLOTH_Q4.md): most of its experts are read from the SSD while it answers, so it is several times slower than the 2-3-bit models; quality checked against llama.cpp
+  [ok] RAM budget: 40 GiB of UD-Q4_K_XL's experts in RAM, the rest read from the model files on the SSD
+  [ok] size: UD-Q4_K_XL
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens   (recommended for your GPU)
+  3) 64K tokens
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 32768 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+  [ok] images: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp6d32_c75/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next (Unsloth) UD-Q4_K_XL ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp6d32_c75/data/packs/unsloth-ud-q4_k_xl
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp6d32_c75/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-unsloth-UD-Q4_K_XL.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-unsloth-UD-Q4_K_XL.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[617 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [618 chars]zer'}
+Diff is 1037 characters long. Set self.maxDiff to None to see it. : r more, or a smaller size.
+  1) GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only: the experts it does not hold kept in RAM where they fit   (recommended: steady RAM use)
+  2) GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) + GPU 1 (NVIDIA GeForce RTX 3090, 24 GB) together: the experts the GPUs do not hold read through the OS file cache - faster
+     in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: the GPU holds ~52% of Q2_0's experts (34 GB) and the other ~16 GB stay in RAM (32 GB), read once from a copy in the model folder
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpl_epqjiq/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 34 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpl_epqjiq/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpl_epqjiq/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[617 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [618 chars]zer'}
+Diff is 1037 characters long. Set self.maxDiff to None to see it. : r more, or a smaller size.
+  1) GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only: the experts it does not hold kept in RAM where they fit   (recommended: steady RAM use)
+  2) GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) + GPU 1 (NVIDIA GeForce RTX 3090, 24 GB) together: the experts the GPUs do not hold read through the OS file cache - faster
+     in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: the GPU holds ~52% of Q2_0's experts (34 GB) and the other ~16 GB stay in RAM (32 GB), read once from a copy in the model folder
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpsr47cd5b/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 34 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpsr47cd5b/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpsr47cd5b/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[637 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[638 chars]zer'}
+Diff is 1060 characters long. Set self.maxDiff to None to see it. : eForce RTX 3090, 24 GB) + GPU 1 (NVIDIA GeForce RTX 3090, 24 GB) together: the experts the GPUs do not hold read through the OS file cache - faster
+     in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: IQ3_XXS's experts (43 GB) are read from the model folder through the OS file cache instead of a copy in RAM (32 GB); the GPU holds ~41% of them
+  [!]  most of the experts are read from the SSD while it answers: expect it to be much slower than with enough RAM (a faster SSD and a smaller size help)
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpopft_j_k/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 43 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpopft_j_k/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpopft_j_k/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [32GB-2x24GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[621 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[622 chars]zer'}
+Diff is 1042 characters long. Set self.maxDiff to None to see it. :  0 (NVIDIA GeForce RTX 3090, 24 GB) + GPU 1 (NVIDIA GeForce RTX 3090, 24 GB) together: the experts the GPUs do not hold read through the OS file cache - faster
+     in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: IQ3_S's experts (50 GB) are read from the model folder through the OS file cache instead of a copy in RAM (32 GB); the GPU holds ~35% of them
+  [!]  most of the experts are read from the SSD while it answers: expect it to be much slower than with enough RAM (a faster SSD and a smaller size help)
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp8sjc6c6l/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 50 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp8sjc6c6l/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp8sjc6c6l/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[622 chars]uto'} != {'args': ['--pack', '<T>/data/packs/q2_0', [623 chars]zer'}
+Diff is 1033 characters long. Set self.maxDiff to None to see it. : l: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM   <- needs 48 GB RAM, you have 47
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM   <- needs 48 GB RAM, you have 47
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~25%, the rest in RAM)
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~22%, the rest from the SSD)
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp4d8xzih8/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp4d8xzih8/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp4d8xzih8/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] layer split across GPUs [0, 1] (auto)
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[622 chars]uto'} != {'args': ['--pack', '<T>/data/packs/q2_0', [623 chars]zer'}
+Diff is 1033 characters long. Set self.maxDiff to None to see it. : l: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM   <- needs 48 GB RAM, you have 47
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM   <- needs 48 GB RAM, you have 47
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~25%, the rest in RAM)
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~22%, the rest from the SSD)
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpm9nzvx_8/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpm9nzvx_8/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpm9nzvx_8/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] layer split across GPUs [0, 1] (auto)
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[640 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[641 chars]zer'}
+Diff is 1063 characters long. Set self.maxDiff to None to see it. : 1) GPU 0 (NVIDIA GeForce RTX 5060 Ti, 16 GB) only: the experts it does not hold kept in RAM where they fit   (recommended: steady RAM use)
+  2) GPU 0 (NVIDIA GeForce RTX 5060 Ti, 16 GB) + GPU 1 (NVIDIA GeForce RTX 5060 Ti, 16 GB) together: the experts the GPUs do not hold read through the OS file cache - faster
+     in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 5060 Ti, 16 GB) only
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: the GPU holds ~24% of IQ3_XXS's experts (43 GB) and the other ~32 GB stay in RAM (47 GB), read once from a copy in the model folder
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpyzui387m/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 43 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpyzui387m/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpyzui387m/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [47GB-2x16GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[620 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[621 chars]zer'}
+Diff is 1041 characters long. Set self.maxDiff to None to see it. : IA GeForce RTX 5060 Ti, 16 GB) + GPU 1 (NVIDIA GeForce RTX 5060 Ti, 16 GB) together: the experts the GPUs do not hold read through the OS file cache - faster
+     in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 5060 Ti, 16 GB) only
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: IQ3_S's experts (50 GB) are read from the model folder through the OS file cache instead of a copy in RAM (47 GB); the GPU holds ~21% of them
+  [!]  most of the experts are read from the SSD while it answers: expect it to be much slower than with enough RAM (a faster SSD and a smaller size help)
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp0am39ox_/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 50 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp0am39ox_/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp0am39ox_/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[644 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[645 chars]zer'}
+Diff is 1079 characters long. Set self.maxDiff to None to see it. : 080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpl9yinz7s/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpl9yinz7s/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpl9yinz7s/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[620 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [621 chars]zer'}
+Diff is 1052 characters long. Set self.maxDiff to None to see it. : A GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpwv0esb4o/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpwv0esb4o/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpwv0esb4o/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[644 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[645 chars]zer'}
+Diff is 1079 characters long. Set self.maxDiff to None to see it. : 080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppud6zqj6/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppud6zqj6/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppud6zqj6/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[628 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[629 chars]zer'}
+Diff is 1061 characters long. Set self.maxDiff to None to see it. : orce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppxb8t6rw/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppxb8t6rw/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppxb8t6rw/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [96GB-1x16GB unsloth UD-Q4_K_XL]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[608 chars]True} != {'args': ['--pack', '<T>/data/packs/unsloth[609 chars]zer'}
+Diff is 1030 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next (Unsloth)
+
+  1) UD-Q4_K_XL 4-bit (Unsloth Dynamic), EXPERIMENTAL: the best quality, but most experts come from the SSD on a 64 GB PC (7-8.5 tokens/s measured); download 111 GB, keeps ~71 GB of its 77 GB of experts in RAM
+  [!]  UD-Q4_K_XL is EXPERIMENTAL (docs/UNSLOTH_Q4.md): most of its experts are read from the SSD while it answers, so it is several times slower than the 2-3-bit models; quality checked against llama.cpp
+  [ok] RAM budget: 71 GiB of UD-Q4_K_XL's experts in RAM, the rest read from the model files on the SSD
+  [ok] size: UD-Q4_K_XL
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens   (recommended for your GPU)
+  3) 64K tokens
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 32768 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+  [ok] images: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpqmmn99es/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next (Unsloth) UD-Q4_K_XL ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpqmmn99es/data/packs/unsloth-ud-q4_k_xl
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpqmmn99es/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-unsloth-UD-Q4_K_XL.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-unsloth-UD-Q4_K_XL.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. : 90, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp759cu845/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp759cu845/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp759cu845/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[621 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [622 chars]zer'}
+Diff is 1053 characters long. Set self.maxDiff to None to see it. :  GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpcmycow1q/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpcmycow1q/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpcmycow1q/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. : 90, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpajy2d0xi/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpajy2d0xi/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpajy2d0xi/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[629 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[630 chars]zer'}
+Diff is 1062 characters long. Set self.maxDiff to None to see it. : rce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpas9dmtrp/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpas9dmtrp/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpas9dmtrp/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_enter_for_every_question (test_setup_golden.Golden.test_enter_for_every_question) [128GB-1x24GB unsloth UD-Q4_K_XL]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 191, in test_enter_for_every_question
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[608 chars]True} != {'args': ['--pack', '<T>/data/packs/unsloth[609 chars]zer'}
+Diff is 1030 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next (Unsloth)
+
+  1) UD-Q4_K_XL 4-bit (Unsloth Dynamic), EXPERIMENTAL: the best quality, but most experts come from the SSD on a 64 GB PC (7-8.5 tokens/s measured); download 111 GB, keeps ~71 GB of its 77 GB of experts in RAM
+  [!]  UD-Q4_K_XL is EXPERIMENTAL (docs/UNSLOTH_Q4.md): most of its experts are read from the SSD while it answers, so it is several times slower than the 2-3-bit models; quality checked against llama.cpp
+  [ok] RAM budget: 71 GiB of UD-Q4_K_XL's experts in RAM, the rest read from the model files on the SSD
+  [ok] size: UD-Q4_K_XL
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens   (recommended for your GPU)
+  3) 64K tokens
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 32768 tokens
+
+  KV cache precision (the model's memory of the conversation):
+  1) 8-bit   (recommended: what every published number was measured with)
+  2) 4-bit   half the memory (about 4% faster at 128K), but measurably less precise on long
+             documents; long-context lookups (needle tests) still pass
+  [ok] KV cache: 8-bit
+  [ok] images: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp7cak7ny7/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next (Unsloth) UD-Q4_K_XL ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp7cak7ny7/data/packs/unsloth-ud-q4_k_xl
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp7cak7ny7/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-unsloth-UD-Q4_K_XL.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-unsloth-UD-Q4_K_XL.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. : -Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens   (needs ~70 GB RAM, this PC has 64: may run out of memory)
+  6) 384K tokens   (experimental: setup adds rope scaling)   (needs ~72 GB RAM, this PC has 64: may run out of memory)
+  7) 512K tokens   (experimental: setup adds rope scaling)   (needs ~74 GB RAM, this PC has 64: may run out of memory)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpv4z1we06/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpv4z1we06/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpv4z1we06/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[621 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [622 chars]zer'}
+Diff is 1053 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmphl0vk_ym/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmphl0vk_ym/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmphl0vk_ym/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. : -Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens   (needs ~70 GB RAM, this PC has 64: may run out of memory)
+  6) 384K tokens   (experimental: setup adds rope scaling)   (needs ~72 GB RAM, this PC has 64: may run out of memory)
+  7) 512K tokens   (experimental: setup adds rope scaling)   (needs ~74 GB RAM, this PC has 64: may run out of memory)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpmvlbhanx/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpmvlbhanx/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpmvlbhanx/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[603 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[604 chars]zer'}
+Diff is 1012 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens   (needs ~78 GB RAM, this PC has 64: may run out of memory)
+  6) 384K tokens   (experimental: setup adds rope scaling)   (needs ~80 GB RAM, this PC has 64: may run out of memory)
+  7) 512K tokens   (experimental: setup adds rope scaling)   (needs ~81 GB RAM, this PC has 64: may run out of memory)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpllei5ngz/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpllei5ngz/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpllei5ngz/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [64GB-1x32GB unsloth UD-Q4_K_XL]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[608 chars]True} != {'args': ['--pack', '<T>/data/packs/unsloth[609 chars]zer'}
+Diff is 1030 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5090, 31.8 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 64 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next (Unsloth)
+
+  1) UD-Q4_K_XL 4-bit (Unsloth Dynamic), EXPERIMENTAL: the best quality, but most experts come from the SSD on a 64 GB PC (7-8.5 tokens/s measured); download 111 GB, keeps ~40 GB of its 77 GB of experts in RAM
+  [!]  UD-Q4_K_XL is EXPERIMENTAL (docs/UNSLOTH_Q4.md): most of its experts are read from the SSD while it answers, so it is several times slower than the 2-3-bit models; quality checked against llama.cpp
+  [ok] RAM budget: 40 GiB of UD-Q4_K_XL's experts in RAM, the rest read from the model files on the SSD
+  [ok] size: UD-Q4_K_XL
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens   (recommended for your GPU)
+  3) 64K tokens
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 32768 tokens
+  [ok] KV cache: 8-bit
+  [ok] images: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpgmvwiyyo/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next (Unsloth) UD-Q4_K_XL ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpgmvwiyyo/data/packs/unsloth-ud-q4_k_xl
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpgmvwiyyo/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-unsloth-UD-Q4_K_XL.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-unsloth-UD-Q4_K_XL.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[617 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [618 chars]zer'}
+Diff is 1037 characters long. Set self.maxDiff to None to see it. : 32
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only (recommended)
+       Why: Q2_0's experts are 34 GB and must fit in RAM with ~10 GB beside them for the OS and the rest: 34 + 10 = 44 GB, and this PC has 32 GB.
+       So setup uses the low-RAM mode: the experts come from the model's file (copied into RAM as far as it fits), the GPU holds the most-used ones.
+       Its resident variant (the experts the GPU does not hold copied into RAM once: steady RAM use) runs on one GPU: the engine has no layer split for it yet.
+       To use all the GPUs: --gpus 0,1 - the experts the GPUs do not hold are then read through the OS file cache: faster in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts. Or 44 GB of RAM or more, or a smaller size.
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: the GPU holds ~52% of Q2_0's experts (34 GB) and the other ~16 GB stay in RAM (32 GB), read once from a copy in the model folder
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpi36rz1m7/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 34 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpi36rz1m7/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpi36rz1m7/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[617 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [618 chars]zer'}
+Diff is 1037 characters long. Set self.maxDiff to None to see it. : 32
+  [!]  the low-RAM mode: using GPU 0 (NVIDIA GeForce RTX 3090, 24 GB) only (recommended)
+       Why: Q2_0's experts are 34 GB and must fit in RAM with ~10 GB beside them for the OS and the rest: 34 + 10 = 44 GB, and this PC has 32 GB.
+       So setup uses the low-RAM mode: the experts come from the model's file (copied into RAM as far as it fits), the GPU holds the most-used ones.
+       Its resident variant (the experts the GPU does not hold copied into RAM once: steady RAM use) runs on one GPU: the engine has no layer split for it yet.
+       To use all the GPUs: --gpus 0,1 - the experts the GPUs do not hold are then read through the OS file cache: faster in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts. Or 44 GB of RAM or more, or a smaller size.
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: the GPU holds ~52% of Q2_0's experts (34 GB) and the other ~16 GB stay in RAM (32 GB), read once from a copy in the model folder
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppoidgk2c/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 34 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppoidgk2c/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmppoidgk2c/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[637 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[638 chars]zer'}
+Diff is 1060 characters long. Set self.maxDiff to None to see it. : nd the rest: 43 + 10 = 53 GB, and this PC has 32 GB.
+       So setup uses the low-RAM mode: the experts come from the model's file (copied into RAM as far as it fits), the GPU holds the most-used ones.
+       Its resident variant (the experts the GPU does not hold copied into RAM once: steady RAM use) runs on one GPU: the engine has no layer split for it yet.
+       To use all the GPUs: --gpus 0,1 - the experts the GPUs do not hold are then read through the OS file cache: faster in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts. Or 53 GB of RAM or more, or a smaller size.
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: IQ3_XXS's experts (43 GB) are read from the model folder through the OS file cache instead of a copy in RAM (32 GB); the GPU holds ~41% of them
+  [!]  most of the experts are read from the SSD while it answers: expect it to be much slower than with enough RAM (a faster SSD and a smaller size help)
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy7ypm1nh/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 43 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy7ypm1nh/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy7ypm1nh/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [32GB-2x24GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[621 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[622 chars]zer'}
+Diff is 1042 characters long. Set self.maxDiff to None to see it. : for the OS and the rest: 50 + 10 = 60 GB, and this PC has 32 GB.
+       So setup uses the low-RAM mode: the experts come from the model's file (copied into RAM as far as it fits), the GPU holds the most-used ones.
+       Its resident variant (the experts the GPU does not hold copied into RAM once: steady RAM use) runs on one GPU: the engine has no layer split for it yet.
+       To use all the GPUs: --gpus 0,1 - the experts the GPUs do not hold are then read through the OS file cache: faster in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts. Or 60 GB of RAM or more, or a smaller size.
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: IQ3_S's experts (50 GB) are read from the model folder through the OS file cache instead of a copy in RAM (32 GB); the GPU holds ~35% of them
+  [!]  most of the experts are read from the SSD while it answers: expect it to be much slower than with enough RAM (a faster SSD and a smaller size help)
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpc34layxx/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 50 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpc34layxx/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpc34layxx/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[622 chars]uto'} != {'args': ['--pack', '<T>/data/packs/q2_0', [623 chars]zer'}
+Diff is 1033 characters long. Set self.maxDiff to None to see it. : orce RTX 5060 Ti, 16 GB) + GPU 1 (NVIDIA GeForce RTX 5060 Ti, 16 GB) together (the model's layers are split across them)
+  [ok] GPU: NVIDIA GeForce RTX 5060 Ti, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 47 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM   <- needs 48 GB RAM, you have 47
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM   <- needs 48 GB RAM, you have 47
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~25%, the rest in RAM)
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~22%, the rest from the SSD)
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpvmabn_5d/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpvmabn_5d/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpvmabn_5d/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] layer split across GPUs [0, 1] (auto)
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[622 chars]uto'} != {'args': ['--pack', '<T>/data/packs/q2_0', [623 chars]zer'}
+Diff is 1033 characters long. Set self.maxDiff to None to see it. : orce RTX 5060 Ti, 16 GB) + GPU 1 (NVIDIA GeForce RTX 5060 Ti, 16 GB) together (the model's layers are split across them)
+  [ok] GPU: NVIDIA GeForce RTX 5060 Ti, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 47 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM   <- needs 48 GB RAM, you have 47
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM   <- needs 48 GB RAM, you have 47
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~25%, the rest in RAM)
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM   <- fits in the low-RAM mode (the GPU holds ~22%, the rest from the SSD)
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpanemcmg7/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpanemcmg7/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpanemcmg7/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] layer split across GPUs [0, 1] (auto)
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[640 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[641 chars]zer'}
+Diff is 1063 characters long. Set self.maxDiff to None to see it. : ode: using GPU 0 (NVIDIA GeForce RTX 5060 Ti, 16 GB) only (recommended)
+       Why: IQ3_XXS's experts are 43 GB and must fit in RAM with ~10 GB beside them for the OS and the rest: 43 + 10 = 53 GB, and this PC has 47 GB.
+       So setup uses the low-RAM mode: the experts come from the model's file (copied into RAM as far as it fits), the GPU holds the most-used ones.
+       Its resident variant (the experts the GPU does not hold copied into RAM once: steady RAM use) runs on one GPU: the engine has no layer split for it yet.
+       To use all the GPUs: --gpus 0,1 - the experts the GPUs do not hold are then read through the OS file cache: faster in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts. Or 53 GB of RAM or more, or a smaller size.
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: the GPU holds ~24% of IQ3_XXS's experts (43 GB) and the other ~32 GB stay in RAM (47 GB), read once from a copy in the model folder
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpqz2es1fq/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 43 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpqz2es1fq/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpqz2es1fq/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [47GB-2x16GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[620 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[621 chars]zer'}
+Diff is 1041 characters long. Set self.maxDiff to None to see it. :  for the OS and the rest: 50 + 10 = 60 GB, and this PC has 47 GB.
+       So setup uses the low-RAM mode: the experts come from the model's file (copied into RAM as far as it fits), the GPU holds the most-used ones.
+       Its resident variant (the experts the GPU does not hold copied into RAM once: steady RAM use) runs on one GPU: the engine has no layer split for it yet.
+       To use all the GPUs: --gpus 0,1 - the experts the GPUs do not hold are then read through the OS file cache: faster in two reports (1.3-1.6x, #364 #384), but RAM can fill up to 0 free during long prompts. Or 60 GB of RAM or more, or a smaller size.
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+  [ok] low-RAM mode: IQ3_S's experts (50 GB) are read from the model folder through the OS file cache instead of a copy in RAM (47 GB); the GPU holds ~21% of them
+  [!]  most of the experts are read from the SSD while it answers: expect it to be much slower than with enough RAM (a faster SSD and a smaller size help)
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp_tw3k6qr/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  Writing the experts into one file for the low-RAM mode (one time, 50 GB) ...
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp_tw3k6qr/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp_tw3k6qr/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[644 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[645 chars]zer'}
+Diff is 1079 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy1soqeu9/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy1soqeu9/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpy1soqeu9/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[620 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [621 chars]zer'}
+Diff is 1052 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpzv_wghg1/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpzv_wghg1/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpzv_wghg1/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[644 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[645 chars]zer'}
+Diff is 1079 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp17nmdcs_/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp17nmdcs_/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp17nmdcs_/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[628 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[629 chars]zer'}
+Diff is 1061 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens   (recommended for your GPU)
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 65536 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpm9aqpv0r/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpm9aqpv0r/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpm9aqpv0r/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (0.9 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [96GB-1x16GB unsloth UD-Q4_K_XL]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[608 chars]True} != {'args': ['--pack', '<T>/data/packs/unsloth[609 chars]zer'}
+Diff is 1030 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 5080, 15.9 GB VRAM, compute capability 12.0, driver 580.97
+  [ok] RAM: 96 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next (Unsloth)
+
+  1) UD-Q4_K_XL 4-bit (Unsloth Dynamic), EXPERIMENTAL: the best quality, but most experts come from the SSD on a 64 GB PC (7-8.5 tokens/s measured); download 111 GB, keeps ~71 GB of its 77 GB of experts in RAM
+  [!]  UD-Q4_K_XL is EXPERIMENTAL (docs/UNSLOTH_Q4.md): most of its experts are read from the SSD while it answers, so it is several times slower than the 2-3-bit models; quality checked against llama.cpp
+  [ok] RAM budget: 71 GiB of UD-Q4_K_XL's experts in RAM, the rest read from the model files on the SSD
+  [ok] size: UD-Q4_K_XL
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens   (recommended for your GPU)
+  3) 64K tokens
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 32768 tokens
+  [ok] KV cache: 8-bit
+  [ok] images: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp_p370weh/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next (Unsloth) UD-Q4_K_XL ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp_p370weh/data/packs/unsloth-ud-q4_k_xl
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp_p370weh/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-unsloth-UD-Q4_K_XL.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-unsloth-UD-Q4_K_XL.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen recommended]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpwwcg0i_3/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpwwcg0i_3/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpwwcg0i_3/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen Q2_0]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[621 chars]True} != {'args': ['--pack', '<T>/data/packs/q2_0', [622 chars]zer'}
+Diff is 1053 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: Q2_0
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpgk6xtoc4/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next Q2_0 ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpgk6xtoc4/data/packs/q2_0
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpgk6xtoc4/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-Q2_0.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-Q2_0.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen IQ3_XXS]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[645 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_xxs[646 chars]zer'}
+Diff is 1080 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_XXS
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp16n851ig/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_XXS ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp16n851ig/data/packs/iq3_xxs
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmp16n851ig/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_XXS.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_XXS.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB qwen IQ3_S]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[629 chars]True} != {'args': ['--pack', '<T>/data/packs/iq3_s',[630 chars]zer'}
+Diff is 1062 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next
+
+  1) Q2_0     2-bit, the fastest; download 66 GB, uses ~34 GB of RAM
+  2) IQ2_XS   2-bit i-quant, a little better quality, close in speed; download 68 GB, uses ~36 GB of RAM
+  3) IQ3_XXS  3-bit i-quant, better quality, slower (more CPU work per token); download 76 GB, uses ~43 GB of RAM
+  4) IQ3_S    3.5-bit i-quant, the best quality (matches the full model), the slowest; needs a 64 GB PC with little else running; download 84 GB, uses ~50 GB of RAM
+  [ok] size: IQ3_S
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens
+  3) 64K tokens
+  4) 128K tokens   (recommended for your GPU)
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 131072 tokens
+  [ok] KV cache: 8-bit
+
+  Images: the model can also read pictures (screenshots, photos, scanned pages). This adds a 0.9 GB
+  download and keeps ~1.4 GB of VRAM free for the image encoder, so text is a few % slower.
+  [ok] images: off
+
+  EXPERIMENTAL - speed projection: a small control vector applied while the model runs (layers 4-44).
+  It changes how the model answers: its package describes it as a refusal-direction projection (the
+  model declines far fewer requests). Off unless you choose it; when on, the web app can switch it off
+  per chat. Details: data/experimental-speed-projection/README.md
+  [ok] experimental speed projection: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpnintu2ev/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next IQ3_S ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpnintu2ev/data/packs/iq3_s
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpnintu2ev/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] KV streaming on: the context's KV cache lives in RAM (1.8 GB), more experts fit in VRAM
+  [ok] start script: run-IQ3_S.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-IQ3_S.bat) - it starts right away
+
+
+======================================================================
+FAIL: test_yes (test_setup_golden.Golden.test_yes) [128GB-1x24GB unsloth UD-Q4_K_XL]
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/chris/dev/strata-gfx906/tools/test_setup_golden.py", line 183, in test_yes
+    self.assertEqual(cfg, self.golden[key]["config"], out[-3000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'exe': '<T>/engine/<EXE>', 'args': ['--pac[608 chars]True} != {'args': ['--pack', '<T>/data/packs/unsloth[609 chars]zer'}
+Diff is 1030 characters long. Set self.maxDiff to None to see it. : Strata - Qwen3.8-Flash-Next on a normal PC (a GPU + system RAM + CPU)
+
+=== Step 1: checking your PC ===
+  [ok] GPU: NVIDIA GeForce RTX 4090, 24.0 GB VRAM, compute capability 8.9, driver 580.97
+  [ok] RAM: 128 GB
+  [ok] CPU: Test CPU (AVX2)
+
+=== Step 2: your choices ===
+  [ok] model: Qwen3.8-Flash-Next (Unsloth)
+
+  1) UD-Q4_K_XL 4-bit (Unsloth Dynamic), EXPERIMENTAL: the best quality, but most experts come from the SSD on a 64 GB PC (7-8.5 tokens/s measured); download 111 GB, keeps ~71 GB of its 77 GB of experts in RAM
+  [!]  UD-Q4_K_XL is EXPERIMENTAL (docs/UNSLOTH_Q4.md): most of its experts are read from the SSD while it answers, so it is several times slower than the 2-3-bit models; quality checked against llama.cpp
+  [ok] RAM budget: 71 GiB of UD-Q4_K_XL's experts in RAM, the rest read from the model files on the SSD
+  [ok] size: UD-Q4_K_XL
+
+  Context length = how much text the model can see at once (your chat, files, tool output).
+  Longer needs more VRAM for it, so fewer experts fit on the GPU:
+  1) 8K tokens
+  2) 32K tokens   (recommended for your GPU)
+  3) 64K tokens
+  4) 128K tokens
+  5) 256K tokens
+  6) 384K tokens   (experimental: setup adds rope scaling)
+  7) 512K tokens   (experimental: setup adds rope scaling)
+  [ok] context: 32768 tokens
+  [ok] KV cache: 8-bit
+  [ok] images: off
+
+=== Step 3: Python packages ===
+
+=== Step 4: the Strata engine ===
+  [ok] llama.cpp 3cf0325 (gguf-py, ggml, mtmd)
+  [ok] engine: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpue8iagmt/engine/strata
+
+=== Step 5: downloading Qwen3.8-Flash-Next (Unsloth) UD-Q4_K_XL ===
+  [ok] model files present
+
+=== Step 6: preparing the model for Strata ===
+  [ok] model prepared: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpue8iagmt/data/packs/unsloth-ud-q4_k_xl
+  [ok] MTP draft layer: /var/folders/2c/mn75xkw528l3zv_03ffqxc8m0000gn/T/.ctx-mode-TLh9IX/tmpue8iagmt/data/mtp/rt
+
+=== Step 7: writing the start script ===
+  [ok] start script: run-unsloth-UD-Q4_K_XL.bat
+
+All set.
+  API (OpenAI):     http://127.0.0.1:8080/v1   (any API key; model name: anything)
+  API (Anthropic):  http://127.0.0.1:8080/v1/messages
+  Next time:        just run ./setup.sh (or run-unsloth-UD-Q4_K_XL.bat) - it starts right away
+
+
+----------------------------------------------------------------------
+Ran 132 tests in 0.483s
+
+FAILED (failures=47)

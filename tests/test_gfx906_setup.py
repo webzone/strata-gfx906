@@ -90,7 +90,7 @@ class Selection(unittest.TestCase):
             build = stack.enter_context(patch.object(setup, "cmake_build", side_effect=fake_build))
             gpu = {**CARDS[0], "archs": ["gfx906", "gfx1201"]}
             with contextlib.redirect_stdout(io.StringIO()):
-                eng = setup.build_engine_hip(gpu, Path("ggml"), True)
+                eng = setup.build_engine_hip(gpu, Path("ggml"), experimental_gfx906=True)
             options = build.call_args.args[3]
             self.assertIn("-DCMAKE_HIP_ARCHITECTURES=gfx1201;gfx906", options)
             self.assertIn("-DSTRATA_EXPERIMENTAL_GFX906=ON", options)
@@ -98,7 +98,7 @@ class Selection(unittest.TestCase):
             self.assertEqual(meta["archs"], ["gfx1201", "gfx906"])
             self.assertIs(meta["experimental_gfx906"], True)
             with contextlib.redirect_stdout(io.StringIO()):
-                setup.build_engine_hip(gpu, Path("ggml"), True)
+                setup.build_engine_hip(gpu, Path("ggml"), experimental_gfx906=True)
             self.assertEqual(build.call_count, 1)
 
     def test_start_keeps_amd_list_and_uses_hip_builder(self):

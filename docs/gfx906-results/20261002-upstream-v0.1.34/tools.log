@@ -1,0 +1,95 @@
+test_apply (tools.test_calibrate.Calibrate.test_apply) ... ok
+test_defaults_kept_when_flat (tools.test_calibrate.Calibrate.test_defaults_kept_when_flat) ... ok
+test_fewer_workers (tools.test_calibrate.Calibrate.test_fewer_workers) ... ok
+test_finds_pcie_and_min_p (tools.test_calibrate.Calibrate.test_finds_pcie_and_min_p) ... ok
+test_old_calibration_is_the_baseline_reset (tools.test_calibrate.Calibrate.test_old_calibration_is_the_baseline_reset) ... ok
+test_pick (tools.test_calibrate.Calibrate.test_pick) ... ok
+test_small_gain_is_noise (tools.test_calibrate.Calibrate.test_small_gain_is_noise) ... ok
+test_worker_candidates (tools.test_calibrate.Calibrate.test_worker_candidates) ... ok
+test_calibrate_config_writes_and_remembers (tools.test_calibrate.SetupIntegration.test_calibrate_config_writes_and_remembers) ... 
+  Tuning Strata for this PC: the output speed is measured with a few engine settings (the PCIe share, the
+  draft depth, the CPU threads). It takes about 5-10 minutes; the PC is busy meanwhile.
+  [ok] tuned for this PC: --pcie-frac 0.20 (61.2 tok/s)
+ok
+test_failed_calibration_keeps_defaults (tools.test_calibrate.SetupIntegration.test_failed_calibration_keeps_defaults) ... 
+  Tuning Strata for this PC: the output speed is measured with a few engine settings (the PCIe share, the
+  draft depth, the CPU threads). It takes about 5-10 minutes; the PC is busy meanwhile.
+  [!]  the tuning did not finish (the engine exited before it was ready): the default settings stay
+ok
+test_matching_hash_passes (tools.test_shards.PackVerifyHash.test_matching_hash_passes) ... /Users/chris/dev/strata-gfx906/tools/strata_pack.py:351: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/chris/dev/strata-gfx906/.venv/test-tmp/tmpkwa_y2p1/m-00001-of-00002.gguf'>
+  head, flen = open_shard(gguf)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_no_hash_or_limit_skips (tools.test_shards.PackVerifyHash.test_no_hash_or_limit_skips) ... /Users/chris/dev/strata-gfx906/tools/strata_pack.py:351: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/chris/dev/strata-gfx906/.venv/test-tmp/tmpzwxgiobm/m-00001-of-00002.gguf'>
+  head, flen = open_shard(gguf)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_wrong_hash_fails_naming_both (tools.test_shards.PackVerifyHash.test_wrong_hash_fails_naming_both) ... ok
+test_missing_shard_is_named (tools.test_shards.ShardCheck.test_missing_shard_is_named) ... ok
+test_short_shard_names_file_and_sizes (tools.test_shards.ShardCheck.test_short_shard_names_file_and_sizes) ... ok
+test_truncated_header_is_refused (tools.test_shards.ShardCheck.test_truncated_header_is_refused) ... ok
+test_whole_shards_pass (tools.test_shards.ShardCheck.test_whole_shards_pass) ... ok
+test_bf16_halfway_rounds_to_even (tools.test_iq_pack.CompatibilityTests.test_bf16_halfway_rounds_to_even) ... ok
+test_default_still_refuses_inexact_f32_router (tools.test_iq_pack.CompatibilityTests.test_default_still_refuses_inexact_f32_router) ... ok
+test_existing_bf16_pack_remains_byte_identical (tools.test_iq_pack.CompatibilityTests.test_existing_bf16_pack_remains_byte_identical) ... ok
+test_experts_bin_is_kept_only_with_this_ggufs_blobs (tools.test_iq_pack.CompatibilityTests.test_experts_bin_is_kept_only_with_this_ggufs_blobs) ... ok
+test_nonfinite_conversion_refused (tools.test_iq_pack.CompatibilityTests.test_nonfinite_conversion_refused) ... ok
+test_projection_conversion_and_native_bytes (tools.test_iq_pack.CompatibilityTests.test_projection_conversion_and_native_bytes) ... ok
+test_q2_ple_and_large_tensors_stay_native (tools.test_iq_pack.CompatibilityTests.test_q2_ple_and_large_tensors_stay_native) ... ok
+test_quantized_control_weights_need_explicit_conversion (tools.test_iq_pack.CompatibilityTests.test_quantized_control_weights_need_explicit_conversion) ... ok
+test_snapshot_symlinks_keep_split_discovery (tools.test_iq_pack.CompatibilityTests.test_snapshot_symlinks_keep_split_discovery) ... ok
+test_exact_f32_to_bf16_by_default (tools.test_iq_pack.ConversionTests.test_exact_f32_to_bf16_by_default) ... ok
+test_inexact_f32_rounds_only_with_compat (tools.test_iq_pack.ConversionTests.test_inexact_f32_rounds_only_with_compat) ... ok
+test_non_finite_is_refused (tools.test_iq_pack.ConversionTests.test_non_finite_is_refused) ... ok
+test_ple_conv1d_f32_is_narrowed_by_the_loader (tools.test_iq_pack.ConversionTests.test_ple_conv1d_f32_is_narrowed_by_the_loader) ... ok
+test_q8_0_projections_need_compat_and_are_recorded (tools.test_iq_pack.ConversionTests.test_q8_0_projections_need_compat_and_are_recorded) ... ok
+test_duplicate_tensor_across_shards (tools.test_iq_pack.SplitArtifactTests.test_duplicate_tensor_across_shards) ... ok
+test_four_shards_and_a_layer_split_per_role (tools.test_iq_pack.SplitArtifactTests.test_four_shards_and_a_layer_split_per_role) ... ok
+test_interrupted_pack (tools.test_iq_pack.SplitArtifactTests.test_interrupted_pack) ... ok
+test_missing_shard (tools.test_iq_pack.SplitArtifactTests.test_missing_shard) ... ok
+test_shard_of_another_split (tools.test_iq_pack.SplitArtifactTests.test_shard_of_another_split) ... ok
+test_stale_same_size_experts_bin (tools.test_iq_pack.SplitArtifactTests.test_stale_same_size_experts_bin) ... ok
+test_truncated_shard (tools.test_iq_pack.SplitArtifactTests.test_truncated_shard) ... ok
+test_unsplit_layers_keep_the_v3_file (tools.test_iq_pack.SplitArtifactTests.test_unsplit_layers_keep_the_v3_file) ... ok
+test_wrong_type_or_shape_leaves_the_pack_alone (tools.test_iq_pack.SplitArtifactTests.test_wrong_type_or_shape_leaves_the_pack_alone) ... ok
+test_every_tensor_has_a_hash (tools.test_mtp_fetch.Pinned.test_every_tensor_has_a_hash) ... ok
+test_a_mirror_that_ignores_range_is_refused (tools.test_mtp_fetch.Ranges.test_a_mirror_that_ignores_range_is_refused) ... ok
+test_an_inventory_from_another_revision_is_refused_and_retained (tools.test_mtp_fetch.Ranges.test_an_inventory_from_another_revision_is_refused_and_retained) ... ok
+test_check_range (tools.test_mtp_fetch.Ranges.test_check_range) ... ok
+test_corrupt_existing_tensor_is_refused_and_retained (tools.test_mtp_fetch.Ranges.test_corrupt_existing_tensor_is_refused_and_retained) ... ok
+test_fetch_from_an_honest_mirror (tools.test_mtp_fetch.Ranges.test_fetch_from_an_honest_mirror) ... ok
+test_oversized_existing_tensor_is_refused_and_retained (tools.test_mtp_fetch.Ranges.test_oversized_existing_tensor_is_refused_and_retained) ... ok
+test_partial_tensor_resumes_only_the_pinned_range (tools.test_mtp_fetch.Ranges.test_partial_tensor_resumes_only_the_pinned_range) ... ok
+test_verify_keeps_its_verdict_and_skips_other_revisions (tools.test_mtp_fetch.Ranges.test_verify_keeps_its_verdict_and_skips_other_revisions) ... ok
+test_wrong_downloaded_bytes_are_refused_and_retained (tools.test_mtp_fetch.Ranges.test_wrong_downloaded_bytes_are_refused_and_retained) ... ok
+test_setup_rebuilds_a_corrupt_install (tools.test_mtp_fetch.Setup.test_setup_rebuilds_a_corrupt_install) ... ok
+test_builtin_table_matches_setup (tools.test_strata_mcp.Helpers.test_builtin_table_matches_setup) ... ok
+test_progress_from_setup_output (tools.test_strata_mcp.Helpers.test_progress_from_setup_output) ... ok
+test_recommendation_follows_ram (tools.test_strata_mcp.Helpers.test_recommendation_follows_ram) ... ok
+test_disk_space_is_checked (tools.test_strata_mcp.Install.test_disk_space_is_checked) ... ok
+test_failure_is_reported (tools.test_strata_mcp.Install.test_failure_is_reported) ... ok
+test_plan_then_install (tools.test_strata_mcp.Install.test_plan_then_install) ... ok
+test_progress_while_running_and_cancel (tools.test_strata_mcp.Install.test_progress_while_running_and_cancel) ... ok
+test_handshake_list_call (tools.test_strata_mcp.Protocol.test_handshake_list_call) ... ok
+test_not_a_strata_folder (tools.test_strata_mcp.Protocol.test_not_a_strata_folder) ... ok
+test_older_protocol_and_errors (tools.test_strata_mcp.Protocol.test_older_protocol_and_errors) ... ok
+test_real_stdio_process (tools.test_strata_mcp.Protocol.test_real_stdio_process)
+The script itself over a pipe: stdout carries only JSON-RPC lines. ... ok
+test_external_server_is_only_unloaded (tools.test_strata_mcp.StartStop.test_external_server_is_only_unloaded) ... ok
+test_loading_then_ready (tools.test_strata_mcp.StartStop.test_loading_then_ready) ... ok
+test_never_kills_an_unrelated_process (tools.test_strata_mcp.StartStop.test_never_kills_an_unrelated_process) ... ok
+test_start_reports_a_crash (tools.test_strata_mcp.StartStop.test_start_reports_a_crash) ... ok
+test_start_status_bench_stop (tools.test_strata_mcp.StartStop.test_start_status_bench_stop) ... ok
+test_status_sees_other_programs_on_the_port (tools.test_strata_mcp.StartStop.test_status_sees_other_programs_on_the_port) ... /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_stop_while_busy_needs_force (tools.test_strata_mcp.StartStop.test_stop_while_busy_needs_force) ... ok
+test_data_dir_paths (tools.test_strata_mcp.Validation.test_data_dir_paths) ... ok
+test_engine_log_outside_is_not_read (tools.test_strata_mcp.Validation.test_engine_log_outside_is_not_read) ... ok
+test_install_arguments (tools.test_strata_mcp.Validation.test_install_arguments) ... ok
+test_other_tools_arguments (tools.test_strata_mcp.Validation.test_other_tools_arguments) ... ok
+
+----------------------------------------------------------------------
+Ran 73 tests in 8.261s
+
+OK

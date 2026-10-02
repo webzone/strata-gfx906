@@ -1,0 +1,35 @@
+[ 50%] Building CXX object CMakeFiles/gguf_reader_test.dir/src/artifact/gguf_reader_test.cpp.o
+[100%] Linking CXX executable gguf_reader_test
+[100%] Built target gguf_reader_test
+[ 50%] Building CXX object CMakeFiles/gguf_split_test.dir/tests/core/gguf_split_test.cpp.o
+[100%] Linking CXX executable gguf_split_test
+[100%] Built target gguf_split_test
+[ 33%] Building CXX object CMakeFiles/strata_spec.dir/src/spec/controller.cpp.o
+[ 33%] Building CXX object CMakeFiles/strata_spec.dir/src/spec/suffix_drafter.cpp.o
+[ 50%] Building CXX object CMakeFiles/strata_spec.dir/src/spec/draft_policy.cpp.o
+[ 66%] Linking CXX static library libstrata_spec.a
+[ 66%] Built target strata_spec
+[ 83%] Building CXX object CMakeFiles/suffix_drafter_test.dir/src/spec/suffix_drafter_test.cpp.o
+[100%] Linking CXX executable suffix_drafter_test
+[100%] Built target suffix_drafter_test
+[ 66%] Built target strata_spec
+[ 83%] Building CXX object CMakeFiles/controller_test.dir/src/spec/controller_test.cpp.o
+[100%] Linking CXX executable controller_test
+[100%] Built target controller_test
+[ 66%] Built target strata_spec
+[ 83%] Building CXX object CMakeFiles/draft_policy_test.dir/src/spec/draft_policy_test.cpp.o
+[100%] Linking CXX executable draft_policy_test
+[100%] Built target draft_policy_test
+[ 50%] Building CXX object CMakeFiles/conv_cache_test.dir/src/program/conv_cache_test.cpp.o
+[100%] Linking CXX executable conv_cache_test
+[100%] Built target conv_cache_test
+[ 50%] Building CXX object CMakeFiles/coupled_draft_test.dir/src/core/coupled_draft_test.cpp.o
+[100%] Linking CXX executable coupled_draft_test
+[100%] Built target coupled_draft_test
+[ 50%] Building CXX object CMakeFiles/conversation_cache_test.dir/src/core/conversation_cache_test.cpp.o
+[100%] Linking CXX executable conversation_cache_test
+[100%] Built target conversation_cache_test
+[ 66%] Building CXX object CMakeFiles/conversation_memory_test.dir/src/core/conversation_memory.cpp.o
+[ 66%] Building CXX object CMakeFiles/conversation_memory_test.dir/src/core/conversation_memory_test.cpp.o
+[100%] Linking CXX executable conversation_memory_test
+[100%] Built target conversation_memory_test

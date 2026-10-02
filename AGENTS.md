@@ -1,7 +1,7 @@
 # strata-gfx906 — Development Rules
 
 This is a dedicated experimental MI50/MI60 gfx906 fork of `Niko1221/Strata`, synchronized through
-v0.1.31 / `9259cad4cfa3543cd3b8decab5962672b968c649` (original port: v0.1.30 / `30ec18e`).
+v0.1.34 / `1678de333d0e0711bc414ad992b640e1a37dd814` (original port: v0.1.30 / `30ec18e`).
 The working branch is `gfx906`; `origin` is `webzone/strata-gfx906`. Absorb upstream updates with
 reviewed merge commits, never rebasing published fork history or pushing to `upstream`.
 Preserving and optimizing real gfx906 support is the fork's purpose: upstream's wave32-only GPU
@@ -44,3 +44,12 @@ All project documentation and maintenance notes must be written in English. Pres
    force-push or discard another author's work. Update `docs/GFX906.md`. Keep unrelated machine
    diagnostics out of this project. Do not commit weights, binaries, virtual environments, or full
    compiler-warning logs; small, auditable validation evidence may be committed.
+
+## Upstream navigation
+
+Upstream's general user workflow is in `docs/AI_SETUP.md` and `docs/MCP_SERVER.md`; for this fork's
+MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upstream's RDNA/prebuilt defaults.
+Never expose a server beyond loopback without an API key. Engine/API details are in `docs/DETAILS.md`,
+AMD upstream scope in `docs/AMD_HIP.md`, and pipeline splitting in `docs/MULTI_GPU.md`.
+GPU-independent setup tests run with `.venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py'`.
+Document measured results with their hardware, workload and validation limits, not unsupported performance claims.

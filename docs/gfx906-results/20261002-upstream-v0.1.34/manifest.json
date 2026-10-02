@@ -1,0 +1,150 @@
+{
+  "upstream": "1678de333d0e0711bc414ad992b640e1a37dd814",
+  "upstream_version": "0.1.34",
+  "previous_upstream": "9259cad4cfa3543cd3b8decab5962672b968c649",
+  "fork_before": "be23587e559060c9d6a704e6b34490f5be9fce7b",
+  "upstream_commits": 128,
+  "llama_cpp": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+  "host": "macOS arm64",
+  "python": "3.14.7",
+  "cmake": "4.4.3",
+  "scope": "CPU/software source integration; no HIP engine build, GPU/model run or deployment",
+  "environment": {
+    "PATH": "prepend $PWD/.venv/bin",
+    "TMPDIR": "$PWD/.venv/test-tmp",
+    "TMP": "$PWD/.venv/test-tmp",
+    "TEMP": "$PWD/.venv/test-tmp"
+  },
+  "first_attempt_environment": "Default macOS temporary directory; combined tool deadline 300000 ms interrupted serve-first.log",
+  "logs": {
+    "cpu-build.log": {
+      "bytes": 2151,
+      "sha256": "e610d52b1462d01c9ebfa2c9f01aa07bac76a236874fe3480e23f34000525b0b",
+      "command": ".venv/bin/cmake --build build-source-sync-cpu --parallel 2 --target gguf_reader_test gguf_split_test suffix_drafter_test controller_test draft_policy_test conv_cache_test coupled_draft_test conversation_cache_test conversation_memory_test"
+    },
+    "cpu-configure.log": {
+      "bytes": 143,
+      "sha256": "219753e00aa51e2c072c6072985b4b09a1ed903717644c101edcd1f79cbe6750",
+      "command": ".venv/bin/cmake -S . -B build-source-sync-cpu -DSTRATA_ENABLE_CUDA=OFF -DSTRATA_ENABLE_HIP=OFF -DSTRATA_NATIVE_EXPERTS=OFF -DSTRATA_BUILD_TESTS=ON -DSTRATA_BUILD_CONVERSATION_TESTS=ON"
+    },
+    "cpu-ctest.log": {
+      "bytes": 1040,
+      "sha256": "b674ba7f7600904f05ddfc8f0fe0009b92b6a7ef82ef845355cf9a8ab2cd104e",
+      "command": ".venv/bin/ctest --test-dir build-source-sync-cpu -R '^(gguf_reader_test|gguf_split_test|suffix_drafter_test|controller_test|draft_policy_test|conv_cache_test|coupled_draft_test|conversation_cache_test|conversation_memory_test)$' --output-on-failure"
+    },
+    "gfx906-final.log": {
+      "bytes": 5327,
+      "sha256": "1d4a3bf76a896a1fd31713f80f922322d7d603d18efefde134a5717e8dfc6a0a",
+      "command": ".venv/bin/python -m unittest discover -s tests -p 'test_gfx906*.py' -v"
+    },
+    "gfx906-first.log": {
+      "bytes": 3591,
+      "sha256": "c1b97cd62b361178e0da1dd36c8b1eb794e44b45be6bdd29948c5a1963c28f3b",
+      "command": ".venv/bin/python -m unittest discover -s tests -p 'test_gfx906*.py' -v"
+    },
+    "gfx906.log": {
+      "bytes": 5153,
+      "sha256": "e6ca259d8f1a1d25baf289f460407dd992daeb4266dd57a4cccf95dcb16106e3",
+      "command": ".venv/bin/python -m unittest discover -s tests -p 'test_gfx906*.py' -v"
+    },
+    "serve-first.log": {
+      "bytes": 10886,
+      "sha256": "9cd21a1af3015a29c8b7ded1aa8c12b1e8776713d30422b90155d28c74b63cf6",
+      "command": ".venv/bin/python -m unittest discover -s serve -p 'test_*.py' -v"
+    },
+    "serve.log": {
+      "bytes": 33408,
+      "sha256": "b68157c07b4587a2bf43adace58f8ad319eab83a95cee25c48ee138a31f483d1",
+      "command": ".venv/bin/python -m unittest discover -s serve -p 'test_*.py' -v"
+    },
+    "setup-final.log": {
+      "bytes": 15138,
+      "sha256": "0da244199d5ea96841c840d9ac7e433894fd740a8aecd4414f70d882ff0e7cc1",
+      "command": ".venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py' -v"
+    },
+    "setup-first.log": {
+      "bytes": 186560,
+      "sha256": "16cff174a0fd4dc964d043d8e55cb450981064e31d643269016ff434874d0550",
+      "command": ".venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py' -v"
+    },
+    "setup.log": {
+      "bytes": 15138,
+      "sha256": "7cdee16181a3dc772e6fe03d80e941666b3c85197d893e597e0d4cec3e570248",
+      "command": ".venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py' -v"
+    },
+    "tools-final.log": {
+      "bytes": 9624,
+      "sha256": "6d60e600d053b5893d4e52e8e4593c8a2151d662eb38bc70e4ffa283d44ff864",
+      "command": ".venv/bin/python -m unittest tools.test_calibrate tools.test_shards tools.test_iq_pack tools.test_mtp_fetch tools.test_strata_mcp -v"
+    },
+    "tools-first.log": {
+      "bytes": 12461,
+      "sha256": "a007709faa66c968ea37d65241a107f3b78291cb002c4062e281002da9e4a339",
+      "command": ".venv/bin/python -m unittest tools.test_calibrate tools.test_shards tools.test_iq_pack tools.test_mtp_fetch tools.test_strata_mcp -v"
+    },
+    "tools.log": {
+      "bytes": 9624,
+      "sha256": "c4939e30ab82be9705db6cc78f2dfcc363d0d6ef7e872701ec7306eb89c51caf",
+      "command": ".venv/bin/python -m unittest tools.test_calibrate tools.test_shards tools.test_iq_pack tools.test_mtp_fetch tools.test_strata_mcp -v"
+    }
+  },
+  "final_results": {
+    "gfx906": {
+      "log": "gfx906-final.log",
+      "discovered": 40,
+      "passed": 40,
+      "skipped": 0,
+      "failed": 0
+    },
+    "setup": {
+      "log": "setup-final.log",
+      "discovered": 132,
+      "passed": 132,
+      "skipped": 0,
+      "failed": 0
+    },
+    "tools": {
+      "log": "tools-final.log",
+      "discovered": 73,
+      "passed": 73,
+      "skipped": 0,
+      "failed": 0
+    },
+    "serve": {
+      "log": "serve.log",
+      "discovered": 146,
+      "passed": 137,
+      "skipped": 9,
+      "failed": 0
+    },
+    "cpu_ctest": {
+      "log": "cpu-ctest.log",
+      "selected": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "tested_sources_sha256": {
+    "CMakeLists.txt": "e76868d169eb7805ab70e0cb48e8b859823efb9c0ef37538e7114083fbcd7350",
+    "CMakePresets.json": "b810e97aeeb991896090d801694b0071ed3d00ade3f21e37d84493cb55f5678d",
+    "cmake/hip_backend.cmake": "1af79678239d5e545b20f7c94e69474d70913ab794a71057e219cdfe2f7e08e9",
+    "include/strata/hip_compat/intrinsics.hpp": "682652164d16d2275ef244cedbdd067b1122ffef6d3f68f23bf2a4434d6cf010",
+    "include/strata/core/mapped_handoff.hpp": "f2b3b8b53d2bb9d3dde413955119c05eec1bbd41d7ab9997471a396b6f4e490e",
+    "src/core/device.cu": "429ec8d18ca5dabf16e0d882a644be1bce6758c475ae35daedf3cee927f496b4",
+    "src/core/device_main.cpp": "10ad21113db356e8757c0f7b7e3efe345c540ff4a3b961e7dd9069d0434b59d6",
+    "src/kernels/cuda/verify_kernels.cu": "9364747e091f5d5f4941b8c38a63936396fc05e2d7016c86b84d2f21bb72bb66",
+    "src/program/generate.cpp": "4cd079e350f1101e98e820e43cbbc8f7d1b48961fcc439df3c4f6b7666e14702",
+    "setup.py": "8c1bcc8d058b0521f1160fc2554593d8afe673d7d5ca82c8e111b2783ffbc792",
+    "serve/server.py": "23ccd475f62c76d87276756f2a99010d12765d4c9fda763d986c46228fe02780",
+    "tools/mtp_fetch.py": "849457025322a70a0e8dccfcd91c31e8db098a5b0c5ce2a00a0af2a91b5a30f6",
+    "tools/strata_mcp.py": "036908b821105652dd83651bd46a71a661002c24c4c106bb75269e832521b215",
+    "tools/test_mtp_fetch.py": "fab4925d59b3c520e84c47b9e978a67bad2cb44154ea14c75ecedcce7b99d38c",
+    "tools/test_setup_amd.py": "e3d67d43b7d7d17d35a514f8b1cfd2a2b3d1180cd2953e7d66a0550b91d419d2",
+    "tools/test_setup_golden.py": "463860b3b36c628677d252b9062d51ee35dc1c791a0f01e217f29c16141d4f73",
+    "tools/test_setup_golden.json": "9fce469443eff1b6f0dd768e7c4374a047502ddfbb1400992856ca1ff1643963",
+    "tests/test_gfx906_setup.py": "2fa9626656985c94108a89a702defb43fd7a9ec1a3a577bd9c57a890cb58665a",
+    "tests/test_gfx906_upstream.py": "f75ca0fc5065598ef9ccd33c6133d3c36480a5e4fc007136a7eb7647fcf9eda8",
+    "tests/test_gfx906_v034.py": "58b2e8df0aad6481eb1f7fb39a1495f7264433c7a98ff94fd8ea62a5cbf84369"
+  }
+}

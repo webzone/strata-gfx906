@@ -25,8 +25,8 @@ RDNA = dict(index=2, arch="gfx1201", name="RDNA4", vram_gb=48.0, vendor="amd")
 
 class UpstreamIntegration(unittest.TestCase):
     def test_version_and_acceptance_pins(self):
-        self.assertEqual(setup.source_version(), "0.1.31")
-        self.assertEqual(setup.MIN_ENGINE, (0, 1, 31))
+        self.assertEqual(setup.source_version(), "0.1.34")
+        self.assertEqual(setup.MIN_ENGINE, (0, 1, 34))
         self.assertEqual(setup.LLAMA_CPP_COMMIT, "3cf03257f219afbe7334045ff7c6a06ac68c627d")
         self.assertEqual(setup.HF_REVISIONS[gfx906_model.REPO], gfx906_model.REVISION)
         self.assertEqual(mtp_fetch.REVISION, "de4b8e4d43b917e7706784d8bb445c9af86a3540")
@@ -73,7 +73,7 @@ class UpstreamIntegration(unittest.TestCase):
                 setup.update_installed_engine(setup.PREBUILT_URL)
             build.assert_called_once()
             self.assertEqual(build.call_args.args[0]["archs"], ["gfx906", "gfx1201"])
-            self.assertIs(build.call_args.args[2], True)
+            self.assertIs(build.call_args.kwargs["experimental_gfx906"], True)
             nv.assert_not_called()
 
     def test_saved_amd_start_all_uses_saved_opt_in_not_nvidia_detection(self):
@@ -93,7 +93,7 @@ class UpstreamIntegration(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(setup.start(config, 8095, "all", open_browser=False), 0)
             self.assertEqual(json.loads(config.read_text())["gpu"], [0, 1])
-            self.assertIs(build.call_args.args[2], True)
+            self.assertIs(build.call_args.kwargs["experimental_gfx906"], True)
             self.assertNotIn("--gpu", process.call_args.args[0])
             nv.assert_not_called()
 
@@ -115,7 +115,7 @@ class UpstreamIntegration(unittest.TestCase):
                 (root / "build-hip" / setup.EXE).write_text("new")
             build = stack.enter_context(patch.object(setup, "cmake_build", side_effect=fake_build))
             with contextlib.redirect_stdout(io.StringIO()):
-                setup.build_engine_hip(CARDS[0], Path("unused"), True)
+                setup.build_engine_hip(CARDS[0], Path("unused"), experimental_gfx906=True)
             build.assert_called_once()
             self.assertIn("-DSTRATA_EXPERIMENTAL_GFX906=ON", build.call_args.args[3])
             self.assertIs(json.loads((engine / "BUILD.json").read_text())["experimental_gfx906"], True)
@@ -149,6 +149,11 @@ class CmakeArchitectureGate(unittest.TestCase):
         result = self.check_archs("gfx1100;gfx1101;gfx1200;gfx1201")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("ARCHS=gfx1100,gfx1101,gfx1200,gfx1201", result.stdout)
+
+    def test_space_separated_rdna2_and_gfx906_architectures(self):
+        result = self.check_archs("gfx1030 gfx906:sramecc+:xnack- gfx1201", True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ARCHS=gfx1030,gfx906,gfx1201", result.stdout)
 
     def test_opt_in_does_not_admit_other_wave64_architectures(self):
         result = self.check_archs("gfx908", True)

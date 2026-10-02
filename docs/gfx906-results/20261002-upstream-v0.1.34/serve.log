@@ -1,0 +1,394 @@
+test_constant_cost (test_detok.Detok.test_constant_cost) ... skipped 'no pack tokenizer here'
+test_random_ids_and_broken_bytes (test_detok.Detok.test_random_ids_and_broken_bytes) ... skipped 'no pack tokenizer here'
+test_text_with_split_characters (test_detok.Detok.test_text_with_split_characters) ... skipped 'no pack tokenizer here'
+test_pack_vocab (test_detok.HeapBpe.test_pack_vocab) ... skipped 'no pack tokenizer here'
+test_speed_pack (test_detok.HeapBpe.test_speed_pack) ... skipped 'no pack tokenizer here'
+test_speed_synthetic (test_detok.HeapBpe.test_speed_synthetic) ... ok
+test_synthetic_vocab (test_detok.HeapBpe.test_synthetic_vocab) ... ok
+test_words_directly (test_detok.HeapBpe.test_words_directly) ... ok
+test_an_engine_that_died_on_load_is_reported_as_such (test_lifecycle.Lifecycle.test_an_engine_that_died_on_load_is_reported_as_such) ... [strata] loading the model again (it was unloaded) ...
+ok
+test_busy_auth_and_foreign_origin_cannot_unload (test_lifecycle.Lifecycle.test_busy_auth_and_foreign_origin_cannot_unload) ... [strata] model unloaded; the next request loads it again
+ok
+test_close_does_not_forget_a_process_still_exiting (test_lifecycle.Lifecycle.test_close_does_not_forget_a_process_still_exiting) ... ok
+test_close_sends_eof_before_waiting_for_windows_reader (test_lifecycle.Lifecycle.test_close_sends_eof_before_waiting_for_windows_reader) ... ok
+test_close_terminates_before_it_kills (test_lifecycle.Lifecycle.test_close_terminates_before_it_kills) ... ok
+test_discover_chat_unload_and_stream_reload (test_lifecycle.Lifecycle.test_discover_chat_unload_and_stream_reload) ... [strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 7 tokens in 0 s (151340.9 tok/s) (stop, cancel=False)
+[strata] done: 7 tokens in 0 s (225847.1 tok/s) (stop, cancel=False)
+[strata] model unloaded; the next request loads it again
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 7 tokens in 0 s (98855.6 tok/s) (stop, cancel=False)
+ok
+test_explicit_load_and_model_matching (test_lifecycle.Lifecycle.test_explicit_load_and_model_matching) ... [strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+ok
+test_native_lazy_constructor_does_not_start_a_process (test_lifecycle.Lifecycle.test_native_lazy_constructor_does_not_start_a_process) ... ok
+[strata] MCP server 'missing' did not start: could not start 'strata-no-such-program': [Errno 2] No such file or directory: 'strata-no-such-program'. Its tools are left out; the chat works without them.
+[strata] MCP server 'paged': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+test_a_server_that_fails_is_left_out (test_mcp.Client.test_a_server_that_fails_is_left_out) ... ok
+test_call (test_mcp.Client.test_call) ... ok
+test_cancel (test_mcp.Client.test_cancel) ... ok
+test_crash_mid_call_then_restart (test_mcp.Client.test_crash_mid_call_then_restart) ... [strata] MCP server 'solo': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'solo' had stopped; starting it again
+[strata] MCP server 'solo': 6 tools (echo, fail, sleep, big, die, add)
+ok
+test_errors_become_text (test_mcp.Client.test_errors_become_text) ... ok
+test_initialize_and_list_every_page (test_mcp.Client.test_initialize_and_list_every_page) ... ok
+test_namespaced_openai_tools (test_mcp.Client.test_namespaced_openai_tools) ... ok
+test_timeout (test_mcp.Client.test_timeout) ... ok
+test_truncation (test_mcp.Client.test_truncation) ... ok
+test_bad_entries_stop_the_start (test_mcp.Config.test_bad_entries_stop_the_start) ... ok
+test_both_spellings_and_the_file (test_mcp.Config.test_both_spellings_and_the_file) ... ok
+[strata] MCP server 'down' did not start: could not reach http://127.0.0.1:9/mcp: <urlopen error [Errno 61] Connection refused>. Its tools are left out; the chat works without them.
+[strata] MCP server 'web': 6 tools (echo, fail, sleep, big, die, add)
+test_list_and_call (test_mcp.HttpClient.test_list_and_call) ... ok
+test_timeout_and_unreachable (test_mcp.HttpClient.test_timeout_and_unreachable) ... ok
+test_opt_in_without_servers_is_a_plain_chat (test_mcp.NoServers.test_opt_in_without_servers_is_a_plain_chat) ... [strata] done: 13 tokens in 0 s (276781.5 tok/s) (stop, cancel=False)
+ok
+test_a_call_the_output_ends_inside_is_not_run (test_mcp.ToolLoop.test_a_call_the_output_ends_inside_is_not_run)
+#211: the model's turn ends inside an MCP call: nothing runs (it used to run with no arguments). ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 83 tokens in 0 s (119796.0 tok/s) (stop, cancel=False)
+ok
+test_get_mcp (test_mcp.ToolLoop.test_get_mcp) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 401: 'Unauthorized'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_max_rounds (test_mcp.ToolLoop.test_max_rounds) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 120 tokens in 0 s (106184.9 tok/s) (stop, cancel=False)
+[strata] tool fake__echo: ok, 5 characters in 0.0 s
+[strata] done: 120 tokens in 0 s (115944.8 tok/s) (stop, cancel=False)
+[strata] tool fake__echo: ok, 5 characters in 0.0 s
+[strata] done: 120 tokens in 0 s (116968.7 tok/s) (stop, cancel=False)
+ok
+test_non_stream (test_mcp.ToolLoop.test_non_stream) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 141 tokens in 0 s (100714.7 tok/s) (stop, cancel=False)
+[strata] tool fake__add: ok, 1 characters in 0.0 s
+[strata] done: 13 tokens in 0 s (317011.3 tok/s) (stop, cancel=False)
+ok
+test_only_from_the_app_s_own_page (test_mcp.ToolLoop.test_only_from_the_app_s_own_page) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 13 tokens in 0 s (115766.4 tok/s) (stop, cancel=False)
+/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 415: 'Unsupported Media Type'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_own_tools_still_go_to_the_client (test_mcp.ToolLoop.test_own_tools_still_go_to_the_client) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 109 tokens in 0 s (95524.3 tok/s) (stop, cancel=False)
+ok
+test_plain_requests_get_no_mcp_tools (test_mcp.ToolLoop.test_plain_requests_get_no_mcp_tools) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 116 tokens in 0 s (103387.0 tok/s) (stop, cancel=False)
+[strata] done: 16 tokens in 0 s (177536.7 tok/s) (stop, cancel=False)
+[strata] done: 16 tokens in 0 s (184365.0 tok/s) (stop, cancel=False)
+ok
+test_stop_during_a_tool (test_mcp.ToolLoop.test_stop_during_a_tool)
+Closing the connection while a slow tool runs stops the tool (notifications/cancelled) and the loop. ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 120 tokens in 0 s (112347.4 tok/s) (stop, cancel=False)
+ok
+test_tool_call_then_answer (test_mcp.ToolLoop.test_tool_call_then_answer) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 134 tokens in 0 s (102843.0 tok/s) (stop, cancel=False)
+[strata] tool fake__echo: ok, 19 characters in 0.0 s
+[strata] done: 31 tokens in 0 s (130284.0 tok/s) (stop, cancel=False)
+ok
+test_tool_error_is_a_result (test_mcp.ToolLoop.test_tool_error_is_a_result) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 84 tokens in 0 s (107710.6 tok/s) (stop, cancel=False)
+[strata] tool fake__fail: error, 27 characters in 0.0 s
+[strata] done: 21 tokens in 0 s (145828.5 tok/s) (stop, cancel=False)
+ok
+test_truncated_for_the_model (test_mcp.ToolLoop.test_truncated_for_the_model) ... [strata] MCP server 'fake': 6 tools (echo, fail, sleep, big, die, add)
+[strata] MCP server 'broken' did not start: the server stopped (exit code 2): cannot start: missing configuration. Its tools are left out; the chat works without them.
+[strata] done: 115 tokens in 0 s (107474.4 tok/s) (stop, cancel=False)
+[strata] tool fake__big: ok, 3,000 characters in 0.0 s (truncated for the model)
+[strata] done: 16 tokens in 0 s (185897.1 tok/s) (stop, cancel=False)
+ok
+test_capture_is_bounded_and_eviction_returns_404 (test_monitor.Monitor.test_capture_is_bounded_and_eviction_returns_404) ... ok
+test_error_and_engine_death_are_not_successes (test_monitor.Monitor.test_error_and_engine_death_are_not_successes) ... [strata] done: 0 tokens in 0 s (0.0 tok/s) (length, cancel=False)
+[strata] done: 0 tokens in 0 s (0.0 tok/s) (length, cancel=False)
+[strata] done: 0 tokens in 0 s (0.0 tok/s) (length, cancel=False)
+[strata] done: 0 tokens in 0 s (0.0 tok/s) (length, cancel=False)
+ok
+test_history_is_authorized_and_does_not_capture_headers (test_monitor.Monitor.test_history_is_authorized_and_does_not_capture_headers) ... [strata] done: 50 tokens in 0 s (189273.6 tok/s) (stop, cancel=False)
+ok
+test_output_and_reasoning_for_both_dialects_and_stream_modes (test_monitor.Monitor.test_output_and_reasoning_for_both_dialects_and_stream_modes) ... [strata] done: 50 tokens in 0 s (176825.6 tok/s) (stop, cancel=False)
+[strata] done: 50 tokens in 0 s (81033.7 tok/s) (stop, cancel=False)
+[strata] done: 50 tokens in 0 s (177274.0 tok/s) (stop, cancel=False)
+[strata] done: 50 tokens in 0 s (88824.7 tok/s) (stop, cancel=False)
+ok
+test_page_and_relative_assets_are_served (test_monitor.Monitor.test_page_and_relative_assets_are_served) ... ok
+test_queue_wait_and_loading_are_attributed_separately (test_monitor.Monitor.test_queue_wait_and_loading_are_attributed_separately) ... [strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 50 tokens in 0 s (163456.9 tok/s) (stop, cancel=False)
+[strata] done: 50 tokens in 0 s (173605.3 tok/s) (stop, cancel=False)
+ok
+test_off_by_default (test_monitor.MonitorOff.test_off_by_default) ... [strata] done: 7 tokens in 0 s (211223.9 tok/s) (stop, cancel=False)
+ok
+test_free_vram_on_hip (test_server.AmdTelemetry.test_free_vram_on_hip) ... ok
+test_readings (test_server.AmdTelemetry.test_readings) ... ok
+test_non_streamed (test_server.ClientHangUp.test_non_streamed) ... [strata] done: 0 tokens in 1 s (0.0 tok/s) (cancel, cancel=True)
+ok
+test_streamed (test_server.ClientHangUp.test_streamed) ... [strata] done: 0 tokens in 2 s (0.0 tok/s) (cancel, cancel=True)
+ok
+test_anthropic_mid_conversation_system (test_server.ClientShapes.test_anthropic_mid_conversation_system) ... [strata] done: 12 tokens in 0 s (292625.9 tok/s) (stop, cancel=False)
+ok
+test_leading_system_unchanged (test_server.ClientShapes.test_leading_system_unchanged) ... ok
+test_no_user_turn_is_a_400 (test_server.ClientShapes.test_no_user_turn_is_a_400) ... [strata] done: 12 tokens in 0 s (387166.5 tok/s) (stop, cancel=False)
+ok
+test_openai_late_developer_and_system (test_server.ClientShapes.test_openai_late_developer_and_system) ... [strata] done: 12 tokens in 0 s (351969.6 tok/s) (stop, cancel=False)
+ok
+test_query_string (test_server.ClientShapes.test_query_string) ... [strata] done: 12 tokens in 0 s (387166.5 tok/s) (stop, cancel=False)
+[strata] done: 12 tokens in 0 s (387166.5 tok/s) (stop, cancel=False)
+[strata] done: 12 tokens in 0 s (375609.3 tok/s) (stop, cancel=False)
+ok
+test_vision_temp_image_removed_when_the_pipe_fails (test_server.ClientShapes.test_vision_temp_image_removed_when_the_pipe_fails) ... ok
+test_engine_err_mid_stream (test_server.EngineDeath.test_engine_err_mid_stream)
+The engine's ERR line after the stream started reaches the client as an error event (it used to be a ... [strata] the engine reported an error: verify: layer 31 never rang (an illegal memory access was encountered)
+[strata] done: 0 tokens in 0 s (0.0 tok/s) (error, cancel=False)
+[strata] the engine reported an error: verify: layer 31 never rang (an illegal memory access was encountered)
+[strata] done: 0 tokens in 0 s (0.0 tok/s) (error, cancel=False)
+ok
+test_error_then_restart (test_server.EngineDeath.test_error_then_restart) ... [strata] the engine stopped unexpectedly (exit code -9).  The next request starts the engine again.
+[strata] done: 5 tokens in 0 s (51527.1 tok/s) (error, cancel=False)
+[strata] the engine had stopped (exit code None); starting it again (a minute or two) ...
+[strata] the engine is running again
+[strata] done: 50 tokens in 0 s (201843.3 tok/s) (length, cancel=False)
+ok
+test_a_budget_that_fits_is_unchanged (test_server.FitMaxTokens.test_a_budget_that_fits_is_unchanged) ... [strata] done: 50 tokens in 0 s (202623.4 tok/s) (length, cancel=False)
+ok
+test_no_room_is_still_a_400 (test_server.FitMaxTokens.test_no_room_is_still_a_400) ... [strata] done: 1 tokens in 0 s (174762.7 tok/s) (length, cancel=False)
+ok
+test_overshoot_is_clamped_to_the_room (test_server.FitMaxTokens.test_overshoot_is_clamped_to_the_room) ... [strata] done: 2011 tokens in 0 s (10935.0 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (11239.1 tok/s) (stop, cancel=False)
+ok
+test_env (test_server.GpuChoice.test_env) ... ok
+test_hip_ordinal (test_server.GpuChoice.test_hip_ordinal)
+#325: on Windows the HIP ordinal setup resolved wins over the config's "gpu" (an iGPU takes HIP's 0). ... ok
+test_vision_device (test_server.GpuChoice.test_vision_device) ... ok
+test_literal_marker_with_an_image (test_server.ImageMarkers.test_literal_marker_with_an_image) ... ok
+test_a_request_without_a_done_keeps_no_engine_counters (test_server.LiveRate.test_a_request_without_a_done_keeps_no_engine_counters)
+An engine that dies mid-answer: the previous request's `last` must not become this row's decode rate. ... [strata] the engine stopped unexpectedly (exit code -9).  The next request starts the engine again.
+[strata] done: 3 tokens in 0 s (8261.9 tok/s) (error, cancel=False)
+ok
+test_prefill_rate_excludes_cached_tokens (test_server.LiveRate.test_prefill_rate_excludes_cached_tokens) ... ok
+test_the_live_number_is_a_rate (test_server.LiveRate.test_the_live_number_is_a_rate) ... [strata] done: 30 tokens in 1 s (46.3 tok/s) (length, cancel=False)
+ok
+test_anthropic_thinks_only_when_asked (test_server.MaxTokens.test_anthropic_thinks_only_when_asked) ... ok
+test_count_tokens_is_the_prompt_messages_reads (test_server.MaxTokens.test_count_tokens_is_the_prompt_messages_reads) ... [strata] done: 8 tokens in 0 s (335544.3 tok/s) (length, cancel=False)
+ok
+test_debug_log_shows_the_resolved_budget (test_server.MaxTokens.test_debug_log_shows_the_resolved_budget) ... ok
+test_explicit_budget_is_honoured (test_server.MaxTokens.test_explicit_budget_is_honoured) ... [strata] done: 50 tokens in 0 s (194541.0 tok/s) (length, cancel=False)
+[strata] done: 50 tokens in 0 s (199349.0 tok/s) (length, cancel=False)
+[strata] done: 50 tokens in 0 s (180633.2 tok/s) (length, cancel=False)
+[strata] done: 50 tokens in 0 s (203212.4 tok/s) (length, cancel=False)
+[strata] done: 1500 tokens in 0 s (13499.4 tok/s) (length, cancel=False)
+[strata] done: 1500 tokens in 0 s (14251.8 tok/s) (length, cancel=False)
+ok
+test_explicit_budget_over_the_context_is_rejected (test_server.MaxTokens.test_explicit_budget_over_the_context_is_rejected) ... ok
+test_request_line_parses_the_engine_summary (test_server.MaxTokens.test_request_line_parses_the_engine_summary) ... ok
+test_unset_budget_is_the_rest_of_the_context (test_server.MaxTokens.test_unset_budget_is_the_rest_of_the_context) ... [strata] done: 2011 tokens in 0 s (10787.2 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10673.9 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (11009.0 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10688.1 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10853.7 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10788.3 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10241.9 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (9034.6 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10587.5 tok/s) (stop, cancel=False)
+[strata] done: 2011 tokens in 0 s (10019.9 tok/s) (stop, cancel=False)
+ok
+test_unset_budget_with_a_near_full_prompt (test_server.MaxTokens.test_unset_budget_with_a_near_full_prompt) ... [strata] done: 1 tokens in 0 s (123361.9 tok/s) (length, cancel=False)
+[strata] done: 1 tokens in 0 s (139810.1 tok/s) (length, cancel=False)
+[strata] done: 5 tokens in 0 s (313007.8 tok/s) (length, cancel=False)
+[strata] done: 1 tokens in 0 s (167772.2 tok/s) (length, cancel=False)
+[strata] done: 5 tokens in 0 s (249661.0 tok/s) (length, cancel=False)
+ok
+test_models_lists_them (test_server.ModelAliases.test_models_lists_them) ... ok
+test_requests_are_answered_under_the_alias (test_server.ModelAliases.test_requests_are_answered_under_the_alias) ... [strata] done: 8 tokens in 0 s (332222.1 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (234646.4 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (349525.3 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (360800.3 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (294337.1 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (399457.5 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (360800.3 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (345922.0 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (360800.3 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (364722.1 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (399457.5 tok/s) (length, cancel=False)
+[strata] done: 8 tokens in 0 s (419430.4 tok/s) (length, cancel=False)
+ok
+test_set_aliases (test_server.ModelAliases.test_set_aliases) ... ok
+test_without_aliases_nothing_changes (test_server.ModelAliases.test_without_aliases_nothing_changes) ... ok
+test_context_zero_is_503 (test_server.RestartWindow.test_context_zero_is_503) ... ok
+test_not_alive_until_ready (test_server.RestartWindow.test_not_alive_until_ready) ... ok
+test_penalty_window (test_server.SamplingKeys.test_penalty_window) ... ok
+test_top_k (test_server.SamplingKeys.test_top_k) ... ok
+test_tune_keys (test_server.SamplingKeys.test_tune_keys) ... ok
+test_a_trusted_origin_is_strata_s_own_page (test_server.SharedSettings.test_a_trusted_origin_is_strata_s_own_page) ... [strata] other apps use their own settings again
+ok
+test_off_again (test_server.SharedSettings.test_off_again) ... [strata] other apps now use the Chat settings: temperature=0.3
+[strata] other apps use their own settings again
+[strata] done: 16 tokens in 0 s (250406.2 tok/s) (stop, cancel=False)
+ok
+test_only_strata_s_own_page_may_set_them (test_server.SharedSettings.test_only_strata_s_own_page_may_set_them) ... [strata] other apps now use the Chat settings: temperature=1.0
+ok
+test_other_apps_get_the_chat_settings (test_server.SharedSettings.test_other_apps_get_the_chat_settings) ... [strata] other apps now use the Chat settings: temperature=0.3, top_p=0.9, top_k=10, seed=7, max_tokens=77, reasoning_effort=low, experimental_speed_projection=False
+[strata] done: 16 tokens in 0 s (319566.0 tok/s) (stop, cancel=False)
+[strata] done: 5 tokens in 0 s (355449.5 tok/s) (length, cancel=False)
+ok
+test_proxy_headers_do_not_make_a_page_strata_s_own (test_server.SharedSettings.test_proxy_headers_do_not_make_a_page_strata_s_own) ... ok
+test_they_need_the_key_when_one_is_set (test_server.SharedSettings.test_they_need_the_key_when_one_is_set) ... [strata] other apps now use the Chat settings: temperature=1.0
+ok
+test_before_load_runs_first (test_server.SharingTheGpu.test_before_load_runs_first) ... [strata] model unloaded; the next request loads it again
+[strata] before loading: /Users/chris/dev/strata-gfx906/.venv/bin/python -c open('/Users/chris/dev/strata-gfx906/.venv/test-tmp/tmphhwmr_ml/ran', 'w').close()
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 13 tokens in 0 s (255990.4 tok/s) (stop, cancel=False)
+ok
+test_idle_unload (test_server.SharingTheGpu.test_idle_unload) ... [strata] the model unloads after 1 s without requests
+[strata] model unloaded after 1 s idle; the next request loads it again
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 13 tokens in 0 s (288497.1 tok/s) (stop, cancel=False)
+ok
+test_load_endpoint (test_server.SharingTheGpu.test_load_endpoint) ... [strata] model unloaded; the next request loads it again
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+ok
+test_min_free_vram_refuses_to_load (test_server.SharingTheGpu.test_min_free_vram_refuses_to_load) ... [strata] model unloaded; the next request loads it again
+[strata] model unloaded after 1 s idle; the next request loads it again
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 13 tokens in 0 s (296336.7 tok/s) (stop, cancel=False)
+ok
+test_min_free_vram_unreadable_loads (test_server.SharingTheGpu.test_min_free_vram_unreadable_loads) ... [strata] model unloaded; the next request loads it again
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 13 tokens in 0 s (309806.5 tok/s) (stop, cancel=False)
+ok
+test_off_by_default (test_server.SharingTheGpu.test_off_by_default) ... ok
+test_unload_refused_while_a_request_runs (test_server.SharingTheGpu.test_unload_refused_while_a_request_runs) ... ok
+test_unload_then_the_next_request_loads (test_server.SharingTheGpu.test_unload_then_the_next_request_loads) ... [strata] model unloaded; the next request loads it again
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 13 tokens in 0 s (317011.3 tok/s) (stop, cancel=False)
+ok
+test_vision_encoder_unloads_and_starts_first (test_server.SharingTheGpu.test_vision_encoder_unloads_and_starts_first) ... [strata] model unloaded; the next request loads it again
+[strata] starting the vision encoder again ...
+[strata] loading the model again (it was unloaded) ...
+[strata] the engine is running again
+[strata] done: 13 tokens in 0 s (308056.2 tok/s) (stop, cancel=False)
+ok
+test_abort_then_the_next_request (test_server.StatusHandover.test_abort_then_the_next_request) ... [strata] done: 15 tokens in 0 s (105738.8 tok/s) (disconnect, cancel=False)
+[strata] done: 20 tokens in 0 s (307275.0 tok/s) (length, cancel=False)
+ok
+test_status (test_server.StatusNeedsTheKey.test_status) ... ok
+test_a_bad_value_is_a_400 (test_server.ThinkingBudget.test_a_bad_value_is_a_400) ... ok
+test_a_budget_the_thinking_stays_under (test_server.ThinkingBudget.test_a_budget_the_thinking_stays_under) ... [strata] done: 211 tokens in 0 s (77312.7 tok/s) (stop, cancel=False)
+ok
+test_anthropic_stream (test_server.ThinkingBudget.test_anthropic_stream) ... [strata] thinking budget reached (30 tokens): wrapping up the thinking
+[strata] done: 122 tokens in 0 s (46354.3 tok/s) (stop, cancel=False)
+ok
+test_no_room_left_to_answer (test_server.ThinkingBudget.test_no_room_left_to_answer) ... [strata] done: 20 tokens in 0 s (182361.0 tok/s) (length, cancel=False)
+ok
+test_off_by_default (test_server.ThinkingBudget.test_off_by_default) ... [strata] done: 211 tokens in 0 s (86156.4 tok/s) (stop, cancel=False)
+ok
+test_the_budget_wraps_up_the_thinking (test_server.ThinkingBudget.test_the_budget_wraps_up_the_thinking) ... [strata] thinking budget reached (20 tokens): wrapping up the thinking
+[strata] done: 112 tokens in 0 s (117176.9 tok/s) (stop, cancel=False)
+ok
+test_the_config_default_and_a_request_that_turns_it_off (test_server.ThinkingBudget.test_the_config_default_and_a_request_that_turns_it_off) ... [strata] thinking budget reached (20 tokens): wrapping up the thinking
+[strata] done: 112 tokens in 0 s (116653.1 tok/s) (stop, cancel=False)
+[strata] done: 211 tokens in 0 s (84093.3 tok/s) (stop, cancel=False)
+ok
+test_without_thinking_there_is_nothing_to_limit (test_server.ThinkingBudget.test_without_thinking_there_is_nothing_to_limit) ... [strata] done: 17 tokens in 0 s (278528.0 tok/s) (stop, cancel=False)
+ok
+test_draft_fields (test_server.TimingsDrafts.test_draft_fields) ... ok
+test_values_keep_the_terminators (test_server.ToolCallTerminators.test_values_keep_the_terminators) ... ok
+test_a_call_cut_at_the_token_limit (test_server.UnfinishedToolCall.test_a_call_cut_at_the_token_limit)
+The same cut by max_tokens: "length" / "max_tokens", and the whole (non-streamed) answers leave the call ... [strata] done: 119 tokens in 0 s (115324.0 tok/s) (length, cancel=False)
+[strata] done: 119 tokens in 0 s (84640.0 tok/s) (length, cancel=False)
+[strata] done: 119 tokens in 0 s (122544.1 tok/s) (length, cancel=False)
+[strata] done: 119 tokens in 0 s (83437.3 tok/s) (length, cancel=False)
+ok
+test_a_cut_call (test_server.UnfinishedToolCall.test_a_cut_call) ... [strata] done: 120 tokens in 0 s (123331.7 tok/s) (stop, cancel=False)
+[strata] done: 120 tokens in 0 s (80312.2 tok/s) (stop, cancel=False)
+[strata] done: 120 tokens in 0 s (124490.8 tok/s) (stop, cancel=False)
+[strata] done: 120 tokens in 0 s (89082.6 tok/s) (stop, cancel=False)
+ok
+test_a_whole_call (test_server.UnfinishedToolCall.test_a_whole_call) ... [strata] done: 147 tokens in 0 s (89034.3 tok/s) (stop, cancel=False)
+[strata] done: 147 tokens in 0 s (64359.4 tok/s) (stop, cancel=False)
+[strata] done: 147 tokens in 0 s (104413.7 tok/s) (stop, cancel=False)
+[strata] done: 147 tokens in 0 s (86668.9 tok/s) (stop, cancel=False)
+ok
+test_collect_keeps_calls_whose_arguments_parse (test_server.UnfinishedToolCall.test_collect_keeps_calls_whose_arguments_parse) ... ok
+test_parser (test_server.UnfinishedToolCall.test_parser) ... ok
+test_anthropic (test_server.UsageAndStatus.test_anthropic) ... [strata] done: 13 tokens in 0 s (236043.1 tok/s) (stop, cancel=False), expert cache 90.0% hit
+ok
+test_cors_for_the_configured_origins_on_the_api_only (test_server.UsageAndStatus.test_cors_for_the_configured_origins_on_the_api_only) ... ok
+test_cors_is_off_by_default (test_server.UsageAndStatus.test_cors_is_off_by_default) ... ok
+test_no_clock (test_server.UsageAndStatus.test_no_clock)
+An engine without a clock (MockEngine): no timings, nothing cached. ... [strata] done: 5 tokens in 0 s (279620.3 tok/s) (length, cancel=False)
+ok
+test_openai (test_server.UsageAndStatus.test_openai) ... [strata] done: 13 tokens in 0 s (254794.2 tok/s) (stop, cancel=False), expert cache 90.0% hit
+ok
+test_openai_stream (test_server.UsageAndStatus.test_openai_stream) ... [strata] done: 13 tokens in 0 s (174204.3 tok/s) (stop, cancel=False), expert cache 90.0% hit
+ok
+test_origin_lists_are_checked (test_server.UsageAndStatus.test_origin_lists_are_checked) ... ok
+test_sse_is_not_buffered_by_proxies (test_server.UsageAndStatus.test_sse_is_not_buffered_by_proxies) ... [strata] done: 13 tokens in 0 s (200463.1 tok/s) (stop, cancel=False), expert cache 90.0% hit
+ok
+test_v1_status (test_server.UsageAndStatus.test_v1_status) ... [strata] done: 13 tokens in 0 s (308056.2 tok/s) (stop, cancel=False), expert cache 90.0% hit
+ok
+test_build_model_path_and_slot_status (test_server.WebApp.test_build_model_path_and_slot_status) ... ok
+test_discovery_does_not_restart_a_dead_engine (test_server.WebApp.test_discovery_does_not_restart_a_dead_engine) ... /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 503: 'Service Unavailable'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_discovery_needs_the_api_key (test_server.WebApp.test_discovery_needs_the_api_key) ... ok
+test_metrics (test_server.WebApp.test_metrics) ... [strata] done: 5 tokens in 0 s (279620.3 tok/s) (length, cancel=False)
+ok
+test_metrics_need_the_key_when_one_is_set (test_server.WebApp.test_metrics_need_the_key_when_one_is_set) ... ok
+test_model_discovery_and_props (test_server.WebApp.test_model_discovery_and_props) ... /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_only_the_app_files_are_served (test_server.WebApp.test_only_the_app_files_are_served) ... ok
+test_page_and_files (test_server.WebApp.test_page_and_files) ... ok
+test_h3_schema_success_and_stream_with_reasoning (test_structured.Structured.test_h3_schema_success_and_stream_with_reasoning) ... [strata] response_format json_schema: the Python package jsonschema is not installed, so answers are only checked to be one JSON object (python -m pip install "jsonschema>=4.23,<5")
+[strata] done: 255 tokens in 0 s (71685.5 tok/s) (stop, cancel=False)
+[strata] done: 282 tokens in 0 s (57624.2 tok/s) (stop, cancel=False)
+ok
+test_invalid_generation_is_an_error_and_never_streams_content (test_structured.Structured.test_invalid_generation_is_an_error_and_never_streams_content) ... skipped 'jsonschema is not installed'
+test_invalid_schema_is_400_and_local_refs_work (test_structured.Structured.test_invalid_schema_is_400_and_local_refs_work) ... skipped 'jsonschema is not installed'
+test_malformed_formats_and_tools_are_rejected_before_loading (test_structured.Structured.test_malformed_formats_and_tools_are_rejected_before_loading) ... ok
+test_object_mode_strict_json_and_truncation (test_structured.Structured.test_object_mode_strict_json_and_truncation) ... [strata] done: 13 tokens in 0 s (57335.4 tok/s) (stop, cancel=False)
+[strata] done: 3 tokens in 0 s (199728.8 tok/s) (stop, cancel=False)
+[strata] done: 10 tokens in 0 s (268865.6 tok/s) (stop, cancel=False)
+[strata] done: 14 tokens in 0 s (275682.0 tok/s) (stop, cancel=False)
+[strata] done: 12 tokens in 0 s (285975.3 tok/s) (stop, cancel=False)
+[strata] done: 15 tokens in 0 s (105738.8 tok/s) (stop, cancel=False)
+[strata] done: 5 tokens in 0 s (136178.7 tok/s) (length, cancel=False)
+[strata] done: 7 tokens in 0 s (271853.0 tok/s) (stop, cancel=False)
+ok
+test_rejected_schema_does_not_load_the_engine_or_retry (test_structured.Structured.test_rejected_schema_does_not_load_the_engine_or_retry) ... [strata] done: 21 tokens in 0 s (269359.0 tok/s) (stop, cancel=False)
+ok
+test_the_server_does_not_import_jsonschema_at_start (test_structured.Structured.test_the_server_does_not_import_jsonschema_at_start) ... ok
+test_without_jsonschema_an_object_is_still_required (test_structured.Structured.test_without_jsonschema_an_object_is_still_required) ... [strata] done: 255 tokens in 0 s (67250.2 tok/s) (stop, cancel=False)
+[strata] done: 26 tokens in 0 s (262775.7 tok/s) (stop, cancel=False)
+[strata] done: 7 tokens in 0 s (219105.4 tok/s) (stop, cancel=False)
+[strata] done: 13 tokens in 0 s (309806.5 tok/s) (stop, cancel=False)
+ok
+test_children_end_with_a_killed_server (test_winjob.TestWinJob.test_children_end_with_a_killed_server) ... skipped 'job objects are Windows-only'
+test_elsewhere_or_without_a_process_it_is_a_no_op (test_winjob.TestWinJob.test_elsewhere_or_without_a_process_it_is_a_no_op) ... skipped 'job objects are Windows-only'
+
+----------------------------------------------------------------------
+Ran 146 tests in 71.873s
+
+OK (skipped=9)
