@@ -10,10 +10,16 @@ The gfx906 backend is experimental and must be enabled explicitly. The validatio
 
 ## Recent MI50 workload results
 
-These are the **deployed v0.1.31** GSQ-RCO IQ2_XS workload observations from the dual-MI50 T5810 server
-(ROCm 7.2.4), replacing the earlier pre-v0.1.31 numbers in this README. The live window includes repeated
-turns, a warm prompt/KV cache, speculative decoding, and a large active context; it is an operational
-snapshot, **not a controlled benchmark**.
+These are deployed workload observations from the dual-MI50 T5810 server (ROCm 7.2.4). Every window
+includes repeated turns, a warm prompt/KV cache, speculative decoding and a large active context; each is
+an operational snapshot, **not a controlled benchmark**. Each subsection keeps its engine-version and
+quantization label. The windows differ in workload, context depth and cache state, so figures from the two
+quants are an indicative comparison, not a controlled A/B.
+
+### GSQ-RCO IQ2_XS — deployed v0.1.31 observation (2026-10-01)
+
+These v0.1.31 observations replaced the earlier pre-v0.1.31 numbers in this README and are kept under their
+original label.
 
 | Metric | v0.1.31 observation | Workload / interpretation |
 | --- | ---: | --- |
@@ -45,10 +51,48 @@ The bounded v0.1.31 build/model/API validation and its limitations are recorded 
 [deployment evidence](docs/gfx906-results/20261001-deployment-v0.1.31/README.md); separate short-prompt
 GPU checks are documented in the [gfx906 development guide](docs/GFX906.md).
 
+### GSQ-RCO IQ3_S — v0.1.34 live observation (2026-10-02)
+
+After the [IQ3_S preparation](docs/gfx906-results/20261002-iq3-s-preparation/README.md) and the in-place
+[v0.1.34 deployment](docs/gfx906-results/20261002-in-place-v0.1.34/README.md), the server was switched to
+the **GSQ-RCO IQ3_S** pack: the same real-gfx906 binary (SHA256 `d8a59558877074f6…`) with sampling,
+MTP/speculative, int8-KV and split-24 settings retained. The figures below come from one live-monitor
+snapshot (186 requests over ~3.9 h of sequential agentic turns at 167K–174K-token contexts, warm cache,
+`spec: 4`, `spec_min_p: 0.50`) recorded verbatim with derived values in the
+[live observation evidence](docs/gfx906-results/20261002-iq3-s-live/README.md). It is an operational
+snapshot, **not a controlled benchmark**, and no model-parity or output-quality claim follows from it.
+
+| Metric | IQ2_XS, v0.1.31 (2026-10-01) | IQ3_S, v0.1.34 (2026-10-02) |
+| --- | ---: | ---: |
+| Lifetime decode mean | **42.39 tok/s** (18,757 tok / 442.5 s) | **39.25 tok/s** (158,099 tok / 4,028.3 s) |
+| Recent request decode | 40.0–49.8 tok/s | 37.0–47.0 tok/s (12-request window, mean ≈ 40.1) |
+| Speculative decoding | `spec: 4`, `spec_min_p: 0.50`, MTP enabled | `spec: 4`, `spec_min_p: 0.50` (MTP/spec settings retained in the IQ3_S config) |
+| Lifetime prompt/KV reuse | 96.9% (2,606,953 / 2,690,006) | 97.0% (23,327,626 / 24,040,403) |
+| Recent prompt/KV reuse | ~97–99.9% at 83K–100K-token contexts | ~99.9%; turns added 40–1,029 tokens at 167K–174K |
+| TTFT, high-hit small turns | ~0.8–1.05 s | ~0.8–2.2 s (≤ ~200 new tokens) |
+| TTFT, larger cache misses | ~2.0–9.4 s (~800–3,000 new tokens) | ~2.2–4.7 s (~490–1,030 new tokens) |
+| Effective new-token prefill | not recorded | 446.7 tok/s lifetime (712,777 new of 24.04M prompt tokens); 51–217 tok/s per recent request |
+| Expert cache hit (VRAM-resident experts) | not recorded | 98.6–99.4%, `pcie_frac: 0.00` |
+| Expert arena (`arena_mib`) | 33,812 | 47,962 |
+| Resident experts, primary GPU | not recorded | 12,288 slots / 22,675 MiB (24,072 slots total) |
+| System RAM while serving | ~40.4 GB of 115.9 GB | ~55.7 GB of 115.9 GB |
+| Free VRAM | 11,012 MiB | 2,876 MiB (GPU0 2,489 / GPU1 403) |
+| Aggregate CPU while serving | ~17–18% | not captured (snapshot taken while idle) |
+| Model storage | ~68 GB shards + 5.2 GB MTP | +54.8 GB new shard; the 28.8 GB PLE shard is hard-linked (no duplicate) |
+
+`prompt_ms` counts uncached prompt tokens only in both windows, so the TTFT rows are comparable; the decode
+rates are not directly attributable. The IQ3_S window ran at roughly twice the context depth, with a ~42%
+larger expert arena, on a newer engine and a different workload, so the ~7% lower lifetime decode mean
+cannot be assigned to the quantization without a matched A/B on the same binary, prompts and cache state.
+IQ3_S is the higher-bitpoint mixed recipe (its per-tensor types are recorded in the preparation receipt);
+the observed price is ~+15 GB RAM, ~−8 GiB free VRAM and the slightly lower decode mean. At 167K–174K
+tokens the server sat ~316 MiB above the 2,560 MiB conversation-cache VRAM floor, so conversations growing
+toward the full 262K context need headroom re-checked on this quant.
+
 ## What this fork supports
 
 - AMD Instinct **MI50 / MI60 (`gfx906`)** with Linux, ROCm, HIP, and hipBLAS. MI50 is the hardware validated so far; consult the guide before assuming MI60 compatibility in a particular system.
-- **Qwen3.8-Flash-Next GGUF** weights. The current engineering/validation configuration uses **GSQ-RCO IQ2_XS**, but that is not the only supported quantization. The setup supports Qwen GGUF variants including Q2_0, IQ2_XS, IQ3_XXS, and IQ3_S; the Coder family also offers IQ1_M. Choose among available variants according to the desired quality, RAM/VRAM, disk capacity, and speed. The GGUF filename describes the pack variant, not every tensor's internal quant type.
+- **Qwen3.8-Flash-Next GGUF** weights. The engineering/validation (acceptance) configuration uses **GSQ-RCO IQ2_XS**; a **GSQ-RCO IQ3_S** pack is also prepared on the reference server and selected manually at launch (live observations above). Neither is the only supported quantization: the setup supports Qwen GGUF variants including Q2_0, IQ2_XS, IQ3_XXS, and IQ3_S; the Coder family also offers IQ1_M. Choose among available variants according to the desired quality, RAM/VRAM, disk capacity, and speed. The GGUF filename describes the pack variant, not every tensor's internal quant type.
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
