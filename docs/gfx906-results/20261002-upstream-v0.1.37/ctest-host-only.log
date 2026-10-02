@@ -1,0 +1,11 @@
+Test project /data/strata-gfx906/wt-v0137/build-hip
+    Start  1: file_expert_source_test
+1/3 Test  #1: file_expert_source_test ..........   Passed    0.02 sec
+    Start  2: expert_profile_save_test
+2/3 Test  #2: expert_profile_save_test .........   Passed    0.01 sec
+    Start 42: ple_reader_selftest
+3/3 Test #42: ple_reader_selftest ..............   Passed    2.79 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Total Test time (real) =   2.82 sec

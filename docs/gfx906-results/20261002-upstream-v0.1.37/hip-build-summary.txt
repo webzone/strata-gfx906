@@ -1,0 +1,27 @@
+# gfx906 HIP build summary - upstream v0.1.37 merge (host: T5810, Ubuntu 26.04, ROCm 7.2.4, /opt/rocm)
+
+worktree: /data/strata-gfx906/wt-v0137 (git detached b038ded; live checkout ~/dev/strata-gfx906 untouched)
+third_party/llama.cpp -> pinned 3cf03257f219afbe7334045ff7c6a06ac68c627d (symlink to the existing source)
+
+configure: cmake --preset hip-gfx906-multigpu   -> Configuring done / Generating done (no errors)
+build:     cmake --build --preset hip-gfx906-multigpu
+  first run log: build-v0137.log (1,309,868 B, retained on the host, not committed: 1,413 compiler warnings, 0 error:/FAILED: lines)
+  warnings are upstream/host -Wunused-value on hipError_t in src/core/device.cu and friends; STRATA_WERROR=OFF
+  incremental re-run after the source checkout: exit 0, "ninja: no work to do" (build complete)
+
+cmake cache (selected):
+CMAKE_BUILD_TYPE:STRING=Release
+CMAKE_HIP_ARCHITECTURES:UNINITIALIZED=gfx906
+STRATA_BUILD_TESTS:BOOL=OFF
+STRATA_ENABLE_CUDA:BOOL=OFF
+STRATA_ENABLE_HIP:BOOL=ON
+STRATA_EXPERIMENTAL_GFX906:BOOL=ON
+STRATA_HIP_MULTIGPU_TESTS:BOOL=ON
+STRATA_PORTABLE:BOOL=ON
+STRATA_PREFILL_MMQ:BOOL=ON
+
+artifacts:
+6878700b7b97e99ca210f60002059a6b9028724181a66f2feac067e2dceb88ad  build-hip/strata
+cf2546fed25e841c9d506955301464e3ce2c4f419b96e2c9d3967e73d396042d  build-hip/strata-device
+-rwxr-xr-x 1 chris chris 17634280 Oct  2 21:18 build-hip/strata
+-rwxr-xr-x 1 chris chris    74200 Oct  2 21:18 build-hip/strata-device

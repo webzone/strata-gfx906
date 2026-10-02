@@ -1,0 +1,4 @@
+device 0: AMD Instinct MI50/MI60
+  arch gfx906, 32.0 GiB, wave64
+device 1: AMD Instinct MI50/MI60
+  arch gfx906, 32.0 GiB, wave64

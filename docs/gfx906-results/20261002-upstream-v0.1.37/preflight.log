@@ -1,0 +1,26 @@
+# T5810 preflight before v0.1.37 validation (2026-10-02T21:24:42Z)
+
+owner-started IQ3_S service (not stopped, not restarted):
+44208 /home/chris/dev/strata-gfx906/.venv/bin/python /home/chris/dev/strata-gfx906/serve/server.py --engine strata --config /home/chris/dev/strata-gfx906/run-iq3-s.json --host 0.0.0.0 --port 8082
+44218 /home/chris/dev/strata-gfx906/build-hip/strata --serve --pack /home/chris/dev/strata-gfx906/packs/iq3_s --native /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf --ple-gguf /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf --expert-profile /home/chris/dev/strata-gfx906/data/expert-profile.bin --expert-cache auto --max-context 262144 --kv int8 --pool-workers 6 --prefill 2048 --spec 4 --mtp /home/chris/dev/strata-gfx906/mtp/rt --mtp-window 32768 --spec-min-p 0.5 --suffix-draft 0 --prompt-cache 6 --adapt-every 0 --pcie-frac 0 --vram-reserve-mib 1024 --layer-split 24
+
+listener:
+LISTEN 0      5                          0.0.0.0:8082       0.0.0.0:*   
+
+GPU residency:
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 92
+GPU[1]		: GPU Memory Allocated (VRAM%): 98
+
+RAM (GiB):
+               total        used        free      shared  buff/cache   available
+Mem:             107          51           1           0          55          56
+disk:
+/dev/mapper/ubuntu--vg-ubuntu--lv  232G  163G   58G  74% /
+/dev/sdb1                          117G  141M  111G   1% /data
+
+load:
+ 21:24:42 up 20:09,  4 users,  load average: 4.14, 3.81, 3.24
+
+=> both MI50 cards are model-resident, so the GPU CTest suites (hip_*, *_parity, gfx906 oracle) were NOT run; see README.md limits.

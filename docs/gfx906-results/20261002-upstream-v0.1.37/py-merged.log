@@ -1,0 +1,28 @@
+...........
+  Tuning Strata for this PC: the output speed is measured with a few engine settings (the PCIe share, the
+  draft depth, the CPU threads). It takes about 5-10 minutes; the PC is busy meanwhile.
+  [ok] tuned for this PC: --pcie-frac 0.20 (61.2 tok/s)
+.
+  Tuning Strata for this PC: the output speed is measured with a few engine settings (the PCIe share, the
+  draft depth, the CPU threads). It takes about 5-10 minutes; the PC is busy meanwhile.
+  [!]  the tuning did not finish (the engine exited before it was ready): the default settings stay
+....................................................................................................................  [ok] draft layer: the token subset with the Cyrillic script
+................./usr/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+........................................................................................................../data/strata-gfx906/wt-v0137/tools/strata_pack.py:351: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/tmpyd2yrz6r/m-00001-of-00002.gguf'>
+  head, flen = open_shard(gguf)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./data/strata-gfx906/wt-v0137/tools/strata_pack.py:351: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/tmplnxvdmg6/m-00001-of-00002.gguf'>
+  head, flen = open_shard(gguf)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............................
+----------------------------------------------------------------------
+Ran 280 tests in 11.214s
+
+OK
+--- fork suites ---
+........................................
+----------------------------------------------------------------------
+Ran 40 tests in 0.074s
+
+OK

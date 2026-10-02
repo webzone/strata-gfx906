@@ -1,0 +1,99 @@
+{
+  "record": "upstream v0.1.37 source integration + gfx906 HIP compile + host-only tests",
+  "date_utc": "2026-10-02",
+  "host_validation": "T5810 Dell Precision 5810, 2x AMD Instinct MI50 32GB (gfx906/wave64), Xeon E5-1650 v3, Ubuntu 26.04, ROCm 7.2.4 (/opt/rocm), project .venv reused read-only",
+  "upstream": {
+    "remote": "Niko1221/Strata",
+    "merged_to": "db4f91a",
+    "tags": ["v0.1.35", "v0.1.36", "v0.1.37"],
+    "previous_base": "1678de333d0e0711bc414ad992b640e1a37dd814",
+    "commits": 40
+  },
+  "fork": {
+    "branch": "gfx906",
+    "before_merge": "8db53c2",
+    "merge_commit": "cdf45bb",
+    "test_fix_commit": "b038ded",
+    "llamacpp_pin": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+    "mtp_revision": "de4b8e4d43b917e7706784d8bb445c9af86a3540"
+  },
+  "worktree": "/data/strata-gfx906/wt-v0137 (detached b038ded); live checkout ~/dev/strata-gfx906 and its build-hip/strata untouched",
+  "commands": [
+    "cmake --preset hip-gfx906-multigpu",
+    "cmake --build --preset hip-gfx906-multigpu",
+    "./build-hip/strata-device --list-devices",
+    "ctest --preset hip-gfx906-multigpu -R \"file_expert_source_test|expert_profile_save_test|ple_reader_selftest\"",
+    ".venv/bin/python -m unittest discover -s tools -p 'test_*.py'",
+    ".venv/bin/python -m unittest discover -s tests -p 'test_gfx906*.py'"
+  ],
+  "results": {
+    "hip_build": {
+      "preset": "hip-gfx906-multigpu",
+      "targets": 231,
+      "errors": 0,
+      "warnings": 1413,
+      "exit": 0,
+      "engine_sha256": "6878700b7b97e99ca210f60002059a6b9028724181a66f2feac067e2dceb88ad",
+      "device_tool_sha256": "cf2546fed25e841c9d506955301464e3ce2c4f419b96e2c9d3967e73d396042d",
+      "full_build_log": "/data/strata-gfx906/wt-v0137/build-v0137.log (1309868 B) retained on the host, not committed"
+    },
+    "ctest": {
+      "ran": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "tests": ["file_expert_source_test", "expert_profile_save_test", "ple_reader_selftest"]
+    },
+    "python": {
+      "tools_tests": {"ran": 280, "failed": 0},
+      "gfx906_tests": {"ran": 40, "failed": 0, "skipped_on_linux": 0, "skipped_on_macos": 5}
+    },
+    "gpu_suites": {
+      "ran": 0,
+      "registered": 47,
+      "reason": "owner-started IQ3_S service held both MI50 cards (VRAM 92%/98%); the service was not stopped, so the GPU suites were skipped, not passed"
+    }
+  },
+  "not_claimed": [
+    "model generation or parity",
+    "tok/s",
+    "MTP acceptance",
+    "dual-GPU handoff",
+    "long-context",
+    "long-soak stability",
+    "deployment",
+    "MI60 validation"
+  ],
+  "files": [
+    {
+      "path": "preflight.log",
+      "bytes": 1731,
+      "sha256": "c16c0d51a90bbb29ba7e45750e45b4857627afe95e7d98959c8f09f2b9381d5b"
+    },
+    {
+      "path": "hip-build-summary.txt",
+      "bytes": 1434,
+      "sha256": "f015a56dd416102d9e246361cb3d9c75843c731965db94bd4cd0cc3814b46262"
+    },
+    {
+      "path": "rebuild-verify.log",
+      "bytes": 63,
+      "sha256": "c2ed93ffd93c840755c0e91392ae593b1b52de9b7aaf6c208123feaceb1dde2e"
+    },
+    {
+      "path": "device-list.log",
+      "bytes": 130,
+      "sha256": "bc7d93126a2098012d6fc487e82b03676dc52b419d7118c79fd60c99b56cb366"
+    },
+    {
+      "path": "ctest-host-only.log",
+      "bytes": 454,
+      "sha256": "d5aa86cc047b7a6f7f24a1d9ca1b7e01e2d713eec833b0462d6d05fc63eced49"
+    },
+    {
+      "path": "py-merged.log",
+      "bytes": 1827,
+      "sha256": "d1ccbe5c3146b8507fb3317d4bc5d8ef6e114fe1461b61c197759f029c9f5d0c"
+    }
+  ]
+}
