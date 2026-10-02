@@ -1,6 +1,6 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.1.34**
+**Source version: Strata v0.1.37**
 
 **`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA and now has an RDNA wave32 HIP backend; this fork extends the native AMD HIP/ROCm path to the wave64 architecture in AMD Instinct MI50 and MI60 cards. It targets the real `gfx906` architecture and does not spoof another GPU generation.
 
@@ -148,6 +148,13 @@ RX 7800 XT / 7700 XT and RX 9060 XT support, plus community-reported gfx1030 (RX
 [Multi-GPU](docs/MULTI_GPU.md) for pipeline details. Those cards may use family-specific TheRock wheels;
 **MI50 / MI60 may not** and always require `--experimental-gfx906` plus an existing system ROCm SDK.
 
+**Next time**, run `./setup.sh` again with the same options: it starts right away and nothing large is
+downloaded twice. `./update.sh` updates the source and rebuilds the engine and Python packages without
+starting inference; on this fork it runs `git pull --ff-only` on the `gfx906` branch, so upstream merges
+arrive as reviewed fork commits rather than through that pull. Model files are not touched. For gfx906,
+always pass `--experimental-gfx906` again; see [docs/GFX906.md](docs/GFX906.md) rather than upstream's
+RDNA wheel defaults.
+
 ## Start and stop
 
 After the install command above, start the generated launcher (for the example, `IQ2_XS`):
@@ -228,7 +235,7 @@ For the engine's complete option list, run `./engine/strata --help` after instal
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.1.34 / `1678de3`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.1.37 / `db4f91a`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,

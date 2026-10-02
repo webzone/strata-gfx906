@@ -31,9 +31,11 @@ import urllib.error
 import urllib.request
 
 # Keep acceptance reproducible: never fall back to mutable main or change resumed tensors' source identity.
-MTP_REVISION = "de4b8e4d43b917e7706784d8bb445c9af86a3540"
-PINNED_REVISION = REVISION = MTP_REVISION
-PINNED = REPO = f"https://huggingface.co/Qwen/Qwen3.8-Flash-Next/resolve/{REVISION}/"
+# Upstream honours STRATA_MTP_REVISION (e.g. main); this fork ignores it so the acceptance identity stays fixed.
+# #495: HF_ENDPOINT (a mirror, e.g. https://hf-mirror.com) serves the same revision; the SHA256 checks below still apply.
+MTP_REVISION = PINNED_REVISION = REVISION = "de4b8e4d43b917e7706784d8bb445c9af86a3540"
+HF_ENDPOINT = (os.environ.get("HF_ENDPOINT") or "").strip().rstrip("/") or "https://huggingface.co"
+PINNED = REPO = HF_ENDPOINT + "/Qwen/Qwen3.8-Flash-Next/resolve/%s/" % REVISION   # SHA256's revision
 DTYPE_BYTES = {"BF16": 2, "F16": 2, "F32": 4, "F8_E4M3": 1, "I64": 8, "I32": 4}
 RATE_MIB = 20.0  # CLI-overridable; do not saturate the household uplink.
 BAD = 3                                             # `verify`'s exit code: a tensor is missing or corrupt

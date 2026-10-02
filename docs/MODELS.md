@@ -24,7 +24,7 @@ Measured on an RTX 5070 (12 GB), a Ryzen 5 7600 and 64 GB of RAM:
 
 | Size | Writes answers (short chat) | Writes answers (128K context) | Reads your prompt |
 | --- | ---: | ---: | ---: |
-| **Q2_0** | 93 tokens/s | 74 tokens/s | 2,170 tokens/s |
+| **Q2_0** | 94 tokens/s | 76 tokens/s | 2,650 tokens/s |
 | **IQ2_XS** | 79 tokens/s | 63 tokens/s | 2,090 tokens/s |
 | **IQ3_XXS** | 62 tokens/s | 49 tokens/s | 1,750 tokens/s |
 | **IQ3_S** | 53 tokens/s | 46 tokens/s | 1,620 tokens/s |
@@ -94,7 +94,10 @@ The original, in all four sizes. With images, and with the
 half of the experts removed, keeping the ones that code, tool use and images need (91% of the full model's SWE-bench
 Verified score, 99% of LiveCodeBench, by its authors). One size (IQ1_M: its experts stored like IQ3_S): shard 1 is
 **29.6 GB**, so it fits a PC with **32 GB of RAM**, runs 262K context on 64 GB, and reads long prompts the fastest of
-all. Weaker outside coding. More: [details](DETAILS.md#or-the-coder-half-the-experts-for-code).
+all. It is weaker outside code, and that includes Chinese and other CJK text (#438: Chinese answers came out wrong
+or looping where English was fine). For general chat or CJK text, take a size that keeps every expert: Q2_0,
+IQ2_XS or IQ3_S.
+More: [details](DETAILS.md#or-the-coder-half-the-experts-for-code).
 
 ```
 START-HERE.bat --setup --family coder

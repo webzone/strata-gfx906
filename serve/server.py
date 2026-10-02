@@ -34,6 +34,7 @@ import re
 import select
 import signal
 import socket
+import struct
 import subprocess
 import sys
 import tempfile
@@ -65,6 +66,16 @@ CTX_SLACK = 8               # `strata --serve` rejects prompt + max_new + 8 > co
 # token (the Monitor showed five-digit numbers) and then undershoots for the first second of every answer.
 RATE_WINDOW_S = 2.0
 RATE_MIN_SPAN_S = 0.25      # younger than this there is no rate yet: the mean so far, with the span floored here
+# #481: a running request whose engine prints nothing (no T, PP or any other line) for this long has lost step with the
+# server (the engine's main thread waits, untimed, for its next command): the engine is ended and the request fails;
+# the next request starts it again.  The config's "engine_silence_s" sets it (0: wait forever, as before).
+ENGINE_SILENCE_S = 300.0
+# ... except while a prompt is read: a PP line comes once per chunk (up to 32768 tokens with --prefill auto, issue
+# #282), and the slowest PCs read ~100 tok/s, so a first chunk can take minutes before the first line.  Until the first
+# PP the wait adds the chunk's tokens at PP_FLOOR_TOK_S; after one, a chunk may take PP_SLACK x the last one's time.
+PP_CHUNK_MAX = 32768
+PP_FLOOR_TOK_S = 50.0
+PP_SLACK = 3.0
 
 
 # ------------------------------------------------------------------------------------------------ engines
@@ -112,6 +123,12 @@ class ModelBusy(RuntimeError):
     """Explicit model controls must not interrupt active or queued requests."""
 
 
+class EngineSilent(EngineDied):
+    """#481: the engine said nothing for too long during a request (or never acknowledged a STOP): the two sides lost
+    step - the engine waiting for its next command, the server for this request's end - and the server ended it.  An
+    EngineDied, so the request ends with an error and the next one starts the engine again."""
+
+
 class EngineStuck(RuntimeError):
     """The engine process did not end after QUIT, terminate and kill: the server keeps it (and says so) rather than
     reporting its GPU and RAM as given back."""
@@ -123,11 +140,59 @@ class GpuBusy(RuntimeError):
 
 
 ENGINE_REQUEST = re.compile(
-    r"prompt (?P<prompt>\d+) tokens = (?P<reused>\d+) reused \+ \d+ read in (?P<read>[\d.]+) ms \((?P<pp>[\d.]+) tok/s\), "
+    # "+ 12288 of 98179 read": a request cancelled while its prompt was read (#471)
+    r"prompt (?P<prompt>\d+) tokens = (?P<reused>\d+) reused \+ \d+(?: of \d+)? read in (?P<read>[\d.]+) ms "
+    r"\((?P<pp>[\d.]+) tok/s\), "
     r"(?P<gen>\d+) generated in (?P<gen_ms>[\d.]+) ms \((?P<tg>[\d.]+) tok/s\)")
 
 
 _echoing: set[str] = set()      # the logs echo_requests already follows (restart() runs StrataEngine.__init__ again)
+
+DRAFT_HEAD_FAIL = "the draft head does not fit"
+DRAFT_HEAD_HINT = ("a smaller draft vocabulary needs less VRAM: --draft-vocab cyrillic (English, code and the Cyrillic "
+                   "script) or --draft-vocab en (English and code, ~215 MiB less than the default). Start once with "
+                   "it - START-HERE.bat --draft-vocab en (Windows) or ./setup.sh --draft-vocab en - and the model "
+                   "keeps it; or a smaller --context in setup.")
+
+
+def start_failure_hint(log: str | None, offset: int) -> str:
+    """#474: what to change when the engine stopped at the start because the MTP draft head did not fit the VRAM
+    left: the engine's own `strata mtp:` lines after that failure (0.1.36+: what it needs, what is free, the smaller
+    subsets), else the same advice in words for an older engine.  "" for any other failure: the log says why."""
+    if not log:
+        return ""
+    try:
+        with open(log, "rb") as f:
+            f.seek(offset)
+            text = f.read().decode("utf-8", "replace")
+    except (OSError, ValueError):
+        return ""
+    if DRAFT_HEAD_FAIL not in text:
+        return ""
+    said = [x.strip()[len("strata mtp: "):] for x in text.splitlines()
+            if x.strip().startswith("strata mtp: ") and ("draft head over" in x or "hint:" in x)]
+    return ". mtp: " + DRAFT_HEAD_FAIL + ". " + (" ".join(said) if said else "Hint: " + DRAFT_HEAD_HINT)
+
+
+def start_log_tail(log: str | None, offset: int, n: int = 20) -> str:
+    """#496: the last n lines this start wrote to the engine log, for the error when the engine ended before READY -
+    whatever the failure, the engine's own reason is in them (people posted the traceback without the log).  "" when
+    there is no log or nothing in it from this start."""
+    if not log:
+        return ""
+    try:
+        with open(log, "rb") as f:
+            f.seek(0, 2)
+            start = max(offset, f.tell() - 64 * 1024)   # enough for 20 lines, never an earlier start's
+            f.seek(start)
+            text = f.read().decode("utf-8", "replace")
+    except (OSError, ValueError):
+        return ""
+    lines = text.splitlines()[1 if start > offset else 0:]   # not a line cut in half
+    lines = [x.rstrip() for x in lines if x.strip()][-n:]
+    if not lines:
+        return ""
+    return "\nthe engine log's last lines:\n" + "\n".join("  " + x for x in lines)
 
 
 def echo_requests(log_path: str, offset: int) -> None:
@@ -153,6 +218,27 @@ def echo_requests(log_path: str, offset: int) -> None:
                                                  m["tg"]), flush=True)
 
 
+def experts_loading_words(args: list, size: str) -> str:
+    """#505: what the start does with the experts, by the engine's flags (generate.cpp's option parsing): a RAM budget
+    copies the hottest N GiB into RAM (--resident-budget-gib), the resident low-RAM mode the ones the GPU does not hold
+    (--resident-experts), plain --mmap-experts reads them from the model files through the OS file cache (nothing is
+    loaded into RAM up front); otherwise all of them go into RAM."""
+    if "--resident-budget-gib" in args:
+        try:
+            n = f"up to {float(args[args.index('--resident-budget-gib') + 1]):g} GiB"
+        except (IndexError, ValueError):
+            n = "a RAM budget"
+        return (f"loading the most-used experts into RAM ({n}; the rest are read from the model files as needed) "
+                "and locking part of them for the GPU.")
+    if "--resident-experts" in args:
+        return (f"loading the experts the GPU does not hold into RAM (of {size}) and locking part of them for the "
+                "GPU.")
+    if "--mmap-experts" in args:
+        return (f"mapping the experts from the model files ({size}, --mmap-experts): they are not loaded into RAM - "
+                "the OS file cache reads them as the GPU's expert cache fills and as requests need them.")
+    return f"loading the experts into RAM ({size}) and locking part of them for the GPU."
+
+
 def narrate_start(log_path: str, offset: int, args: list, done: threading.Event, heartbeat=20.0) -> None:
     """While the engine starts, say in the server window what it is doing, from its log: the start reads tens of GB
     into RAM and locks part of it for the GPU, and on many PCs everything is slow or frozen for a minute or more -
@@ -164,6 +250,7 @@ def narrate_start(log_path: str, offset: int, args: list, done: threading.Event,
         except (OSError, IndexError):
             pass
     size = f"about {gb:.0f} GB" if gb >= 1 else "tens of GB"
+    loading = experts_loading_words(args, size)
     t0 = last = time.time()
     said = set()
 
@@ -187,8 +274,8 @@ def narrate_start(log_path: str, offset: int, args: list, done: threading.Event,
             cut = chunk.rfind(b"\n") + 1
             pos += cut
             for line in chunk[:cut].decode("utf-8", "replace").splitlines():
-                if "PLE on" in line or "expert arena:" in line:
-                    say("arena", f"[strata] loading the experts into RAM ({size}) and locking part of them for the GPU.\n"
+                if "PLE on" in line or "expert arena:" in line or "experts via mmap" in line:   # #505: mapped
+                    say("arena", f"[strata] {loading}\n"
                                  "         YOUR PC CAN BE SLOW OR STOP RESPONDING FOR 1-3 MINUTES NOW - this is normal.\n"
                                  "         Please wait and don't close this window; the browser opens when it is ready.")
                 elif " loaded " in line and "GiB at" in line:
@@ -212,6 +299,8 @@ class StrataEngine:
     (`temperature=F top_p=F top_k=N seed=N`, the engine's own spelling).  An absent temperature keeps the
     engine's default, which is greedy; `temperature=0` means the same thing, so it is not forwarded.
     """
+    silence_s = ENGINE_SILENCE_S         # #481: main() sets the config's engine_silence_s (survives restart())
+    silent_note = None                   # #481: why the server ended a silent engine (death_note says it)
 
     def __init__(self, exe: str, args: list[str], cwd: str | None = None, log: str | None = None,
                  env: dict | None = None, lazy: bool = False):
@@ -227,7 +316,8 @@ class StrataEngine:
         self.info = {}                   # INFO key=value facts (engine 0.1.8+): kv, expert slots, ... (Monitor tab)
         self.prefill_tok_s_mean = None
         self.progress = None             # (read, total) prompt tokens while a prompt is read, from PP lines
-        try:                             # a ready-made engine's BUILD.json says its version
+        self.silent_note = None
+        try:                            # a ready-made engine's BUILD.json says its version
             self.info["version"] = json.loads((Path(exe).parent / "BUILD.json").read_text()).get("version")
         except (OSError, ValueError):
             self.info["version"] = None
@@ -236,6 +326,7 @@ class StrataEngine:
         self.unloaded = False            # `ended` stays True until READY (below): not alive while starting (#344)
         self.log = open(log, "a", encoding="utf-8") if log else subprocess.DEVNULL
         loading = threading.Event()                     # set once READY: the narrator below stops
+        log_start = os.path.getsize(log) if log else 0  # where this start's lines begin (start_failure_hint)
         if log:
             threading.Thread(target=narrate_start, args=(log, os.path.getsize(log), args, loading),
                              daemon=True).start()
@@ -259,7 +350,16 @@ class StrataEngine:
                 break
         loading.set()
         if self.max_context <= 0:
-            raise RuntimeError("the engine exited before it was ready" + (f" (see {log})" if log else ""))
+            try:                                        # its pipes and our handle on its log (the log stays)
+                self.proc.wait(timeout=5)
+                self.proc.stdin.close()
+                self.proc.stdout.close()
+                if log:
+                    self.log.close()
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+            raise RuntimeError("the engine exited before it was ready" + (f" (see {log})" if log else "") +
+                               start_failure_hint(log, log_start) + start_log_tail(log, log_start))
         # (from PR #41, midhatn) a locally built engine can sit next to another release's BUILD.json: engines that
         # report their own version (INFO engine=, 0.1.8+) win, the manifest stays the fallback for older ones
         if self.info.get("engine"):
@@ -280,6 +380,8 @@ class StrataEngine:
 
     def death_note(self) -> str:
         """Why the engine most likely ended, from the end of its log: its own watchdog (issue #29), else RAM."""
+        if getattr(self, "silent_note", None):          # #481: the server ended it, not the OS or the engine itself
+            return self.silent_note
         tail = ""
         try:
             with open(self.log_path, "rb") as f:
@@ -338,6 +440,8 @@ class StrataEngine:
             self.last.update(hits=int(f[9]), lookups=int(f[10]))
         if len(f) >= 14:                                  # the expert tiers (engine 0.1.31+): RAM / file blobs, file MB
             self.last.update(ram_blobs=int(f[11]), file_blobs=int(f[12]), file_mb=float(f[13]))
+        if len(f) >= 15:                                  # #471 (engine 0.1.36+): the prompt tokens actually read
+            self.last.update(prompt_read=int(f[14]))
 
     @staticmethod
     def sampling_keys(sampling: dict) -> str:
@@ -408,19 +512,34 @@ class StrataEngine:
         except OSError:                                  # the pipe is gone: the engine died (not the client)
             raise EngineDied(f"the engine stopped unexpectedly (exit code {self.exit_code()})") from None
         done = False
+        # #481: how long the engine may stay silent from here.  Until the first line: the request's first prompt
+        # chunk at the slowest prompt reading on top of silence_s; a PP line resets it to its own chunk's time.
+        silence = float(self.silence_s or 0)
+        allow = silence + min(len(ids), PP_CHUNK_MAX) / PP_FLOOR_TOK_S if silence > 0 else 0.0
+        heard, read_to = time.monotonic(), 0
         try:
             while True:
+                wait = 10.0
+                if allow > 0:
+                    wait = min(wait, allow - (time.monotonic() - heard))
+                    if wait <= 0:
+                        done = True                       # no STOP and no drain: nothing is listening
+                        raise self._silent(f"the engine said nothing for {time.monotonic() - heard:.0f} s during "
+                                           "the request")
                 try:
-                    line = self.lines.get(timeout=10)
+                    line = self.lines.get(timeout=wait)
                 except queue.Empty:
                     if cancel.is_set():
                         return
-                    yield None
+                    if wait >= 10.0:
+                        yield None                        # the 10 s heartbeat (the deadline's short waits are not)
                     continue
                 if line is None:
                     done = True
                     raise EngineDied(f"the engine stopped unexpectedly (exit code {self.exit_code()})")
+                heard = time.monotonic()                  # any line is output: T, PP, RESUME, INFO ...
                 if line.startswith("T "):
+                    allow = silence
                     if cancel.is_set():
                         return
                     yield int(line[2:])
@@ -429,9 +548,18 @@ class StrataEngine:
                     if len(f) >= 3 and f[1].isdigit() and f[2].isdigit():
                         self.progress = (int(f[1]), int(f[2]))             # prompt progress, one per chunk: also a heartbeat (the
                         self.prefill_tok_s_mean = float(f[4]) if len(f) >= 5 else None
+                        rate, chunk = self.prefill_tok_s_mean or 0.0, int(f[1]) - read_to
+                        read_to = int(f[1])
+                        if silence > 0 and rate > 0 and chunk > 0:   # #481: the next chunk, as long as this one
+                            allow = max(silence, PP_SLACK * chunk / rate)
                     if cancel.is_set():                   # lines reset the 10 s wait, so without this a long prompt
                         return                            # would send no keep-alives at all)
                     yield None
+                elif line.startswith("RESUME "):          # the reused tokens: the first chunk starts after them
+                    try:
+                        read_to = int(line.split()[1])
+                    except (IndexError, ValueError):
+                        pass
                 elif line.startswith("DONE"):
                     self._parse_done(line)
                     done = True
@@ -447,13 +575,41 @@ class StrataEngine:
                         self.proc.stdin.flush()
                     except OSError:
                         pass
+                # #481: never an untimed wait here - it holds the request FIFO, and an engine that lost step never
+                # answers.  An engine that honours STOP gets the current allowance in all (a STOP during a prompt
+                # chunk is seen after it); an older one runs on to max_new, so each line only has to come in time.
+                heard = time.monotonic()
                 while True:
-                    line = self.lines.get()
+                    left = allow - (time.monotonic() - heard) if allow > 0 else None
+                    try:
+                        if left is not None and left <= 0:
+                            raise queue.Empty
+                        line = self.lines.get(timeout=left)
+                    except queue.Empty:
+                        raise self._silent("the engine did not finish the request after it was stopped (STOP) "
+                                           f"within {allow:.0f} s") from None
                     if line is None or line.startswith("ERR"):
                         break
                     if line.startswith("DONE"):
                         self._parse_done(line)
                         break
+                    if not self.can_stop:
+                        heard = time.monotonic()
+
+    def _silent(self, what: str) -> EngineSilent:
+        """#481: end an engine that lost step with the server (its main thread waits for a command the server never
+        sends), so the next request starts it again: killed now, its GPU and RAM go back with the process."""
+        self.silent_note = ("The engine and the server lost step (issue #481; a very slow PC can raise "
+                            "\"engine_silence_s\" in the config, 0 = wait forever). If it happens again, please add "
+                            "the end of the engine log to github.com/Niko1221/Strata/issues/481.")
+        self.ended = True                               # not alive from now: the next request restarts it
+        proc = self.proc
+        try:
+            proc.kill()
+            proc.wait(timeout=20)                       # restart() -> close() handles one that is still exiting
+        except (OSError, AttributeError, subprocess.TimeoutExpired):
+            pass
+        return EngineSilent(f"{what}; the server ended the engine")
 
     def close(self):
         """End the engine process: QUIT first (the engine frees its memory itself - unpinning tens of GB can take
@@ -624,6 +780,17 @@ def gpu_list(cfg: dict) -> list[int]:
     return result
 
 
+def engine_silence_s(cfg: dict) -> float:
+    """#481: the config's "engine_silence_s" - seconds an engine may print nothing during a request before the server
+    ends it (default ENGINE_SILENCE_S; 0 = wait forever).  ValueError for anything but a number >= 0."""
+    v = cfg.get("engine_silence_s")
+    if v is None:
+        return ENGINE_SILENCE_S
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or v < 0:
+        raise ValueError(f'"engine_silence_s" must be a number of seconds >= 0 (0 = no limit), not {v!r}')
+    return float(v)
+
+
 def engine_args(cfg: dict) -> list[str]:
     """The engine's arguments: the config's, and with several GPUs the layer split across them ("layer_split" in the
     config: "auto" by default, or the first layer of each later GPU's share, e.g. "18" or "16,32")."""
@@ -633,6 +800,44 @@ def engine_args(cfg: dict) -> list[str]:
     # opt-in: an auto split runs on the first card alone when it holds every profiled expert and the KV
     if len(gpu_list(cfg)) > 1 and cfg.get("split_skip_if_fits") and "--split-skip-if-fits" not in args:
         args.append("--split-skip-if-fits")
+    return learned_profile_args(cfg, args)
+
+
+def profile_shape(path: str) -> tuple[int, int] | None:
+    """An expert profile's (layers, experts per layer), from its header (tools/make_profile.py's format), or None
+    when the file is missing, is not one or is shorter than the pairs its header promises."""
+    try:
+        with open(path, "rb") as f:
+            head = f.read(24)
+            size = os.fstat(f.fileno()).st_size
+    except OSError:
+        return None
+    if len(head) < 24 or head[:4] != b"STRP":
+        return None
+    _, nl, ne, _, n = struct.unpack("<5I", head[4:])
+    return (nl, ne) if size >= 24 + 4 * n else None
+
+
+def learned_profile_args(cfg: dict, args: list[str]) -> list[str]:
+    """#477 (opt-in): "expert_profile_save": "<path>" in the config has the engine (0.1.36+) save what its adaptive
+    tier learned there - on QUIT and every "expert_profile_save_every" minutes (10 by default, 0 = at QUIT only) -
+    and the next start begins from it instead of the config's --expert-profile, when it is a profile of the same
+    model (its header's layers and experts match); otherwise from the config's own, as before.  A relative path is
+    the engine's (the config's "cwd").  Without the key, the arguments are the config's, unchanged."""
+    save = cfg.get("expert_profile_save")
+    if not isinstance(save, str) or not save.strip() or "--expert-profile-save" in args:
+        return args
+    args = args + ["--expert-profile-save", save]
+    every = cfg.get("expert_profile_save_every")
+    if isinstance(every, (int, float)) and not isinstance(every, bool) and every >= 0:
+        args += ["--expert-profile-save-every", str(every)]
+    if "--expert-profile" in args[:-1]:
+        i = args.index("--expert-profile") + 1
+        here = cfg.get("cwd") or "."
+        learned = profile_shape(save if os.path.isabs(save) else os.path.join(here, save))
+        base = profile_shape(args[i] if os.path.isabs(args[i]) else os.path.join(here, args[i]))
+        if learned is not None and learned == base:
+            args[i] = save
     return args
 
 
@@ -772,7 +977,8 @@ class Service:
         self.history = collections.deque(maxlen=500)    # the last finished requests, newest last (GET /metrics)
         # since the server started (the Monitor's totals, issue #35)
         self.totals = {"since": time.time(), "requests": 0, "prompt_tokens": 0, "reused": 0, "output_tokens": 0,
-                       "prompt_ms": 0.0, "decode_ms": 0.0}
+                       "prompt_ms": 0.0, "decode_ms": 0.0,
+                       "drafts_offered": 0, "drafts_accepted": 0}   # #457: the MTP drafts, summed where reported
         self.last_timings = None                         # the last finished request's, llama.cpp's names (/v1/status)
         self.last_request_at = None                      # when a request last started or finished
         self.started_at = time.time()
@@ -884,6 +1090,13 @@ class Service:
                   "(a minute or two) ...", flush=True)
         self.engine.restart()
         print("[strata] the engine is running again", flush=True)
+
+    def _say_died(self, e: Exception) -> None:
+        """The server window's line for an engine that died (or was ended, #481) in the middle of a request."""
+        note = self.engine.death_note() if hasattr(self.engine, "death_note") else ""
+        log = getattr(self.engine, "log_path", None)
+        print(f"[strata] {e}. {note} The next request starts the engine again."
+              f"{' Its log: ' + log if log else ''}", flush=True)
 
     def load(self):
         """POST /load and every generation request: start the engine now if it is unloaded (raises GpuBusy)."""
@@ -1255,7 +1468,7 @@ class Service:
                     while True:
                         gen = self.engine.generate(prompt, max_new - n, sampling, cancel, embeddings=emb) if emb \
                             else self.engine.generate(prompt, max_new - n, sampling, cancel)
-                        seg, wrap = [], False           # this pass's tokens; the budget is reached
+                        seg, wrap, leaving = [], False, False   # this pass's tokens; the budget is reached; closed
                         try:
                             for t in gen:
                                 if t is None:               # heartbeat while the engine is quiet
@@ -1285,19 +1498,25 @@ class Service:
                                         break
                         except EngineDied as e:
                             finish = "error"
-                            note = self.engine.death_note() if hasattr(self.engine, "death_note") else ""
-                            log = getattr(self.engine, "log_path", None)
-                            print(f"[strata] {e}. {note} The next request starts the engine again."
-                                  f"{' Its log: ' + log if log else ''}", flush=True)
+                            self._say_died(e)
                             raise
                         except ValueError as e:             # the engine's ERR line (it may have ended after it)
                             finish = "error"
                             print(f"[strata] the engine reported an error: {e}", flush=True)
                             raise
+                        except GeneratorExit:               # the client went away: an engine that never acknowledges
+                            leaving = True                  # the STOP below is ended, but no error replaces this
+                            raise
                         finally:
-                            gen.close()                 # STOP+drain to THIS request's DONE while still holding the
-                            #                             fifo, so a stop-token break can't leave the shared engine
-                            #                             queue mid-drain for the next request to read as its own DONE
+                            try:
+                                gen.close()             # STOP+drain to THIS request's DONE while still holding the
+                                #                         fifo, so a stop-token break can't leave the shared engine
+                                #                         queue mid-drain for the next request to read as its own DONE
+                            except EngineSilent as e:   # #481: the STOP was never acknowledged: the engine is ended
+                                finish = "error"
+                                self._say_died(e)
+                                if not leaving and not cancel.is_set():
+                                    raise
                         if not wrap or cancel.is_set():
                             break
                         # #123: the thinking reached reasoning_budget_tokens.  Close it the way the model would (a
@@ -1335,27 +1554,35 @@ class Service:
                             cvec = (getattr(self.engine, "info", {}) or {}).get("cvec", 0)
                             loaded = str(cvec) not in ("0", "", "None")
                             hit_rate = round(last["hits"] / last["lookups"], 3) if last.get("lookups") else None
+                            seen = prompt_tokens_seen(len(ids), last)   # #471: < len(ids) when cancelled mid-read
                             self.history.append({
                                 "projection": (sampling or {}).get("experimental_speed_projection") is not False
                                 if loaded else None,
                                 "time": started, "duration_s": round(time.time() - started, 1), "finish": finish,
-                                "prompt_tokens": len(ids), "reused": last.get("reused"), "output_tokens": n,
+                                "prompt_tokens": seen, "reused": last.get("reused"), "output_tokens": n,
+                                # the request's whole prompt, and the tokens read of it (None: an older engine)
+                                "prompt_total": len(ids), "prompt_read": last.get("prompt_read"),
                                 "engine_generated": last.get("generated"),
                                 "prompt_ms": last.get("prompt_ms"), "decode_ms": last.get("decode_ms"),
                                 "decode_tok_s": round(last["generated"] / (last["decode_ms"] / 1000), 1)
                                 if n and last.get("generated") and last.get("decode_ms") else None,
                                 "hit_rate": hit_rate, "ram_blobs": last.get("ram_blobs"),
-                                "file_blobs": last.get("file_blobs"), "file_mb": last.get("file_mb")})
+                                "file_blobs": last.get("file_blobs"), "file_mb": last.get("file_mb"),
+                                # #457: the speculative drafts from the DONE line (None: the engine did not say)
+                                "drafts_offered": last.get("drafts_offered"),
+                                "drafts_accepted": last.get("drafts_accepted")})
                             t = self.totals
                             t["requests"] += 1
-                            t["prompt_tokens"] += len(ids)
+                            t["prompt_tokens"] += seen
                             t["reused"] += last.get("reused") or 0
                             t["output_tokens"] += n
                             t["prompt_ms"] += last.get("prompt_ms") or 0.0
                             t["decode_ms"] += last.get("decode_ms") or 0.0
+                            t["drafts_offered"] += last.get("drafts_offered") or 0
+                            t["drafts_accepted"] += last.get("drafts_accepted") or 0
                             fresh = getattr(self.engine, "last", None)
                             if fresh is not None and fresh is not before:      # the engine's clock for THIS request
-                                timings = request_timings(len(ids), n, last)
+                                timings = request_timings(seen, n, last)
                                 self.last_timings = dict(timings, at=int(time.time())) if timings else None
                             self.last_request_at = time.time()
                             now = time.time()
@@ -1377,6 +1604,17 @@ class Service:
             yield "event", ev
         yield "done", {"finish": finish, "completion_tokens": n, "reused": (timings or {}).get("cache_n", 0),
                        "timings": timings}
+
+
+def prompt_tokens_seen(prompt_tokens: int, last: dict) -> int:
+    """#471: the prompt tokens a request got through - all of them, unless the engine's DONE line says a cancel stopped
+    its prompt read part-way (then the reused ones plus those read).  /metrics' history and totals count these, so a
+    cancelled read is neither recorded as the whole prompt nor given a rate from tokens it never read.  An engine
+    before 0.1.36 does not say (no `prompt_read`): the whole prompt, as before."""
+    read = last.get("prompt_read")
+    if read is None or last.get("finish") != "cancel":
+        return prompt_tokens
+    return min(prompt_tokens, int(last.get("reused") or 0) + int(read))
 
 
 def request_timings(prompt_tokens: int, generated: int, last: dict) -> dict | None:
@@ -2494,7 +2732,12 @@ def main() -> int:
         # a relative "exe" is the config's cwd's: Windows' CreateProcess resolves "engine/strata.exe" against nothing
         # it is told about (WinError 2), so it is made absolute here
         exe = cfg["exe"] if os.path.isabs(cfg["exe"]) else os.path.abspath(os.path.join(cfg.get("cwd") or ".", cfg["exe"]))
+        try:
+            silence = engine_silence_s(cfg)             # #481: checked before the (minutes-long) start
+        except ValueError as e:
+            raise SystemExit(f"[strata] config {e}")
         engine = StrataEngine(exe, engine_args(cfg), cwd=cfg.get("cwd"), log=cfg.get("log"), env=env, lazy=lazy)
+        engine.silence_s = silence                      # an attribute of its own: restart() keeps it
         warn_tight_ram(engine.info.get("arena_mib"))
     else:
         engine, vision, sampling_defaults = MockEngine(tok, a.script or [

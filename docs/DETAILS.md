@@ -19,6 +19,15 @@ RTX 5070 **12 GB**, Ryzen 5 7600 (6 cores), 64 GB DDR5-5200, Windows, engine 0.1
 MTP speculative decoding on. "262K" is the model's full context window (a 259,943-token prompt). The IQ2_XS row was
 measured with Swift 1.5's IQ2_XS, which runs at the original's speed.
 
+**Engine 0.1.36 (#136), the same PC:** Q2_0's prompt experts run on fused int8 tensor-core kernels (RTX 30 and newer):
+4K 1,294 -> 1,570, 32K 2,170 -> 2,653, 128K 2,123 -> 2,468 tokens/s (+16-22%), as close to an FP16 reference as the
+previous kernels (closer at 32K: teacher-forced KL 0.009 vs 0.012). The decode path's block selection and greedy
+argmax run on thread-block clusters (RTX 50, sm_90+; other cards keep the previous kernels; the same tokens): Q2_0 output at 4K 89 -> 93.5, at 128K
+64.5 -> 76.4 tokens/s. `STRATA_PF_FUSED=0` keeps the previous prompt kernels (byte-identical answers to 0.1.35);
+`STRATA_PF_FUSED=1` also runs the native IQ packs' fused kernels (opt-in: IQ2_XS prompts +12% at 4K, +3% at 32K, the
+IQ3 packs about even); `STRATA_QSA_CLUSTER=0` / `STRATA_ARGMAX_MULTI=0` turn the decode kernels off. The tables
+below are 0.1.26's.
+
 ### Prompt processing (tokens/s)
 
 | Model | 1K | 4K | 32K | 64K | 128K | 262K |
@@ -98,7 +107,10 @@ English/code subset from before (40,525 ids, ~110 MiB less VRAM, English answers
 almost no drafts). `--draft-vocab cyrillic` takes the English/code subset plus the whole Cyrillic script (58,963
 ids): the shipped subsets hold 142 of the vocabulary's 18,580 Cyrillic tokens, so Ukrainian or Russian answers got
 1.4 tokens a round; with it 2.1, and 83 -> 109 tokens/s (RTX 5090, the NVFP4 fork), English unchanged.
-`tools/draft_vocab.py` builds and inspects subsets.
+`tools/draft_vocab.py` builds and inspects subsets. When the start stops with "the draft head does not fit" (a
+12 GB card with a long context, #474), the engine says how much the head needs, how much VRAM is free and which
+smaller subset fits, and the server's start error repeats it; setup suggests `--draft-vocab en` on cards under
+14 GB (only a suggestion: nothing changes unless you pass it).
 
 **Low-RAM mode (engine 0.1.26, chosen by setup):** normally all of a model's experts are copied into RAM (23-50 GB,
 pinned) and the GPU holds a copy of the most-used ones. On a PC whose RAM cannot hold them beside the system (the
@@ -159,7 +171,8 @@ RTX 5070, against ~3 tokens/s before these changes.
 RAM copy, blobs and MB from the files, the time spent reading them; `routing prefetch`: how many of the file reads had
 been warmed). The server log has the same per request (`expert tiers: GPU ... hits ...; RAM ... blobs, files ...
 blobs ... MB read`), and `GET /metrics` lists `ram_blobs`, `file_blobs` and `file_mb` for each recent request (with
-engine 0.1.31 or newer).
+engine 0.1.31 or newer). It also lists each request's speculative drafts, `drafts_offered` and `drafts_accepted`
+(`null` when the engine did not report them), and their sums since the server started in `totals` (#457).
 
 Time to first token is prompt length / prompt speed: with Q2_0 about 4 s at 4K, 25 s at 32K, under 2 minutes at 128K
 and 4.5 minutes at 262K (engine 0.1.13 made long prompts about twice as fast, below).
@@ -399,6 +412,17 @@ are on; it is started again first, as at a start - so their VRAM and RAM go stra
 the OS file cache, so loading again takes seconds while that RAM is not needed elsewhere. Measured on an RTX 5060 Ti
 16 GB with Q2_0 in the low-RAM mode: unloading takes ~0.3 s, and a request to an unloaded model answered after
 4.6 s (text) or 14.7 s (a picture, image encoder on the CPU).
+
+**Keep what the expert cache learned across restarts (opt-in, engine 0.1.36, #477):** a start fills the GPU's expert
+cache from the shipped profile, and the adaptive tier (`--adapt-every`) then moves in the experts your requests use.
+With `"expert_profile_save": "expert-profile-learned.bin"` in `strata-<model>.json` the engine saves that as a
+profile - the experts in VRAM first, then the routing it counted since the start, then the shipped order - on a
+clean exit and every 10 minutes between requests (`"expert_profile_save_every": 5` for another interval, `0` for
+exit only), written to a temporary file and renamed, so a crash never leaves half a file. The next start begins from
+it instead of the config's `--expert-profile` when it is a profile of the same model (else from the config's, as
+before). A relative path is in the Strata folder; one file per model, and a profile per project works the same way
+(point the key at another file). The file is a fingerprint of what you used the model for: it stays on your PC.
+Without the key nothing is counted or written. Setup rewrites the config when run again: add the key again then.
 
 ---
 
@@ -792,6 +816,7 @@ the document, +0.4% on the chat. Details: `bench/results/2026-09-27-esp/`.
 | Pictures are slow (10-30 s) | The encoder runs on the CPU: run setup again with `--vision gpu` (needs ~1.4 GB of VRAM). |
 | A request never finishes: "reading the prompt", GPU "100%" at low power | The GPU ran out of VRAM (engines before 0.1.9 could end with ~30 MiB free at large contexts). Run `START-HERE.bat` once to get engine 0.1.9 or newer; the log then says `... MiB of VRAM free with everything loaded` (a few hundred) and names the `--vram-reserve-mib` to add if it is low. |
 | Generation stops mid-answer, GPU "100%", one CPU core busy | Fixed in engine 0.1.12 (issue #29, a race in the CPU expert pool on big-VRAM cards). Since then a request that stops moving ends with an error instead of hanging (after 2 minutes; 1 minute from 0.1.13): the log says `no progress for ... s ... (issue #29)` with where it stopped, and the next request starts the engine again. If you see that line, please open an issue with it. Engine 0.1.13 adds a stall report under it (what every expert-pool thread and the GPU handshake were doing, memory and page faults) and, on Windows, a `strata-stall-<pid>.dmp` file with every thread's stack: attach both. (`STRATA_WATCHDOG_S` sets the time in seconds; 0 turns it off.) Engine 0.1.14 fixes the stall those reports found (issue #31: with the IQ packs the host could wait forever inside the NVIDIA driver while copying experts in a verify window; the experts are now copied by a GPU kernel, `--pcie-mode dma` restores the old way). |
+| `the engine said nothing for ... s during the request` or `... did not finish the request after it was stopped (STOP)` | Issue #481: the engine and the server lost step (the engine waits for its next command, the server for the request's end; GPU at 0 %, nothing in the log). The server ends the engine after 300 s without a line from it during a request (while a prompt is read: each chunk may take three times the previous one's time, the first one up to its tokens at 50 tok/s more), the request ends with an error and the next request starts the engine again. `"engine_silence_s": 600` in `strata-<model>.json` sets the time (0 = wait forever, as before). If you see it, please add the end of the engine log to #481. |
 | `out of memory: cudaFuncSetAttribute` in the log (IQ3_XXS, long prompt) | Fixed in engine 0.1.15: CUDA loaded a kernel's code when it was first needed, and mid-prompt there was no VRAM left for it. Run `START-HERE.bat` (Windows) or `./setup.sh` (Linux) once to update. |
 | Anything else | The engine log is `strata-<model>.log` in this folder. |
 

@@ -72,6 +72,11 @@ On a PC with no NVIDIA card Strata can use, the AMD card is chosen by itself; wi
   amd_comgr and the Microsoft C++ runtime; ROCm 10.2.0a20260930 from AMD's TheRock builds, licenses in
   `engine\rocm\licenses`). The HIP runtime works through the AMD driver's own components, so the driver is the one
   thing it needs from the PC.
+- **The HIP runtime next to `strata.exe` (0.1.35, #468 #461):** `amdhip64_7.dll` and `amd_comgr.dll` are also put in
+  `engine\` (setup copies them there on every start). Windows looks in the program's folder before System32, where
+  some AMD drivers install their own `amdhip64_7.dll`; with that one, the bundled libraries crashed on the first
+  prompt (an access violation, or `hipErrorInvalidDeviceFunction`). The engine's log names the runtime it loaded
+  (`strata generate: HIP runtime ...`).
 - **Before the ~60 GB model download** setup runs `engine\strata-device.exe --list-devices` (with `engine\rocm\bin` on
   the PATH): if the HIP runtime does not see the card, setup stops there and points to the driver. It also gives the
   card's HIP number: with an integrated Radeon that is device 1, not 0 (#325). From then on setup lists the AMD cards
@@ -83,6 +88,13 @@ On a PC with no NVIDIA card Strata can use, the AMD card is chosen by itself; wi
   succeeded, on Windows only. `hipHostGetDevicePointer` returns the host pointer itself on Windows: kernels read
   mapped memory through it correctly, but a device-to-device copy into it does not land, which is why
   `tests/hip/handoff` times out there (the engine does not use that copy; `tests/hip/mapped_alias` reports it).
+- Two more (#380, #377, by BlueKingMuch, measured on an RX 6800 that drives the desktop): `hipMemGetInfo` on Windows
+  does not subtract what the desktop and other programs hold on the card, so `--expert-cache auto` filled the card
+  past what Windows keeps in VRAM and decode fell from 41 to 30 tok/s. The engine now lowers that free figure by
+  what Windows' video memory budget for the process withholds (logged once: `strata: Windows budgets N of this
+  card's M MiB ...`; `STRATA_WDDM_BUDGET=0` turns it off). And the PCIe probe times its copies on the host clock
+  there, since HIP's events read impossible speeds (3,300-26,000 GB/s), so a slow link now gets a smaller
+  `pcie_frac` as on NVIDIA.
 
 **What is validated (0.1.34):** #325's author ran the engine of this port on an RX 9070 XT (Windows 11, ROCm
 10.2.0a20260930 in `.venv`, compiled on the PC): Coder IQ1_M at 32K, 29.2 tok/s decode, ~181 tok/s prefill,
