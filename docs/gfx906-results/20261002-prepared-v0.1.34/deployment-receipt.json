@@ -1,0 +1,80 @@
+{
+  "prepared_utc": "2026-10-02T02:15:21.795058+00:00",
+  "source_commit": "0e12f868f11497a224172294bffbf7658d935534",
+  "source_version": "0.1.34",
+  "original_repo_head": "be23587e559060c9d6a704e6b34490f5be9fce7b",
+  "release": "/data/strata-gfx906/releases/v0.1.34-0e12f86",
+  "config": "/data/strata-gfx906/releases/v0.1.34-0e12f86/run-iq2-xs.json",
+  "launcher": "/data/strata-gfx906/releases/v0.1.34-0e12f86/run-iq2-xs.sh",
+  "host": "0.0.0.0",
+  "port": 8082,
+  "api_key_generated": true,
+  "api_key_in_private_config": true,
+  "tests_requested": false,
+  "start_requested": false,
+  "source_bytes": 19778217,
+  "space_budget_bytes": 6462229161,
+  "build_complete": true,
+  "service_started": false,
+  "build_started_utc": "2026-10-02T02:16:07.304357+00:00",
+  "build_commands": [
+    [
+      "cmake",
+      "--preset",
+      "hip-gfx906",
+      "-DSTRATA_BUILD_TESTS=OFF",
+      "-DSTRATA_HIP_MULTIGPU_TESTS=OFF",
+      "-DSTRATA_BUILD_CONVERSATION_TESTS=OFF",
+      "-DSTRATA_NATIVE_EXPERTS=ON"
+    ],
+    [
+      "cmake",
+      "--build",
+      "--preset",
+      "hip-gfx906",
+      "--target",
+      "strata"
+    ]
+  ],
+  "configure_exit": 0,
+  "configure_seconds": 5.01,
+  "build_exit": 0,
+  "build_seconds": 288.65,
+  "build_finished_utc": "2026-10-02T02:21:00.965139+00:00",
+  "binary": "/data/strata-gfx906/releases/v0.1.34-0e12f86/build-hip/strata",
+  "binary_bytes": 17592272,
+  "binary_sha256": "d8a59558877074f605116e396f305d0d1d1cf8a7c2f2512918b1c4fbb9f440cb",
+  "tests_run": false,
+  "ready_for_manual_start": true,
+  "manual_launcher": "/home/chris/dev/strata-gfx906/run-iq2-xs-v0.1.34.sh",
+  "finalized_utc": "2026-10-02T02:23:59.192842+00:00",
+  "cmake_cache": {
+    "CMAKE_BUILD_TYPE": "Release",
+    "CMAKE_HIP_ARCHITECTURES": "gfx906",
+    "STRATA_ENABLE_HIP": "ON",
+    "STRATA_ENABLE_CUDA": "OFF",
+    "STRATA_EXPERIMENTAL_GFX906": "ON",
+    "STRATA_BUILD_TESTS": "OFF",
+    "STRATA_HIP_MULTIGPU_TESTS": "OFF",
+    "STRATA_BUILD_CONVERSATION_TESTS": "OFF",
+    "STRATA_NATIVE_EXPERTS": "ON",
+    "STRATA_PORTABLE": "ON",
+    "STRATA_PREFILL_MMQ": "ON"
+  },
+  "model_args_unchanged": true,
+  "gpu_order_unchanged": true,
+  "sampling_unchanged": true,
+  "original_pids_present_at_finalization": {
+    "2931": false,
+    "2936": false
+  },
+  "port_8082_listening_at_finalization": false,
+  "original_service_exit_reason": "unknown; no stop/start/restart command was issued during preparation",
+  "finalization_first_attempt": "Original service PID-presence assertion failed; deployment continued without restarting it",
+  "root_free_bytes": 6088105984,
+  "data_free_bytes": 118919639040,
+  "host_edac": {
+    "ce_count": "0",
+    "ue_count": "0"
+  }
+}
