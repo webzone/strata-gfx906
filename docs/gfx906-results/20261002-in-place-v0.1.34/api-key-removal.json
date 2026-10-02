@@ -1,0 +1,20 @@
+{
+  "changed_utc": "2026-10-02T02:52:41.360033+00:00",
+  "owner_request": "Private LAN deployment without API-key authentication",
+  "config": "/home/chris/dev/strata-gfx906/run-iq2-xs.json",
+  "launcher": "/home/chris/dev/strata-gfx906/run-iq2-xs.sh",
+  "host": "0.0.0.0",
+  "port": 8082,
+  "previous_config_key_present": true,
+  "config_api_key_removed": true,
+  "launcher_unsets_inherited_api_key": true,
+  "model_arguments_unchanged": true,
+  "server_pids_at_change": [
+    21890
+  ],
+  "port_8082_listening": true,
+  "tests_run": false,
+  "server_started": false,
+  "server_restarted": false,
+  "activation": "Next manual startup; existing running server not modified"
+}
