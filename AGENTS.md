@@ -41,7 +41,10 @@ All project documentation and maintenance notes must be written in English. Pres
    missing fixtures, and sampled-only validation. Report model tok/s only from real generation; do
    not convert dot4 microbenchmarks or warm-cache operator timings into model speed.
 9. **Test, document, commit, and push changes.** Commit related changes to `origin/gfx906`; never
-   force-push or discard another author's work. Update `docs/GFX906.md`. Keep unrelated machine
+   force-push or discard another author's work. Update `docs/GFX906.md`. After every upstream merge,
+   update the current source-version line at the top of `README.md` and its current version/commit
+   references to match the merged source, in the same merge commit. Preserve historical benchmark and
+   deployment version labels; never relabel old evidence as the new version. Keep unrelated machine
    diagnostics out of this project. Do not commit weights, binaries, virtual environments, or full
    compiler-warning logs; small, auditable validation evidence may be committed.
 
