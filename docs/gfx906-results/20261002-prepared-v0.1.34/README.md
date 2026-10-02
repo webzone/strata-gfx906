@@ -1,5 +1,10 @@
 # T5810 v0.1.34 preparation — no tests, no startup
 
+> **Historical initial staging record, superseded by the [in-place deployment](../20261002-in-place-v0.1.34/README.md).**
+> At the owner's request the new binary/config/launcher replaced the original deployment; the temporary
+> worktree and versioned startup alias below were removed. The original JSON receipt is preserved unchanged.
+> The owner subsequently confirmed manually stopping the legacy service.
+
 The owner requested deployment for `0.0.0.0:8082`, then explicitly instructed that no tests or startup be performed.
 This receipt records **source/configuration preparation and a successful HIP build**, not runtime acceptance.
 No new engine/server process, inference request, CTest, GPU probe or image test was run.
@@ -39,9 +44,9 @@ cmake --build --preset hip-gfx906 --target strata
 ```
 
 The compile environment used system `/opt/rocm`, cleared `HSA_OVERRIDE_GFX_VERSION` and placed temporary files
-in the release's `.build-tmp` on `/data`. Complete raw configure/build logs remain private at
-`/data/strata-gfx906/releases/v0.1.34-0e12f86/logs/configure.log` and `build.log`; full compiler-warning logs are
-not committed. `deployment-receipt.json` is a small, secret-free receipt of exits/settings/hash/static observations.
+in the release's `.build-tmp` on `/data`. Complete raw configure/build logs were later preserved verbatim at
+`/home/chris/dev/strata-gfx906/logs/deploy-v0.1.34-in-place-20261002T023704Z/preparation/configure.log`
+and `build.log`; full compiler-warning logs are not committed. `deployment-receipt.json` is a small, secret-free receipt of exits/settings/hash/static observations.
 Compilation and file/config inspection do not establish GPU numeric correctness, model parity or speed.
 
 ## Process-state boundary
@@ -53,9 +58,10 @@ the preparer, and the service was not restored. No visible OOM/GPU-reset message
 query; this is not proof of the exit cause. EDAC CE/UE was 0/0 in the snapshots, not long-soak validation.
 Root free stayed about 5.7 GiB, `/data` about 111 GiB. No Docker, network, driver/SDK, tuning or thermal service changed.
 
-## Manual startup
+## Historical temporary startup entry (removed)
 
-On T5810, when the owner is ready and port 8082/GPU resources are available:
+Do not use this removed entry. Current manual startup uses `./run-iq2-xs.sh` in the original checkout;
+see the in-place record above. The initial temporary command was:
 
 ```bash
 cd /home/chris/dev/strata-gfx906
