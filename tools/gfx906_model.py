@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Pinned, resumable IQ2_XS download for the MI50 development workspace.
+"""Pinned, resumable IQ2_XS / IQ3_S downloads for the MI50 workspace.
 
-Default: print the exact model/storage plan. --fetch downloads the two shards
-(no pack, MTP, packages or services). Full SHA256 is checked before a .part is
-renamed. Existing weights are never overwritten or deleted. Linux/macOS only.
+Default: print the exact model/storage plan. --fetch downloads the selected shards
+(no pack, MTP, packages or services). --share-ple-from can hard-link an identical,
+SHA256-verified PLE shard on the same filesystem. Full SHA256 is checked before a
+.part is renamed. Existing weights are never overwritten or deleted. Linux/macOS only.
 """
 from __future__ import annotations
 
@@ -28,6 +29,15 @@ FILES = (
     ("Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00002-of-00002.gguf", 28800138432,
      "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"),
 )
+MODEL_FILES = {
+    "IQ2_XS": FILES,  # Keep FILES and the default behavior compatible with existing callers.
+    "IQ3_S": (
+        ("Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf", 54817524224,
+         "4c1eb2ceb4915e1192f4f386021897bde56a97f40a0bb78bb86465e0f7d2aca3"),
+        ("Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf", 28800138432,
+         "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"),
+    ),
+}
 GIB = 1 << 30
 
 
@@ -39,7 +49,8 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 
-def download(folder: Path, entry, mib_per_sec: float, floor: int, stop: threading.Event):
+def download(folder: Path, entry, mib_per_sec: float, floor: int, stop: threading.Event,
+             model: str = "IQ2_XS"):
     name, size, sha = entry
     final = folder / name
     partial = folder / (name + ".part")
@@ -55,7 +66,7 @@ def download(folder: Path, entry, mib_per_sec: float, floor: int, stop: threadin
     if partial.exists() and not marker.exists():
         raise RuntimeError(f"partial without source identity; refusing to resume: {partial}")
     marker.write_text(json.dumps(identity, indent=2) + "\n")
-    url = f"https://huggingface.co/{REPO}/resolve/{REVISION}/IQ2_XS/{name}"
+    url = f"https://huggingface.co/{REPO}/resolve/{REVISION}/{model}/{name}"
     # Retries re-open at the bytes already on disk; HTTP Range must be honored.
     for attempt in range(5):
         have = partial.stat().st_size if partial.exists() else 0
@@ -65,7 +76,7 @@ def download(folder: Path, entry, mib_per_sec: float, floor: int, stop: threadin
             break
         if stop.is_set():
             raise RuntimeError("another download failed")
-        request = urllib.request.Request(url, headers={"User-Agent": "strata-gfx906/iq2-xs"})
+        request = urllib.request.Request(url, headers={"User-Agent": f"strata-gfx906/{model.lower()}"})
         if have:
             request.add_header("Range", f"bytes={have}-")
         try:
@@ -111,28 +122,46 @@ def download(folder: Path, entry, mib_per_sec: float, floor: int, stop: threadin
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--directory", type=Path, default=Path("models/IQ2_XS"))
+    ap.add_argument("--model", choices=MODEL_FILES, default="IQ2_XS")
+    ap.add_argument("--directory", type=Path, help="default: models/<model>")
+    ap.add_argument("--share-ple-from", type=Path,
+                    help="hard-link a SHA256-verified, identical PLE shard on the same filesystem")
     ap.add_argument("--fetch", action="store_true")
-    ap.add_argument("--rate-mib", type=float, default=40, help="aggregate average rate cap (two workers)")
+    ap.add_argument("--rate-mib", type=float, default=40, help="aggregate average rate cap (up to two workers)")
     ap.add_argument("--reserve-gib", type=float, default=12, help="free after model for pack/MTP/build/safety")
     args = ap.parse_args()
     if not math.isfinite(args.rate_mib) or not math.isfinite(args.reserve_gib) or args.rate_mib <= 0 or args.reserve_gib < 4:
         ap.error("rate must be positive; reserve must be at least 4 GiB")
-    folder = args.directory.expanduser().resolve()
+    files = MODEL_FILES[args.model]
+    folder = (args.directory or Path("models") / args.model).expanduser().resolve()
     parent = folder
     while not parent.exists():
         parent = parent.parent
     remaining = sum(max(0, size - sum(p.stat().st_size for p in (folder / name, folder / (name + ".part"))
-                                      if p.exists())) for name, size, _ in FILES)
+                                      if p.exists())) for name, size, _ in files)
+    share_source = None
+    shared_bytes = 0
+    ple_name, ple_size, ple_sha = files[1]
+    if args.share_ple_from and not (folder / ple_name).exists():
+        share_source = args.share_ple_from.expanduser().resolve(strict=True)
+        if not share_source.is_file() or share_source.stat().st_size != ple_size:
+            ap.error("shared PLE source has the wrong type/size; nothing overwritten")
+        if share_source.stat().st_dev != parent.stat().st_dev:
+            ap.error("hard-link sharing requires the same filesystem; no cross-drive copy is made")
+        if (folder / (ple_name + ".part")).exists():
+            ap.error("PLE partial already exists; retain it and resume without --share-ple-from")
+        shared_bytes = ple_size
+        remaining -= shared_bytes
     free = shutil.disk_usage(parent).free
     # Re-checking already present shards writes no more model bytes. Do not
     # demand the original pack/MTP planning reserve again after those exist.
     reserve = int(args.reserve_gib * GIB) if remaining else 4 * GIB
-    plan = {"repo": REPO, "revision": REVISION, "model": "IQ2_XS", "directory": str(folder),
-            "model_bytes": sum(e[1] for e in FILES), "remaining_bytes": remaining,
+    plan = {"repo": REPO, "revision": REVISION, "model": args.model, "directory": str(folder),
+            "model_bytes": sum(e[1] for e in files), "remaining_bytes": remaining,
             "free_bytes": free, "reserve_bytes": reserve,
-            "fits": free >= remaining + reserve,
-            "experts_bin": False, "files": [dict(name=n, bytes=s, sha256=h) for n, s, h in FILES]}
+            "fits": free >= remaining + reserve, "shared_ple_bytes": shared_bytes,
+            "share_ple_from": str(share_source) if share_source else None,
+            "experts_bin": False, "files": [dict(name=n, bytes=s, sha256=h) for n, s, h in files]}
     print(json.dumps(plan, indent=2), flush=True)
     if not args.fetch:
         return
@@ -141,17 +170,34 @@ def main():
     folder.mkdir(parents=True, exist_ok=True)
     with (folder / ".download.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        (folder / "source.json").write_text(json.dumps(plan, indent=2) + "\n")
+        manifest = folder / "source.json"
+        if manifest.exists():
+            prior = json.loads(manifest.read_text())
+            if any(prior.get(k) != plan[k] for k in ("repo", "revision", "model", "files")):
+                raise RuntimeError(f"source identity changed; refusing to overwrite: {manifest}")
+        if share_source:
+            before = share_source.stat()
+            if digest(share_source) != ple_sha:
+                raise RuntimeError(f"shared PLE SHA256 mismatch; source retained: {share_source}")
+            after = share_source.stat()
+            if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) != (
+                    after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns):
+                raise RuntimeError("shared PLE source changed while hashing; nothing linked")
+            os.link(share_source, folder / ple_name)  # Atomic; fails if a destination appeared.
+            print(f"SHARED_PLE {ple_name}: verified SHA256 {ple_sha}", flush=True)
+        manifest.write_text(json.dumps(plan, indent=2) + "\n")
         stop = threading.Event()
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            futures = [pool.submit(download, folder, entry, args.rate_mib / 2, 4 * GIB, stop) for entry in FILES]
+        workers = max(1, min(2, sum(not (folder / e[0]).exists() for e in files)))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(download, folder, entry, args.rate_mib / workers,
+                                   4 * GIB, stop, args.model) for entry in files]
             try:
                 for future in futures:
                     future.result()
             except BaseException:
                 stop.set()
                 raise
-    print("MODEL_READY: both IQ2_XS shards verified", flush=True)
+    print(f"MODEL_READY: both {args.model} shards verified", flush=True)
 
 
 if __name__ == "__main__":

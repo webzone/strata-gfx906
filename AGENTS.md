@@ -52,7 +52,8 @@ All project documentation and maintenance notes must be written in English. Pres
 
 Upstream's general user workflow is in `docs/AI_SETUP.md` and `docs/MCP_SERVER.md`; for this fork's
 MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upstream's RDNA/prebuilt defaults.
-Never expose a server beyond loopback without an API key. Engine/API details are in `docs/DETAILS.md`,
+The owner-authorized T5810 private-LAN deployment uses `0.0.0.0:8082` without an API key; do not add
+one unless the owner requests it. Other non-loopback deployments require an API key. Engine/API details are in `docs/DETAILS.md`,
 AMD upstream scope in `docs/AMD_HIP.md`, and pipeline splitting in `docs/MULTI_GPU.md`.
 GPU-independent setup tests run with `.venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py'`.
 Document measured results with their hardware, workload and validation limits, not unsupported performance claims.
