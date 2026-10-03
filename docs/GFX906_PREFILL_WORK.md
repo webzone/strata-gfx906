@@ -66,4 +66,20 @@ All completion rows above remain unverified for the continued goal.
   per-layer row distributions and phase costs, opt-in grouped gfx906 MMQ J selection, and a fresh-
   fixture GPU gate with full control equality plus sampled CPU double oracle. Current CPU checks:
   66 gfx906 Python tests, 44 admission-policy checks with `-Wall -Wextra -Werror`; no GPU results yet
-  for these expert changes. Compile/numeric/model/performance gates and QSA investigation remain.
+  at that point for these expert changes.
+- Isolated **cbdc94c** HIP application and all requested probes linked successfully. The first private
+  build driver's post-link hash audit failed (`digest(str)`), retained as exit 1; corrected explicit
+  recheck/build and dependency/deployment audit returned 0. Candidate SHA256:
+  `167b38cc5c57b0984f8653da8e8161a5e9bc00a7a40cafb7bff0d706f8559c8b`.
+- Both MI50s passed fresh 29952 wave64 checks, clock 24.9995/24.9991 MHz. Both passed 24 MMQ shapes ×
+  five dispatches, full bit-identical tile/control outputs and the unchanged sampled CPU double gate.
+  Resident operator gains depend on format/rows; they are NOT model speed. Public small raw logs and
+  scope: `gfx906-results/20261003-mmq-tiles-cbdc94c/README.md`. Complete fixtures stay private.
+- The current-source 64K pilot is running serially on T5810: IQ2_XS and IQ3_S, code/Chinese/multi-turn,
+  2048 control and MTP-only 3072/4096, QSA/tile forcing OFF, per-layer profiling ON, one repetition.
+  Driver PID was **371361**, evidence `logs/gfx906-prefill-goal-20261003T040756Z/long64k-pilot/`;
+  authoritative completion is `long64k-pilot.exit` plus per-arm exits/profiles/comparison/integrity,
+  NOT the remembered PID. Do not compete with it or rebuild its binary while it runs.
+  Longer/three-repeat validation, actual row-informed tile adoption, split work and QSA diagnosis
+  remain unfinished. Source snapshot is remote `src-cbdc94c`, build `build-cbdc94c`; owner checkout,
+  old 49285ae candidate and deployed engine/configs remain distinct and unchanged.
