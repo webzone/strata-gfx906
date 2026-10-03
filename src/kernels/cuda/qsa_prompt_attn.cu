@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "strata/kernels/qsa_prompt_attn.hpp"
+#include "strata/kernels/gfx906_prompt_attn.hpp"
 #include "strata/kernels/kv_q8.hpp"
 #include "strata/kernels/kv_q4.hpp"
 
@@ -975,6 +976,8 @@ bool launch_wmma(const float* q, const QsaAttnPools& pools, const int32_t* ids, 
 bool qsa_prompt_attn_batch(const float* q, const QsaAttnPools& pools, const int32_t* ids, const int32_t* steps,
                            int64_t cap, const QsaShapes& s, float* attn, int64_t n_q, void* stream) {
     if (n_q <= 0) return true;
+    // Opt-in gfx906 FP32 online softmax. CUDA/RDNA and incomplete/non-INT8 pools keep their existing paths.
+    if (gfx906_prompt_attn_batch(q, pools, ids, steps, cap, s, attn, n_q, stream)) return true;
     bool turing = false;   // per call, from the CURRENT device (a layer split can mix Turing with newer cards)
     {   // sm_75 or newer: the MMA above compiles for both.  sm_80+ runs the cp.async kernel (launch_i8); Turing has
         // no cp.async, so it runs the v1 kernel (launch<1>, same accuracy, another summation order).  An older card

@@ -824,6 +824,7 @@ bool Prefill::draft_kv(core::MtpDrafter& mtp, const float* R_rows, const int32_t
     const float* w_kn = mtp.tensor_f32("self_attn.k_norm.weight");
     if (!w_ne || !w_fe || !w_nh || !w_fh || !w_hn || !w_dn || !w_up || !w_k || !w_v || !w_kn) return false;
     const core::NativeEmbed* nemb = core::native_embed();
+    if (nemb && !nemb->prepare_current_device(err)) return false;
     const core::WeightRef* wemb = nemb ? nullptr : m.wt->find("token_embd.weight");
     if (!nemb && (wemb == nullptr || wemb->codebook_iq4nl || wemb->ne0 != g.n_embd || wemb->group_elems <= 0 ||
                   (wemb->code_bits != 2 && wemb->code_bits != 4 && wemb->code_bits != 8)))
@@ -1064,6 +1065,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
     const core::ModelGeometry& g = *m.g;
     core::SessionState& ss = *m.ss;
     const auto t_start = Clock::now();
+    const PrefillStats before = stats_; // stats accumulate; profile records describe only THIS stage invocation.
     const int64_t LB = stage_lb_, LE = stage_le_;
     // the next stage reads chunk c on a thread while this one reads chunk c + 1 (declared first: an early return
     // waits for it before anything it reads goes away)
@@ -1071,6 +1073,9 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
     std::future<bool> next_run;
     int hand_buf = 0;
     double host_sync_ms = 0, host_chunk_ms = 0, host_setup_ms = 0;   // STRATA_PREFILL_TIMING: the host's share
+    double handoff_ms = 0, next_wait_ms = 0, group_wait_ms = 0, group_cpu_ms = 0;
+    int64_t mmq_calls = 0, fp16_calls = 0, fused_calls = 0;
+    std::vector<int64_t> fp16_layers((size_t) g.n_layer, 0);
     strata::kernels::QsaShapes s = strata::kernels::qsa_real_shapes();
     s.n_head = g.n_head; s.n_head_kv = g.n_head_kv; s.head_dim = g.head_dim; s.idx_n_head = g.idx_q_heads;
     s.idx_dim = g.idx_key_dim;
@@ -1658,6 +1663,9 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                     const int mmq_dt = lay.native ? lay.fmt[(size_t) l].d_type : 42;
                     const bool fused_nat = use_mmq && stream_all && lay.native && fused::native_supported(mmq_gt, mmq_dt);
                     const bool fused_l = (use_mmq && stream_all && !lay.native && fused::enabled()) || fused_nat;
+                    if (fused_l) ++fused_calls;
+                    else if (use_mmq) ++mmq_calls;
+                    else { ++fp16_calls; ++fp16_layers[(size_t) l]; }
                     size_t n_order = 0;                   // the routed experts (the debug report; unknown when fused)
                     if (fused_l) {
                         if (static bool said = false; !said) {
@@ -1725,8 +1733,11 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                         int32_t* src_h = grp_mapped ? m.grp_host + 2 * m.grp_tk : m.src_host.data();
                         if (grp_mapped) copy_i32(m.grp_dev, m.ids, T * K, m.cs);
                         else cudaMemcpyAsync(m.ids_host.data(), m.ids, (size_t) T * K * 4, cudaMemcpyDeviceToHost, m.cs);
+                        const auto group_wait_start = Clock::now();
                         cudaStreamSynchronize(m.cs);
+                        group_wait_ms += ms_since(group_wait_start);
                         pt.fold();
+                        const auto group_cpu_start = Clock::now();
                         std::fill(m.cnt.begin(), m.cnt.end(), 0);
                         for (int64_t i = 0; i < T * K; ++i) {
                             const int32_t e = ids_h[(size_t) i];
@@ -1755,6 +1766,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                         n_order = order.size();
                         const size_t mmq_gub = use_mmq ? mmq::matrix_bytes(mmq_gt, 1280, N) : 0;
                         const size_t mmq_db = use_mmq ? mmq::matrix_bytes(mmq_dt, N, 640) : 0;
+                        group_cpu_ms += ms_since(group_cpu_start); // Counts/offsets/order + metadata submission, not GPU completion.
                         pt.mark(kPfGather, cs);
                         if (use_mmq) {
                             // step 2b: the layer's activations as q8_1 rows in expert order, straight from `mixed`
@@ -2004,14 +2016,20 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
         if (next_ != nullptr) {
             // the rows to the host buffer the next stage read two chunks ago (it has finished: waited below)
             float* h = m.hand[hand_buf];
+            const auto handoff_start = Clock::now();
             if (cudaMemcpyAsync(h, m.R, (size_t) T * D * 4, cudaMemcpyDeviceToHost, m.cs) != cudaSuccess ||
                 cudaStreamSynchronize(m.cs) != cudaSuccess) {
                 err = std::string("prefill: the layer split's hand-off: ") + cudaGetErrorString(cudaGetLastError());
                 return false;
             }
+            handoff_ms += ms_since(handoff_start);
             // this stage's state is at the chunk's end now (synced) and moves on with the next chunk below
+            const auto callback_start = Clock::now();
             if (on_stage_chunk && !on_stage_chunk(p0 + T, err)) return false;
+            host_chunk_ms += ms_since(callback_start);
+            const auto wait_start = Clock::now();
             if (next_run.valid() && !next_run.get()) { err = next_err; return false; }
+            next_wait_ms += ms_since(wait_start);
             next_->hand_in_ = h;
             next_run = std::async(std::launch::async, [this, tokens, c0, T, p0, &next_err] {
                 return next_->run(tokens + c0, T, p0, next_err);
@@ -2045,7 +2063,9 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
             host_chunk_ms += ms_since(toc2);
         }
     }
+    const auto drain_start = Clock::now();
     if (next_run.valid() && !next_run.get()) { err = next_err; return false; }
+    next_wait_ms += ms_since(drain_start); // Includes pipeline drain, not just steady-state stalls.
     ss.ple_prev[0] = prev[0];
     ss.ple_prev[1] = prev[1];
     if (std::getenv("STRATA_DBG_NAN") != nullptr) {   // debug: the state the prompt leaves for the token path
@@ -2087,11 +2107,44 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
             std::snprintf(b, sizeof b, " %s %.0f (%.1f%%)", kPfNames[i], pt.ms[i], total > 0 ? 100.0 * pt.ms[i] / total : 0.0);
             line += b;
         }
+        const double wall_ms = ms_since(t_start);
+        const double staging_ms = stats_.ms_experts_host - before.ms_experts_host;
+        const double ple_ms = stats_.ms_ple - before.ms_ple;
         std::fprintf(stderr, "strata prefill timing: %lld tokens, GPU timeline %.0f ms, wall %.0f ms, host staging %.0f ms:%s\n",
-                     (long long) n, total, ms_since(t_start), stats_.ms_experts_host, line.c_str());
+                     (long long) n, total, wall_ms, staging_ms, line.c_str());
         std::fprintf(stderr, "strata prefill timing: host: chunk setup (PLE rows, the expert stream plan) %.0f ms, "
                              "waiting for each chunk %.0f ms, after each chunk (the draft layer, progress) %.0f ms, "
-                             "PLE %.0f ms\n", host_setup_ms, host_sync_ms, host_chunk_ms, stats_.ms_ple);
+                             "PLE %.0f ms; device %d layers [%lld,%lld) handoff %.0f ms next-stage wait/drain %.0f ms\n",
+                     host_setup_ms, host_sync_ms, host_chunk_ms, ple_ms, m.device, (long long) LB, (long long) LE,
+                     handoff_ms, next_wait_ms);
+        // One atomic stdio record, tagged with device/range/position. Stage timelines overlap; never sum their wall times.
+        std::string phases = "{";
+        for (int i = 0; i < kPfCount; ++i) {
+            if (i) phases += ',';
+            std::snprintf(b, sizeof b, "\"%s\":%.3f", kPfNames[i], pt.ms[i]);
+            phases += b;
+        }
+        phases += '}';
+        std::string fallback_layers = "[";
+        for (size_t l = 0; l < fp16_layers.size(); ++l) if (fp16_layers[l]) {
+            if (fallback_layers.size() > 1) fallback_layers += ',';
+            fallback_layers += std::to_string(l);
+        }
+        fallback_layers += ']';
+        std::fprintf(stderr, "strata prefill profile: {\"schema\":1,\"device\":%d,\"layer_begin\":%lld,\"layer_end\":%lld,"
+                             "\"pos0\":%lld,\"tokens\":%lld,\"chunk\":%lld,\"borrowed\":%s,\"ms_wall\":%.3f,"
+                             "\"ms_gpu_timeline\":%.3f,\"ms_host_setup\":%.3f,\"ms_host_sync\":%.3f,\"ms_callback\":%.3f,"
+                             "\"ms_handoff\":%.3f,\"ms_next_wait\":%.3f,\"ms_staging\":%.3f,\"ms_ple\":%.3f,"
+                             "\"ms_group_wait\":%.3f,\"ms_group_cpu\":%.3f,\"mmq_layer_chunks\":%lld,"
+                             "\"fp16_layer_chunks\":%lld,\"fused_layer_chunks\":%lld,\"fallback_layers\":%s,"
+                             "\"experts_streamed\":%lld,\"experts_dma\":%lld,\"experts_resident\":%lld,\"phase_ms\":%s}\n",
+                     m.device, (long long) LB, (long long) LE, (long long) pos0, (long long) n, (long long) m.T,
+                     m.borrowed ? "true" : "false", wall_ms, total, host_setup_ms, host_sync_ms, host_chunk_ms,
+                     handoff_ms, next_wait_ms, staging_ms, ple_ms, group_wait_ms, group_cpu_ms,
+                     (long long) mmq_calls, (long long) fp16_calls, (long long) fused_calls, fallback_layers.c_str(),
+                     (long long) (stats_.experts_streamed - before.experts_streamed),
+                     (long long) (stats_.experts_dma - before.experts_dma),
+                     (long long) (stats_.experts_resident - before.experts_resident), phases.c_str());
     }
     if (std::getenv("STRATA_STATE_HASH_GDN") != nullptr) {   // debug: the GDN states as the prompt path leaves them
         cudaStreamSynchronize(m.cs);

@@ -413,6 +413,8 @@ void draft_head_hint(int64_t n_tokens, int64_t row_bytes) {
 
 bool MtpDrafter::bind(const WeightTable& wt, const NativeHead* head, const float* window_R, std::string& err) {
     const OnDevice on_device(device_);
+    // Prepare the immutable mapped embedding's alias on this card BEFORE recording any draft graphs.
+    if (const NativeEmbed* ne = native_embed(); ne && !ne->prepare_current_device(err)) return false;
     wt_ = &wt;
     head_ = head;
     window_R_ = window_R;

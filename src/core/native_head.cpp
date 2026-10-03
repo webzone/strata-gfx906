@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstring>
 #include <exception>
+#include <stdexcept>
 
 namespace strata::core {
 
@@ -106,6 +107,11 @@ NativeEmbed::~NativeEmbed() {
 }
 
 bool NativeEmbed::load(const std::vector<std::string>& shards, int64_t n_embd, int64_t n_vocab, std::string& err) {
+    if (host_ || dev_) { err = "native embedding is already loaded"; return false; }
+    if (cudaGetDevice(&owner_device_) != cudaSuccess) {
+        err = "native embedding: cannot query the owning device";
+        return false;
+    }
     try {
         const strata::GgufModel model(shards);
         // --embd-gguf's one-tensor file (tools/embd_bf16_pack.py) says "strata-embd": only its tensor is checked
@@ -187,12 +193,46 @@ bool NativeEmbed::load(const std::vector<std::string>& shards, int64_t n_embd, i
     }
 }
 
+const void* NativeEmbed::device_data(std::string& error) const {
+    int device = -1;
+    if (!dev_ || cudaGetDevice(&device) != cudaSuccess) {
+        error = "native embedding: no table or current device";
+        return nullptr;
+    }
+    if (device == owner_device_) return dev_;
+    if (!host_) {
+        error = "native embedding: a VRAM fallback cannot be read on another device (P2P is not required)";
+        return nullptr;
+    }
+    std::lock_guard<std::mutex> guard(alias_mutex_);
+    const auto found = aliases_.find(device);
+    if (found != aliases_.end()) return found->second;
+    void* alias = nullptr;
+    if (cudaHostGetDevicePointer(&alias, host_, 0) != cudaSuccess || !alias) {
+        error = "native embedding: cannot obtain this device's mapped-host alias";
+        return nullptr;
+    }
+    aliases_.emplace(device, alias);
+    return alias;
+}
+
+bool NativeEmbed::prepare_current_device(std::string& error) const {
+    error.clear();
+    return device_data(error) != nullptr;
+}
+
 void NativeEmbed::gather_dev(const int32_t* tokens, int64_t n_tok, float* out, void* stream) const {
-    strata::kernels::iq_embed_rows(type_, dev_, row_, tokens, n_tok, n_embd_, out, stream);
+    std::string error;
+    const void* data = device_data(error);
+    if (!data) throw std::runtime_error(error);
+    strata::kernels::iq_embed_rows(type_, data, row_, tokens, n_tok, n_embd_, out, stream);
 }
 
 void NativeEmbed::gather_one(int64_t token, float* out, void* stream) const {
-    strata::kernels::iq_dequant_f32(type_, (const uint8_t*) dev_ + (size_t) token * row_, n_embd_, out, stream);
+    std::string error;
+    const void* data = device_data(error);
+    if (!data) throw std::runtime_error(error);
+    strata::kernels::iq_dequant_f32(type_, (const uint8_t*) data + (size_t) token * row_, n_embd_, out, stream);
 }
 
 }  // namespace strata::core

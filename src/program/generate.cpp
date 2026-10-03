@@ -50,6 +50,7 @@
 #include "strata/core/verify.hpp"
 #include "strata/core/mtp.hpp"
 #include "strata/prefill/prefill.hpp"
+#include "strata/prefill/gfx906_policy.hpp"
 #include "strata/core/native_dense.hpp"
 #include "strata/program/logits_selection.hpp"
 #include "strata/program/conv_cache.hpp"
@@ -4497,12 +4498,28 @@ int main(int argc, char** argv) {
             }
             return true;
         };
-        sp.on_chunk = [&](const float* R_rows, int64_t T, int64_t p0, std::string& e) -> bool {
+        bool split_mtp_batch = false;
+#if defined(STRATA_USE_HIP) && defined(STRATA_EXPERIMENTAL_GFX906)
+        if (multi_gpu && strata::prefill::gfx906::opt_in(std::getenv("STRATA_GFX906_MTP_BATCH"))) {
+            const auto device = strata::core::device_info(stages.back()->dev);
+            split_mtp_batch = strata::prefill::gfx906::split_draft(true, "1", device.arch.c_str());
+        }
+#endif
+        sp.on_chunk = [&, split_mtp_batch](const float* R_rows, int64_t T, int64_t p0, std::string& e) -> bool {
+            const auto draft_start = Clock::now();
             std::vector<int32_t> nxt((size_t) T);
             for (int64_t t = 0; t < T; ++t) nxt[(size_t) t] = (int32_t) cur[(size_t) (p0 + t + 1)];
-            // E-9: batched through the prompt path when it can (one GPU: a layer split's drafter is on the last stage)
-            const bool batched = !multi_gpu && sp.draft_kv(mtp, R_rows, nxt.data(), T, p0, e);
+            // The last stage owns these rows and the drafter. Never use the first stage's device/scratch on a split.
+            // draft_kv retains its current-device, KV-mode, scratch and STRATA_MTP_BATCH=0 guards.
+            strata::prefill::Prefill& draft_sp = multi_gpu ? stages.back()->sp : sp;
+            const bool batched = (!multi_gpu || split_mtp_batch) && draft_sp.draft_kv(mtp, R_rows, nxt.data(), T, p0, e);
             if (!e.empty() || (!batched && !mtp.prefill(R_rows, nxt.data(), T, p0, e))) return false;
+            if (std::getenv("STRATA_PREFILL_TIMING")) {
+                std::fprintf(stderr, "strata prefill draft: {\"schema\":1,\"device\":%d,\"pos0\":%lld,"
+                                     "\"tokens\":%lld,\"batched\":%s,\"ms_wall\":%.3f}\n",
+                             mtp.device(), (long long) p0, (long long) T, batched ? "true" : "false",
+                             std::chrono::duration<double, std::milli>(Clock::now() - draft_start).count());
+            }
             if (std::getenv("STRATA_SNAPSHOT_VERIFY") != nullptr)
                 std::fprintf(stderr, "strata serve: DRAFT_PREFILL path=%s mode=%d cells=%lld\n",
                              batched ? "batched" : "token", mtp.kv_state().kv_mode, (long long) T);
@@ -5283,6 +5300,8 @@ int main(int argc, char** argv) {
             // waited for - the same copies into the same slots, so the same cache; one stage: refill_one exactly.
             // STRATA_REFILL_SERIAL=1: stage after stage, as 0.1.30/0.1.31.
             static const bool refill_serial = std::getenv("STRATA_REFILL_SERIAL") != nullptr;
+            double refill_ms = 0;
+            int64_t refilled_slots = 0;
             auto refill = [&](std::string& e) -> bool {
                 const auto t_rf = Clock::now();
                 int64_t n_lent = 0, n_parts = 0;
@@ -5298,6 +5317,8 @@ int main(int argc, char** argv) {
                         if (!p.lent.empty() && !refill_one(p, e)) return false;
                 }
                 if (n_parts > 0) res_upload();
+                refill_ms += std::chrono::duration<double, std::milli>(Clock::now() - t_rf).count();
+                refilled_slots += n_lent;
                 if (trace && n_parts > 0) {
                     std::fprintf(stderr, "strata trace: refilled %lld slots on %lld stage(s) in %.1f ms\n",
                                  (long long) n_lent, (long long) n_parts,
@@ -5454,6 +5475,14 @@ int main(int argc, char** argv) {
             }
             tr("prompt done (slots refilled)");
             const double prompt_ms = std::chrono::duration<double, std::milli>(Clock::now() - r0).count();
+            if (std::getenv("STRATA_PREFILL_TIMING")) {
+                std::fprintf(stderr, "strata prefill request: {\"schema\":1,\"prompt_tokens\":%lld,\"reused\":%lld,"
+                                     "\"read_from\":%lld,\"prefill_rows\":%lld,\"cancelled\":%s,\"ms_wall\":%.3f,"
+                                     "\"ms_refill\":%.3f,\"refilled_slots\":%lld}\n",
+                             (long long) n, (long long) resume, (long long) read_from,
+                             (long long) std::max<int64_t>(0, at - read_from), cancelled ? "true" : "false",
+                             prompt_ms, refill_ms, (long long) refilled_slots);
+            }
             std::printf("REUSED %lld\n", (long long) resume);   // the prompt is read; the first window comes next
             std::fflush(stdout);
             // the verify windows: the first holds the last prompt token alone

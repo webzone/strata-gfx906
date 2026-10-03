@@ -56,8 +56,16 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt AND EXISTS ${CMAKE_CU
 endif()
 option(STRATA_BUILD_TESTS "Build the test suite" ${_strata_tests_default})
 option(STRATA_BUILD_CONVERSATION_TESTS "Build standalone conversation cache tests" OFF)
+option(STRATA_BUILD_GFX906_PREFILL_TESTS "Build CPU-only gfx906 prefill policy tests without a GPU backend" OFF)
 option(STRATA_HIP_MULTIGPU_TESTS "Register HIP tests that REQUIRE at least two visible GPUs" OFF)
 option(STRATA_WERROR "Treat compiler warnings as errors" OFF)
+
+if(STRATA_BUILD_TESTS OR STRATA_BUILD_GFX906_PREFILL_TESTS)
+  enable_testing()
+  add_executable(gfx906_prefill_policy_test tests/core/gfx906_prefill_policy_test.cpp)
+  target_include_directories(gfx906_prefill_policy_test PRIVATE include)
+  add_test(NAME gfx906_prefill_policy_test COMMAND gfx906_prefill_policy_test)
+endif()
 
 if(STRATA_BUILD_CONVERSATION_TESTS)
   enable_testing()
@@ -259,6 +267,7 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
                           src/kernels/cuda/cvec.cu
                           src/kernels/cuda/qsa_decode_attn.cu
                           src/kernels/cuda/qsa_prompt_attn.cu
+                          src/kernels/cuda/gfx906_prompt_attn.cu
                           src/kernels/cuda/fused_gdn.cu
                           src/kernels/cuda/dequant_bf16.cu
                           src/kernels/cuda/qsa_select.cu
@@ -447,6 +456,18 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
       target_link_libraries(hip_wave64_probe PRIVATE strata_hip_runtime)
       add_test(NAME hip_wave64_probe COMMAND hip_wave64_probe)
       set_tests_properties(hip_wave64_probe PROPERTIES TIMEOUT 120 LABELS "hip;gfx906;synthetic")
+      add_executable(hip_gfx906_prefill_attn tests/hip/gfx906_prefill_attn.cpp)
+      target_link_libraries(hip_gfx906_prefill_attn PRIVATE strata_kernels strata_hip_runtime)
+      add_test(NAME hip_gfx906_prefill_attn COMMAND hip_gfx906_prefill_attn --device 0)
+      set_tests_properties(hip_gfx906_prefill_attn PROPERTIES TIMEOUT 180 LABELS "hip;gfx906;synthetic")
+      if(STRATA_HIP_MULTIGPU_TESTS)
+        add_test(NAME hip_gfx906_prefill_attn_device1 COMMAND hip_gfx906_prefill_attn --device 1)
+        set_tests_properties(hip_gfx906_prefill_attn_device1 PROPERTIES TIMEOUT 180 LABELS "hip;gfx906;multigpu;synthetic")
+        add_executable(hip_native_embed_alias tests/hip/native_embed_alias.cpp)
+        target_link_libraries(hip_native_embed_alias PRIVATE strata_engine strata_hip_runtime)
+        add_test(NAME hip_native_embed_alias COMMAND hip_native_embed_alias)
+        set_tests_properties(hip_native_embed_alias PROPERTIES TIMEOUT 120 LABELS "hip;gfx906;multigpu;synthetic")
+      endif()
     endif()
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/hip/mapped_alias.cpp")
       # #325: reports what a hipHostGetDevicePointer alias is on this stack (on Windows: the host pointer, and a

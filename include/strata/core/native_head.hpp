@@ -2,6 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -47,6 +49,9 @@ public:
     NativeEmbed(const NativeEmbed&) = delete;
     NativeEmbed& operator=(const NativeEmbed&) = delete;
     bool load(const std::vector<std::string>& shards, int64_t n_embd, int64_t n_vocab, std::string& err);
+    /// Resolve/cache a mapped-host alias on the CURRENT device. A VRAM fallback is owner-only (no P2P).
+    /// Call before graph capture; load has finished copying the immutable host table before consumers run.
+    bool prepare_current_device(std::string& error) const;
     /// Rows for device token ids.
     void gather_dev(const int32_t* tokens, int64_t n_tok, float* out, void* stream) const;
     /// One row for a host token id.
@@ -55,8 +60,12 @@ public:
     int type() const { return type_; }
 
 private:
+    const void* device_data(std::string& error) const;
     void* host_ = nullptr;
     const void* dev_ = nullptr;
+    int owner_device_ = -1;
+    mutable std::mutex alias_mutex_;
+    mutable std::map<int, const void*> aliases_;
     uint64_t bytes_ = 0;
     size_t row_ = 0;
     int64_t n_embd_ = 0, n_vocab_ = 0;
