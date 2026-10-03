@@ -123,3 +123,25 @@ All completion rows above remain unverified for the continued goal.
   It audited all 18 completed cbdc94c pilot cases against original protocol. Latest CPU regressions:
   **169 setup / 76 gfx906 Python tests**, no skips, diff check clean. Final-source HIP, broader model
   repetitions/contexts, accepted expert optimization, nearby splits and QSA diagnosis remain pending.
+- Source **78d2fbf6c3a90af5ef5b625d36f1ee8db03fd65c** built/audited successfully, SHA256
+  `5c9466bffd2c093a250d5343cabdd0cf442133337200b04719ed4c608e5ed753`. Its new diagnostic/replay
+  suite exited **0**: both original 33475-token arms generated 64 IDs with zero reuse, clean exits,
+  all 24 sampled real QSA fixtures passed old/new/dispatcher/graph/actual-output double-reference gates
+  without threshold changes, and both 64-vector committed-logit sequences match actual raw T IDs.
+  First QSA layer3 has identical inputs and output max-abs 4.2915e-6 / relative-L2 4.6021e-7; subsequent
+  layers show changed operands and amplification. At common-prefix index42/position33516, ID561 versus
+  ID1690 flips from gap +0.24339485 to -0.00288963; full-logit max-abs 0.51663 / relative-L2 0.04716.
+  This is bounded numeric mechanism evidence, not all-row correctness or global quality; fixed-window/
+  teacher-prefix isolation and broader checks remain pending. Receipt: `gfx906-results/20261003-qsa-real-78d2fbf/`.
+- The fully raw-audited cbdc94c 64K pilot now has a bounded public receipt and exact output/identity/
+  memory/stage evidence: `gfx906-results/20261003-long64k-pilot-cbdc94c/`. The source version is unchanged.
+- New **78d2fbf** model work is admitted and running serially under the owner lease. Before launch,
+  43,227,627,520 B disk free admitted an **8-GiB combined evidence allowance +4-GiB reserve**; no weights
+  or expert-pack preparation. Private driver `model-validation-78d2fbf.sh` first runs focused64k:
+  2048 MTP-OFF, 2048 MTP-ON, 2048 MTP+auto, plus 3072/4096 MTP-OFF, two pinned models/three kinds,
+  one repetition with bounded product traces (30 requests). Only after complete clean protocol/integrity
+  audit does it run required **64K/128K/192K ×three kinds ×three arms ×three repeats ×two models =162
+  cold requests**, without product tracing. Requested source is read from the archived build receipt,
+  not guessed; each phase has its own fresh evidence and failure/exit files. Recorded driver PID508609
+  is not completion evidence. First six IQ2_XS control/MTP requests completed; comparisons, auto arms,
+  IQ3_S and full matrix are not yet verified. Do not compete with it or rebuild its executing binary.
