@@ -181,7 +181,8 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
         std::ofstream meta(path / "shape.json");
         meta << "{\"queries\":" << f.queries << ",\"cap\":" << f.cap << ",\"mode\":" << f.mode
              << ",\"page_size\":256,\"physical_pages\":32,\"head_dim\":256,\"query_heads\":24,\"kv_heads\":2,"
-                "\"scale_group\":64,\"oracle_queries\":" << oracle_queries << "}\n";
+                "\"scale_group\":64,\"step_fields\":" << kStepCount << ",\"width_field\":" << kStepWidth
+             << ",\"oracle_queries\":" << oracle_queries << "}\n";
     }
     if (bench) {
         cudaEvent_t begin = nullptr, end = nullptr; ck(cudaEventCreate(&begin)); ck(cudaEventCreate(&end));
@@ -222,7 +223,7 @@ int main(int argc, char** argv) {
         struct Case { int queries, cap, mask; };
         const Case cases[] = {{1,1,0}, {3,63,0}, {17,64,0}, {33,65,1}, {8,257,1}, {8,2051,0}, {8,2051,2}, {8,2051,3}, {128,65,0}};
         for (const auto& c : cases) { Fixture f(c.queries, c.cap, c.mask); run_case(f, c.cap == 2051 && c.mask == 0, false, dump); }
-        if (bench) { Fixture f(2048, 2051, 1, true); run_case(f, false, true, dump); }
+        if (bench) { Fixture f(2048, 2051, 0, true); run_case(f, false, true, dump); }
         std::printf("PASS device=%d; synthetic parity only; bench oracle is sampled if requested\n", device);
         return 0;
     } catch (const std::exception& e) { std::fprintf(stderr, "FAIL: %s\n", e.what()); return 1; }

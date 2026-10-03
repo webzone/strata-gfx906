@@ -1075,7 +1075,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
     double host_sync_ms = 0, host_chunk_ms = 0, host_setup_ms = 0;   // STRATA_PREFILL_TIMING: the host's share
     double handoff_ms = 0, next_wait_ms = 0, group_wait_ms = 0, group_cpu_ms = 0;
     int64_t mmq_calls = 0, fp16_calls = 0, fused_calls = 0;
-    std::vector<int64_t> fp16_layers((size_t) g.n_layer, 0);
+    std::vector<int64_t> fp16_layers((size_t) g.n_layers, 0);
     strata::kernels::QsaShapes s = strata::kernels::qsa_real_shapes();
     s.n_head = g.n_head; s.n_head_kv = g.n_head_kv; s.head_dim = g.head_dim; s.idx_n_head = g.idx_q_heads;
     s.idx_dim = g.idx_key_dim;
