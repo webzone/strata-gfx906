@@ -1,0 +1,3 @@
+PASS device=0 native mapped embedding 768 signed values + graph replay (synthetic only)
+PASS device=1 native mapped embedding 768 signed values + graph replay (synthetic only)
+raw input/output preserved in /home/chris/dev/strata-gfx906/logs/gfx906-prefill-opt-bbc39eb/native-embed-fixture; no P2P enabled

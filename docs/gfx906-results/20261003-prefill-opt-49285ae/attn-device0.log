@@ -1,0 +1,54 @@
+device=0 arch=gfx906:sramecc+:xnack- wave=64 independent QSA operator test
+fixture queries=1 cap=1 mask=0 oracle_queries=1
+control/oracle max_abs=0 relative_l2=0
+online/oracle max_abs=0 relative_l2=0
+online/control max_abs=0 relative_l2=0
+dispatcher/control max_abs=0 relative_l2=0
+fixture queries=3 cap=63 mask=0 oracle_queries=3
+control/oracle max_abs=2.71856152e-05 relative_l2=1.69205704e-07
+online/oracle max_abs=2.71856152e-05 relative_l2=1.69205704e-07
+online/control max_abs=0 relative_l2=0
+dispatcher/control max_abs=0 relative_l2=0
+fixture queries=17 cap=64 mask=0 oracle_queries=17
+control/oracle max_abs=4.13200504e-05 relative_l2=2.25071585e-07
+online/oracle max_abs=4.13200504e-05 relative_l2=2.25071585e-07
+online/control max_abs=0 relative_l2=0
+dispatcher/control max_abs=0 relative_l2=0
+fixture queries=33 cap=65 mask=1 oracle_queries=33
+control/oracle max_abs=4.36163913e-05 relative_l2=2.0496847e-07
+online/oracle max_abs=4.36163913e-05 relative_l2=2.05023013e-07
+online/control max_abs=3.81469727e-06 relative_l2=3.38097788e-09
+dispatcher/control max_abs=3.81469727e-06 relative_l2=3.38097788e-09
+fixture queries=8 cap=257 mask=1 oracle_queries=8
+control/oracle max_abs=3.07257845e-05 relative_l2=2.45384518e-07
+online/oracle max_abs=3.74122087e-05 relative_l2=2.59369751e-07
+online/control max_abs=2.67028809e-05 relative_l2=1.015494e-07
+dispatcher/control max_abs=2.67028809e-05 relative_l2=1.015494e-07
+fixture queries=8 cap=2051 mask=0 oracle_queries=8
+control/oracle max_abs=3.90572274e-05 relative_l2=2.52133018e-07
+online/oracle max_abs=5.57248077e-05 relative_l2=2.77812679e-07
+online/control max_abs=5.14984131e-05 relative_l2=1.25881422e-07
+dispatcher/control max_abs=5.14984131e-05 relative_l2=1.25881422e-07
+graph/oracle max_abs=5.57248077e-05 relative_l2=2.77812679e-07
+fixture queries=8 cap=2051 mask=2 oracle_queries=8
+control/oracle max_abs=0 relative_l2=0
+online/oracle max_abs=0 relative_l2=0
+online/control max_abs=0 relative_l2=0
+dispatcher/control max_abs=0 relative_l2=0
+fixture queries=8 cap=2051 mask=3 oracle_queries=8
+control/oracle max_abs=0.000961917938 relative_l2=1.61502532e-06
+online/oracle max_abs=0.000961917938 relative_l2=1.61502532e-06
+online/control max_abs=0 relative_l2=0
+dispatcher/control max_abs=0 relative_l2=0
+fixture queries=128 cap=65 mask=0 oracle_queries=128
+control/oracle max_abs=5.35909875e-05 relative_l2=2.31544569e-07
+online/oracle max_abs=5.35909875e-05 relative_l2=2.3154332e-07
+online/control max_abs=1.90734863e-06 relative_l2=9.62706768e-10
+dispatcher/control max_abs=1.90734863e-06 relative_l2=9.62706768e-10
+fixture queries=2048 cap=2051 mask=0 oracle_queries=8
+control/oracle max_abs=4.60518977e-05 relative_l2=4.2738336e-07
+online/oracle max_abs=6.940681e-05 relative_l2=5.48840855e-07
+online/control max_abs=9.91821289e-05 relative_l2=3.62733521e-07
+dispatcher/control max_abs=9.91821289e-05 relative_l2=3.62733521e-07
+operator_only queries=2048 cap=2051 control32_median_ms=57.360577 online_median_ms=53.003613 ratio=1.0822 (NOT model tok/s)
+PASS device=0; synthetic parity only; bench oracle is sampled if requested

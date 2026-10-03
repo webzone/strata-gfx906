@@ -80,6 +80,16 @@ class ProfileTests(unittest.TestCase):
         r = dict(schema=1, device=1, pos0=2048, tokens=2048, batched=True, ms_wall=15)
         self.assertEqual(summarize(read_records(raw("draft", r)))["draft"], [r])
 
+    def test_request_envelopes_keep_warmup_out_of_cold_stage_totals(self):
+        request = dict(schema=1, prompt_tokens=2049, reused=0, read_from=0, prefill_rows=2048,
+                       cancelled=False, ms_wall=100, ms_refill=1, refilled_slots=4)
+        log = raw("profile", stage()) + raw("request", request)
+        log += raw("profile", stage()) * 2 + raw("request", dict(request, prompt_tokens=4097, prefill_rows=4096))
+        report = summarize(read_records(log))
+        self.assertEqual([r["stages"][0]["calls"] for r in report["request_profiles"]], [1, 2])
+        self.assertEqual([r["request"]["prefill_rows"] for r in report["request_profiles"]], [2048, 4096])
+        self.assertEqual(report["stages"][0]["calls"], 3) # Aggregate is still available, explicitly separate.
+
     def test_negative_counters_are_rejected(self):
         r = stage(); r["experts_streamed"] = -1
         with self.assertRaises(ValueError):

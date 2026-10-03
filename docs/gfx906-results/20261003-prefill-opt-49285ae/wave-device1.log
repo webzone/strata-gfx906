@@ -1,0 +1,18 @@
+device=AMD Instinct MI50/MI60 arch=gfx906:sramecc+:xnack- physical_wave=64
+shape=32,1,1 threads=32 ballot_errors=0 other_errors=0
+shape=64,1,1 threads=64 ballot_errors=0 other_errors=0
+shape=96,1,1 threads=96 ballot_errors=0 other_errors=0
+shape=128,1,1 threads=128 ballot_errors=0 other_errors=0
+shape=256,1,1 threads=256 ballot_errors=0 other_errors=0
+shape=16,4,2 threads=128 ballot_errors=0 other_errors=0
+shape=8,4,4 threads=128 ballot_errors=0 other_errors=0
+checks=29952 ballot_errors=0 other_errors=0
+wall_clock_mhz=24.9984 host_elapsed_ms=100.235
+dot4_bench rep=0 ms=0.3594 Gdot4_per_s=746.9820
+dot4_bench rep=1 ms=0.3587 Gdot4_per_s=748.3147
+dot4_bench rep=2 ms=0.3594 Gdot4_per_s=746.9841
+dot4_bench rep=3 ms=0.3611 Gdot4_per_s=743.3435
+dot4_bench rep=4 ms=0.3568 Gdot4_per_s=752.3436
+dot4_bench rep=5 ms=0.3579 Gdot4_per_s=749.9894
+dot4_bench rep=6 ms=0.3568 Gdot4_per_s=752.3436
+PASS: independent wave64 half-warp parity and timed dot4 CPU reference

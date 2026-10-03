@@ -26,6 +26,8 @@ def _constant(value):
 
 def read_records(text):
     records = {name: [] for name in PREFIXES.values()}
+    records["segments"] = []
+    pending = dict(stages=[], draft=[])
     for number, line in enumerate(text.splitlines(), 1):
         for prefix, kind in PREFIXES.items():
             if not line.startswith(prefix):
@@ -58,6 +60,12 @@ def read_records(text):
                     if type(record.get("cancelled")) is not bool:
                         raise ValueError("Invalid cancellation marker")
                 records[kind].append(record)
+                if kind in pending:
+                    pending[kind].append(record)
+                elif kind == "requests":
+                    # Requests are serialized; the envelope is emitted only after all stage futures finish.
+                    records["segments"].append(dict(request=record, **pending))
+                    pending = dict(stages=[], draft=[])
             except (TypeError, ValueError, KeyError) as error:
                 raise ValueError(f"Profile line {number}: {error}") from error
     return records
@@ -94,7 +102,14 @@ def summarize(records):
         }
     requests = [dict(record, cold=(record["reused"] == 0 and record["read_from"] == 0 and not record["cancelled"]))
                 for record in records["requests"]]
+    request_profiles = []
+    for segment in records.get("segments", []):
+        profile = summarize(dict(stages=segment["stages"], requests=[segment["request"]], draft=segment["draft"]))
+        profile["request"] = profile.pop("requests")[0]
+        profile.pop("request_profiles")
+        request_profiles.append(profile)
     return dict(schema=1, stages=[groups[key] for key in sorted(groups)], requests=requests, draft=records["draft"],
+                request_profiles=request_profiles,
                 warning="Stage wall times and host/GPU subintervals overlap. Do not add them across devices. "
                         "Request timers precede the first verify window: not TTFT or completed-generation throughput.")
 
