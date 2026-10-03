@@ -125,6 +125,22 @@ template <typename T> void save(const std::filesystem::path& path, const std::ve
     if (!f) throw std::runtime_error("cannot save fixture");
 }
 void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& dump) {
+    const int oracle_queries = bench ? std::min(8, f.queries) : f.queries;
+    std::filesystem::path path;
+    if (!dump.empty()) {
+        path = dump / ("q" + std::to_string(f.queries) + "-cap" + std::to_string(f.cap) + "-mask" + std::to_string(f.mode));
+        if (!std::filesystem::create_directory(path)) throw std::runtime_error("fixture directory already exists");
+        // Preserve inputs BEFORE allocation/launch/comparison, including on a failing fixture.
+        save(path / "q.f32", f.q); save(path / "k.i8", f.k); save(path / "v.i8", f.v);
+        save(path / "k-scale.f16", f.ks); save(path / "v-scale.f16", f.vs);
+        save(path / "ids.i32", f.ids); save(path / "steps.i32", f.steps); save(path / "pages.i32", f.table);
+        std::ofstream meta(path / "shape.json");
+        meta << "{\"queries\":" << f.queries << ",\"cap\":" << f.cap << ",\"mode\":" << f.mode
+             << ",\"page_size\":256,\"physical_pages\":32,\"head_dim\":256,\"query_heads\":24,\"kv_heads\":2,"
+                "\"scale_group\":64,\"step_fields\":" << kStepCount << ",\"width_field\":" << kStepWidth
+             << ",\"oracle_queries\":" << oracle_queries << "}\n";
+        if (!meta) throw std::runtime_error("cannot save fixture geometry");
+    }
     const size_t size = f.q.size();
     Device<float> q(f.q), control(size), result(size), scratch((size_t) std::min(32, f.queries) * qsa_decode_attn_scratch_floats(f.cap, f.s));
     Device<int8_t> k(f.k), v(f.v); Device<uint16_t> ks(f.ks), vs(f.vs);
@@ -153,10 +169,12 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
         throw std::runtime_error("wrong geometry accepted");
     ck(cudaMemset(result.p, 0x7f, size * sizeof(float)));
     old_path(); new_path(); ck(cudaStreamSynchronize(stream.s));
-    const int oracle_queries = bench ? std::min(8, f.queries) : f.queries;
     const auto ref = f.oracle(oracle_queries);
     const auto old = control.read(size);
     const auto out = result.read(size);
+    if (!path.empty()) {
+        save(path / "oracle.f64", ref); save(path / "control.f32", old); save(path / "online.f32", out);
+    }
     std::printf("fixture queries=%d cap=%d mask=%d oracle_queries=%d\n", f.queries, f.cap, f.mode, oracle_queries);
     compare(old, ref, "control/oracle"); compare(out, ref, "online/oracle"); compare(out, old, "online/control");
     // Also exercise the actual prompt dispatcher, not only its direct experimental entry point.
@@ -170,19 +188,6 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
         ck(cudaGraphLaunch(exec, stream.s)); ck(cudaStreamSynchronize(stream.s));
         compare(result.read(size), ref, "graph/oracle");
         ck(cudaGraphExecDestroy(exec)); ck(cudaGraphDestroy(g));
-    }
-    if (!dump.empty()) {
-        const auto path = dump / ("q" + std::to_string(f.queries) + "-cap" + std::to_string(f.cap) + "-mask" + std::to_string(f.mode));
-        if (!std::filesystem::create_directory(path)) throw std::runtime_error("fixture directory already exists");
-        save(path / "q.f32", f.q); save(path / "k.i8", f.k); save(path / "v.i8", f.v);
-        save(path / "k-scale.f16", f.ks); save(path / "v-scale.f16", f.vs);
-        save(path / "ids.i32", f.ids); save(path / "steps.i32", f.steps); save(path / "pages.i32", f.table);
-        save(path / "oracle.f64", ref); save(path / "control.f32", old); save(path / "online.f32", out);
-        std::ofstream meta(path / "shape.json");
-        meta << "{\"queries\":" << f.queries << ",\"cap\":" << f.cap << ",\"mode\":" << f.mode
-             << ",\"page_size\":256,\"physical_pages\":32,\"head_dim\":256,\"query_heads\":24,\"kv_heads\":2,"
-                "\"scale_group\":64,\"step_fields\":" << kStepCount << ",\"width_field\":" << kStepWidth
-             << ",\"oracle_queries\":" << oracle_queries << "}\n";
     }
     if (bench) {
         cudaEvent_t begin = nullptr, end = nullptr; ck(cudaEventCreate(&begin)); ck(cudaEventCreate(&end));

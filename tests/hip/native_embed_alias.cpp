@@ -46,11 +46,11 @@ void test_card(const strata::core::NativeEmbed& embed, int device, const std::fi
     ck(cudaStreamEndCapture(stream, &graph)); ck(cudaGraphInstantiate(&exec, graph, nullptr, nullptr, 0));
     ck(cudaGraphLaunch(exec, stream)); ck(cudaStreamSynchronize(stream));
     std::vector<float> result(3 * 256); ck(cudaMemcpy(result.data(), out, result.size() * sizeof(float), cudaMemcpyDeviceToHost));
-    for (int t = 0; t < 3; ++t) for (int d = 0; d < 256; ++d)
-        if (result[t * 256 + d] != (float) code(tokens[t], d)) throw std::runtime_error("cross-card native embedding gather mismatch");
     std::ofstream raw(dir / ("device" + std::to_string(device) + ".f32"), std::ios::binary);
     raw.write((const char*) result.data(), result.size() * sizeof(float));
     if (!raw) throw std::runtime_error("cannot save gather output");
+    for (int t = 0; t < 3; ++t) for (int d = 0; d < 256; ++d)
+        if (result[t * 256 + d] != (float) code(tokens[t], d)) throw std::runtime_error("cross-card native embedding gather mismatch");
     ck(cudaGraphExecDestroy(exec)); ck(cudaGraphDestroy(graph)); ck(cudaFree(dt)); ck(cudaFree(out)); ck(cudaStreamDestroy(stream));
     std::printf("PASS device=%d native mapped embedding 768 signed values + graph replay (synthetic only)\n", device);
 }
