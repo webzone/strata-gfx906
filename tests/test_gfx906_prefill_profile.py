@@ -115,6 +115,22 @@ class ProfileTests(unittest.TestCase):
         for key,value in [('group_rows',20481),('forced',1),('selected_j',-1)]:
             with self.assertRaises(ValueError):read_records(raw('mmq',dict(r,**{key:value})))
 
+    def test_product_auto_identity_and_maximum_distribution(self):
+        r=dict(schema=1,device=0,layer=0,pos0=0,type='iq2_s',groups=32,total_rows=20480,
+               group_rows=640,max_rows=49,weight_rows=1280,weight_cols=2560,
+               requested_j=32,selected_j=32,forced=True,automatic=True)
+        text=raw('mmq',r)+raw('mmq',dict(r,max_rows=96))+raw('mmq',dict(r,max_rows=97,selected_j=64))
+        text+=raw('mmq',dict(r,max_rows=192,selected_j=64))+raw('mmq',dict(r,automatic=False))
+        groups=summarize(read_records(text))['products']
+        auto=[g for g in groups if g['automatic']];manual=[g for g in groups if not g['automatic']]
+        self.assertEqual(len(auto),2);self.assertEqual(manual[0]['calls'],1)
+        j32=next(g for g in auto if g['selected_j']==32)
+        self.assertEqual(j32['min_product_max_rows'],49);self.assertEqual(j32['max_rows'],96)
+        self.assertEqual(j32['sum_product_max_rows'],145);self.assertEqual(j32['product_max_histogram'][4],2)
+        self.assertTrue(all(sum(g['product_max_histogram'])==g['calls'] for g in groups))
+        self.assertEqual(sum(g['sum_product_max_rows'] for g in auto),434)
+        with self.assertRaises(ValueError):read_records(raw('mmq',dict(r,automatic=1)))
+
     def test_negative_counters_are_rejected(self):
         r = stage(); r["experts_streamed"] = -1
         with self.assertRaises(ValueError):

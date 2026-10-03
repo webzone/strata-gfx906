@@ -71,7 +71,8 @@ def read_records(text):
                             raise ValueError("Invalid expert row histogram")
                         if record.get("row_bin_upper") != [0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,None]:
                             raise ValueError("Unknown expert histogram binning")
-                    elif type(record.get("forced")) is not bool or not isinstance(record.get("type"),str) or record["group_rows"]>record["total_rows"]:
+                    elif (type(record.get("forced")) is not bool or type(record.get("automatic",False)) is not bool
+                          or not isinstance(record.get("type"),str) or record["group_rows"]>record["total_rows"]):
                         raise ValueError("Invalid MMQ product metadata")
                 if kind == "requests":
                     for key in ("prompt_tokens", "reused", "read_from", "prefill_rows", "refilled_slots"):
@@ -130,12 +131,20 @@ def summarize(records):
         group["row_histogram"]=[a+b for a,b in zip(group["row_histogram"],record["row_histogram"])]
         for phase,value in record["phase_ms"].items():group["phase_ms"][phase]=group["phase_ms"].get(phase,0)+value
     products = {}
+    max_bins = [0,1,32,48,96,192,256,512,1024,2048,4096,None]
+    product_keys = ("device", "layer", "type", "weight_rows", "weight_cols", "selected_j", "forced", "automatic")
     for record in records.get("products", []):
-        key = tuple(record[k] for k in ("device", "layer", "type", "weight_rows", "weight_cols", "selected_j", "forced"))
-        group = products.setdefault(key,dict(zip(("device", "layer", "type", "weight_rows", "weight_cols", "selected_j", "forced"),key),
-            calls=0, group_rows=0, groups=0, max_rows=0))
+        key = tuple(record.get(k,False) if k=="automatic" else record[k] for k in product_keys)
+        group = products.setdefault(key,dict(zip(product_keys,key), calls=0, group_rows=0, groups=0,
+            max_rows=0, min_product_max_rows=record["max_rows"], sum_product_max_rows=0,
+            product_max_histogram=[0]*len(max_bins), product_max_bin_upper=max_bins))
         for name in ("group_rows", "groups"):group[name]+=record[name]
-        group["calls"]+=1;group["max_rows"]=max(group["max_rows"],record["max_rows"])
+        rows=record["max_rows"]
+        group["calls"]+=1;group["max_rows"]=max(group["max_rows"],rows)
+        group["min_product_max_rows"]=min(group["min_product_max_rows"],rows)
+        group["sum_product_max_rows"]+=rows
+        bucket=next(i for i,upper in enumerate(max_bins) if upper is None or rows<=upper)
+        group["product_max_histogram"][bucket]+=1
     requests = [dict(record, cold=(record["reused"] == 0 and record["read_from"] == 0 and not record["cancelled"]))
                 for record in records["requests"]]
     request_profiles = []

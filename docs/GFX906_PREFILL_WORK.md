@@ -151,3 +151,23 @@ All completion rows above remain unverified for the continued goal.
   archived-78d2fbf driver are 1,622,032,384 B focused +2,053,840,896 B full matrix =3,675,873,280 B,
   below its separately admitted 8,589,934,592 B evidence allowance. The active application/runner
   archive was not modified; periodic 4-GiB disk-floor monitoring and new-directory checks remain active.
+- **78d2fbf focused64k is complete**, driver/audit0, ten clean engines/30 cold requests with full raw
+  protocol/integrity audit. Both IQ2_XS and IQ3_S 2048 MTP and MTP+auto match all three control ID
+  sequences (one repetition). Auto pilot mean-vs-MTP reductions are 0.751%/0.937%, instrumented and
+  not adoption evidence. **MTP-OFF** 3072/4096 already reproduce IQ2_XS Chinese/chat differences;
+  IQ3_S3072-OFF differs on Chinese,4096-OFF matches this repetition. Thus larger chunk alone suffices
+  for these observed differences; do not blame MTP or assert universal equivalence. Receipt:
+  `gfx906-results/20261003-focused64k-78d2fbf/`. Full private audit retains all request-level layers/products.
+- The full 162-request matrix started after the focused audit. Latest observed IQ2_XS r0 completed
+  nine control +nine3072 requests through **196608** tokens;4096 is in progress, not acceptance.
+- New offline profile summaries keep separate automatic/manual identity and actual per-product
+  maximum histograms/minima/sums, rather than only the largest layer/product maximum. **78 gfx906 /
+  169 setup CPU tests** passed, no skips. The active immutable archived runner/application was unchanged.
+- Serialized post-matrix queue PID541915 waits for the previous complete driver/audit exit0, without
+  holding the owner lease. Fresh guarded admissions then schedule 54 repeated64K auto/control/MTP
+  requests,72 immediate-neighbor split requests (23/25,24/24,25/23 justified by ~5.95s/request measured
+  next-stage wait/drain), fixed-window original-source QSA controls (`--mtp-max-t 1 --suffix-draft 0`,
+  actual INFO/DONE/decode-window/logit gates), and final-source policy/wave/attention/native-alias/MMQ
+  probes plus requested-missing-device failures. No parallel GPU work. Extra model/diagnostic/probe
+  evidence requires20GiB allowance +4GiB reserve; operator suite rechecks16GiB allowance +reserve.
+  These are queued work, not completed gates; no deployment/default changes or active binary rebuilds.
