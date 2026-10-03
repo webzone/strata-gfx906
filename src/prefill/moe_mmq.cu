@@ -222,7 +222,14 @@ void Context::run(const Product& p, void* stream) {
                         p.max_rows, p.max_rows};
     auto& ctx = *(ggml_backend_cuda_context*) ctx_;
     const cudaStream_t s = (cudaStream_t) stream;
-    const int requested = gfx906::mmq_expert_geometry(p.n, p.w_rows, p.w_cols) ? requested_tile_ : 0;
+    const bool grouped = gfx906::mmq_expert_geometry(p.n, p.w_rows, p.w_cols);
+    const bool gate_format = t == GGML_TYPE_IQ2_XXS || t == GGML_TYPE_IQ2_XS || t == GGML_TYPE_IQ2_S ||
+                             t == GGML_TYPE_IQ3_XXS || t == GGML_TYPE_IQ3_S || t == GGML_TYPE_IQ4_XS;
+    const bool validated = grouped && ((p.w_rows == 1280 && gate_format) ||
+                                      (p.w_rows == 2560 && (t == GGML_TYPE_Q2_0 || t == GGML_TYPE_IQ4_NL)));
+    const bool automatic = validated && requested_tile_ == -1;
+    const int requested = validated ? (automatic ? gfx906::mmq_auto_tile(p.max_rows, t != GGML_TYPE_Q2_0)
+                                               : requested_tile_) : 0;
     const bool trace = p.layer >= 0 && gfx906::opt_in(std::getenv("STRATA_GFX906_MMQ_TRACE"));
     bool forced = false;
     const int selected = requested || trace ? tile_choice(t, a, requested, forced) : 0;
@@ -230,10 +237,10 @@ void Context::run(const Product& p, void* stream) {
         const int id = ggml_cuda_get_device();
         std::fprintf(stderr, "strata prefill mmq: {\"schema\":1,\"device\":%d,\"layer\":%d,\"pos0\":%lld,"
                              "\"type\":\"%s\",\"groups\":%d,\"total_rows\":%lld,\"group_rows\":%lld,\"max_rows\":%lld,"
-                             "\"weight_rows\":%lld,\"weight_cols\":%lld,\"requested_j\":%d,\"selected_j\":%d,\"forced\":%s}\n",
+                             "\"weight_rows\":%lld,\"weight_cols\":%lld,\"requested_j\":%d,\"selected_j\":%d,\"forced\":%s,\"automatic\":%s}\n",
                      id, p.layer, (long long) p.pos0, ggml_type_name(t), p.n, (long long) p.total_rows,
                      (long long) p.group_rows, (long long) p.max_rows, (long long) p.w_rows, (long long) p.w_cols, requested, selected,
-                     forced ? "true" : "false");
+                     forced ? "true" : "false", automatic ? "true" : "false");
     }
     const int tile = forced ? selected : 0;
     switch (t) {

@@ -100,7 +100,7 @@ static void product(hipStream_t stream, const fs::path& root, ggml_type type, in
     p.xq=dq.p;p.bounds=db.as<int32_t>();p.ids=ddst.as<int32_t>();p.total_rows=rows;
     p.max_rows=*std::max_element(counts.begin(),counts.end());p.dst=dy.as<float>();p.ld_dst=n;p.layer=0;p.pos0=0;p.group_rows=rows;
     std::vector<float> reference;
-    for(const char* tile:{"0","16","32","48","64"}) {
+    for(const char* tile:{"0","16","32","48","64","auto"}) {
         setenv("STRATA_GFX906_MMQ_J",tile,1);mq::Context ctx;
         auto run=[&]{ctx.run(p,stream);};
         HIP(hipMemset(dy.p,0xff,(size_t)rows*n*4));run();HIP(hipStreamSynchronize(stream));
@@ -115,6 +115,17 @@ static void product(hipStream_t stream, const fs::path& root, ggml_type type, in
         if(relative>2e-2)throw std::runtime_error(label+": independent sampled oracle failed");
         if(reference.empty())reference=got;
         else for(size_t i=0;i<got.size();++i)if(std::memcmp(&got[i],&reference[i],4))++differences;
+        if (mean == 40) {
+            hipGraph_t graph = nullptr; hipGraphExec_t exec = nullptr;
+            HIP(hipStreamBeginCapture(stream, hipStreamCaptureModeThreadLocal)); run();
+            HIP(hipStreamEndCapture(stream, &graph)); HIP(hipGraphInstantiate(&exec, graph, nullptr, nullptr, 0));
+            HIP(hipMemset(dy.p,0xff,(size_t)rows*n*4)); HIP(hipGraphLaunch(exec,stream)); HIP(hipStreamSynchronize(stream));
+            std::vector<float> replay(got.size()); HIP(hipMemcpy(replay.data(),dy.p,replay.size()*4,hipMemcpyDeviceToHost));
+            save(dir/(std::string("graph-j")+tile+".f32"),replay);
+            if (std::memcmp(replay.data(),reference.data(),replay.size()*4))
+                throw std::runtime_error(label+": graph replay differs from unchanged control");
+            HIP(hipGraphExecDestroy(exec)); HIP(hipGraphDestroy(graph));
+        }
         const double us=benchmark?median_us(stream,run):0;
         std::printf("RESULT type=%s N=%d K=%d mean=%d max=%lld groups=%d requested_j=%s median_us=%.6f sampled_rel2=%.9g bit_differences=%zu\n",
                     ggml_type_name(type),n,k,mean,(long long)p.max_rows,groups,tile,us,relative,differences);
@@ -133,8 +144,8 @@ int main(int argc,char**argv) {
         std::printf("DEVICE ordinal=%d name=%s arch=%s wave=%d\n",device,prop.name,prop.gcnArchName,prop.warpSize);
         hipStream_t stream;HIP(hipStreamCreateWithFlags(&stream,hipStreamNonBlocking));
         for(auto t:{GGML_TYPE_IQ2_XXS,GGML_TYPE_IQ2_XS,GGML_TYPE_IQ2_S,GGML_TYPE_IQ3_XXS,GGML_TYPE_IQ3_S,GGML_TYPE_IQ4_XS})
-            for(int mean:{40,80,160})product(stream,dump,t,1280,2560,mean,benchmark);
-        for(auto t:{GGML_TYPE_Q2_0,GGML_TYPE_IQ4_NL})for(int mean:{40,80,160})product(stream,dump,t,2560,640,mean,benchmark);
+            for(int mean:{5,20,40,80,160})product(stream,dump,t,1280,2560,mean,benchmark);
+        for(auto t:{GGML_TYPE_Q2_0,GGML_TYPE_IQ4_NL})for(int mean:{5,20,40,80,160})product(stream,dump,t,2560,640,mean,benchmark);
         HIP(hipStreamDestroy(stream));std::puts("PASS: full tile/control outputs + sampled CPU double oracle; not model parity or tok/s");return 0;
     }catch(const std::exception&e){std::fprintf(stderr,"FAIL: %s\n",e.what());return 1;}
 }

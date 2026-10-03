@@ -31,6 +31,12 @@ int main() {
     CHECK(mmq_expert_geometry(32, 1280, 2560)); CHECK(mmq_expert_geometry(2, 2560, 640));
     CHECK(!mmq_expert_geometry(1, 1280, 2560)); CHECK(!mmq_expert_geometry(0, 2560, 640));
     CHECK(!mmq_expert_geometry(32, 128, 256));
+    CHECK(mmq_tile("auto", "gfx906") == -1); CHECK(mmq_tile("auto", "gfx90a") == 0);
+    CHECK(mmq_tile("AUTO", "gfx906") == 0);
+    CHECK(mmq_auto_tile(0, true) == 0); CHECK(mmq_auto_tile(48, true) == 0);
+    CHECK(mmq_auto_tile(49, true) == 32); CHECK(mmq_auto_tile(96, true) == 32);
+    CHECK(mmq_auto_tile(97, true) == 64); CHECK(mmq_auto_tile(192, true) == 64);
+    CHECK(mmq_auto_tile(193, true) == 0); CHECK(mmq_auto_tile(70, false) == 0);
     std::printf("gfx906 prefill policy: %d checks passed (CPU-only; not GPU or model parity)\n", checks);
     return 0;
 }

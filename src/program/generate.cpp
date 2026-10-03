@@ -51,6 +51,7 @@
 #include "strata/core/mtp.hpp"
 #include "strata/prefill/prefill.hpp"
 #include "strata/prefill/gfx906_policy.hpp"
+#include "strata/prefill/gfx906_diagnostic.hpp"
 #include "strata/core/native_dense.hpp"
 #include "strata/program/logits_selection.hpp"
 #include "strata/program/conv_cache.hpp"
@@ -6388,6 +6389,22 @@ int main(int argc, char** argv) {
             }
             int a = 0;
             while (a < T - 1 && window[(size_t) a + 1] == outv[(size_t) a]) ++a;
+            // Opt-in diagnostic only: committed predictions and exact verifier rows, before state commit.
+            // Never use these synchronizing runs for performance acceptance; no GPU copy by default.
+            if (strata::prefill::gfx906::opt_in(std::getenv("STRATA_GFX906_QSA_LOGITS"))) {
+                std::vector<float> row((size_t) ver.vocab());
+                bool stop = false;
+                for (int i = 0; i <= a && (int64_t) produced.size() + i < o.max_new && !stop; ++i) {
+                    if (!ver.copy_logits(i, row.data()) ||
+                        !strata::prefill::gfx906::capture_logits((int64_t) produced.size() + i, p + i,
+                                                               outv[(size_t) i], row, err)) {
+                        std::fprintf(stderr, "strata generate: logits diagnostic failed: %s\n", err.c_str());
+                        return 1;
+                    }
+                    stop = o.stop_eos && std::find(o.eos_ids.begin(), o.eos_ids.end(),
+                                                   (int64_t) outv[(size_t) i]) != o.eos_ids.end();
+                }
+            }
             if (first_window) {
                 first_window = false;
                 ttft_ms = std::chrono::duration<double, std::milli>(Clock::now() - t_start).count();

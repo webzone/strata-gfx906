@@ -38,6 +38,8 @@ struct Stream {
 // No GPU dequantizer, half conversion, or production softmax in this oracle.
 double half(uint16_t x) {
     const int sign = x >> 15, exp = (x >> 10) & 31, mant = x & 1023;
+    if (exp == 31) return mant ? std::numeric_limits<double>::quiet_NaN()
+                               : sign ? -std::numeric_limits<double>::infinity() : std::numeric_limits<double>::infinity();
     const double v = exp == 0 ? std::ldexp((double) mant, -24) : std::ldexp(1.0 + mant / 1024.0, exp - 15);
     return sign ? -v : v;
 }
@@ -80,7 +82,9 @@ struct Fixture {
             const int width = steps[(size_t) qi * kStepCount + kStepWidth];
             double maximum = -std::numeric_limits<double>::infinity();
             for (int j = 0; j < width; ++j) {
-                const int cell = ids[(size_t) qi * cap + j], page = table[cell / s.page_size];
+                const int cell = ids[(size_t) qi * cap + j];
+                if (cell < 0) { scores[j] = -std::numeric_limits<double>::infinity(); continue; }
+                const int page = table[(size_t) cell / s.page_size];
                 double dot = 0;
                 if (page < 0) { scores[j] = -std::numeric_limits<double>::infinity(); continue; }
                 const size_t row = ((size_t) page * 2 + h / 12) * s.page_size + cell % s.page_size;
@@ -91,7 +95,9 @@ struct Fixture {
             if (!std::isfinite(maximum)) continue;
             double sum = 0;
             for (int j = 0; j < width; ++j) {
-                const int cell = ids[(size_t) qi * cap + j], page = table[cell / s.page_size];
+                const int cell = ids[(size_t) qi * cap + j];
+                if (cell < 0) continue;
+                const int page = table[(size_t) cell / s.page_size];
                 if (page < 0) continue;
                 const double weight = std::exp(scores[j] - maximum); sum += weight;
                 const size_t row = ((size_t) page * 2 + h / 12) * s.page_size + cell % s.page_size;
@@ -124,6 +130,46 @@ template <typename T> void save(const std::filesystem::path& path, const std::ve
     std::ofstream f(path, std::ios::binary); f.write((const char*) v.data(), (std::streamsize) (v.size() * sizeof(T)));
     if (!f) throw std::runtime_error("cannot save fixture");
 }
+template <typename T> std::vector<T> load(const std::filesystem::path& p, size_t n) {
+    if (std::filesystem::file_size(p) != n * sizeof(T)) throw std::runtime_error("invalid raw fixture byte count: " + p.string());
+    std::vector<T> v(n); std::ifstream file(p, std::ios::binary);
+    file.read((char*) v.data(), (std::streamsize) (n * sizeof(T)));
+    if (!file) throw std::runtime_error("cannot read raw fixture");
+    return v;
+}
+Fixture replay_fixture(const std::filesystem::path& p) {
+    const auto g = load<int64_t>(p / "geometry.i64", 9);
+    if (g[0] != 1 || g[1] < 1 || g[1] > 3 || g[2] < 1 || g[2] > 32768 ||
+        g[3] < 1 || g[3] > 4096 || g[4] < 1 || g[4] > 512 || g[5] < 1 || g[5] > 65536 || g[8] < g[1])
+        throw std::runtime_error("invalid real-input fixture geometry");
+    const size_t values = (size_t) g[4] * 2 * g[3] * 256;
+    if (values * 2 + values / 64 * 4 > (64ULL << 20)) throw std::runtime_error("real-input fixture too large");
+    Fixture f(1, 1, 0); f.queries = (int) g[1]; f.cap = (int) g[2]; f.pages = (int) g[4]; f.mode = 4;
+    f.s.page_size = g[3];
+    f.q = load<float>(p / "q.f32", (size_t) f.queries * 24 * 256);
+    f.k = load<int8_t>(p / "k.i8", values); f.v = load<int8_t>(p / "v.i8", values);
+    f.ks = load<uint16_t>(p / "k-scale.f16", values / 64); f.vs = load<uint16_t>(p / "v-scale.f16", values / 64);
+    f.ids = load<int32_t>(p / "ids.i32", (size_t) f.queries * f.cap);
+    f.steps = load<int32_t>(p / "steps.i32", (size_t) f.queries * kStepCount);
+    f.table = load<int32_t>(p / "pages.i32", (size_t) g[5]);
+    for (float x : f.q) if (!std::isfinite(x)) throw std::runtime_error("nonfinite captured query");
+    for (int page : f.table) if (page < -1 || page >= f.pages) throw std::runtime_error("invalid compact page");
+    for (int i = 0; i < f.queries; ++i) {
+        const int width = f.steps[(size_t) i * kStepCount + kStepWidth];
+        if (width < 0 || width > f.cap) throw std::runtime_error("invalid captured width");
+        for (int j = 0; j < width; ++j) {
+            const int cell = f.ids[(size_t) i * f.cap + j]; if (cell < 0) continue;
+            if ((size_t) cell / f.s.page_size >= f.table.size()) throw std::runtime_error("captured cell exceeds page table");
+            const int page = f.table[(size_t) cell / f.s.page_size]; if (page < 0) continue;
+            // A captured physical page may contain untouched cells; only selected live scales participate.
+            for (int head = 0; head < 2; ++head) for (int group = 0; group < 4; ++group) {
+                const size_t at = (((size_t) page * 2 + head) * f.s.page_size + cell % f.s.page_size) * 4 + group;
+                if (!std::isfinite(half(f.ks[at])) || !std::isfinite(half(f.vs[at]))) throw std::runtime_error("nonfinite live scale");
+            }
+        }
+    }
+    return f;
+}
 void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& dump) {
     const int oracle_queries = bench ? std::min(8, f.queries) : f.queries;
     std::filesystem::path path;
@@ -136,7 +182,8 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
         save(path / "ids.i32", f.ids); save(path / "steps.i32", f.steps); save(path / "pages.i32", f.table);
         std::ofstream meta(path / "shape.json");
         meta << "{\"queries\":" << f.queries << ",\"cap\":" << f.cap << ",\"mode\":" << f.mode
-             << ",\"page_size\":256,\"physical_pages\":32,\"head_dim\":256,\"query_heads\":24,\"kv_heads\":2,"
+             << ",\"page_size\":" << f.s.page_size << ",\"physical_pages\":" << f.pages
+             << ",\"logical_pages\":" << f.table.size() << ",\"head_dim\":256,\"query_heads\":24,\"kv_heads\":2,"
                 "\"scale_group\":64,\"step_fields\":" << kStepCount << ",\"width_field\":" << kStepWidth
              << ",\"oracle_queries\":" << oracle_queries << "}\n";
         if (!meta) throw std::runtime_error("cannot save fixture geometry");
@@ -210,13 +257,14 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
 
 int main(int argc, char** argv) {
     try {
-        int device = 0; bool bench = false; std::filesystem::path dump;
+        int device = 0; bool bench = false; std::filesystem::path dump, replay;
         for (int i = 1; i < argc; ++i) {
             const std::string a = argv[i];
             if (a == "--device" && i + 1 < argc) device = std::stoi(argv[++i]);
             else if (a == "--dump-dir" && i + 1 < argc) dump = argv[++i];
             else if (a == "--bench") bench = true;
-            else throw std::runtime_error("usage: hip_gfx906_prefill_attn [--device N] [--dump-dir NEW_DIR] [--bench]");
+            else if (a == "--replay-dir" && i + 1 < argc) replay = argv[++i];
+            else throw std::runtime_error("usage: hip_gfx906_prefill_attn [--device N] [--dump-dir NEW_DIR] [--bench | --replay-dir CAPTURE]");
         }
         int count = 0; ck(cudaGetDeviceCount(&count));
         if (device < 0 || device >= count) throw std::runtime_error("requested test card is missing; this is NOT a pass or skip");
@@ -225,6 +273,14 @@ int main(int argc, char** argv) {
             throw std::runtime_error("test requires a real gfx906 wave64 card");
         if (!dump.empty() && !std::filesystem::create_directory(dump)) throw std::runtime_error("dump directory already exists");
         std::printf("device=%d arch=%s wave=%d independent QSA operator test\n", device, prop.gcnArchName, prop.warpSize);
+        if (!replay.empty()) {
+            if (bench || dump.empty()) throw std::runtime_error("real-input replay requires a new dump directory and cannot benchmark");
+            Fixture f = replay_fixture(replay); run_case(f, true, false, dump);
+            const auto actual = load<float>(replay / "actual.f32", f.q.size());
+            compare(actual, f.oracle(f.queries), "actual captured path/oracle");
+            std::printf("PASS device=%d; real-input sampled-query operator replay; NOT full layer/model parity\n", device);
+            return 0;
+        }
         struct Case { int queries, cap, mask; };
         const Case cases[] = {{1,1,0}, {3,63,0}, {17,64,0}, {33,65,1}, {8,257,1}, {8,2051,0}, {8,2051,2}, {8,2051,3}, {128,65,0}};
         for (const auto& c : cases) { Fixture f(c.queries, c.cap, c.mask); run_case(f, c.cap == 2051 && c.mask == 0, false, dump); }

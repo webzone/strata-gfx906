@@ -21,12 +21,21 @@ inline bool attention_geometry(int64_t queries, int64_t cap, int64_t heads, int6
 // Only pinned-model dimensions are admitted until other geometries are numerically validated.
 inline int mmq_tile(const char* value, const char* arch) {
     if (!architecture(arch) || !value) return 0;
+    if (std::strcmp(value, "auto") == 0) return -1; // measured per-product policy, never a global default
     for (const auto& entry : {"16", "32", "48", "64"})
         if (std::strcmp(value, entry) == 0) return (entry[0] - '0') * 10 + entry[1] - '0';
     return 0;
 }
 inline bool mmq_expert_geometry(int experts, int64_t rows, int64_t cols) {
     return experts > 1 && ((rows == 1280 && cols == 2560) || (rows == 2560 && cols == 640));
+}
+// Conservative measured bands: leave tiny and very large/skewed groups on the vendor selector.
+// Q2_0 and unmeasured formats explicitly decline auto tuning at the caller.
+inline int mmq_auto_tile(int64_t max_rows, bool measured_format) {
+    if (!measured_format) return 0;
+    if (max_rows > 48 && max_rows <= 96) return 32;
+    if (max_rows > 96 && max_rows <= 192) return 64;
+    return 0;
 }
 inline bool split_draft(bool split, const char* value, const char* arch) {
     return split && opt_in(value) && architecture(arch);

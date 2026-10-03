@@ -83,3 +83,18 @@ All completion rows above remain unverified for the continued goal.
   Longer/three-repeat validation, actual row-informed tile adoption, split work and QSA diagnosis
   remain unfinished. Source snapshot is remote `src-cbdc94c`, build `build-cbdc94c`; owner checkout,
   old 49285ae candidate and deployed engine/configs remain distinct and unchanged.
+- That **cbdc94c 64K pilot is now complete**, exit 0, all six arms/18 requests and own children exited 0.
+  The comparison artifact is authoritative: IQ2_XS 3072/4096 **both differ** from 2048 on Chinese and
+  multi-turn IDs (code agrees). IQ3_S 3072 differs on Chinese; IQ3_S 4096 matches all three. This is
+  one repetition, not a universal consistency gate. Mean prefill: IQ2_XS 97.684/89.837/86.710 s and
+  IQ3_S 103.178/92.780/88.138 s for 2048/3072/4096 respectively. Do not equate these gains with passing
+  consistency, and compare same-chunk MTP-OFF controls to separate chunk math from MTP effects.
+- Real layer routing is heavily skewed (several max rows reach a full chunk); per-product 32-expert
+  maxima differ from those aggregated layer maxima. Continued CPU-tested source now adds an exact
+  `auto` tile opt-in leaving Q2_0/tiny/very large or unsupported products unchanged; HIP/model gates
+  are pending. It also adds pre-attention compact real-input captures, committed-logit snapshots,
+  replay against the unchanged double oracle, and common-prefix/input-isolation analysis. Strict
+  mock-runtime serialization tests cover both HIP-admitted and non-HIP build paths, not GPU execution.
+  Current checks: 71 gfx906 Python tests with repository .venv/bin on PATH (no skips), 55 CPU policy
+  checks; earlier missing-PATH run's five CMake skips are retained and not relabelled as passes.
+  None of the long/repetition/adoption/split/QSA completion rows is yet satisfied.

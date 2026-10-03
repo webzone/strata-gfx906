@@ -35,6 +35,24 @@ def store(path, value):
     Path(path).chmod(0o600)
 
 
+def parse_arms(value):
+    result = []
+    for item in value.split(','):
+        fields = item.split(':')
+        if len(fields) == 3:
+            fields.append('0')
+        if len(fields) != 4 or fields[3] not in ('0','16','32','48','64','auto'):
+            raise ValueError('Arms are chunk:mtp:split[:0|16|32|48|64|auto]')
+        chunk, mtp, split = map(int, fields[:3])
+        tile = -1 if fields[3] == 'auto' else int(fields[3])
+        if chunk not in (2048,3072,4096) or mtp not in (0,1) or split not in (23,24,25):
+            raise ValueError('Conservative chunk/split bounds required')
+        result.append((chunk, mtp, split, tile))
+    if len(result) != len(set(result)):
+        raise ValueError('Duplicate arms would overwrite evidence')
+    return result
+
+
 def fingerprint(path):
     st = Path(path).stat()
     return dict(device=st.st_dev, inode=st.st_ino, bytes=st.st_size, mtime_ns=st.st_mtime_ns)
@@ -295,10 +313,8 @@ def main():
     if args.repeats<1 or args.max_new<1 or args.request_timeout<1:raise ValueError('Positive bounds required')
     if not re.fullmatch('[0-9a-f]{40}',args.source_ref):raise ValueError('Full verified application commit required')
     targets=[int(x) for x in args.targets.split(',')];kinds=args.kinds.split(',')
-    arms=[tuple(map(int,x.split(':'))) for x in args.arms.split(',')]
-    arms=[a+(0,) if len(a)==3 else a for a in arms]
-    if any(len(a)!=4 for a in arms):raise ValueError('Arms are chunk:mtp:split[:mmq_j]')
-    if any(n<1024 or n>196608 for n in targets) or any(c not in (2048,3072,4096) or m not in (0,1) or s not in (23,24,25) or j not in (0,16,32,48,64) for c,m,s,j in arms):raise ValueError('Conservative context/chunk/split/tile bounds required')
+    arms=parse_arms(args.arms)
+    if any(n<1024 or n>196608 for n in targets):raise ValueError('Conservative context bounds required')
     peak_new_bytes=64*sum(targets)*len(kinds)+8*2**20*len(arms)*args.repeats*len(args.configs)
     if shutil.disk_usage(out.parent).free<FLOOR+peak_new_bytes:raise ValueError('Peak evidence plus 4-GiB reserve insufficient')
     out.mkdir(mode=0o700,parents=True);resource.setrlimit(resource.RLIMIT_CORE,(0,0))
@@ -335,13 +351,14 @@ def main():
                 for repeat in range(args.repeats):
                     # Rotate order across repeats; retain the control reference even if it runs later.
                     for chunk,mtp,split,mmq_j in arms[repeat%len(arms):]+arms[:repeat%len(arms)]:
-                        label=f'{model}-r{repeat}-c{chunk}-m{mtp}-s{split}-j{mmq_j}';arm=out/label;arm.mkdir(mode=0o700)
+                        tile_value='auto' if mmq_j == -1 else str(mmq_j)
+                        label=f'{model}-r{repeat}-c{chunk}-m{mtp}-s{split}-j{tile_value}';arm=out/label;arm.mkdir(mode=0o700)
                         preflight(root,arm/'preflight.raw')
                         for file in identity['files']:
                             if fingerprint(file['path'])!=file['fingerprint']:raise ValueError('Verified model changed before arm')
                         cfg=copy.deepcopy(config);cfg['exe']=str(exe);cfg['layer_split']=str(split)
                         for flag,value in [('--prefill',chunk),('--prompt-cache',0),('--short-read',0)]:cfg['args']=replace_arg(cfg['args'],flag,value)
-                        cfg.setdefault('env',{}).update(STRATA_PREFILL_TIMING='1',STRATA_GFX906_PREFILL_ATTN='0',STRATA_GFX906_MTP_BATCH=str(mtp),STRATA_MTP_BATCH='1',STRATA_GFX906_MMQ_J=str(mmq_j),
+                        cfg.setdefault('env',{}).update(STRATA_PREFILL_TIMING='1',STRATA_GFX906_PREFILL_ATTN='0',STRATA_GFX906_MTP_BATCH=str(mtp),STRATA_MTP_BATCH='1',STRATA_GFX906_MMQ_J=tile_value,
                             STRATA_PREFILL_EXPERT_PROFILE='1' if args.profile_experts else '0',STRATA_GFX906_MMQ_TRACE='1' if args.trace_mmq else '0')
                         if 'HSA_OVERRIDE_GFX_VERSION' in cfg['env']:raise ValueError('GPU impersonation forbidden')
                         env=child_env(cfg);env.pop('HSA_OVERRIDE_GFX_VERSION',None);env.pop('STRATA_API_KEY',None)
