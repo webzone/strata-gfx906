@@ -29,6 +29,19 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(result['canonical_control_repetitions'],2)
         self.assertFalse(result['ids_equal_canonical'])
 
+    def test_split_uses_matching_default_split_all_repetitions(self):
+        refs={'IQ2_XS-r0-c2048-m0-s24-j0':[self.case()],
+              'IQ2_XS-r0-c2048-m1-s24-jauto':[self.case()],
+              'IQ2_XS-r1-c2048-m1-s24-jauto':[self.case([1,4])],
+              'IQ2_XS-r0-c2048-m1-s25-jauto':[self.case()]}
+        result=compare_arms(refs)[-1]
+        self.assertTrue(result['ids_equal_canonical'])
+        self.assertIsNone(result['ids_equal_same_chunk'])
+        self.assertEqual(result['default_split_control_repetitions'],2)
+        self.assertFalse(result['ids_equal_default_split'])
+        refs={'IQ2_XS-r0-c2048-m1-s25-jauto':[self.case()]}
+        self.assertIsNone(compare_arms(refs)[0]['ids_equal_default_split'])
+
     def test_changed_missing_or_empty_cases_rejected(self):
         refs={'IQ2_XS-r0-c2048-m0-s24-j0':[self.case()],
               'IQ2_XS-r0-c4096-m1-s24-j0':[self.case()]}

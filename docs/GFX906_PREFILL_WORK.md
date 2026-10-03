@@ -171,3 +171,12 @@ All completion rows above remain unverified for the continued goal.
   probes plus requested-missing-device failures. No parallel GPU work. Extra model/diagnostic/probe
   evidence requires20GiB allowance +4GiB reserve; operator suite rechecks16GiB allowance +reserve.
   These are queued work, not completed gates; no deployment/default changes or active binary rebuilds.
+- Offline final audit was tightened: reject global failure evidence even if every case file exists,
+  validate exact published model revision/two shard hashes/sizes/stored fingerprints, require the exact
+  requested model/arm/repetition set (not only its count), verify DONE prompt count against original
+  submitted IDs, complete cold request/stage row counts and two-card one-second memory coverage.
+  Split comparisons now include all matching 24/24 repetitions with the same chunk/MTP/tile; absent
+  matched split controls are null, never a pass. **83 gfx906 CPU tests** passed, no skips; strengthened
+  audit of all18 original cbdc94c 64K cases passed using retained full raw evidence locally. Identity
+  validation checks stored full-hash attestations, not a new live weight rehash. Active archives remain
+  immutable; final post-run audit must use this stronger offline tool before completing the goal.
