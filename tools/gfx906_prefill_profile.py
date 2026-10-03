@@ -17,6 +17,8 @@ PREFIXES = {
     "strata prefill profile: ": "stages",
     "strata prefill draft: ": "draft",
     "strata prefill request: ": "requests",
+    "strata prefill layer: ": "layers",
+    "strata prefill mmq: ": "products",
 }
 
 
@@ -27,7 +29,7 @@ def _constant(value):
 def read_records(text):
     records = {name: [] for name in PREFIXES.values()}
     records["segments"] = []
-    pending = dict(stages=[], draft=[])
+    pending = dict(stages=[], draft=[], layers=[], products=[])
     for number, line in enumerate(text.splitlines(), 1):
         for prefix, kind in PREFIXES.items():
             if not line.startswith(prefix):
@@ -51,8 +53,26 @@ def read_records(text):
                     for key, value in phases.items():
                         if type(value) not in (float, int) or not math.isfinite(value) or value < 0:
                             raise ValueError("Invalid phase " + key)
-                elif "ms_wall" not in record:
+                elif kind in ("draft", "requests") and "ms_wall" not in record:
                     raise ValueError("Missing wall timer")
+                if kind in ("layers", "products"):
+                    coordinates = ("device", "layer", "pos0")
+                    counters = ("tokens", "chunk", "row_calls", "routed_rows", "max_rows", "gu_type", "down_type") if kind == "layers" else (
+                        "groups", "total_rows", "group_rows", "max_rows", "weight_rows", "weight_cols", "requested_j", "selected_j")
+                    for key in coordinates + counters:
+                        if type(record.get(key)) is not int or record[key] < 0:
+                            raise ValueError("Invalid expert coordinate/counter " + key)
+                    if kind == "layers":
+                        phases = record.get("phase_ms")
+                        if not isinstance(phases, dict) or any(type(v) not in (int,float) or not math.isfinite(v) or v<0 for v in phases.values()):
+                            raise ValueError("Invalid layer phase timer")
+                        hist = record.get("row_histogram")
+                        if not isinstance(hist,list) or len(hist)!=16 or any(type(v) is not int or v<0 for v in hist):
+                            raise ValueError("Invalid expert row histogram")
+                        if record.get("row_bin_upper") != [0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,None]:
+                            raise ValueError("Unknown expert histogram binning")
+                    elif type(record.get("forced")) is not bool or not isinstance(record.get("type"),str) or record["group_rows"]>record["total_rows"]:
+                        raise ValueError("Invalid MMQ product metadata")
                 if kind == "requests":
                     for key in ("prompt_tokens", "reused", "read_from", "prefill_rows", "refilled_slots"):
                         if type(record.get(key)) is not int or record[key] < 0:
@@ -65,7 +85,7 @@ def read_records(text):
                 elif kind == "requests":
                     # Requests are serialized; the envelope is emitted only after all stage futures finish.
                     records["segments"].append(dict(request=record, **pending))
-                    pending = dict(stages=[], draft=[])
+                    pending = dict(stages=[], draft=[], layers=[], products=[])
             except (TypeError, ValueError, KeyError) as error:
                 raise ValueError(f"Profile line {number}: {error}") from error
     return records
@@ -100,16 +120,34 @@ def summarize(records):
         group["phase_percent_of_device_timeline"] = {
             phase: 100 * ms / total if total else 0 for phase, ms in group["phase_ms"].items()
         }
+    layer_groups = {}
+    for record in records.get("layers", []):
+        key = tuple(record[k] for k in ("device", "layer", "chunk", "gu_type", "down_type"))
+        group = layer_groups.setdefault(key, dict(zip(("device", "layer", "chunk", "gu_type", "down_type"), key),
+            calls=0, row_calls=0, routed_rows=0, max_rows=0, phase_ms={}, row_histogram=[0]*16, row_bin_upper=record["row_bin_upper"]))
+        group["calls"]+=1;group["row_calls"]+=record["row_calls"];group["routed_rows"]+=record["routed_rows"]
+        group["max_rows"]=max(group["max_rows"],record["max_rows"])
+        group["row_histogram"]=[a+b for a,b in zip(group["row_histogram"],record["row_histogram"])]
+        for phase,value in record["phase_ms"].items():group["phase_ms"][phase]=group["phase_ms"].get(phase,0)+value
+    products = {}
+    for record in records.get("products", []):
+        key = tuple(record[k] for k in ("device", "layer", "type", "weight_rows", "weight_cols", "selected_j", "forced"))
+        group = products.setdefault(key,dict(zip(("device", "layer", "type", "weight_rows", "weight_cols", "selected_j", "forced"),key),
+            calls=0, group_rows=0, groups=0, max_rows=0))
+        for name in ("group_rows", "groups"):group[name]+=record[name]
+        group["calls"]+=1;group["max_rows"]=max(group["max_rows"],record["max_rows"])
     requests = [dict(record, cold=(record["reused"] == 0 and record["read_from"] == 0 and not record["cancelled"]))
                 for record in records["requests"]]
     request_profiles = []
     for segment in records.get("segments", []):
-        profile = summarize(dict(stages=segment["stages"], requests=[segment["request"]], draft=segment["draft"]))
+        profile = summarize(dict(stages=segment["stages"], requests=[segment["request"]], draft=segment["draft"],
+                                 layers=segment.get("layers",[]), products=segment.get("products",[])))
         profile["request"] = profile.pop("requests")[0]
         profile.pop("request_profiles")
         request_profiles.append(profile)
     return dict(schema=1, stages=[groups[key] for key in sorted(groups)], requests=requests, draft=records["draft"],
-                request_profiles=request_profiles,
+                request_profiles=request_profiles, layers=[layer_groups[k] for k in sorted(layer_groups)],
+                products=[products[k] for k in sorted(products)],
                 warning="Stage wall times and host/GPU subintervals overlap. Do not add them across devices. "
                         "Request timers precede the first verify window: not TTFT or completed-generation throughput.")
 

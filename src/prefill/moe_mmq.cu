@@ -2,6 +2,7 @@
 // from the pinned llama.cpp checkout the build already takes ggml from; src/prefill/ggml_cuda_host.cu supplies the
 // few host symbols of ggml-cuda.cu it references.
 #include "strata/prefill/moe_mmq.hpp"
+#include "strata/prefill/gfx906_policy.hpp"
 
 #include "common.cuh"
 #include "mmq.cuh"
@@ -85,6 +86,52 @@ __global__ void iota_kernel(int32_t* dst, int64_t n) {
 
 unsigned blocks(int64_t n) { return (unsigned) ((n + 255) / 256); }
 
+// Reuse the pinned kernels/configurations; never alter the vendor checkout or quantization.
+// GGML's default minimizes the number of tiles at the largest expert's row count. On gfx906,
+// a smaller J can reduce work for short/skewed groups; measurements decide, not a new default.
+int tile_choice(ggml_type t, const mmq_args& a, int requested, bool& forced) {
+    const int id = ggml_cuda_get_device();
+    const auto& device = ggml_cuda_info().devices[id];
+    const bool fallback = a.nrows_x % 128 != 0;
+    if (requested) {
+        const auto c = ggml_cuda_mmq_get_config(t, requested, fallback, device.cc);
+        if (c.type != GGML_TYPE_COUNT && mmq_get_nbytes_shared(c, device.cc) <= device.smpbo) {
+            forced = true;
+            return requested;
+        }
+    }
+    int best = 0, tiles = INT_MAX;
+    for (int j = 8; j <= 128 && tiles > 1; j += 8) {
+        const auto c = ggml_cuda_mmq_get_config(t, j, fallback, device.cc);
+        if (c.type == GGML_TYPE_COUNT || mmq_get_nbytes_shared(c, device.cc) > device.smpbo) continue;
+        const int count = (a.ncols_opt + c.J - 1) / c.J;
+        if (count < tiles) { best = j; tiles = count; }
+    }
+    return best;
+}
+
+template <ggml_type type, bool fallback>
+void tuned_case(ggml_backend_cuda_context& ctx, const mmq_args& a, cudaStream_t s, int tile) {
+#if defined(__HIPCC__) && defined(STRATA_EXPERIMENTAL_GFX906)
+    switch (tile) {
+        case 16: launch_mul_mat_q<type, 16, fallback>(ctx, a, s); return;
+        case 32: launch_mul_mat_q<type, 32, fallback>(ctx, a, s); return;
+        case 48: launch_mul_mat_q<type, 48, fallback>(ctx, a, s); return;
+        case 64: launch_mul_mat_q<type, 64, fallback>(ctx, a, s); return;
+        default: break;
+    }
+#else
+    (void) tile;
+#endif
+    mul_mat_q_case<type>(ctx, a, s);
+}
+
+template <ggml_type type>
+void run_case(ggml_backend_cuda_context& ctx, const mmq_args& a, cudaStream_t s, int tile) {
+    if (a.nrows_x % 128 == 0) tuned_case<type, false>(ctx, a, s, tile);
+    else tuned_case<type, true>(ctx, a, s, tile);
+}
+
 }  // namespace
 
 bool built() { return true; }
@@ -154,6 +201,13 @@ Context::Context() {
     int dev = 0;
     cudaGetDevice(&dev);
     ctx_ = new ggml_backend_cuda_context(dev);
+#if defined(__HIPCC__) && defined(STRATA_EXPERIMENTAL_GFX906)
+    if (const char* value = std::getenv("STRATA_GFX906_MMQ_J")) {
+        hipDeviceProp_t prop{};
+        ck(hipGetDeviceProperties(&prop, dev), "gfx906 MMQ architecture");
+        requested_tile_ = gfx906::mmq_tile(value, prop.gcnArchName);
+    }
+#endif
 }
 Context::~Context() { delete (ggml_backend_cuda_context*) ctx_; }
 
@@ -168,23 +222,37 @@ void Context::run(const Product& p, void* stream) {
                         p.max_rows, p.max_rows};
     auto& ctx = *(ggml_backend_cuda_context*) ctx_;
     const cudaStream_t s = (cudaStream_t) stream;
+    const int requested = gfx906::mmq_expert_geometry(p.n, p.w_rows, p.w_cols) ? requested_tile_ : 0;
+    const bool trace = p.layer >= 0 && gfx906::opt_in(std::getenv("STRATA_GFX906_MMQ_TRACE"));
+    bool forced = false;
+    const int selected = requested || trace ? tile_choice(t, a, requested, forced) : 0;
+    if (trace) {
+        const int id = ggml_cuda_get_device();
+        std::fprintf(stderr, "strata prefill mmq: {\"schema\":1,\"device\":%d,\"layer\":%d,\"pos0\":%lld,"
+                             "\"type\":\"%s\",\"groups\":%d,\"total_rows\":%lld,\"group_rows\":%lld,\"max_rows\":%lld,"
+                             "\"weight_rows\":%lld,\"weight_cols\":%lld,\"requested_j\":%d,\"selected_j\":%d,\"forced\":%s}\n",
+                     id, p.layer, (long long) p.pos0, ggml_type_name(t), p.n, (long long) p.total_rows,
+                     (long long) p.group_rows, (long long) p.max_rows, (long long) p.w_rows, (long long) p.w_cols, requested, selected,
+                     forced ? "true" : "false");
+    }
+    const int tile = forced ? selected : 0;
     switch (t) {
 #ifdef STRATA_ORCA_Q4KS_MMQ
-        case GGML_TYPE_Q5_0: mul_mat_q_case<GGML_TYPE_Q5_0>(ctx, a, s); break;
+        case GGML_TYPE_Q5_0: run_case<GGML_TYPE_Q5_0>(ctx, a, s, tile); break;
 #endif
-        case GGML_TYPE_Q2_0: mul_mat_q_case<GGML_TYPE_Q2_0>(ctx, a, s); break;
-        case GGML_TYPE_IQ2_XXS: mul_mat_q_case<GGML_TYPE_IQ2_XXS>(ctx, a, s); break;
-        case GGML_TYPE_IQ2_XS: mul_mat_q_case<GGML_TYPE_IQ2_XS>(ctx, a, s); break;
-        case GGML_TYPE_IQ2_S: mul_mat_q_case<GGML_TYPE_IQ2_S>(ctx, a, s); break;
-        case GGML_TYPE_IQ3_XXS: mul_mat_q_case<GGML_TYPE_IQ3_XXS>(ctx, a, s); break;
-        case GGML_TYPE_IQ3_S: mul_mat_q_case<GGML_TYPE_IQ3_S>(ctx, a, s); break;
-        case GGML_TYPE_IQ4_NL: mul_mat_q_case<GGML_TYPE_IQ4_NL>(ctx, a, s); break;
-        case GGML_TYPE_IQ4_XS: mul_mat_q_case<GGML_TYPE_IQ4_XS>(ctx, a, s); break;
-        case GGML_TYPE_Q8_0: mul_mat_q_case<GGML_TYPE_Q8_0>(ctx, a, s); break;
+        case GGML_TYPE_Q2_0: run_case<GGML_TYPE_Q2_0>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ2_XXS: run_case<GGML_TYPE_IQ2_XXS>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ2_XS: run_case<GGML_TYPE_IQ2_XS>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ2_S: run_case<GGML_TYPE_IQ2_S>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ3_XXS: run_case<GGML_TYPE_IQ3_XXS>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ3_S: run_case<GGML_TYPE_IQ3_S>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ4_NL: run_case<GGML_TYPE_IQ4_NL>(ctx, a, s, tile); break;
+        case GGML_TYPE_IQ4_XS: run_case<GGML_TYPE_IQ4_XS>(ctx, a, s, tile); break;
+        case GGML_TYPE_Q8_0: run_case<GGML_TYPE_Q8_0>(ctx, a, s, tile); break;
 #ifdef STRATA_MMQ_KQUANTS
-        case GGML_TYPE_Q4_K: mul_mat_q_case<GGML_TYPE_Q4_K>(ctx, a, s); break;
-        case GGML_TYPE_Q5_K: mul_mat_q_case<GGML_TYPE_Q5_K>(ctx, a, s); break;
-        case GGML_TYPE_Q5_1: mul_mat_q_case<GGML_TYPE_Q5_1>(ctx, a, s); break;
+        case GGML_TYPE_Q4_K: run_case<GGML_TYPE_Q4_K>(ctx, a, s, tile); break;
+        case GGML_TYPE_Q5_K: run_case<GGML_TYPE_Q5_K>(ctx, a, s, tile); break;
+        case GGML_TYPE_Q5_1: run_case<GGML_TYPE_Q5_1>(ctx, a, s, tile); break;
 #endif
         default:
             std::fprintf(stderr, "prefill mmq: type %d is not covered\n", (int) t);

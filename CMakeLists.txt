@@ -992,6 +992,9 @@ if(STRATA_NATIVE_EXPERTS)
       PRIVATE "${_strata_gg}/include" "${_strata_gg}/src" "${_strata_mmq}"
       PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_compile_definitions(strata_mmq PRIVATE GGML_USE_HIP=1)
+    if(STRATA_EXPERIMENTAL_GFX906)
+      target_compile_definitions(strata_mmq PRIVATE STRATA_EXPERIMENTAL_GFX906=1)
+    endif()
     if(STRATA_ORCA_Q4KS_MMQ)
       target_compile_definitions(strata_mmq PRIVATE STRATA_ORCA_Q4KS_MMQ=1)
     endif()
@@ -1051,6 +1054,23 @@ if(STRATA_ENABLE_HIP AND STRATA_EXPERIMENTAL_GFX906 AND STRATA_PREFILL_MMQ AND
   add_executable(hip_gfx906_operators tests/hip/operator_probe.cpp)
   target_include_directories(hip_gfx906_operators PRIVATE ${_strata_gg}/include)
   target_link_libraries(hip_gfx906_operators PRIVATE strata_prefill strata_mmq ggml-cpu ggml-base strata_hip_runtime)
+  if(STRATA_BUILD_GFX906_PREFILL_TESTS)
+    add_executable(hip_gfx906_mmq_tiles tests/hip/gfx906_mmq_tiles.cpp)
+    target_include_directories(hip_gfx906_mmq_tiles PRIVATE ${_strata_gg}/include)
+    target_link_libraries(hip_gfx906_mmq_tiles PRIVATE strata_mmq ggml-cpu ggml-base strata_hip_runtime)
+    set(_mmq_devices 0)
+    if(STRATA_HIP_MULTIGPU_TESTS)
+      list(APPEND _mmq_devices 1)
+    endif()
+    foreach(_device IN LISTS _mmq_devices)
+      add_test(NAME hip_gfx906_mmq_tiles_device${_device}
+        COMMAND ${CMAKE_COMMAND} -DPROBE=$<TARGET_FILE:hip_gfx906_mmq_tiles> -DDEVICE=${_device}
+          -DEVIDENCE_ROOT=${CMAKE_CURRENT_BINARY_DIR}/gfx906-fixtures
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/hip/run_gfx906_mmq_tiles.cmake)
+      set_tests_properties(hip_gfx906_mmq_tiles_device${_device} PROPERTIES
+        TIMEOUT 600 RUN_SERIAL TRUE LABELS "hip;gfx906;synthetic;oracle")
+    endforeach()
+  endif()
   foreach(_mode IN ITEMS mmvq expert bf16 f16 mmq)
     add_test(NAME hip_gfx906_${_mode}_oracle COMMAND hip_gfx906_operators ${_mode})
     set_tests_properties(hip_gfx906_${_mode}_oracle PROPERTIES TIMEOUT 300 LABELS "hip;gfx906;synthetic;oracle")

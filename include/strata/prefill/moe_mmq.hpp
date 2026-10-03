@@ -45,6 +45,10 @@ struct Product {
     int64_t total_rows = 0, max_rows = 0;
     float* dst = nullptr;
     int64_t ld_dst = 0;
+    // Optional diagnostic coordinates; do not change matrix geometry or dispatch by themselves.
+    int layer = -1;
+    int64_t pos0 = -1;
+    int64_t group_rows = -1; // rows actually covered by this group's bounds, not activation-buffer stride
 };
 
 /// The launch context (llama.cpp's MMQ keeps a small scratch pool for its stream-k fixup).  One per prompt path.
@@ -58,6 +62,7 @@ public:
 
 private:
     void* ctx_ = nullptr;
+    int requested_tile_ = 0; // exact opt-in, actual gfx906, grouped expert geometry only
 };
 
 /// A GGUF-native expert (gate at `gate`, up at `up`, down at `down`, each its GGUF rows) into a group buffer's

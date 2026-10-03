@@ -48,3 +48,22 @@ Both MI50s had 0% utilization, 10866688 B VRAM use and no KFD PIDs; no 8082 list
 observed. Available RAM was 107772 MiB. These are preflight observations, not permanent availability.
 Full private preflight is `logs/gfx906-prefill-goal-20261003T040756Z/resources-initial.txt` locally.
 All completion rows above remain unverified for the continued goal.
+
+## Continued implementation journal
+
+- Runner `dc0a1b4` was committed/pushed after 169 setup / 64 gfx906 Python tests (including seven
+  new runner tests). Strict standalone admission-policy compilation also passed.
+- Its bounded **4096-token IQ2_XS pilot**, compiled application still **49285ae**, completed two
+  isolated arms, 2048 control and 4096+MTP, each code/Chinese/multi-turn: six zero-reuse requests,
+  clean child exit 0, all generated IDs equal, complete raw protocol and one-second sampled peaks.
+  Deployment hashes matched before/after. This is one repetition and a short pilot, NOT the long
+  matrix. 2048 control measured 8528.1/8323.6/8432.5 ms; 4096+MTP measured 9646.6/9499.7/9548.1 ms,
+  so the larger chunk was slower here; pipeline fill/drain makes short-input extrapolation unsafe.
+  Private evidence is `logs/gfx906-prefill-goal-20261003T040756Z/pilot-4096` on T5810. The runner's
+  original whitespace-separated IDs were accepted/count-verified by the actual engine; subsequent
+  source uses the frontend's canonical comma syntax and adds a frontend-contract regression.
+- Continued source adds binary/model immutability checks, complete cold-profile/MTP-path gates,
+  per-layer row distributions and phase costs, opt-in grouped gfx906 MMQ J selection, and a fresh-
+  fixture GPU gate with full control equality plus sampled CPU double oracle. Current CPU checks:
+  66 gfx906 Python tests, 44 admission-policy checks with `-Wall -Wextra -Werror`; no GPU results yet
+  for these expert changes. Compile/numeric/model/performance gates and QSA investigation remain.

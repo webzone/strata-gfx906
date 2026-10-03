@@ -26,6 +26,7 @@
 #include "strata/prefill/moe_fused.hpp"
 #include "strata/prefill/moe_fused_iq.hpp"
 #include "strata/prefill/moe_mmq.hpp"
+#include "strata/prefill/gfx906_policy.hpp"
 #include "strata/prefill/kernels.hpp"
 
 #include <cuda_runtime.h>
@@ -1018,15 +1019,18 @@ namespace {
 // are folded at every MoE layer's host sync, after which all of them have completed.
 enum PfPhase { kPfStart, kPfHc, kPfGdn, kPfQsa, kPfQsaIdx, kPfQsaSel, kPfQsaAttn, kPfRouter, kPfHostGroup, kPfGather,
                kPfWaitCopy, kPfDequant, kPfGemmGU, kPfGemmD, kPfCombine, kPfPle, kPfKvStage, kPfGdnConv, kPfGdnRec, kPfGdnOut,
-               kPfChunkTail, kPfCount };
+               kPfMmqGU, kPfMmqD, kPfFp16GU, kPfFp16D, kPfChunkTail, kPfCount };
 const char* const kPfNames[kPfCount] = {"embed+steps", "hc read", "gdn", "qsa proj", "qsa indexer", "qsa select",
                                         "qsa attn", "router+shared", "host grouping", "gather", "wait copy", "dequant",
                                         "gemm gate/up", "gemm down", "combine", "ple", "kv stage", "gdn conv+gates",
-                                        "gdn recurrence", "gdn out proj", "chunk tail"};
+                                        "gdn recurrence", "gdn out proj", "mmq gate/up", "mmq down",
+                                        "fp16 gate/up", "fp16 down", "chunk tail"};
 struct PfTimer {
     bool on = std::getenv("STRATA_PREFILL_TIMING") != nullptr;
     std::vector<cudaEvent_t> ev;
-    std::vector<int> ph;
+    std::vector<int> ph, event_layer;
+    std::vector<std::vector<double>> layer_ms;
+    int layer = -1;
     size_t used = 0;
     double ms[kPfCount] = {};
     void mark(int phase, cudaStream_t s) {
@@ -1036,8 +1040,10 @@ struct PfTimer {
             cudaEventCreate(&e);
             ev.push_back(e);
             ph.push_back(0);
+            event_layer.push_back(-1);
         }
         ph[used] = phase;
+        event_layer[used] = layer;
         cudaEventRecord(ev[used], s);
         ++used;
     }
@@ -1046,10 +1052,15 @@ struct PfTimer {
         if (!on || used < 2) return;
         for (size_t i = 0; i + 1 < used; ++i) {
             float t = 0.0f;
-            if (cudaEventElapsedTime(&t, ev[i], ev[i + 1]) == cudaSuccess) ms[ph[i]] += t;
+            if (cudaEventElapsedTime(&t, ev[i], ev[i + 1]) == cudaSuccess) {
+                ms[ph[i]] += t;
+                if (event_layer[i] >= 0 && (size_t) event_layer[i] < layer_ms.size())
+                    layer_ms[(size_t) event_layer[i]][(size_t) ph[i]] += t;
+            }
         }
         std::swap(ev[0], ev[used - 1]);
         std::swap(ph[0], ph[used - 1]);
+        std::swap(event_layer[0], event_layer[used - 1]);
         used = 1;
     }
     ~PfTimer() {
@@ -1083,6 +1094,16 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                                 (uint64_t) g.ssm_conv_channels * (g.ssm_d_conv - 1);
     int32_t prev[2] = {ss.ple_prev[0], ss.ple_prev[1]};
     PfTimer pt;
+    const bool expert_profile = pt.on && gfx906::opt_in(std::getenv("STRATA_PREFILL_EXPERT_PROFILE"));
+    std::vector<std::vector<int64_t>> row_hist;
+    std::vector<int64_t> row_max, row_calls, row_total;
+    if (expert_profile) {
+        pt.layer_ms.assign((size_t) g.n_layers, std::vector<double>(kPfCount, 0));
+        row_hist.assign((size_t) g.n_layers, std::vector<int64_t>(16, 0));
+        row_max.assign((size_t) g.n_layers, 0);
+        row_calls.assign((size_t) g.n_layers, 0);
+        row_total.assign((size_t) g.n_layers, 0);
+    }
     const cudaStream_t cs = (cudaStream_t) m.cs;
     // the MMQ row table lives in the borrowed cache slots, which the refill after a prompt overwrites with experts:
     // write it again for every prompt (a layout is reused as long as the chunk and the slots are the same)
@@ -1332,6 +1353,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
         host_setup_ms += ms_since(tsetup);
         bool normed = false;   // F-2: the previous half's write already normed R for this half (grs, xn16)
         for (int64_t l = LB; l < LE; ++l) {
+            pt.layer = (int) l;
             core::progress_beat();   // the serve watchdog: a prompt chunk of 8192 tokens is still moving
             core::progress_at("reading the prompt (batched): layer", l, p0);   // #251: a stall names layer and chunk
             const core::LayerView v(*m.wt, l);
@@ -1744,6 +1766,17 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                             if (e < 0 || e >= m.g->n_expert) { err = "prefill: routed id out of range"; return false; }
                             ++m.cnt[(size_t) e];
                         }
+                        if (expert_profile) {
+                            ++row_calls[(size_t) l];
+                            row_total[(size_t) l] += T * K;
+                            for (const auto count : m.cnt) {
+                                int bin = count > 0 ? 1 : 0;
+                                int64_t upper = 1;
+                                while (bin && bin < 15 && count > upper) { ++bin; upper *= 2; }
+                                ++row_hist[(size_t) l][(size_t) bin];
+                                row_max[(size_t) l] = std::max<int64_t>(row_max[(size_t) l], count);
+                            }
+                        }
                         m.off[0] = 0;
                         for (int64_t e = 0; e < m.g->n_expert; ++e) m.off[(size_t) e + 1] = m.off[(size_t) e] + m.cnt[(size_t) e];
                         std::vector<int32_t> fill(m.off.begin(), m.off.end() - 1);
@@ -1867,7 +1900,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                                 const int64_t r0 = m.bounds_host[j0], nr = m.bounds_host[j + 1] - r0;
                                 int64_t maxr = 0;
                                 for (size_t i = j0; i <= j; ++i) maxr = std::max<int64_t>(maxr, m.cnt[(size_t) order[i]]);
-                                pt.mark(kPfGemmGU, cs);
+                                pt.mark(kPfMmqGU, cs);
                                 // the zeroed tail after the group's last expert (see MMQ_TAIL)
                                 cudaMemsetAsync(m.grp_gu + (size_t) ngx * mmq_gub, 0, MMQ_TAIL, m.cs);
                                 cudaMemsetAsync(m.grp_d + (size_t) ngx * mmq_db, 0, MMQ_TAIL, m.cs);
@@ -1875,15 +1908,16 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                                 gu.w = m.grp_gu; gu.type = mmq_gt; gu.w_rows = 1280; gu.w_cols = N; gu.expert_bytes = mmq_gub;
                                 gu.n = ngx; gu.xq = m.Xq; gu.bounds = m.bounds_dev + j0; gu.ids = m.ids_identity;
                                 gu.total_rows = T * K; gu.max_rows = maxr; gu.dst = m.GU; gu.ld_dst = 1280;
+                                gu.layer = (int) l; gu.pos0 = p0; gu.group_rows = nr;
                                 m.mmq_ctx->run(gu, m.cs);
                                 mmq::swiglu(m.GU + r0 * 1280, m.H + r0 * 640, nr, 640, !lay.native, m.cs);
-                                pt.mark(kPfGemmD, cs);
+                                pt.mark(kPfMmqD, cs);
                                 mmq::quantize(m.H + r0 * 640, nullptr, m.Hq, mmq_dt, 640, 640, nr, m.cs);
                                 mmq::Product dn;
                                 dn.w = m.grp_d; dn.type = mmq_dt; dn.w_rows = N; dn.w_cols = 640; dn.expert_bytes = mmq_db;
                                 dn.n = ngx; dn.xq = m.Hq; dn.bounds = m.bounds_dev + n + 1 + g * (MMQ_GROUP + 1);
                                 dn.ids = m.ids_identity; dn.total_rows = nr; dn.max_rows = maxr; dn.dst = m.Dm + r0 * N;
-                                dn.ld_dst = N;
+                                dn.ld_dst = N; dn.layer = (int) l; dn.pos0 = p0; dn.group_rows = nr;
                                 m.mmq_ctx->run(dn, m.cs);
                                 return true;
                             }
@@ -1899,10 +1933,10 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                             }
                             if (slot >= 0) cudaEventRecord(m.used[slot], m.cs);
                             const int64_t o0 = m.off[(size_t) e], ne = m.cnt[(size_t) e];
-                            pt.mark(kPfGemmGU, cs);
+                            pt.mark(kPfFp16GU, cs);
                             m.gemm.f16(m.Xs + o0 * N, m.dq_gu[q], m.GU + o0 * 1280, ne, 1280, N);
                             swiglu_interleaved(m.GU + o0 * 1280, m.Hh + o0 * 640, ne, m.cs);
-                            pt.mark(kPfGemmD, cs);
+                            pt.mark(kPfFp16D, cs);
                             m.gemm.f16(m.Hh + o0 * 640, m.dq_d[q], m.Dm + o0 * N, ne, N, 640);
                             return true;
                         };
@@ -2012,6 +2046,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
         }
         stats_.tokens += T;
         core::progress_at("reading the prompt (batched): finishing the chunk from token", p0);
+        pt.layer = -1;
         pt.mark(kPfChunkTail, cs); // Handoff/callback/MTP and idle waits, not embedding work.
         if (next_ != nullptr) {
             // the rows to the host buffer the next stage read two chunks ago (it has finished: waited below)
@@ -2087,6 +2122,7 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
         std::fprintf(stderr, "\n");
     }
     // Close the final interval too: otherwise the last combine/callback/drain has no ending event.
+    pt.layer = -1;
     pt.mark(kPfChunkTail, cs);
     if (cudaStreamSynchronize(m.cs) != cudaSuccess) {
         err = std::string("prefill: ") + cudaGetErrorString(cudaGetLastError());
@@ -2147,6 +2183,34 @@ bool Prefill::run(const int64_t* tokens, int64_t n, int64_t pos0, std::string& e
                      (long long) (stats_.experts_streamed - before.experts_streamed),
                      (long long) (stats_.experts_dma - before.experts_dma),
                      (long long) (stats_.experts_resident - before.experts_resident), phases.c_str());
+    }
+    if (expert_profile) {
+        const auto& layout = strata::kernels::cpu::expert_layout();
+        for (int64_t l = LB; l < LE; ++l) {
+            std::string phases = "{", histogram = "[";
+            char b[128];
+            for (int i = 0; i < kPfCount; ++i) {
+                if (i) phases += ',';
+                std::snprintf(b, sizeof b, "\"%s\":%.3f", kPfNames[i], pt.layer_ms[(size_t) l][(size_t) i]);
+                phases += b;
+            }
+            phases += '}';
+            for (size_t i = 0; i < 16; ++i) {
+                if (i) histogram += ',';
+                histogram += std::to_string(row_hist[(size_t) l][i]);
+            }
+            histogram += ']';
+            const int gt = layout.native ? layout.fmt[(size_t) l].gu_type : 42;
+            const int dt = layout.native ? layout.fmt[(size_t) l].d_type : 42;
+            std::fprintf(stderr, "strata prefill layer: {\"schema\":1,\"device\":%d,\"layer\":%lld,\"pos0\":%lld,"
+                                 "\"tokens\":%lld,\"chunk\":%lld,\"gu_type\":%d,\"down_type\":%d,"
+                                 "\"row_calls\":%lld,\"routed_rows\":%lld,\"max_rows\":%lld,"
+                                 "\"row_bin_upper\":[0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,null],"
+                                 "\"row_histogram\":%s,\"phase_ms\":%s}\n",
+                         m.device, (long long) l, (long long) pos0, (long long) n, (long long) m.T, gt, dt,
+                         (long long) row_calls[(size_t) l], (long long) row_total[(size_t) l],
+                         (long long) row_max[(size_t) l], histogram.c_str(), phases.c_str());
+        }
     }
     if (std::getenv("STRATA_STATE_HASH_GDN") != nullptr) {   // debug: the GDN states as the prompt path leaves them
         cudaStreamSynchronize(m.cs);

@@ -76,8 +76,10 @@ def preflight(root, evidence, minimum_ram_gib=64, drain=False):
 def verify_model(config, model, output, identity_cache=None):
     native = Path(config['args'][config['args'].index('--native')+1])
     entries = []
-    for name, size, sha in MODEL_FILES[model]:
-        path = native.parent/name; before=fingerprint(path)
+    for index, (name, size, sha) in enumerate(MODEL_FILES[model]):
+        path = native if index==0 else Path(config['args'][config['args'].index('--ple-gguf')+1])
+        if path.name!=name:raise ValueError('Configured shard filename does not match pinned identity')
+        before=fingerprint(path)
         if before['bytes']!=size: raise ValueError('Wrong model shard size: '+str(path))
         trusted = (identity_cache or {}).get('full_sha256') is True and (identity_cache or {}).get('revision')==REVISION and (identity_cache or {}).get('repo')==REPO
         cached = next((e for e in (identity_cache or {}).get('files', []) if e.get('path')==str(path)), None)
@@ -187,7 +189,7 @@ class Pipe:
 
     def generate(self, ids, max_new, timeout):
         started=time.monotonic();first=None;generated=[]
-        self.send('GEN '+str(max_new)+' top_k=1 seed=42 '+ ' '.join(map(str,ids))+'\n')
+        self.send('GEN '+str(max_new)+' top_k=1 seed=42 '+ ','.join(map(str,ids))+'\n')
         while True:
             line=self.next(max(0.01,timeout-(time.monotonic()-started)))
             if line.startswith('T '):
@@ -281,7 +283,9 @@ def main():
     parser.add_argument('--targets',default='65536,131072,196608')
     parser.add_argument('--kinds',default='code,chinese,chat')
     parser.add_argument('--repeats',type=int,default=3)
-    parser.add_argument('--arms',default='2048:0:24,3072:1:24,4096:1:24',help='chunk:mtp:last-first-boundary; QSA always off')
+    parser.add_argument('--arms',default='2048:0:24,3072:1:24,4096:1:24',help='chunk:mtp:first-stage-end[:mmq_j]; QSA always off')
+    parser.add_argument('--profile-experts',action='store_true',help='Per-layer timers and exact aggregate routing histograms; no extra GPU synchronization')
+    parser.add_argument('--trace-mmq',action='store_true',help='Record grouped product geometry/selected tiles; separate diagnostic run')
     parser.add_argument('--max-new',type=int,default=64)
     parser.add_argument('--request-timeout',type=int,default=1200)
     parser.add_argument('--identity-cache',type=Path)
@@ -292,7 +296,9 @@ def main():
     if not re.fullmatch('[0-9a-f]{40}',args.source_ref):raise ValueError('Full verified application commit required')
     targets=[int(x) for x in args.targets.split(',')];kinds=args.kinds.split(',')
     arms=[tuple(map(int,x.split(':'))) for x in args.arms.split(',')]
-    if any(n<1024 or n>196608 for n in targets) or any(c not in (2048,3072,4096) or m not in (0,1) or s not in (23,24,25) for c,m,s in arms):raise ValueError('Conservative context/chunk/split bounds required')
+    arms=[a+(0,) if len(a)==3 else a for a in arms]
+    if any(len(a)!=4 for a in arms):raise ValueError('Arms are chunk:mtp:split[:mmq_j]')
+    if any(n<1024 or n>196608 for n in targets) or any(c not in (2048,3072,4096) or m not in (0,1) or s not in (23,24,25) or j not in (0,16,32,48,64) for c,m,s,j in arms):raise ValueError('Conservative context/chunk/split/tile bounds required')
     peak_new_bytes=64*sum(targets)*len(kinds)+8*2**20*len(arms)*args.repeats*len(args.configs)
     if shutil.disk_usage(out.parent).free<FLOOR+peak_new_bytes:raise ValueError('Peak evidence plus 4-GiB reserve insufficient')
     out.mkdir(mode=0o700,parents=True);resource.setrlimit(resource.RLIMIT_CORE,(0,0))
@@ -316,7 +322,7 @@ def main():
                 native=Path(config['args'][config['args'].index('--native')+1])
                 model=next((m for m in MODEL_FILES if f'-{m}-' in native.name),None)
                 if not model:raise ValueError('Only pinned acceptance/model identities supported')
-                verify_model(config,model,out/(model+'-identity.json'),cache)
+                identity=verify_model(config,model,out/(model+'-identity.json'),cache)
                 tk=Tokenizer.from_gguf(native);pack=Path(config['args'][config['args'].index('--pack')+1]);tpl=ChatTemplate(pack/'tokenizer/chat_template.jinja')
                 if fixtures is None:
                     fixtures=[];(out/'fixtures').mkdir(mode=0o700)
@@ -328,12 +334,15 @@ def main():
                         if tk.encode(tpl.render(f['messages'],enable_thinking=False),parse_special=True)!=f['ids']:raise ValueError('Models/templates do not tokenize the same fixtures')
                 for repeat in range(args.repeats):
                     # Rotate order across repeats; retain the control reference even if it runs later.
-                    for chunk,mtp,split in arms[repeat%len(arms):]+arms[:repeat%len(arms)]:
-                        label=f'{model}-r{repeat}-c{chunk}-m{mtp}-s{split}';arm=out/label;arm.mkdir(mode=0o700)
+                    for chunk,mtp,split,mmq_j in arms[repeat%len(arms):]+arms[:repeat%len(arms)]:
+                        label=f'{model}-r{repeat}-c{chunk}-m{mtp}-s{split}-j{mmq_j}';arm=out/label;arm.mkdir(mode=0o700)
                         preflight(root,arm/'preflight.raw')
+                        for file in identity['files']:
+                            if fingerprint(file['path'])!=file['fingerprint']:raise ValueError('Verified model changed before arm')
                         cfg=copy.deepcopy(config);cfg['exe']=str(exe);cfg['layer_split']=str(split)
                         for flag,value in [('--prefill',chunk),('--prompt-cache',0),('--short-read',0)]:cfg['args']=replace_arg(cfg['args'],flag,value)
-                        cfg.setdefault('env',{}).update(STRATA_PREFILL_TIMING='1',STRATA_GFX906_PREFILL_ATTN='0',STRATA_GFX906_MTP_BATCH=str(mtp),STRATA_MTP_BATCH='1')
+                        cfg.setdefault('env',{}).update(STRATA_PREFILL_TIMING='1',STRATA_GFX906_PREFILL_ATTN='0',STRATA_GFX906_MTP_BATCH=str(mtp),STRATA_MTP_BATCH='1',STRATA_GFX906_MMQ_J=str(mmq_j),
+                            STRATA_PREFILL_EXPERT_PROFILE='1' if args.profile_experts else '0',STRATA_GFX906_MMQ_TRACE='1' if args.trace_mmq else '0')
                         if 'HSA_OVERRIDE_GFX_VERSION' in cfg['env']:raise ValueError('GPU impersonation forbidden')
                         env=child_env(cfg);env.pop('HSA_OVERRIDE_GFX_VERSION',None);env.pop('STRATA_API_KEY',None)
                         store(arm/'config.private.json',cfg);pipe=None;cases=[]
@@ -353,16 +362,29 @@ def main():
                         preflight(root,arm/'cleanup.raw',drain=True)
                         profiles=summarize(read_records((arm/'engine.stderr.raw').read_text(errors='replace')))
                         store(arm/'profiles.json',profiles)
+                        if len(profiles['request_profiles'])!=len(fixtures) or not all(p['request']['cold'] for p in profiles['request_profiles']):
+                            raise ValueError('Missing/ambiguous cold request profiles')
+                        if not profiles['stages'] or {s['device'] for s in profiles['stages']}!={0,1}:
+                            raise ValueError('Both real stage timelines required')
+                        if mtp and not any(d['batched'] for d in profiles['draft']):raise ValueError('Requested MTP batch path never exercised')
+                        if not mtp and any(d['batched'] for d in profiles['draft']):raise ValueError('Control unexpectedly batched MTP')
+                        for file in identity['files']:
+                            if fingerprint(file['path'])!=file['fingerprint']:raise ValueError('Verified model changed during arm')
                         references[label]=cases
             comparisons=[]
             for label,cases in references.items():
-                model=label.split('-r')[0];controls=[cs for name,cs in references.items() if name.startswith(model+'-') and '-c2048-m0-s24' in name]
-                comparisons.append(dict(arm=label,generated_ids_equal_controls=all(all(a['ids']==b['ids'] for a,b in zip(cases,cs)) for cs in controls),
+                model=label.split('-r')[0];controls=[cs for name,cs in references.items() if name.startswith(model+'-') and '-c2048-m0-s24-j0' in name]
+                comparisons.append(dict(arm=label,generated_ids_equal_controls=bool(controls) and all(all(a['ids']==b['ids'] for a,b in zip(cases,cs)) for cs in controls),
                                         control_repetitions=len(controls)))
             store(out/'comparison.json',comparisons)
+        except BaseException as error:
+            store(out/'failure.json',dict(error=repr(error)));raise
         finally:
             after={str(p):digest(p) for p in deployed};store(out/'deployment-after.json',after)
+            candidate=json.loads((out/'candidate.json').read_bytes());final_engine_sha=digest(exe)
+            store(out/'candidate-after.json',dict(sha256=final_engine_sha))
             if before!=after:raise RuntimeError('Owner deployment changed during validation; review, never overwrite')
+            if candidate['sha256']!=final_engine_sha:raise RuntimeError('Candidate binary changed during validation; refuse mixed source comparison')
 
 
 if __name__=='__main__':

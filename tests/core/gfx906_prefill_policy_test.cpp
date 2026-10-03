@@ -23,6 +23,14 @@ int main() {
     CHECK(!split_draft(false, "1", "gfx906")); CHECK(!split_draft(true, nullptr, "gfx906"));
     CHECK(!split_draft(true, "0", "gfx906")); CHECK(!split_draft(true, "1", "gfx1201"));
     CHECK(split_draft(true, "1", "gfx906"));
+    CHECK(mmq_tile(nullptr, "gfx906") == 0); CHECK(mmq_tile("0", "gfx906") == 0);
+    CHECK(mmq_tile("32", "gfx1100") == 0); CHECK(mmq_tile("032", "gfx906") == 0);
+    CHECK(mmq_tile("32junk", "gfx906") == 0); CHECK(mmq_tile("128", "gfx906") == 0);
+    CHECK(mmq_tile("16", "gfx906") == 16); CHECK(mmq_tile("32", "gfx906") == 32);
+    CHECK(mmq_tile("48", "gfx906:xnack-:sramecc+") == 48); CHECK(mmq_tile("64", "gfx906") == 64);
+    CHECK(mmq_expert_geometry(32, 1280, 2560)); CHECK(mmq_expert_geometry(2, 2560, 640));
+    CHECK(!mmq_expert_geometry(1, 1280, 2560)); CHECK(!mmq_expert_geometry(0, 2560, 640));
+    CHECK(!mmq_expert_geometry(32, 128, 256));
     std::printf("gfx906 prefill policy: %d checks passed (CPU-only; not GPU or model parity)\n", checks);
     return 0;
 }

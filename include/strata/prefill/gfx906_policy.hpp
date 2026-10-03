@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <initializer_list>
 
 namespace strata::prefill::gfx906 {
 
@@ -15,6 +16,17 @@ inline bool attention_geometry(int64_t queries, int64_t cap, int64_t heads, int6
                                int64_t dim, int64_t page_size) {
     return queries > 0 && queries <= 65535 && cap > 0 && cap <= 32768 &&
            heads == 24 && kv_heads == 2 && dim == 256 && page_size > 0;
+}
+// Tile experiments affect grouped experts only, not single-matrix drafter/dense calls.
+// Only pinned-model dimensions are admitted until other geometries are numerically validated.
+inline int mmq_tile(const char* value, const char* arch) {
+    if (!architecture(arch) || !value) return 0;
+    for (const auto& entry : {"16", "32", "48", "64"})
+        if (std::strcmp(value, entry) == 0) return (entry[0] - '0') * 10 + entry[1] - '0';
+    return 0;
+}
+inline bool mmq_expert_geometry(int experts, int64_t rows, int64_t cols) {
+    return experts > 1 && ((rows == 1280 && cols == 2560) || (rows == 2560 && cols == 640));
 }
 inline bool split_draft(bool split, const char* value, const char* arch) {
     return split && opt_in(value) && architecture(arch);

@@ -73,7 +73,8 @@ print('READY 262144 stop',flush=True)
 for line in sys.stdin:
  if line.startswith('QUIT'):break
  if line.startswith('GEN '):
-  n=len(line.split())-4
+  assert len(line.split())==5, 'The actual pipe protocol requires one comma-separated ID field'
+  n=len(line.split()[-1].split(','))
   print('T 7',flush=True)
   print(f'DONE 1 {n} 1.5 0.5 stop 0 1 REUSE 0 0 0 0 0 {n}',flush=True)
 '''.replace('REUSE',extra or '0'))
@@ -92,7 +93,11 @@ for line in sys.stdin:
             stdout=(out/'engine.stdout.raw').read_bytes()
             self.assertTrue(stdout.startswith(b'INFO engine=unit-fixture\nREADY'))
             self.assertIn(b'T 7\nDONE 1 3',stdout)
-            self.assertEqual((out/'engine.stdin.raw').read_bytes(),b'GEN 3 top_k=1 seed=42 11 12 13\nQUIT\n')
+            from serve.server import StrataEngine
+            keys=StrataEngine.sampling_keys(dict(temperature=0,top_k=1,top_p=1,min_p=0,seed=42))
+            # Compare to the actual frontend contract, not just a fake reproducing our own assumptions.
+            expected=('GEN 3'+keys+' 11,12,13\nQUIT\n').encode()
+            self.assertEqual((out/'engine.stdin.raw').read_bytes(),expected)
             for f in out.glob('*.raw'):self.assertEqual(f.stat().st_mode&0o777,0o600)
 
     def test_reused_sample_refused_and_own_child_closed(self):

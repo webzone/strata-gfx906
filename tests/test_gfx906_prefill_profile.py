@@ -90,6 +90,31 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual([r["request"]["prefill_rows"] for r in report["request_profiles"]], [2048, 4096])
         self.assertEqual(report["stages"][0]["calls"], 3) # Aggregate is still available, explicitly separate.
 
+    def test_layer_rows_and_format_specific_phases(self):
+        r=dict(schema=1,device=0,layer=8,pos0=0,tokens=2048,chunk=2048,gu_type=29,down_type=42,
+               row_calls=1,routed_rows=20480,max_rows=130,
+               row_bin_upper=[0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,None],
+               row_histogram=[0,0,0,0,0,0,100,400,11,1,0,0,0,0,0,0],phase_ms={'fp16 gate/up':10,'fp16 down':5})
+        report=summarize(read_records(raw('layer',r)*2));group=report['layers'][0]
+        self.assertEqual(group['row_calls'],2);self.assertEqual(sum(group['row_histogram']),1024)
+        self.assertEqual(group['phase_ms']['fp16 down'],10);self.assertEqual(group['max_rows'],130)
+        for mutate in [lambda x:x.update(row_histogram=[0]),lambda x:x.update(layer=True),
+                       lambda x:x.update(phase_ms={'fp16 down':float('nan')}),lambda x:x.update(row_bin_upper=[0]*16)]:
+            bad=copy.deepcopy(r);mutate(bad)
+            with self.assertRaises(ValueError):read_records(raw('layer',bad))
+
+    def test_product_counts_actual_group_rows_not_activation_stride(self):
+        r=dict(schema=1,device=1,layer=37,pos0=0,type='q2_0',groups=32,total_rows=20480,group_rows=640,
+               max_rows=80,weight_rows=2560,weight_cols=640,requested_j=32,selected_j=32,forced=True)
+        request=dict(schema=1,prompt_tokens=2049,reused=0,read_from=0,prefill_rows=2048,cancelled=False,
+                     ms_wall=100,ms_refill=0,refilled_slots=0)
+        report=summarize(read_records(raw('mmq',r)+raw('request',request)+raw('mmq',dict(r,group_rows=80))+raw('request',request)))
+        self.assertEqual(report['products'][0]['group_rows'],720)
+        self.assertNotIn('total_rows',report['products'][0])
+        self.assertEqual([p['products'][0]['group_rows'] for p in report['request_profiles']],[640,80])
+        for key,value in [('group_rows',20481),('forced',1),('selected_j',-1)]:
+            with self.assertRaises(ValueError):read_records(raw('mmq',dict(r,**{key:value})))
+
     def test_negative_counters_are_rejected(self):
         r = stage(); r["experts_streamed"] = -1
         with self.assertRaises(ValueError):
