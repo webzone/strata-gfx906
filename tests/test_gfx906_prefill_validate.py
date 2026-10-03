@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.gfx906_prefill_validate import Pipe, fixture, idle_smi, parse_done, store, verify_model
+from tools.gfx906_prefill_validate import Pipe, fixture, idle_smi, parse_done, store, verify_model, estimate_evidence
 from tools.gfx906_model import REVISION, REPO
 
 
@@ -20,6 +20,20 @@ class Template:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_peak_estimate_counts_repeated_protocol_and_product_traces(self):
+        args=([65536],['code'],[(2048,0,24,0)],1,1)
+        base=estimate_evidence(*args)
+        self.assertGreaterEqual(base,65536*8)
+        trace=estimate_evidence(*args,trace_mmq=True)
+        self.assertEqual(trace-base,32*48*32*1024)
+        self.assertGreater(estimate_evidence(*args,profile_experts=True),base)
+        fixed=64*65536
+        self.assertEqual(estimate_evidence([65536],['code'],[(2048,0,24,0)],2,1),fixed+2*(base-fixed))
+        self.assertGreater(estimate_evidence([65536],['code'],[(2048,0,24,0)],2,2),base)
+        self.assertLess(estimate_evidence([65536],['code'],[(4096,0,24,0)],1,1,trace_mmq=True),trace)
+        for targets,kinds,arms,repeats,models in [([],['code'],[(2048,0,24,0)],1,1),([1],[],[(2048,0,24,0)],1,1),([1],['code'],[],1,1),([1],['code'],[(2048,0,24,0)],0,1)]:
+            with self.assertRaises(ValueError):estimate_evidence(targets,kinds,arms,repeats,models)
+
     def test_idle_requires_two_unused_cards_and_no_pid(self):
         text='No KFD PIDs currently running\n'
         text+='GPU[0]: VRAM Total Used Memory (B): 10866688\nGPU[1]: VRAM Total Used Memory (B): 10866688\n'

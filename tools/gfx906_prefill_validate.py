@@ -291,6 +291,25 @@ def fixture(tokenizer, template, kind, target):
     return best
 
 
+def estimate_evidence(targets, kinds, arms, repeats, models, profile_experts=False, trace_mmq=False):
+    """Conservative new-evidence budget, excluding existing weights/builds and the separate 4-GiB floor.
+
+    Submitted CSV tokens repeat for every execution, not just once per fixture. Budget up to 32
+    grouped MMQ products/layer/chunk. Profiling cannot inherit a fixed eight-MiB-per-arm allowance.
+    """
+    if not targets or not kinds or not arms or repeats < 1 or models < 1 or any(n < 1 for n in targets):
+        raise ValueError('Positive evidence geometry required')
+    executions = repeats * models
+    chunks = sum((n + chunk - 1)//chunk for n in targets for chunk,_,_,_ in arms) * len(kinds) * executions
+    fixtures = 64 * sum(targets) * len(kinds)
+    raw_protocol = 8 * sum(targets) * len(kinds) * len(arms) * executions
+    startup_memory_results = 16 * 2**20 * len(arms) * executions
+    stage_draft = 4 * 1024 * chunks
+    layer_profiles = 4 * 1024 * 48 * chunks if profile_experts else 0
+    product_traces = 1024 * 32 * 48 * chunks if trace_mmq else 0
+    return fixtures + raw_protocol + startup_memory_results + stage_draft + layer_profiles + product_traces
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root',type=Path,required=True)
@@ -315,7 +334,7 @@ def main():
     targets=[int(x) for x in args.targets.split(',')];kinds=args.kinds.split(',')
     arms=parse_arms(args.arms)
     if any(n<1024 or n>196608 for n in targets):raise ValueError('Conservative context bounds required')
-    peak_new_bytes=64*sum(targets)*len(kinds)+8*2**20*len(arms)*args.repeats*len(args.configs)
+    peak_new_bytes=estimate_evidence(targets,kinds,arms,args.repeats,len(args.configs),args.profile_experts,args.trace_mmq)
     if shutil.disk_usage(out.parent).free<FLOOR+peak_new_bytes:raise ValueError('Peak evidence plus 4-GiB reserve insufficient')
     out.mkdir(mode=0o700,parents=True);resource.setrlimit(resource.RLIMIT_CORE,(0,0))
     from serve.server import engine_args,child_env

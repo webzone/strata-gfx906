@@ -145,3 +145,9 @@ All completion rows above remain unverified for the continued goal.
   not guessed; each phase has its own fresh evidence and failure/exit files. Recorded driver PID508609
   is not completion evidence. First six IQ2_XS control/MTP requests completed; comparisons, auto arms,
   IQ3_S and full matrix are not yet verified. Do not compete with it or rebuild its executing binary.
+- Future runner source now estimates repeated raw CSV submissions, startup/memory evidence,
+  layer profiles and up to 32 MMQ trace records/layer/chunk rather than a fixed eight-MiB allowance.
+  **77 gfx906 CPU Python tests** passed without skips. Recomputed conservative budgets for the active
+  archived-78d2fbf driver are 1,622,032,384 B focused +2,053,840,896 B full matrix =3,675,873,280 B,
+  below its separately admitted 8,589,934,592 B evidence allowance. The active application/runner
+  archive was not modified; periodic 4-GiB disk-floor monitoring and new-directory checks remain active.
