@@ -1359,7 +1359,8 @@ bool Verifier::wait_commit(std::string& err) {
 
 bool Verifier::copy_logits(int t, float* host) const {
     if (next_ != nullptr) return next_->copy_logits(t, host);   // a layer split: the head is on the last stage
-    if (head_logits_ == nullptr || host == nullptr || t < 0 || n_vocab_ <= 0) return false;
+    if (head_logits_ == nullptr || host == nullptr || t < 0 || t >= last_t_ || n_vocab_ <= 0) return false;
+    const OnDevice on_device(device_);   // the diagnostic reader may be on the first split stage
     return cudaMemcpy(host, head_logits_ + (size_t) t * (size_t) n_vocab_, (size_t) n_vocab_ * sizeof(float),
                       cudaMemcpyDeviceToHost) == cudaSuccess;
 }

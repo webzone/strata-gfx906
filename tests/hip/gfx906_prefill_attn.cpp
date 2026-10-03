@@ -50,9 +50,9 @@ struct Fixture {
     std::vector<int8_t> k, v;
     std::vector<uint16_t> ks, vs;
     std::vector<int32_t> ids, steps, table;
-    Fixture(int nq, int capacity, int masking, bool full = false)
-        : queries(nq), cap(capacity), pages(32), mode(masking) {
-        s.page_size = 256;
+    Fixture(int nq, int capacity, int masking, bool full = false, int page_size = 256, int physical_pages = 32)
+        : queries(nq), cap(capacity), pages(physical_pages), mode(masking) {
+        s.page_size = page_size;
         std::mt19937 rng(906u + (unsigned) cap * 31u + (unsigned) mode * 13u);
         q.resize((size_t) nq * 24 * 256);
         k.resize((size_t) pages * 2 * s.page_size * 256); v.resize(k.size());
@@ -140,7 +140,7 @@ template <typename T> std::vector<T> load(const std::filesystem::path& p, size_t
 Fixture replay_fixture(const std::filesystem::path& p) {
     const auto g = load<int64_t>(p / "geometry.i64", 9);
     if (g[0] != 1 || g[1] < 1 || g[1] > 3 || g[2] < 1 || g[2] > 32768 ||
-        g[3] < 1 || g[3] > 4096 || g[4] < 1 || g[4] > 512 || g[5] < 1 || g[5] > 65536 || g[8] < g[1])
+        g[3] < 1 || g[3] > 4096 || g[4] < 1 || g[4] > 65536 || g[5] < 1 || g[5] > 65536 || g[8] < g[1])
         throw std::runtime_error("invalid real-input fixture geometry");
     const size_t values = (size_t) g[4] * 2 * g[3] * 256;
     if (values * 2 + values / 64 * 4 > (64ULL << 20)) throw std::runtime_error("real-input fixture too large");
@@ -174,7 +174,7 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
     const int oracle_queries = bench ? std::min(8, f.queries) : f.queries;
     std::filesystem::path path;
     if (!dump.empty()) {
-        path = dump / ("q" + std::to_string(f.queries) + "-cap" + std::to_string(f.cap) + "-mask" + std::to_string(f.mode));
+        path = dump / ("q" + std::to_string(f.queries) + "-cap" + std::to_string(f.cap) + "-mask" + std::to_string(f.mode) + "-page" + std::to_string(f.s.page_size));
         if (!std::filesystem::create_directory(path)) throw std::runtime_error("fixture directory already exists");
         // Preserve inputs BEFORE allocation/launch/comparison, including on a failing fixture.
         save(path / "q.f32", f.q); save(path / "k.i8", f.k); save(path / "v.i8", f.v);
@@ -284,6 +284,9 @@ int main(int argc, char** argv) {
         struct Case { int queries, cap, mask; };
         const Case cases[] = {{1,1,0}, {3,63,0}, {17,64,0}, {33,65,1}, {8,257,1}, {8,2051,0}, {8,2051,2}, {8,2051,3}, {128,65,0}};
         for (const auto& c : cases) { Fixture f(c.queries, c.cap, c.mask); run_case(f, c.cap == 2051 && c.mask == 0, false, dump); }
+        // The acceptance model uses four-cell pages, not the historical 256-cell synthetic geometry.
+        // Include >512 physical pages under the same byte/oracle bounds.
+        for (int cap : {65,2051}) { Fixture f(6,cap,0,false,4,1024); run_case(f,true,false,dump); }
         if (bench) { Fixture f(2048, 2051, 0, true); run_case(f, false, true, dump); }
         std::printf("PASS device=%d; synthetic parity only; bench oracle is sampled if requested\n", device);
         return 0;

@@ -49,10 +49,13 @@ def operators(control, online):
     for name in sorted(names):
         a, b = control / name, online / name
         ga, gb = raw(a / "geometry.i64", "q", 9), raw(b / "geometry.i64", "q", 9)
-        if ga != gb or ga[0] != 1 or not 1 <= ga[1] <= 3 or not 1 <= ga[2] <= 32768:
-            raise ValueError("capture geometry differs or is invalid")
+        if any(g[0] != 1 or not 1 <= g[1] <= 3 or not 1 <= g[2] <= 32768 or not 1 <= g[3] <= 4096 or
+               not 0 <= g[4] <= 65536 or not 0 <= g[5] <= 1048576 for g in (ga,gb)) or any(ga[i] != gb[i] for i in [1,2,3,6,7,8]):
+            raise ValueError("capture coordinates/shape differ or geometry is invalid")
+        # Later layers may select different KV pages after upstream numerical drift. Preserve that
+        # evidence without calling it an isolated operator comparison or requiring equal pool sizes.
         n = ga[1] * 24 * 256
-        record = dict(capture=name, geometry=list(ga), sampled_queries=ga[1],
+        record = dict(capture=name, geometry=list(ga), online_geometry=list(gb), sampled_queries=ga[1],
                       input_equal={key: digest(a / key) == digest(b / key) for key in inputs},
                       query=metric(raw(a / "q.f32", "f", n), raw(b / "q.f32", "f", n)),
                       output=metric(raw(a / "actual.f32", "f", n), raw(b / "actual.f32", "f", n)))

@@ -98,3 +98,28 @@ All completion rows above remain unverified for the continued goal.
   Current checks: 71 gfx906 Python tests with repository .venv/bin on PATH (no skips), 55 CPU policy
   checks; earlier missing-PATH run's five CMake skips are retained and not relabelled as passes.
   None of the long/repetition/adoption/split/QSA completion rows is yet satisfied.
+- Source **9211185** compiled/audited successfully; application SHA256
+  `5b52e618e427bff1582fb2011a80ec924ea1bc245d3f5f475f1061178ca01f61`. Both MI50s passed 40 grouped
+  matrix fixtures × six dispatches including `auto`, full bit-identical outputs, 48 graph replays/card,
+  and unchanged sampled CPU double gates. Fresh wave clocks: 25.0000/24.9997 MHz, 29952 checks/card.
+  Small raw receipt: `gfx906-results/20261003-mmq-auto-9211185/README.md`. This is not model adoption.
+- The saved original 33475-token IQ2_XS source-review input was tokenizer-reverified and generated
+  through both QSA paths with zero reuse/clean exits on 9211185, reproducing first output-ID divergence
+  **42**. Immutable real first-chunk inputs/outputs exist for all twelve QSA layers in each arm.
+  A private absolute-script import failure was retained, then corrected with isolated-source PYTHONPATH.
+  Subsequent analysis correctly found different downstream compact-page geometry; the analyzer now
+  preserves changed-input observations as non-isolated rather than refusing them. Original failure
+  evidence remains. No logits were written because the original hook covered one-shot generation,
+  not the pipe service's separate verify loop; continued source fixes the actual service hook and
+  owner-device logits read, with a static entry-point regression (not hardware proof yet).
+- Real replay loader rejected all 24 captures **before numeric execution**: production page_size is
+  **4**, compact pages 757–812, while the historical synthetic fixture used page_size 256 and an
+  unjustified 512-page loader limit. Continued source replaces that limit with bounded geometry and
+  the existing 64-MiB byte bound, and adds four-cell/1024-page synthetic cases. The numeric thresholds
+  remain exactly 0.003 + 0.0005*abs(reference), relative L2 <=2e-4; recovery execution is pending.
+- Offline `tools.gfx906_prefill_compare` verifies full requested fixture/model/arm/repetition coverage,
+  actual raw submitted IDs and complete raw T/DONE results, deployment/binary hashes, and separates
+  canonical-2048 from same-chunk MTP-OFF controls. Missing paired controls yield null, never equality.
+  It audited all 18 completed cbdc94c pilot cases against original protocol. Latest CPU regressions:
+  **169 setup / 76 gfx906 Python tests**, no skips, diff check clean. Final-source HIP, broader model
+  repetitions/contexts, accepted expert optimization, nearby splits and QSA diagnosis remain pending.

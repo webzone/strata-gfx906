@@ -90,6 +90,18 @@ int main(int argc,char** argv) {
 
 
 class DiagnosticTests(unittest.TestCase):
+    def test_pipe_capture_hook_precedes_commit_and_uses_last_device(self):
+        # Static coverage regression only; real logits and model IDs still require hardware evidence.
+        root = pathlib.Path(__file__).resolve().parents[1]
+        source = (root/'src/program/generate.cpp').read_text()
+        pipe = source[source.index('while (!cancelled && produced_n < max_new)'):]
+        pipe = pipe[:pipe.index('const double decode_ms')]
+        self.assertLess(pipe.index('::capture_logits('),pipe.index('ver.commit('))
+        self.assertIn('produced_n + i < max_new',pipe)
+        verify = (root/'src/core/verify.cpp').read_text().split('bool Verifier::copy_logits',1)[1]
+        self.assertLess(verify.index('next_->copy_logits'),verify.index('OnDevice on_device(device_)'))
+        self.assertIn('t >= last_t_',verify)
+
     def test_auto_arms_are_exact_and_duplicate_safe(self):
         self.assertEqual(parse_arms('2048:0:24,4096:1:24:auto'), [(2048,0,24,0),(4096,1,24,-1)])
         for value in ['4096:1:24:AUTO','4096:1:24:-1','4096:1:24:0,4096:1:24','8192:1:24:auto']:
@@ -138,6 +150,11 @@ class DiagnosticTests(unittest.TestCase):
             records = diagnostic.operators(*dirs)
             self.assertFalse(records[0]['isolated_operator_comparison'])
             self.assertFalse(records[0]['input_equal']['q.f32'])
+            # Different compact-page coverage downstream is evidence of changed operands, not a malformed experiment.
+            (dirs[1]/'device0-layer3-pos0'/'geometry.i64').write_bytes(array.array('q',[1,1,1,1,2,2,3,0,1]).tobytes())
+            records = diagnostic.operators(*dirs)
+            self.assertFalse(records[0]['isolated_operator_comparison'])
+            self.assertNotEqual(records[0]['geometry'],records[0]['online_geometry'])
 
     def test_cpu_serialization_with_explicit_mock_runtime(self):
         compiler = shutil.which("clang++") or shutil.which("g++")

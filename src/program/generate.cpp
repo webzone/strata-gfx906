@@ -5573,6 +5573,21 @@ int main(int argc, char** argv) {
                 int a = 0;
                 while (a < T - 1 && window[(size_t) a + 1] == outv[(size_t) a]) ++a;
                 if (from_sfx) { ++sfx_windows; sfx_drafts += T - 1; sfx_ok += a; }
+                // The pipe service has its own verify loop: capture the actual committed greedy rows here,
+                // before commit, not only in the one-shot generation loop below. No default GPU copy.
+                if (strata::prefill::gfx906::opt_in(std::getenv("STRATA_GFX906_QSA_LOGITS"))) {
+                    std::vector<float> row((size_t) ver.vocab());
+                    bool stop = false;
+                    for (int i = 0; i <= a && produced_n + i < max_new && !stop; ++i) {
+                        if (!ver.copy_logits(i, row.data()) ||
+                            !strata::prefill::gfx906::capture_logits(produced_n + i, p + i,
+                                                                  outv[(size_t) i], row, err)) {
+                            std::printf("ERR logits diagnostic failed: %s\n", err.c_str());
+                            return 1;
+                        }
+                        stop = std::find(o.eos_ids.begin(), o.eos_ids.end(), (int64_t) outv[(size_t) i]) != o.eos_ids.end();
+                    }
+                }
                 const Clock::time_point tw1 = Clock::now();
                 std::thread adapt_thr;   // the adaptive tier beside the commit and the draft (as in generate)
                 bool adapt_ok = true;
