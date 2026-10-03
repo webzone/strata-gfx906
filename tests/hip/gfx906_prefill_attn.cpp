@@ -160,7 +160,7 @@ void run_case(Fixture& f, bool graph, bool bench, const std::filesystem::path& d
     std::printf("fixture queries=%d cap=%d mask=%d oracle_queries=%d\n", f.queries, f.cap, f.mode, oracle_queries);
     compare(old, ref, "control/oracle"); compare(out, ref, "online/oracle"); compare(out, old, "online/control");
     // Also exercise the actual prompt dispatcher, not only its direct experimental entry point.
-    if (!qsa_prompt_attn_batch(q.p, p, ids.p, steps.p, f.cap, f.s, scratch.p, result.p, f.queries, stream.s))
+    if (!qsa_prompt_attn_batch(q.p, p, ids.p, steps.p, f.cap, f.s, result.p, f.queries, stream.s))
         throw std::runtime_error("prompt dispatcher did not select gfx906");
     ck(cudaStreamSynchronize(stream.s)); compare(result.read(size), old, "dispatcher/control");
     if (graph) {
