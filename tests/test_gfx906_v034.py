@@ -34,6 +34,7 @@ class V034Integration(unittest.TestCase):
             (engine / "BUILD.json").write_text(json.dumps(meta))
             stack.enter_context(patch.object(setup, "ROOT", root))
             stack.enter_context(patch.object(setup, "source_hash", return_value="same"))
+            stack.enter_context(patch.object(setup, "cpu_info", lambda: ("Test CPU", True, True)))
             sdk = stack.enter_context(patch.object(setup, "rocm_root"))
             encoder = stack.enter_context(patch.object(setup, "build_vision_cpu", return_value=engine))
             with contextlib.redirect_stdout(io.StringIO()):
