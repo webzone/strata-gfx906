@@ -1,0 +1,9 @@
+device=0 arch=gfx906:sramecc+:xnack- wave=64 independent QSA operator test
+fixture queries=3 cap=2051 mask=4 oracle_queries=3
+control/oracle max_abs=1.2094786e-06 relative_l2=1.40718019e-07
+online/oracle max_abs=5.50101302e-06 relative_l2=4.64236232e-07
+online/control max_abs=4.29153442e-06 relative_l2=4.6021175e-07
+dispatcher/control max_abs=4.29153442e-06 relative_l2=4.6021175e-07
+graph/oracle max_abs=5.50101302e-06 relative_l2=4.64236232e-07
+actual captured path/oracle max_abs=1.2094786e-06 relative_l2=1.40718019e-07
+PASS device=0; real-input sampled-query operator replay; NOT full layer/model parity

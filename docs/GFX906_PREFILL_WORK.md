@@ -6,27 +6,27 @@ The user's objective is to implement the agreed gfx906 prefill plan end to end. 
 
 ## Required work and completion audit
 
-- [ ] Implement a reproducible, serial, pipe-only validation runner with private immutable evidence,
+- [x] Implement a reproducible, serial, pipe-only validation runner with private immutable evidence,
   complete raw stdin/stdout/stderr, exact tokenizer-measured inputs, version/model identity checks,
   deployment integrity checks, owner launch lock, busy-card/listener/RAM/disk admission and bounded
   own-process shutdown/deferred-VRAM cleanup. No service control or deployment overwrite.
-- [ ] Validate control 2048 versus MTP-only 3072/4096, experimental QSA OFF, on pinned IQ2_XS then IQ3_S:
+- [x] Validate control 2048 versus MTP-only 3072/4096, experimental QSA OFF, on pinned IQ2_XS then IQ3_S:
   code, Chinese long-form and multi-turn inputs at 64K/128K, then 192K; repeat key comparisons at least
   three times. Require zero reuse for cold samples. Record generated IDs, real prefill/TTFT/decode,
   acceptance/rejection, expert streaming/refill, cache/buffer pressure and memory peaks. Disclose any
   output differences, failures or incomplete coverage rather than relabelling them as passes.
-- [ ] Inspect real expert group distributions and quantify format-specific MMQ/FP16 costs. Implement
+- [x] Inspect real expert group distributions and quantify format-specific MMQ/FP16 costs. Implement
   and independently numerically test gfx906 expert-matrix improvements justified by measurements.
   Do not force unsupported formats through MMQ, mutate the pinned dependency, change precision
   blindly or report resident microbenchmark timings as model throughput.
-- [ ] Re-measure stage balance using the improved MTP path. Test nearby layer splits only where the
+- [x] Re-measure stage balance using the improved MTP path. Test nearby layer splits only where the
   measured critical path justifies them, with each device owning its caches and mapped aliases,
   producer synchronization, no P2P/tensor parallelism and no competing GPU workload.
-- [ ] Diagnose the reproducible QSA-on/4096 token-42 divergence with real operator/layer/logit evidence,
+- [x] Diagnose the reproducible QSA-on/4096 token-42 divergence with real operator/layer/logit evidence,
   independent numeric reference and isolated controls. Resolve an implementation error if found;
   otherwise establish and document the numeric mechanism/limits, retaining strict tests and opt-in.
   Never loosen an oracle threshold to conceal a discrepancy.
-- [ ] Run relevant CPU/GPU/regression/model gates on final application source, preserve raw evidence,
+- [x] Run relevant CPU/GPU/regression/model gates on final application source, preserve raw evidence,
   document measured scope/limits in `docs/GFX906.md`, commit related changes and push the dedicated
   branch without force. Audit all rows against authoritative artifacts before goal completion.
 
@@ -39,7 +39,7 @@ active GPU/API workload halts admission rather than stopping it. Keep at least 4
 use existing weights/native-from-GGUF paths and this repository's `.venv`, and preserve original
 binary/config/launcher hashes. `STRATA_EXPERIMENTAL_GFX906` and new computation paths remain opt-in.
 
-## Current authoritative state
+## Initial admission snapshot (historical)
 
 2026-10-03 04:07 UTC: local branch was clean at `e7b1d0d`; remote owner checkout remained `c883c4f`.
 The isolated application was `49285ae` with SHA256
@@ -47,7 +47,8 @@ The isolated application was `49285ae` with SHA256
 Both MI50s had 0% utilization, 10866688 B VRAM use and no KFD PIDs; no 8082 listener/owner lock was
 observed. Available RAM was 107772 MiB. These are preflight observations, not permanent availability.
 Full private preflight is `logs/gfx906-prefill-goal-20261003T040756Z/resources-initial.txt` locally.
-All completion rows above remain unverified for the continued goal.
+At that initial snapshot, all completion rows above were unverified. The final requirement audit below
+supersedes that pending status without relabelling any historical source or benchmark.
 
 ## Continued implementation journal
 
@@ -192,3 +193,25 @@ All completion rows above remain unverified for the continued goal.
   metadata remains an archive-lineage check, not fresh live environment/weight attestation or model
   parity. **89 gfx906 /169 setup CPU tests** passed, no skips; full retained cbdc94c 64K pilot re-audit
   passed all six arms/18 cases, and diff check passed. Active compiled/runner archives were unchanged.
+
+## Final requirement audit — 2026-10-04
+
+Completed-source receipt: [`gfx906-results/20261004-final-prefill-78d2fbf/README.md`](gfx906-results/20261004-final-prefill-78d2fbf/README.md).
+Application/GPU-source trees remain identical to compiled **78d2fbf**; offline auditing is **ff9972d**.
+All model suites and final serial drivers exited 0. A later code change would require new matching gates.
+
+| Requirement | Authoritative evidence and resolution |
+|---|---|
+| Serial immutable runner/safety | 318 complete cold requests, raw GEN/T/DONE, recorded argv/config/startup, every requested fixture/model/arm/repetition, raw profile reconstruction and raw two-card memory extrema passed the strengthened ff9972d audit. Owner lease/resource admission, own exits/deferred drain, model/binary/deployment identities were retained. No service operation. |
+| Long-context MTP/model validation | All162 requested IQ2_XS/IQ3_S 64K/128K/192K ×code/Chinese/chat ×three policies ×three repeats passed complete protocol/integrity audit. IDs, real prefill/TTFT/decode, speculation, streaming/refill/cache/timers and sampled peaks are preserved. Larger chunks have disclosed ID differences; no universal chunk3072/4096 recommendation. |
+| Measured expert improvement | Actual product distributions and format-specific MMQ/FP16 costs justify guarded autoJ32/J64. Final-source40 fixtures ×six dispatches/card and48 graph outputs/card retain full control equality and sampled CPU double gates. Repeated54-request64K model gate retains all control IDs; auto adds0.4603%/1.0396% mean reduction over MTP, not the much larger resident operator gains. Unsupported formats/Q2_0/dense/MTP/FP16 fallbacks and pinned kernels/precision are unchanged. |
+| Measured pipeline/split | All72 requested64K neighboring-split trials are fully raw-audited. Critical-path/wait/residency/pressure measurements are recorded. IQ2_XS neighbors do not beat24/24; IQ3_S neighbors change IDs despite a faster25/23 result. Keep24/24 rather than adopting an unverified numerical path. Ownership/aliases/producer ordering remain; no P2P/tensor parallelism. |
+| QSA diagnosis | Actual fixedT=1 controls were verified from INFO, DONE and64 one-row decode windows. Raw chosen IDs match128 committed-logit vectors; index42 flip and initial same-input layer3 rounding drift remain. All24 sampled real-input old/new/dispatcher/graph/actual-output independent double gates passed unchanged. Speculative-window variation is eliminated for this diagnostic; unsampled rows/global quality are not claimed. QSA stays OFF for accepted candidates. |
+| Final gates/documentation/integrity | CPU89 gfx906/169 setup, policy55; both-card attention/native-alias/MMQ/graph and29952 wave checks/card passed on unchanged78d2fbf. Requested-missing probes returned expected1, not skips. All six binary and six deployment hashes unchanged; cards drained/no KFD/API/Docker workload at completion. Public receipt retains bounded IDs/counters/timers/hashes/raw logs; full fixtures remain private. Related changes are committed/pushed only on the dedicated origin branch. |
+
+The bounded accepted result is **2048 /24-24 /MTP batch+auto /QSA OFF** for the repeated64K
+fixtures, with2.6815%/3.2539% mean cold-prefill reduction over control. This does not replace the
+required long-context matrix with a smaller test: that entire matrix was completed and its negative
+consistency results are retained. Rejected QSA/larger-chunk/neighboring-split variants are not passes.
+Deployment/default changes, MI60, full262K/long-soak/global quality, every-row/full-model CPU parity
+and complete split RAM-conversation parking remain outside the agreed implementation scope.

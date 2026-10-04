@@ -1,0 +1,45 @@
+UTC 2026-10-04T08:36:15.430414+00:00
+focused64k-78d2fbf.exit 0
+long-matrix-78d2fbf.exit 0
+auto64k-repeat-78d2fbf.exit 0
+splits64k-repeat-78d2fbf.exit 0
+qsa-fixed-window-78d2fbf.exit 0
+final-gpu-78d2fbf.exit 0
+model-validation-78d2fbf.exit 0
+post-matrix-78d2fbf.exit 0
+binaries all six current hashes equal archive 6
+deployment all six current hashes equal archive 6
+IQ2_XS current shard fingerprints match fully hashed identities
+IQ3_S current shard fingerprints match fully hashed identities
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+==========================================================================================
+===================================== KFD Processes ======================================
+No KFD PIDs currently running
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34342961152
+GPU[0]		: VRAM Total Used Memory (B): 10866688
+GPU[1]		: VRAM Total Memory (B): 34342961152
+GPU[1]		: VRAM Total Used Memory (B): 10866688
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+
+COMMAND ['free', '-m']
+               total        used        free      shared  buff/cache   available
+Mem:          110555        2866       38265           0       70511      107689
+Swap:           4095          16        4079
+
+COMMAND ['df', '-B1', '/home/chris/dev/strata-gfx906']
+Filesystem                           1B-blocks         Used   Available Use% Mounted on
+/dev/mapper/ubuntu--vg-ubuntu--lv 248215199744 205522706432 31469350912  87% /
+
+COMMAND ['docker', 'ps', '--format', '{{.Names}}\t{{.Status}}']
+
+COMMAND ['ss', '-H', '-ltn', 'sport = :8082']
+
+OWNER HEAD c883c4fb17b67764455b92ee9d65005be1a3d821
