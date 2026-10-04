@@ -9,6 +9,7 @@ import statistics
 from pathlib import Path
 from .gfx906_prefill_validate import parse_done, parse_arms
 from .gfx906_model import MODEL_FILES, REPO, REVISION
+from .gfx906_prefill_profile import read_records, summarize
 
 ARM = re.compile(r'^(IQ2_XS|IQ3_S)-r(\d+)-c(2048|3072|4096)-m([01])-s(23|24|25)-j(0|16|32|48|64|auto)$')
 
@@ -61,6 +62,79 @@ def validate_identity(model, identity):
     return identity
 
 
+def validate_arm_metadata(arm, candidate, identity):
+    """Cross-check stored launch metadata; not a live process/environment attestation."""
+    _, _, chunk, mtp, split, tile = ARM.fullmatch(arm.name).groups()
+    cfg = json.loads((arm/'config.private.json').read_text())
+    process = json.loads((arm/'process.json').read_text())
+    startup = json.loads((arm/'startup.json').read_text())
+    engine = candidate.get('engine')
+    gpu = cfg.get('gpu')
+    if (not isinstance(engine, str) or cfg.get('exe') != engine or cfg.get('backend') != 'hip'
+        or cfg.get('experimental_gfx906') is not True or gpu != [0, 1]
+        or any(type(n) is not int for n in gpu) or cfg.get('layer_split') != split
+        or cfg.get('split_skip_if_fits') or cfg.get('expert_profile_save')):
+        raise ValueError('Arm launch identity/two-device split differs from requested controls')
+    args = cfg.get('args')
+    if not isinstance(args, list) or not all(isinstance(n, str) for n in args):
+        raise ValueError('Exact stored string-list engine arguments required')
+    expected = args if '--layer-split' in args else args + ['--layer-split', split]
+    if (type(process.get('pid')) is not int or process['pid'] <= 0
+        or process.get('command') != [engine, '--serve', *expected]):
+        raise ValueError('Actual recorded pipe command differs from private arm config')
+    def value(flag):
+        if expected.count(flag) != 1 or any(n.startswith(flag+'=') for n in expected):
+            raise ValueError('Missing or ambiguous recorded argument '+flag)
+        index = expected.index(flag) + 1
+        if index == len(expected) or expected[index].startswith('--'):
+            raise ValueError('Missing recorded argument value '+flag)
+        return expected[index]
+    required = {'--prefill': chunk, '--layer-split': split, '--prompt-cache': '0',
+                '--short-read': '0', '--kv': 'int8',
+                '--native': identity['files'][0]['path'], '--ple-gguf': identity['files'][1]['path']}
+    if any(value(flag) != wanted for flag, wanted in required.items()):
+        raise ValueError('Recorded chunk/split/cache/KV/model controls differ from arm identity')
+    settings = candidate['settings']
+    env = cfg.get('env', {})
+    switches = dict(STRATA_PREFILL_TIMING='1', STRATA_GFX906_PREFILL_ATTN='0',
+                    STRATA_GFX906_MTP_BATCH=mtp, STRATA_MTP_BATCH='1', STRATA_GFX906_MMQ_J=tile,
+                    STRATA_PREFILL_EXPERT_PROFILE='1' if settings.get('profile_experts') else '0',
+                    STRATA_GFX906_MMQ_TRACE='1' if settings.get('trace_mmq') else '0')
+    if (not isinstance(env, dict) or 'HSA_OVERRIDE_GFX_VERSION' in env
+        or any(env.get(key) != wanted for key, wanted in switches.items())):
+        raise ValueError('Recorded gfx906 computation/profiling switches differ from requested arm')
+    stdout = (arm/'engine.stdout.raw').read_text().splitlines()
+    info = [line for line in stdout if line.startswith('INFO ')]
+    if (not info or startup.get('info') != info or not any(line.startswith('READY ') for line in stdout)
+        or not any('kv=int8' in line.split() for line in info)
+        or type(startup.get('load_s')) not in (int, float) or not math.isfinite(startup['load_s']) or startup['load_s'] < 0):
+        raise ValueError('Stored startup does not match real raw INFO/READY evidence')
+    return dict(chunk=int(chunk), mtp=bool(int(mtp)), split=int(split), tile=tile)
+
+
+def validate_memory_samples(arm, memory):
+    """Recompute observed peaks from complete raw samples; not instantaneous peak proof."""
+    count = 0; rss = 0; available = None; vram = {}; previous = None
+    for line in (arm/'memory.samples.jsonl').read_text().splitlines():
+        sample = json.loads(line)
+        moment = sample.get('monotonic_s')
+        values = sample.get('vram_bytes')
+        if (type(moment) not in (int, float) or not math.isfinite(moment) or moment < 0
+            or (previous is not None and moment <= previous)
+            or any(type(sample.get(k)) is not int or sample[k] < 0 for k in ['rss_bytes', 'available_ram_bytes'])
+            or not isinstance(values, dict) or len(values) != 2
+            or (count and set(values) != set(vram))
+            or any(type(v) is not int or v < 0 for v in values.values())):
+            raise ValueError('Invalid raw two-card memory sample')
+        previous = moment; count += 1; rss = max(rss, sample['rss_bytes'])
+        available = min(available, sample['available_ram_bytes']) if available is not None else sample['available_ram_bytes']
+        for bus, value in values.items():vram[bus] = max(vram.get(bus, 0), value)
+    expected = dict(samples=count, sample_interval_s=1.0, rss_bytes=rss,
+                    minimum_available_ram_bytes=available, vram_bytes=vram)
+    if not count or memory != expected:
+        raise ValueError('Observed memory summary differs from complete raw samples')
+
+
 def report(directory):
     directory = Path(directory)
     if (directory/'failure.json').exists():
@@ -78,7 +152,8 @@ def report(directory):
     targets = [int(n) for n in settings['targets'].split(',')]; kinds = settings['kinds'].split(',')
     if (not targets or len(set(targets)) != len(targets) or any(n<1024 or n>196608 for n in targets)
         or not kinds or len(set(kinds)) != len(kinds) or any(k not in ['code','chinese','chat'] for k in kinds)
-        or type(settings['repeats']) is not int or settings['repeats'] < 1):
+        or type(settings['repeats']) is not int or settings['repeats'] < 1
+        or type(settings.get('max_new')) is not int or settings['max_new'] < 1):
         raise ValueError('Valid unique requested evidence geometry required')
     identities = {model:validate_identity(model,json.loads((directory/(model+'-identity.json')).read_text()))
                   for model in MODEL_FILES if (directory/(model+'-identity.json')).exists()}
@@ -101,6 +176,10 @@ def report(directory):
             continue
         if json.loads((arm/'exit.json').read_text())['exit_code'] != 0:
             raise ValueError('Unclean own engine exit')
+        model = ARM.fullmatch(arm.name).group(1)
+        if model not in identities:
+            raise ValueError('Arm model has no requested pinned identity')
+        controls = validate_arm_metadata(arm, candidate, identities[model])
         files = sorted(arm.glob('case-*.json'), key=lambda f: int(f.stem.split('-')[-1]))
         if [int(f.stem.split('-')[-1]) for f in files] != list(range(len(files))):
             raise ValueError('Missing case index')
@@ -108,9 +187,11 @@ def report(directory):
         if len(cases) != len(fixtures) or any((case['kind'],case['target'],case['input_ids_sha256']) !=
                                             (fixture['kind'],fixture['target'],fixture['input_ids_sha256']) for case,fixture in zip(cases,fixtures)):
             raise ValueError('Missing or changed requested fixture coverage')
-        submitted = [line.split(' ',4)[4] for line in (arm/'engine.stdin.raw').read_text().splitlines() if line.startswith('GEN ')]
-        if len(submitted) != len(fixtures) or any([int(n) for n in wire.split(',')] != fixture['ids'] for wire,fixture in zip(submitted,fixtures)):
-            raise ValueError('Raw submitted tokens differ from fixtures')
+        commands = [line.split(' ',4) for line in (arm/'engine.stdin.raw').read_text().splitlines() if line.startswith('GEN ')]
+        wanted = ['GEN', str(settings['max_new']), 'top_k=1', 'seed=42']
+        if (len(commands) != len(fixtures) or any(len(command) != 5 or command[:4] != wanted for command in commands)
+            or any([int(n) for n in command[4].split(',')] != fixture['ids'] for command,fixture in zip(commands,fixtures))):
+            raise ValueError('Raw submitted greedy controls/tokens differ from fixtures')
         responses = []; pending = []
         for line in (arm/'engine.stdout.raw').read_text().splitlines():
             if line.startswith('T '):pending.append(int(line.split()[1]))
@@ -122,33 +203,52 @@ def report(directory):
         for case,fixture in zip(cases,fixtures):
             metrics = case['engine']
             if (metrics['reused'] != 0 or metrics['prompt_read'] != metrics['prompt_tokens']
-                or metrics['prompt_tokens'] != len(fixture['ids']) or metrics['generated'] != len(case['ids'])):
-                raise ValueError('Not a complete cold generation')
+                or metrics['prompt_tokens'] != len(fixture['ids']) or metrics['generated'] != len(case['ids'])
+                or metrics['generated'] > settings['max_new']):
+                raise ValueError('Not a complete bounded cold generation')
+            if (any(type(case.get(k)) not in (int,float) or not math.isfinite(case[k]) or case[k] <= 0 for k in ['ttft_s','wall_s'])
+                or case['wall_s'] < case['ttft_s']):
+                raise ValueError('Invalid real request TTFT/wall timing')
             for key in ['prompt_ms','decode_ms']:
                 if not math.isfinite(metrics[key]) or metrics[key] < 0:
                     raise ValueError('Invalid real engine timing')
         refs[arm.name] = cases
         profiles = json.loads((arm/'profiles.json').read_text())['request_profiles']
+        rebuilt = summarize(read_records((arm/'engine.stderr.raw').read_text()))['request_profiles']
+        if (len(profiles) != len(rebuilt) or any(any(p.get(k) != raw.get(k) for k in ['request', 'stages', 'draft', 'layers'])
+                                               for p,raw in zip(profiles,rebuilt))):
+            raise ValueError('Request profile summary differs from raw stderr evidence')
+        drafts = [draft for p in rebuilt for draft in p['draft']]
+        if (not drafts or any(type(d.get('batched')) is not bool or type(d.get('device')) is not int or d['device'] != 1 for d in drafts)
+            or bool(any(d['batched'] for d in drafts)) != controls['mtp']):
+            raise ValueError('Actual last-stage MTP batch path differs from requested control')
         if len(profiles) != len(cases) or any(len(p['stages']) != 2 or {stage['device'] for stage in p['stages']} != {0,1} for p in profiles):
             raise ValueError('Complete two-device request-scoped profiles required')
         for p,f in zip(profiles,fixtures):
             request=p['request']
+            if settings.get('profile_experts') and (len(p['layers']) != 48 or {layer['layer'] for layer in p['layers']} != set(range(48))):
+                raise ValueError('Requested complete per-layer expert profile missing')
             if (request['prompt_tokens'] != len(f['ids']) or request['reused'] != 0 or request['read_from'] != 0
                 or request['cancelled'] is not False or request['prefill_rows'] != len(f['ids'])-1
-                or any(stage['tokens'] != len(f['ids'])-1 for stage in p['stages'])):
+                or any(stage['tokens'] != len(f['ids'])-1 or stage['chunk'] != controls['chunk']
+                       or (stage['layer_begin'],stage['layer_end']) != ((0,controls['split']) if stage['device'] == 0 else (controls['split'],48))
+                       for stage in p['stages'])):
                 raise ValueError('Request profile does not attest the actual complete cold rows')
         memory=json.loads((arm/'memory-peaks.json').read_text())
-        if (type(memory.get('samples')) is not int or memory['samples'] < 1 or memory.get('sample_interval_s') != 1.0
+        if (type(memory.get('samples')) is not int or memory['samples'] < 1
+            or type(memory.get('sample_interval_s')) is not float or memory['sample_interval_s'] != 1.0
             or any(type(memory.get(k)) is not int or memory[k] < 0 for k in ['rss_bytes','minimum_available_ram_bytes'])
             or not isinstance(memory.get('vram_bytes'),dict) or len(memory['vram_bytes']) != 2
             or any(type(v) is not int or v < 0 for v in memory['vram_bytes'].values())):
             raise ValueError('Complete two-card one-second observed memory evidence required')
-        arms.append(dict(arm=arm.name, cases=cases, request_profiles=profiles,
+        validate_memory_samples(arm, memory)
+        arms.append(dict(arm=arm.name, cases=cases, request_profiles=profiles, recorded_controls=controls,
                          memory=memory,
                          mean_prefill_ms=statistics.mean(c['engine']['prompt_ms'] for c in cases),
                          mean_ttft_s=statistics.mean(c['ttft_s'] for c in cases),
                          raw_sha256={name:hashlib.sha256((arm/name).read_bytes()).hexdigest() for name in
-                                     ['engine.stdin.raw','engine.stdout.raw','engine.stderr.raw','memory.samples.jsonl']}))
+                                     ['engine.stdin.raw','engine.stdout.raw','engine.stderr.raw','memory.samples.jsonl',
+                                      'config.private.json','process.json','startup.json','profiles.json','memory-peaks.json','exit.json']}))
     if not refs:
         raise ValueError('No completed arms')
     if set(refs) != expected_arms:

@@ -180,3 +180,15 @@ All completion rows above remain unverified for the continued goal.
   audit of all18 original cbdc94c 64K cases passed using retained full raw evidence locally. Identity
   validation checks stored full-hash attestations, not a new live weight rehash. Active archives remain
   immutable; final post-run audit must use this stronger offline tool before completing the goal.
+- At **2026-10-04 01:48 UTC**, the existing long-matrix log held **144/162** completed request records;
+  the isolated 78d2fbf engine was loading the IQ3_S r2 2048 control arm. No current-phase failure files
+  were observed. This snapshot is progress, not completed acceptance, and does not establish later
+  availability or output equality. Post-matrix suites had not started at that observation.
+- Continued offline audit cross-checks saved process argv/config/model paths against the arm controls,
+  raw greedy GEN limit/seed, real INFO/READY against saved startup, and rebuilds request/stage/draft/
+  layer summaries from raw stderr. It requires the actual last-stage MTP batch path when requested,
+  complete requested 48-layer coverage, bounded generated counts and positive TTFT/wall. Raw ordered
+  two-card memory samples must independently reproduce every declared peak/minimum/count. Stored
+  metadata remains an archive-lineage check, not fresh live environment/weight attestation or model
+  parity. **89 gfx906 /169 setup CPU tests** passed, no skips; full retained cbdc94c 64K pilot re-audit
+  passed all six arms/18 cases, and diff check passed. Active compiled/runner archives were unchanged.
