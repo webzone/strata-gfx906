@@ -1265,6 +1265,7 @@ class Vision:
     sends the same picture again (every turn, with most clients) encodes it once."""
 
     def __init__(self, cfg: dict, log=None, env: dict | None = None):
+        self.gpu = bool(cfg.get("gpu"))
         args = [cfg["exe"], "--mmproj", cfg["mmproj"], "--model", cfg["model"]]
         if cfg.get("gpu"):
             args.append("--gpu")
@@ -1702,6 +1703,7 @@ class Service:
         self.last_request_at = None                      # when a request last started or finished
         self.started_at = time.time()
         self.status_lock = threading.Lock()
+        self.generation_idle = threading.Condition(self.status_lock)
         self.mcp = None                                  # serve/mcp.py's McpHub when MCP servers are configured
         # sharing the GPU with other programs (all off by default): unload the engine after this many idle seconds,
         # only start it again when this much VRAM is free, and run this command first (e.g. to unload another
@@ -2166,6 +2168,11 @@ class Service:
             # "reading the prompt" with CPU and GPU busy, for good (reproduced).  So encoding takes its turn in the
             # same FIFO as the requests.
             with self.fifo:
+                # Batched generation releases fifo while decoding. Hold it to
+                # block new admissions, then drain existing requests before GPU encoding.
+                if getattr(self.vision, "gpu", False) and getattr(self.engine, "batch", 0):
+                    with self.generation_idle:
+                        self.generation_idle.wait_for(lambda: not self.live_reqs)
                 encoded = [self.vision.encode(src) for src in images]
             # one <|image_pad|> per image -> one per image token.  Only the markers the template writes for an image
             # (right after <|vision_start|>) are images: the same text inside a message (an agent reading these docs,
@@ -2287,15 +2294,17 @@ class Service:
                     # (parallel requests do not hold the fifo: one of them starts it, the others wait for that)
                     with (self.fifo if par else contextlib.nullcontext()):
                         self.ensure_loaded()
-                    with self.status_lock:
-                        st.update(busy=True, phase="reading the prompt", prompt_tokens=len(ids),
-                                  generated=0, started=time.time(), first_token=None, tool=None, tail="",
-                                  max_tokens=max_new)
-                        if par:
-                            self.live_reqs[id(st)] = (st, rate)
-                            self.status.update(st)
-                        self.last_request_at = time.time()
-                        rate.clear()                    # the previous request's samples must not leak into this one
+                        # Register before releasing fifo so GPU image preparation
+                        # cannot mistake an admitted request for an idle engine.
+                        with self.status_lock:
+                            st.update(busy=True, phase="reading the prompt", prompt_tokens=len(ids),
+                                      generated=0, started=time.time(), first_token=None, tool=None, tail="",
+                                      max_tokens=max_new)
+                            if par:
+                                self.live_reqs[id(st)] = (st, rate)
+                                self.status.update(st)
+                            self.last_request_at = time.time()
+                            rate.clear()                # previous request samples must not leak into this one
                     before = getattr(self.engine, "last", None)
                     last_print = time.time()
                     prompt, thought = ids, 0            # thought: the reasoning tokens so far (the budget's count)
@@ -2456,6 +2465,7 @@ class Service:
                         st.pop("tool", None)
                         if par:
                             self.live_reqs.pop(id(st), None)
+                            self.generation_idle.notify_all()
                             if self.live_reqs:              # the newest request still running
                                 self.status.update(list(self.live_reqs.values())[-1][0])
                             else:

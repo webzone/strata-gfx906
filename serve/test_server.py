@@ -243,6 +243,110 @@ class ImageMarkers(unittest.TestCase):
             svc.embeddings.path.unlink(missing_ok=True)
 
 
+class BatchedGpuVision(unittest.TestCase):
+    def test_gpu_encoding_drains_four_requests_and_blocks_new_admission(self):
+        entered = threading.Event()
+        release = threading.Event()
+        encoding = threading.Event()
+        encoded = threading.Event()
+        waiting = threading.Event()
+        fifth = threading.Event()
+        errors = []
+        tok = ByteTokenizer()
+
+        class Engine(MockEngine):
+            batch = 4
+            count = 0
+            lock = threading.Lock()
+
+            def generate(self, ids, *args, **kwargs):
+                if ids == [99]:
+                    fifth.set()
+                else:
+                    with self.lock:
+                        self.count += 1
+                        if self.count == 4:
+                            entered.set()
+                    if not release.wait(5):
+                        raise TimeoutError("mock generations not released")
+                yield from super().generate(ids, *args, **kwargs)
+
+        class Vision(ImageMarkers.FakeVision):
+            gpu = True
+
+            def encode(self, source):
+                encoding.set()
+                if not encoded.wait(5):
+                    raise TimeoutError("mock encoder not released")
+                return super().encode(source)
+
+        def checked(fn):
+            try:
+                fn()
+            except BaseException as e:
+                errors.append(e)
+
+        with tempfile.TemporaryDirectory() as d:
+            svc = Service(Engine(tok, "ok", max_context=CTX), tok,
+                          ChatTemplate(ROOT / "serve/chat_template.jinja"), vision=Vision(d))
+            original_wait = svc.generation_idle.wait_for
+
+            def idle(predicate):
+                waiting.set()
+                return original_wait(predicate)
+
+            def run(ids):
+                list(svc.run(ids, False, None, 10, {}, threading.Event()))
+
+            messages = [{"role": "user", "content": [{"type": "image", "source": "x.png"}]}]
+            workers = [threading.Thread(target=checked, args=(lambda i=i: run([65+i]),), daemon=True)
+                       for i in range(4)]
+            with mock.patch.object(svc.generation_idle, "wait_for", side_effect=idle):
+                try:
+                    for t in workers: t.start()
+                    self.assertTrue(entered.wait(2))
+                    self.assertEqual(len(svc.live_reqs), 4)
+                    image = threading.Thread(target=checked, args=(lambda: svc.prepare(messages, None, {}),), daemon=True)
+                    workers.append(image); image.start()
+                    self.assertTrue(waiting.wait(2))
+                    self.assertFalse(encoding.is_set())
+                    new = threading.Thread(target=checked, args=(lambda: run([99]),), daemon=True)
+                    workers.append(new); new.start()
+                    release.set()
+                    self.assertTrue(encoding.wait(2))
+                    self.assertFalse(fifth.is_set())
+                    encoded.set()
+                finally:
+                    release.set(); encoded.set()
+                    for t in workers: t.join(3)
+            self.assertTrue(all(not t.is_alive() for t in workers))
+            self.assertEqual(errors, [])
+            self.assertTrue(fifth.is_set())
+            self.assertEqual(svc.live_reqs, {})
+
+    def test_failed_generation_releases_gpu_encoder_waiters(self):
+        tok = ByteTokenizer()
+
+        class Engine(MockEngine):
+            batch = 4
+
+            def generate(self, *args, **kwargs):
+                raise EngineDied("synthetic generation failure")
+                yield
+
+        with tempfile.TemporaryDirectory() as d:
+            vision = ImageMarkers.FakeVision(d)
+            vision.gpu = True
+            svc = Service(Engine(tok, "ok", max_context=CTX), tok,
+                          ChatTemplate(ROOT / "serve/chat_template.jinja"), vision=vision)
+            with self.assertRaises(EngineDied):
+                list(svc.run([65], False, None, 10, {}, threading.Event()))
+            self.assertEqual(svc.live_reqs, {})
+            messages = [{"role": "user", "content": [{"type": "image", "source": "x.png"}]}]
+            svc.prepare(messages, None, {})
+            svc.embeddings.path.unlink(missing_ok=True)
+
+
 class ThinkTokenizer(ByteTokenizer):
     """The byte tokenizer with the model's reasoning markers as specials that are matched even without parse_special,
     as the real tokenizer does (GGUF token type 4)."""
