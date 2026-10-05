@@ -1,0 +1,14 @@
+{
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Request 1: count from 1 to 100, one number per line. Start immediately, no explanation."
+    }
+  ],
+  "max_tokens": 128,
+  "temperature": 0,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  }
+}

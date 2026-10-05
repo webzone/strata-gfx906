@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-305a90f42e8243a0868762ae",
+  "object": "chat.completion",
+  "created": 1791172004,
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "MEN WALK ON MOON"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 332,
+    "completion_tokens": 7,
+    "total_tokens": 339,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 332,
+    "prompt_ms": 2543.8,
+    "prompt_per_token_ms": 7.662,
+    "prompt_per_second": 130.5,
+    "predicted_n": 7,
+    "predicted_ms": 143.8,
+    "predicted_per_token_ms": 20.543,
+    "predicted_per_second": 48.7,
+    "draft_n": 6,
+    "draft_n_accepted": 6
+  }
+}

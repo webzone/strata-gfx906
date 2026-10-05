@@ -96,7 +96,7 @@ toward the full 262K context need headroom re-checked on this quant.
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
-This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server processes requests serially. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it.
+This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [T5810 IQ3_S deployment](docs/GFX906.md#t5810-iq3_s-with-hip-vision-and-four-batch-slots-2026-10-05) passed short image and four-slot concurrent API checks.
 
 ## Install and build
 
@@ -250,7 +250,8 @@ rather than their RDNA wheel/prebuilt defaults.
 
 - **Chats stay in the browser.** The Chat tab keeps conversation history, settings and the entered API key
   in local storage (`strata.*` keys), not in server files. Another browser or private session starts empty;
-  clearing site data removes those chats. CPU image input has not been validated on gfx906.
+  clearing site data removes those chats. Image-input validation and encoder precision limits are
+  recorded in [the gfx906 guide](docs/GFX906.md#experimental-hip-vision-on-v0139).
 - **Launch settings stay in the checkout:** `strata-<model>.json`, `run-<model>.sh`,
   `strata-<model>.log`, and optionally `strata-<model>.shared-settings.json`. Do not publish API keys.
 - **Model data stays outside the checkout by default:** `models/`, `packs/` and `mtp/` live in

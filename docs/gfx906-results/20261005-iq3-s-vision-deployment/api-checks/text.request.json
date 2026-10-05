@@ -1,0 +1,14 @@
+{
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Compute 17 + 25. Output only the integer."
+    }
+  ],
+  "max_tokens": 16,
+  "temperature": 0,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  }
+}

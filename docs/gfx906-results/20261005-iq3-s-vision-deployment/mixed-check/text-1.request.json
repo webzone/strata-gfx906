@@ -1,0 +1,14 @@
+{
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Concurrent request 1: list integers from 1 to 150, separated by commas, without explanation."
+    }
+  ],
+  "max_tokens": 192,
+  "temperature": 0,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  }
+}
