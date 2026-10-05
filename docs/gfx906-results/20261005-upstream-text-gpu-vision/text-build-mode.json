@@ -1,0 +1,9 @@
+{
+  "CMAKE_HOME_DIRECTORY": "/home/chris/dev/strata-gfx906",
+  "CMAKE_BUILD_TYPE": "Release",
+  "CMAKE_HIP_ARCHITECTURES": "gfx906",
+  "STRATA_HIP_GFX906": "ON",
+  "STRATA_ENABLE_HIP": "OFF",
+  "STRATA_PORTABLE": "ON",
+  "STRATA_PREFILL_MMQ": "OFF"
+}

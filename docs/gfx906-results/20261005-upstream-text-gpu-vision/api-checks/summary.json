@@ -1,0 +1,67 @@
+{
+  "time_utc": "2026-10-05T05:40:40.082367+00:00",
+  "checks": [
+    {
+      "name": "health",
+      "http_status": 200,
+      "seconds": 0.011494150999169506
+    },
+    {
+      "name": "models",
+      "http_status": 200,
+      "seconds": 0.0010374289995525032
+    },
+    {
+      "name": "status",
+      "http_status": 200,
+      "seconds": 0.0013570680002885638
+    },
+    {
+      "name": "metrics",
+      "http_status": 200,
+      "seconds": 0.0015676479997637216
+    },
+    {
+      "name": "text",
+      "http_status": 200,
+      "seconds": 0.6110052099993482
+    },
+    {
+      "name": "image",
+      "http_status": 200,
+      "seconds": 2.8674217440002394,
+      "answer": "MEN WALK ON MOON",
+      "input_sha256": "2dff664c0c8aaea18aff8cbe7e868845b775e90cdd7a0bac98df709b131deaa3"
+    }
+  ],
+  "limits": "Short API and four-request overlap checks; not full-context, vision quality or long-soak acceptance.",
+  "parallel": {
+    "requested": 4,
+    "reported_slots": 4,
+    "maximum_live_requests": 4,
+    "maximum_occupied_slots": 4,
+    "responses": [
+      {
+        "name": "parallel-0",
+        "http_status": 200,
+        "seconds": 8.63985808399957
+      },
+      {
+        "name": "parallel-1",
+        "http_status": 200,
+        "seconds": 8.621820800000023
+      },
+      {
+        "name": "parallel-2",
+        "http_status": 200,
+        "seconds": 8.550063607000084
+      },
+      {
+        "name": "parallel-3",
+        "http_status": 200,
+        "seconds": 8.666056304999984
+      }
+    ]
+  },
+  "pass": true
+}

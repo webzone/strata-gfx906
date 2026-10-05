@@ -1,0 +1,82 @@
+{
+  "time_utc": "2026-10-05T05:41:41.247247+00:00",
+  "cases": [
+    {
+      "case": 0,
+      "wall_seconds": 10.894808633999673,
+      "usage": {
+        "prompt_tokens": 40,
+        "completion_tokens": 512,
+        "total_tokens": 552,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 40,
+        "prompt_ms": 573.6,
+        "prompt_per_token_ms": 14.34,
+        "prompt_per_second": 69.7,
+        "predicted_n": 512,
+        "predicted_ms": 10305.8,
+        "predicted_per_token_ms": 20.129,
+        "predicted_per_second": 49.7,
+        "draft_n": 464,
+        "draft_n_accepted": 290
+      }
+    },
+    {
+      "case": 1,
+      "wall_seconds": 10.298955906999254,
+      "usage": {
+        "prompt_tokens": 40,
+        "completion_tokens": 512,
+        "total_tokens": 552,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 40,
+        "prompt_ms": 572.5,
+        "prompt_per_token_ms": 14.312,
+        "prompt_per_second": 69.9,
+        "predicted_n": 512,
+        "predicted_ms": 9723.5,
+        "predicted_per_token_ms": 18.991,
+        "predicted_per_second": 52.7,
+        "draft_n": 474,
+        "draft_n_accepted": 312
+      }
+    },
+    {
+      "case": 2,
+      "wall_seconds": 9.80786513000021,
+      "usage": {
+        "prompt_tokens": 37,
+        "completion_tokens": 512,
+        "total_tokens": 549,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 37,
+        "prompt_ms": 526.1,
+        "prompt_per_token_ms": 14.219,
+        "prompt_per_second": 70.3,
+        "predicted_n": 512,
+        "predicted_ms": 9278.3,
+        "predicted_per_token_ms": 18.122,
+        "predicted_per_second": 55.2,
+        "draft_n": 452,
+        "draft_n_accepted": 319
+      }
+    }
+  ],
+  "weighted_decode_tok_s": 52.40961388854768,
+  "limits": "Three sequential short-context, greedy, thinking-disabled, MTP-enabled real generations. GPU vision stays loaded and four batch slots configured. Not a matched before/after, long-context agentic, concurrency throughput or long-soak benchmark."
+}

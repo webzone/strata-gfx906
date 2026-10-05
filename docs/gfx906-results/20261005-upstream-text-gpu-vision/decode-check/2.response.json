@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-639347d5547446b888b3559d",
+  "object": "chat.completion",
+  "created": 1791178891,
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "# Python Asynchronous Programming: Concurrency, Cancellation, and Backpressure\n\nPython\u2019s asynchronous programming model, primarily built around the `asyncio` library, represents a fundamental shift in how we handle Input/Output (I/O) bound operations. Unlike traditional multi-threading or multi-processing, which rely on preemptive context switching by the operating system, Python\u2019s `asyncio` uses cooperative multitasking. This means that tasks voluntarily yield control back to the event loop at specific points, allowing a single thread to manage thousands of concurrent connections efficiently.\n\nHowever, writing robust asynchronous code requires more than just adding `async` and `await` keywords. It demands a deep understanding of three critical concepts: **concurrency management**, **cancellation**, and **backpressure**. This article explores these pillars with concrete examples to demonstrate how to build resilient, high-performance Python applications.\n\n## 1. The Core: Concurrency and the Event Loop\n\nAt the heart of `asyncio` is the **Event Loop**. Think of the event loop as a scheduler that manages a queue of tasks. When a task encounters an `await` expression, it suspends its execution and hands control back to the event loop. The loop then checks if any other tasks are ready to run or if any I/O operations have completed.\n\n### Basic Concurrency Example\n\nConsider a scenario where we need to fetch data from three different APIs. In synchronous code, these requests would happen sequentially, taking the sum of their latencies. In asynchronous code, they happen concurrently, taking the time of the slowest request.\n\n```python\nimport asyncio\nimport time\n\nasync def fetch_data(url: str, delay: float) -> str:\n    \"\"\"Simulates an I/O-bound operation.\"\"\"\n    print(f\"Starting fetch for {url}\")\n    await asyncio.sleep(delay)  # Simulates network latency\n    print(f\"Finished fetch for {url}\")\n    return f\"Data from {url}\"\n\nasync def main():\n    start_time = time.time()\n    \n    # Create tasks to run concurrently\n    task1 = asyncio.create_task(fetch_data(\"api1\", 2))\n    task2 = asyncio.create_task(fetch_data(\"api2\", 3))\n    task3 = asyncio.create_task(fetch_data(\"api3\", 1))\n    \n    # Wait for all tasks to complete\n    results = await asyncio.gather(task1, task2, task3)\n    \n    end_time = time.time()\n   "
+      },
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 37,
+    "completion_tokens": 512,
+    "total_tokens": 549,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 37,
+    "prompt_ms": 526.1,
+    "prompt_per_token_ms": 14.219,
+    "prompt_per_second": 70.3,
+    "predicted_n": 512,
+    "predicted_ms": 9278.3,
+    "predicted_per_token_ms": 18.122,
+    "predicted_per_second": 55.2,
+    "draft_n": 452,
+    "draft_n_accepted": 319
+  }
+}

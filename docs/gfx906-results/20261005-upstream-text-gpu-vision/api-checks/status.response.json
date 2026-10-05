@@ -1,0 +1,61 @@
+{
+  "service": "strata",
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "loaded": true,
+  "auto_load": true,
+  "structured_output": {
+    "formats": [
+      "json_object",
+      "json_schema"
+    ],
+    "method": "prompt_and_validate",
+    "constrained_decoding": false,
+    "stream_buffered": true
+  },
+  "engine": "0.1.39",
+  "started": 1791178838,
+  "uptime_s": 1,
+  "cache_max_tokens": 262144,
+  "context": {
+    "native": 262144,
+    "max_positions": 262144
+  },
+  "concurrency": {
+    "serving": 4,
+    "requested": 4
+  },
+  "dialects": [
+    "/v1/chat/completions",
+    "/v1/messages",
+    "/v1/responses"
+  ],
+  "vision": {
+    "enabled": true,
+    "available": true,
+    "error": null
+  },
+  "activity": {
+    "requests": 0,
+    "in_flight": 0,
+    "last_request_at": null
+  },
+  "last_timings": null,
+  "vram": {
+    "elastic": false
+  },
+  "machine": {
+    "at": 1791178840,
+    "gpu": {
+      "name": "Radeon Instinct MI50 16GB + Radeon Instinct MI50 16GB",
+      "used_mib": 62533.0,
+      "total_mib": 65504.0,
+      "util_pct": 0.0,
+      "temp_c": 39.0,
+      "power_w": 41.0
+    },
+    "ram": {
+      "used_gib": 67.0,
+      "total_gib": 108.0
+    }
+  }
+}

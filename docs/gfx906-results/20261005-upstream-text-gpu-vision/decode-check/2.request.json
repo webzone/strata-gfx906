@@ -1,0 +1,14 @@
+{
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Explain Python asynchronous programming, cancellation, and backpressure. Write at least 1500 words with concrete examples."
+    }
+  ],
+  "max_tokens": 512,
+  "temperature": 0,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  }
+}

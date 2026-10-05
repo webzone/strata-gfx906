@@ -1,0 +1,222 @@
+{
+  "prepared_at_utc": "2026-10-05T05:35:48.957847+00:00",
+  "status": "accepted-short-api-smoke",
+  "directory": "/home/chris/dev/strata-gfx906/logs/restore-upstream-vision-20261005T053548Z",
+  "application_revision": "c465b79133e704ac75ef70b0d708e9740b13fc46",
+  "before_exe": "/home/chris/dev/strata-gfx906/build-hip/strata",
+  "restored_exe": "/data/strata-gfx906/eval-v0139/build-upstream/strata",
+  "text_sha256": "1fc9cde6f2a67b3a830186b022d8fd320049bd56ce275b0576a39964f726040f",
+  "config_sha256_before": "837627fef0adca6971143b5e6ab25d1a88be6cfaaa6c93495551afcdb2f0f9b5",
+  "config_sha256_staged": "76945e62b74ce45727ad2bdceb0c0074582be02f6bffde7cdc2146d3e1d7e056",
+  "changed_keys": [
+    "exe",
+    "log"
+  ],
+  "parallel": 4,
+  "vision": {
+    "exe": "/home/chris/dev/strata-gfx906/build-vision-hip/bin/strata-vision",
+    "mmproj": "/home/chris/dev/strata-gfx906/models/mmproj-Qwen3.8-Flash-Next-BF16.gguf",
+    "model": "/home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf",
+    "gpu": true,
+    "max_tokens": 1024,
+    "threads": 6,
+    "cuda_device": 0
+  },
+  "limits": "Existing owner-preferred v0.1.39 upstream HIP-path text binary, no rebuild. Same accepted gfx906 HIP encoder. Short API, mixed-request and three short-context decode samples only; not matched A/B, long-context/quality/model-parity or long-soak acceptance.",
+  "vision_encoder_sha256": "18f00324223fb1f511a04c216cb4b786287d96166ffa04f9520cde006b1801fb",
+  "vision_encoder_matches_accepted_hip_build": true,
+  "applied_at_utc": "2026-10-05T05:39:10.051379+00:00",
+  "server_pid": 27648,
+  "config_sha256_after": "76945e62b74ce45727ad2bdceb0c0074582be02f6bffde7cdc2146d3e1d7e056",
+  "accepted_at_utc": "2026-10-05T05:43:18.673814+00:00",
+  "engine_pid": 27678,
+  "vision_pid": 27660,
+  "endpoint": "http://192.168.2.8:8082",
+  "api_checks": {
+    "time_utc": "2026-10-05T05:40:40.082367+00:00",
+    "checks": [
+      {
+        "name": "health",
+        "http_status": 200,
+        "seconds": 0.011494150999169506
+      },
+      {
+        "name": "models",
+        "http_status": 200,
+        "seconds": 0.0010374289995525032
+      },
+      {
+        "name": "status",
+        "http_status": 200,
+        "seconds": 0.0013570680002885638
+      },
+      {
+        "name": "metrics",
+        "http_status": 200,
+        "seconds": 0.0015676479997637216
+      },
+      {
+        "name": "text",
+        "http_status": 200,
+        "seconds": 0.6110052099993482
+      },
+      {
+        "name": "image",
+        "http_status": 200,
+        "seconds": 2.8674217440002394,
+        "answer": "MEN WALK ON MOON",
+        "input_sha256": "2dff664c0c8aaea18aff8cbe7e868845b775e90cdd7a0bac98df709b131deaa3"
+      }
+    ],
+    "limits": "Short API and four-request overlap checks; not full-context, vision quality or long-soak acceptance.",
+    "parallel": {
+      "requested": 4,
+      "reported_slots": 4,
+      "maximum_live_requests": 4,
+      "maximum_occupied_slots": 4,
+      "responses": [
+        {
+          "name": "parallel-0",
+          "http_status": 200,
+          "seconds": 8.63985808399957
+        },
+        {
+          "name": "parallel-1",
+          "http_status": 200,
+          "seconds": 8.621820800000023
+        },
+        {
+          "name": "parallel-2",
+          "http_status": 200,
+          "seconds": 8.550063607000084
+        },
+        {
+          "name": "parallel-3",
+          "http_status": 200,
+          "seconds": 8.666056304999984
+        }
+      ]
+    },
+    "pass": true
+  },
+  "mixed_check": {
+    "pass_check": true,
+    "cases": [
+      {
+        "name": "text-0",
+        "status": 200,
+        "seconds": 11.495734129000084,
+        "nonempty": true
+      },
+      {
+        "name": "text-1",
+        "status": 200,
+        "seconds": 11.450712552999903,
+        "nonempty": true
+      },
+      {
+        "name": "text-2",
+        "status": 200,
+        "seconds": 11.360257237999576,
+        "nonempty": true
+      },
+      {
+        "name": "text-3",
+        "status": 200,
+        "seconds": 11.431730595000772,
+        "nonempty": true
+      },
+      {
+        "name": "image",
+        "status": 200,
+        "seconds": 17.257536579999396,
+        "nonempty": true
+      }
+    ],
+    "image_input_sha256": "ebb1d9168f07b51d8e91c9b6353d638b19ff5fb1d5ebd24eacc2b3d57f841d63",
+    "limits": "One fresh synthetic 1024-token GPU image submitted while four text requests were active; liveness/status smoke, not semantic quality, fairness or long-soak acceptance."
+  },
+  "decode_check": {
+    "time_utc": "2026-10-05T05:41:41.247247+00:00",
+    "cases": [
+      {
+        "case": 0,
+        "wall_seconds": 10.894808633999673,
+        "usage": {
+          "prompt_tokens": 40,
+          "completion_tokens": 512,
+          "total_tokens": 552,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 40,
+          "prompt_ms": 573.6,
+          "prompt_per_token_ms": 14.34,
+          "prompt_per_second": 69.7,
+          "predicted_n": 512,
+          "predicted_ms": 10305.8,
+          "predicted_per_token_ms": 20.129,
+          "predicted_per_second": 49.7,
+          "draft_n": 464,
+          "draft_n_accepted": 290
+        }
+      },
+      {
+        "case": 1,
+        "wall_seconds": 10.298955906999254,
+        "usage": {
+          "prompt_tokens": 40,
+          "completion_tokens": 512,
+          "total_tokens": 552,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 40,
+          "prompt_ms": 572.5,
+          "prompt_per_token_ms": 14.312,
+          "prompt_per_second": 69.9,
+          "predicted_n": 512,
+          "predicted_ms": 9723.5,
+          "predicted_per_token_ms": 18.991,
+          "predicted_per_second": 52.7,
+          "draft_n": 474,
+          "draft_n_accepted": 312
+        }
+      },
+      {
+        "case": 2,
+        "wall_seconds": 9.80786513000021,
+        "usage": {
+          "prompt_tokens": 37,
+          "completion_tokens": 512,
+          "total_tokens": 549,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 37,
+          "prompt_ms": 526.1,
+          "prompt_per_token_ms": 14.219,
+          "prompt_per_second": 70.3,
+          "predicted_n": 512,
+          "predicted_ms": 9278.3,
+          "predicted_per_token_ms": 18.122,
+          "predicted_per_second": 55.2,
+          "draft_n": 452,
+          "draft_n_accepted": 319
+        }
+      }
+    ],
+    "weighted_decode_tok_s": 52.40961388854768,
+    "limits": "Three sequential short-context, greedy, thinking-disabled, MTP-enabled real generations. GPU vision stays loaded and four batch slots configured. Not a matched before/after, long-context agentic, concurrency throughput or long-soak benchmark."
+  },
+  "gpu_vision_verified": true
+}

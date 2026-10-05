@@ -1,0 +1,24 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+      "object": "model",
+      "status": {
+        "value": "loaded"
+      },
+      "meta": {
+        "n_ctx": 262144
+      },
+      "architecture": {
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ]
+      }
+    }
+  ]
+}

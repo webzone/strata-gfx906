@@ -1,0 +1,37 @@
+{
+  "id": "chatcmpl-e5fbef4440c14dcf81c20a89",
+  "object": "chat.completion",
+  "created": 1791178852,
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 5"
+      },
+      "finish_reason": "length"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 36,
+    "completion_tokens": 192,
+    "total_tokens": 228,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 36,
+    "prompt_ms": 523.1,
+    "prompt_per_token_ms": 14.531,
+    "prompt_per_second": 68.8,
+    "predicted_n": 192,
+    "predicted_ms": 8606.5,
+    "predicted_per_token_ms": 44.826,
+    "predicted_per_second": 22.3,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+  }
+}

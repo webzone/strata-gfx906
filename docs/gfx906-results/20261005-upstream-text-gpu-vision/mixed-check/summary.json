@@ -1,0 +1,37 @@
+{
+  "pass_check": true,
+  "cases": [
+    {
+      "name": "text-0",
+      "status": 200,
+      "seconds": 11.495734129000084,
+      "nonempty": true
+    },
+    {
+      "name": "text-1",
+      "status": 200,
+      "seconds": 11.450712552999903,
+      "nonempty": true
+    },
+    {
+      "name": "text-2",
+      "status": 200,
+      "seconds": 11.360257237999576,
+      "nonempty": true
+    },
+    {
+      "name": "text-3",
+      "status": 200,
+      "seconds": 11.431730595000772,
+      "nonempty": true
+    },
+    {
+      "name": "image",
+      "status": 200,
+      "seconds": 17.257536579999396,
+      "nonempty": true
+    }
+  ],
+  "image_input_sha256": "ebb1d9168f07b51d8e91c9b6353d638b19ff5fb1d5ebd24eacc2b3d57f841d63",
+  "limits": "One fresh synthetic 1024-token GPU image submitted while four text requests were active; liveness/status smoke, not semantic quality, fairness or long-soak acceptance."
+}

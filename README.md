@@ -2,7 +2,7 @@
 
 **Source version: Strata v0.1.39**
 
-**`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA and now has an RDNA wave32 HIP backend; this fork extends the native AMD HIP/ROCm path to the wave64 architecture in AMD Instinct MI50 and MI60 cards. It targets the real `gfx906` architecture and does not spoof another GPU generation.
+**`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA; v0.1.39 also includes HIP support with an opt-in gfx906 path. This fork maintains its experimental AMD Instinct MI50 / MI60 wave64 backend and adds HIP GPU vision. It targets the real `gfx906` architecture and does not spoof another GPU generation.
 
 This fork is specifically tuned to run **Qwen3.8-Flash-Next** using model weights in **GGUF** format. The model's native/trained context length is **262,144 tokens**. The `--context` setting configures runtime capacity; hardware limits may justify choosing less. Native context is not an extended-RoPE setting, and it does not imply that full-length inference has completed acceptance testing on every system.
 
@@ -96,7 +96,7 @@ toward the full 262K context need headroom re-checked on this quant.
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
-This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [T5810 IQ3_S deployment](docs/GFX906.md#t5810-iq3_s-with-hip-vision-and-four-batch-slots-2026-10-05) passed short image and four-slot concurrent API checks.
+This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [current T5810 IQ3_S deployment](docs/GFX906.md#t5810-iq3_s-restored-upstream-text-engine-with-hip-gpu-vision-2026-10-05) uses the owner's original v0.1.39 upstream HIP-path text binary with this GPU encoder and passed short image/four-slot concurrent API checks.
 
 ## Install and build
 
