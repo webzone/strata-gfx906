@@ -1,0 +1,195 @@
+{
+  "exe_sha256": "be3c650a68b125ed2491a5d2962a2b531214ebe2d75cff1ae2a050dd64ef0792",
+  "mmproj_sha256": "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0",
+  "model": "/home/chris/dev/strata-gfx906/models/IQ2_XS/Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+  "device": 0,
+  "max_tokens": 300,
+  "threads": 6,
+  "repeat": 3,
+  "flash_attention": "off",
+  "inputs": {
+    "square.bmp": "a38d4f997ec347ac3e0ed77cc12a76ca5efa4f70609194ee278961c5432023f4",
+    "wide.bmp": "085b0e146626875e74af2e1c6351e050fab5ccd6ae58e41b2603650cf8672717",
+    "tall.bmp": "f0c1c55fa5194f6a66f4399f9c10d0118d9937e70f048d83e28deaa9a98ffca8",
+    "large.bmp": "cf801df233e7a18a31177cfb1fec5b42a79f1bf0ccfb1eec9e9d0965de82a552",
+    "photo.jpeg": "2dff664c0c8aaea18aff8cbe7e868845b775e90cdd7a0bac98df709b131deaa3"
+  },
+  "results": [
+    {
+      "image": "square.bmp",
+      "shape": [
+        49,
+        2560
+      ],
+      "grid": [
+        7,
+        7
+      ],
+      "relative_l2": 0.021754988924329498,
+      "minimum_token_cosine": 0.9985248761492421,
+      "max_absolute_error": 0.01557827740907669,
+      "pass": false,
+      "cpu": {
+        "milliseconds": [
+          724.0,
+          712.0,
+          723.0
+        ],
+        "median_ms": 723.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/cpu-300-gpu0-square-2.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          56.0,
+          45.0,
+          45.0
+        ],
+        "median_ms": 45.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/hip-300-gpu0-square-2.sve"
+      },
+      "encoder_speedup": 16.066666666666666
+    },
+    {
+      "image": "wide.bmp",
+      "shape": [
+        288,
+        2560
+      ],
+      "grid": [
+        24,
+        12
+      ],
+      "relative_l2": 0.08020953374953853,
+      "minimum_token_cosine": 0.9124402573105479,
+      "max_absolute_error": 0.11285573244094849,
+      "pass": false,
+      "cpu": {
+        "milliseconds": [
+          5820.0,
+          5786.0,
+          5789.0
+        ],
+        "median_ms": 5789.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/cpu-300-gpu0-wide-2.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          203.0,
+          216.0,
+          203.0
+        ],
+        "median_ms": 203.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/hip-300-gpu0-wide-2.sve"
+      },
+      "encoder_speedup": 28.517241379310345
+    },
+    {
+      "image": "tall.bmp",
+      "shape": [
+        288,
+        2560
+      ],
+      "grid": [
+        12,
+        24
+      ],
+      "relative_l2": 0.084152092849834,
+      "minimum_token_cosine": 0.9622794899717175,
+      "max_absolute_error": 0.07179662585258484,
+      "pass": false,
+      "cpu": {
+        "milliseconds": [
+          5858.0,
+          5787.0,
+          5798.0
+        ],
+        "median_ms": 5798.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/cpu-300-gpu0-tall-2.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          204.0,
+          204.0,
+          203.0
+        ],
+        "median_ms": 204.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/hip-300-gpu0-tall-2.sve"
+      },
+      "encoder_speedup": 28.42156862745098
+    },
+    {
+      "image": "large.bmp",
+      "shape": [
+        289,
+        2560
+      ],
+      "grid": [
+        17,
+        17
+      ],
+      "relative_l2": 0.047044944336415026,
+      "minimum_token_cosine": 0.9195581407399246,
+      "max_absolute_error": 0.03335276246070862,
+      "pass": false,
+      "cpu": {
+        "milliseconds": [
+          6241.0,
+          6189.0,
+          6212.0
+        ],
+        "median_ms": 6212.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/cpu-300-gpu0-large-2.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          224.0,
+          222.0,
+          221.0
+        ],
+        "median_ms": 222.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/hip-300-gpu0-large-2.sve"
+      },
+      "encoder_speedup": 27.98198198198198
+    },
+    {
+      "image": "photo.jpeg",
+      "shape": [
+        300,
+        2560
+      ],
+      "grid": [
+        20,
+        15
+      ],
+      "relative_l2": 0.058410572046057055,
+      "minimum_token_cosine": 0.8846301572606159,
+      "max_absolute_error": 0.12547308206558228,
+      "pass": false,
+      "cpu": {
+        "milliseconds": [
+          6188.0,
+          6153.0,
+          6166.0
+        ],
+        "median_ms": 6166.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/cpu-300-gpu0-photo-2.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          214.0,
+          209.0,
+          209.0
+        ],
+        "median_ms": 209.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/compare-300-gpu0/hip-300-gpu0-photo-2.sve"
+      },
+      "encoder_speedup": 29.502392344497608
+    }
+  ],
+  "limits": "Full embedding comparison to ggml CPU, not model logits or generation parity.",
+  "pass": false,
+  "thresholds": {
+    "relative_l2_max": 0.005,
+    "minimum_token_cosine": 0.999
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "exe_sha256": "18f00324223fb1f511a04c216cb4b786287d96166ffa04f9520cde006b1801fb",
+  "mmproj_sha256": "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0",
+  "model": "/home/chris/dev/strata-gfx906/models/IQ2_XS/Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+  "device": 1,
+  "max_tokens": 300,
+  "threads": 6,
+  "repeat": 1,
+  "flash_attention": "off",
+  "inputs": {
+    "square.bmp": "a38d4f997ec347ac3e0ed77cc12a76ca5efa4f70609194ee278961c5432023f4",
+    "wide.bmp": "085b0e146626875e74af2e1c6351e050fab5ccd6ae58e41b2603650cf8672717",
+    "tall.bmp": "f0c1c55fa5194f6a66f4399f9c10d0118d9937e70f048d83e28deaa9a98ffca8",
+    "large.bmp": "cf801df233e7a18a31177cfb1fec5b42a79f1bf0ccfb1eec9e9d0965de82a552",
+    "photo.jpeg": "2dff664c0c8aaea18aff8cbe7e868845b775e90cdd7a0bac98df709b131deaa3"
+  },
+  "results": [
+    {
+      "image": "square.bmp",
+      "shape": [
+        49,
+        2560
+      ],
+      "grid": [
+        7,
+        7
+      ],
+      "relative_l2": 0.00024504597018808953,
+      "minimum_token_cosine": 0.9999995430592328,
+      "max_absolute_error": 0.0001405961811542511,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          631.0
+        ],
+        "median_ms": 631.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/cpu-300-gpu1-square-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          42.0
+        ],
+        "median_ms": 42.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/hip-300-gpu1-square-0.sve"
+      },
+      "encoder_speedup": 15.023809523809524
+    },
+    {
+      "image": "wide.bmp",
+      "shape": [
+        288,
+        2560
+      ],
+      "grid": [
+        24,
+        12
+      ],
+      "relative_l2": 0.0008146592753311342,
+      "minimum_token_cosine": 0.9999936574313237,
+      "max_absolute_error": 0.0008678138256072998,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          5408.0
+        ],
+        "median_ms": 5408.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/cpu-300-gpu1-wide-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          197.0
+        ],
+        "median_ms": 197.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/hip-300-gpu1-wide-0.sve"
+      },
+      "encoder_speedup": 27.451776649746193
+    },
+    {
+      "image": "tall.bmp",
+      "shape": [
+        288,
+        2560
+      ],
+      "grid": [
+        12,
+        24
+      ],
+      "relative_l2": 0.0007337263941558579,
+      "minimum_token_cosine": 0.999994247281744,
+      "max_absolute_error": 0.0009699463844299316,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          5360.0
+        ],
+        "median_ms": 5360.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/cpu-300-gpu1-tall-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          197.0
+        ],
+        "median_ms": 197.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/hip-300-gpu1-tall-0.sve"
+      },
+      "encoder_speedup": 27.20812182741117
+    },
+    {
+      "image": "large.bmp",
+      "shape": [
+        289,
+        2560
+      ],
+      "grid": [
+        17,
+        17
+      ],
+      "relative_l2": 0.0008198807806445729,
+      "minimum_token_cosine": 0.9999963758121435,
+      "max_absolute_error": 0.0006162971258163452,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          5840.0
+        ],
+        "median_ms": 5840.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/cpu-300-gpu1-large-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          216.0
+        ],
+        "median_ms": 216.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/hip-300-gpu1-large-0.sve"
+      },
+      "encoder_speedup": 27.037037037037038
+    },
+    {
+      "image": "photo.jpeg",
+      "shape": [
+        300,
+        2560
+      ],
+      "grid": [
+        20,
+        15
+      ],
+      "relative_l2": 0.0021818663033316955,
+      "minimum_token_cosine": 0.9997201010708384,
+      "max_absolute_error": 0.004313260316848755,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          5771.0
+        ],
+        "median_ms": 5771.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/cpu-300-gpu1-photo-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          207.0
+        ],
+        "median_ms": 207.0,
+        "embedding": "/data/strata-gfx906/vision-gfx906-20261005/accepted-300-gpu1/hip-300-gpu1-photo-0.sve"
+      },
+      "encoder_speedup": 27.879227053140095
+    }
+  ],
+  "limits": "Full embedding comparison to this HIP build's CPU mode (BF16 weights expanded losslessly to FP32), not upstream BF16 activation arithmetic, model logits or generation parity.",
+  "pass": true,
+  "thresholds": {
+    "relative_l2_max": 0.005,
+    "minimum_token_cosine": 0.999
+  }
+}

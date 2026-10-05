@@ -1,0 +1,32 @@
+{
+  "cache": {
+    "CMAKE_BUILD_TYPE": "Release",
+    "CMAKE_HIP_ARCHITECTURES": "gfx906",
+    "CMAKE_HIP_COMPILER": "/opt/rocm/llvm/bin/clang++",
+    "CMAKE_HIP_COMPILER_ROCM_ROOT": "/opt/rocm",
+    "STRATA_EXPERIMENTAL_GFX906": "ON",
+    "STRATA_VISION_HIP": "ON",
+    "STRATA_VISION_CUDA": "OFF",
+    "STRATA_PORTABLE": "ON",
+    "GGML_HIP": "ON",
+    "GGML_CUDA": "OFF",
+    "GGML_HIP_NO_VMM": "ON",
+    "GGML_HIP_MMQ_MFMA": "OFF",
+    "GGML_HIP_GRAPHS": "OFF",
+    "GGML_CUDA_FA": "OFF",
+    "LLAMA_DIR": "/home/chris/dev/strata-gfx906/third_party/llama.cpp"
+  },
+  "negative_build_checks": [
+    {
+      "case": "without-opt-in",
+      "returncode": 1,
+      "pass_check": true
+    },
+    {
+      "case": "wrong-architecture",
+      "returncode": 1,
+      "pass_check": true
+    }
+  ],
+  "reconfigure_build": "ninja: no work to do"
+}

@@ -1,0 +1,206 @@
+{
+  "exe_sha256": "18f00324223fb1f511a04c216cb4b786287d96166ffa04f9520cde006b1801fb",
+  "mmproj_sha256": "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0",
+  "model": "/home/chris/dev/strata-gfx906/models/IQ2_XS/Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS-00001-of-00002.gguf",
+  "device": 0,
+  "max_tokens": 1024,
+  "threads": 6,
+  "repeat": 1,
+  "flash_attention": "off",
+  "inputs": {
+    "square.bmp": "a38d4f997ec347ac3e0ed77cc12a76ca5efa4f70609194ee278961c5432023f4",
+    "wide.bmp": "085b0e146626875e74af2e1c6351e050fab5ccd6ae58e41b2603650cf8672717",
+    "tall.bmp": "f0c1c55fa5194f6a66f4399f9c10d0118d9937e70f048d83e28deaa9a98ffca8",
+    "large.bmp": "cf801df233e7a18a31177cfb1fec5b42a79f1bf0ccfb1eec9e9d0965de82a552",
+    "limit.bmp": "ebb1d9168f07b51d8e91c9b6353d638b19ff5fb1d5ebd24eacc2b3d57f841d63",
+    "photo.jpeg": "2dff664c0c8aaea18aff8cbe7e868845b775e90cdd7a0bac98df709b131deaa3"
+  },
+  "results": [
+    {
+      "image": "square.bmp",
+      "shape": [
+        49,
+        2560
+      ],
+      "grid": [
+        7,
+        7
+      ],
+      "relative_l2": 0.00024504597018808953,
+      "minimum_token_cosine": 0.9999995430592328,
+      "max_absolute_error": 0.0001405961811542511,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          659.0
+        ],
+        "median_ms": 659.0,
+        "embedding": "accepted-1024-limit-gpu0/cpu-1024-gpu0-square-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          40.0
+        ],
+        "median_ms": 40.0,
+        "embedding": "accepted-1024-limit-gpu0/hip-1024-gpu0-square-0.sve"
+      },
+      "encoder_speedup": 16.475
+    },
+    {
+      "image": "wide.bmp",
+      "shape": [
+        392,
+        2560
+      ],
+      "grid": [
+        28,
+        14
+      ],
+      "relative_l2": 0.0006537020534734084,
+      "minimum_token_cosine": 0.9999739652564253,
+      "max_absolute_error": 0.0020019039511680603,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          8411.0
+        ],
+        "median_ms": 8411.0,
+        "embedding": "accepted-1024-limit-gpu0/cpu-1024-gpu0-wide-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          269.0
+        ],
+        "median_ms": 269.0,
+        "embedding": "accepted-1024-limit-gpu0/hip-1024-gpu0-wide-0.sve"
+      },
+      "encoder_speedup": 31.267657992565056
+    },
+    {
+      "image": "tall.bmp",
+      "shape": [
+        392,
+        2560
+      ],
+      "grid": [
+        14,
+        28
+      ],
+      "relative_l2": 0.0005955073064413283,
+      "minimum_token_cosine": 0.9999961339641126,
+      "max_absolute_error": 0.0006080269813537598,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          8381.0
+        ],
+        "median_ms": 8381.0,
+        "embedding": "accepted-1024-limit-gpu0/cpu-1024-gpu0-tall-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          269.0
+        ],
+        "median_ms": 269.0,
+        "embedding": "accepted-1024-limit-gpu0/hip-1024-gpu0-tall-0.sve"
+      },
+      "encoder_speedup": 31.156133828996282
+    },
+    {
+      "image": "large.bmp",
+      "shape": [
+        784,
+        2560
+      ],
+      "grid": [
+        28,
+        28
+      ],
+      "relative_l2": 0.0005348533523798837,
+      "minimum_token_cosine": 0.9999973020630214,
+      "max_absolute_error": 0.0004375465214252472,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          24611.0
+        ],
+        "median_ms": 24611.0,
+        "embedding": "accepted-1024-limit-gpu0/cpu-1024-gpu0-large-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          676.0
+        ],
+        "median_ms": 676.0,
+        "embedding": "accepted-1024-limit-gpu0/hip-1024-gpu0-large-0.sve"
+      },
+      "encoder_speedup": 36.40680473372781
+    },
+    {
+      "image": "limit.bmp",
+      "shape": [
+        1024,
+        2560
+      ],
+      "grid": [
+        32,
+        32
+      ],
+      "relative_l2": 0.0009990870632641357,
+      "minimum_token_cosine": 0.9999863861033926,
+      "max_absolute_error": 0.0012895464897155762,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          38408.0
+        ],
+        "median_ms": 38408.0,
+        "embedding": "accepted-1024-limit-gpu0/cpu-1024-gpu0-limit-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          1204.0
+        ],
+        "median_ms": 1204.0,
+        "embedding": "accepted-1024-limit-gpu0/hip-1024-gpu0-limit-0.sve"
+      },
+      "encoder_speedup": 31.900332225913623
+    },
+    {
+      "image": "photo.jpeg",
+      "shape": [
+        300,
+        2560
+      ],
+      "grid": [
+        20,
+        15
+      ],
+      "relative_l2": 0.0021818663033316955,
+      "minimum_token_cosine": 0.9997201010708384,
+      "max_absolute_error": 0.004313260316848755,
+      "pass": true,
+      "cpu": {
+        "milliseconds": [
+          5706.0
+        ],
+        "median_ms": 5706.0,
+        "embedding": "accepted-1024-limit-gpu0/cpu-1024-gpu0-photo-0.sve"
+      },
+      "hip": {
+        "milliseconds": [
+          202.0
+        ],
+        "median_ms": 202.0,
+        "embedding": "accepted-1024-limit-gpu0/hip-1024-gpu0-photo-0.sve"
+      },
+      "encoder_speedup": 28.247524752475247
+    }
+  ],
+  "limits": "Full embedding comparison to this HIP build's CPU mode (BF16 weights expanded losslessly to FP32), not upstream BF16 activation arithmetic, model logits or generation parity.",
+  "pass": true,
+  "thresholds": {
+    "relative_l2_max": 0.005,
+    "minimum_token_cosine": 0.999
+  }
+}

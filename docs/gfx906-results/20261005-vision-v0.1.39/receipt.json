@@ -1,0 +1,16 @@
+{
+  "source_baseline": "c50a206 (upstream v0.1.39 / 6f32ec0)",
+  "platform": "T5810, two 32GiB MI50 / real gfx906, ROCm 7.2.4, portable AVX2 Release",
+  "encoder": {
+    "path": "/data/strata-gfx906/vision-gfx906-20261005/build/bin/strata-vision",
+    "sha256": "18f00324223fb1f511a04c216cb4b786287d96166ffa04f9520cde006b1801fb"
+  },
+  "raw_evidence_root": "/data/strata-gfx906/vision-gfx906-20261005",
+  "source_files": {
+    "CMakeLists.txt": "445b0d54ee60081e1edc6378cde5b8181a85f7aa7e2e43091627f4de63014285",
+    "strata_vision.cpp": "4f7fc683c804e77757669a4ce6e893c3152a1b707fe8a438993860ea9cce4e44",
+    "gfx906-vision.h": "40edd0071237caf68f9d7343434584c8f2c6661440d0cf6dee4a6f326efd08d8",
+    "gfx906_vision_check.py": "6a7c7ee0cacb3d85498085bd3e78da794e14e0f58ef90e3b613fe95cea3462ee"
+  },
+  "limits": "Single-device encoder tests on both cards individually; no simultaneous dual-encoder, MI60, production API or long-soak acceptance. Matching FP32 CPU arithmetic, not upstream BF16 embedding parity."
+}

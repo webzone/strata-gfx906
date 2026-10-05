@@ -1,0 +1,60 @@
+{
+  "limits": "Different activation arithmetic. This is a disclosure comparison, not accepted upstream embedding parity. Source BF16 weights are unchanged and expanded exactly to FP32.",
+  "results": [
+    {
+      "image": "square",
+      "cpu_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.006223782324796737,
+        "minimum_token_cosine": 0.9999419498355712
+      },
+      "hip_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.006219288818968454,
+        "minimum_token_cosine": 0.9999438083095017
+      }
+    },
+    {
+      "image": "wide",
+      "cpu_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.020258768552895063,
+        "minimum_token_cosine": 0.9973648496936917
+      },
+      "hip_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.02023255398362774,
+        "minimum_token_cosine": 0.9975176720199413
+      }
+    },
+    {
+      "image": "tall",
+      "cpu_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.017494197624317472,
+        "minimum_token_cosine": 0.9981280056892025
+      },
+      "hip_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.017378043190558915,
+        "minimum_token_cosine": 0.9981485846883658
+      }
+    },
+    {
+      "image": "large",
+      "cpu_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.014303196300373341,
+        "minimum_token_cosine": 0.9988603379520379
+      },
+      "hip_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.014352983266758419,
+        "minimum_token_cosine": 0.9988468989850435
+      }
+    },
+    {
+      "image": "photo",
+      "cpu_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.03473526876596552,
+        "minimum_token_cosine": 0.9582677101815648
+      },
+      "hip_fp32_vs_upstream_cpu_bf16": {
+        "relative_l2": 0.03515205220478649,
+        "minimum_token_cosine": 0.9539003532336939
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "repo": "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF",
+  "revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+  "type": "file",
+  "oid": "974f4ca87254dcaec0cf82479f4eea73629eef56",
+  "size": 907543008,
+  "lfs": {
+    "oid": "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0",
+    "size": 907543008,
+    "pointerSize": 134
+  },
+  "xetHash": "d4eb8204971d327ec2647724a791c7cd53e049b90c3d3c699eb8940f5a3cb7c9",
+  "path": "mmproj-Qwen3.8-Flash-Next-BF16.gguf"
+}

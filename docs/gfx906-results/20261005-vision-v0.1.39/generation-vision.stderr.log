@@ -1,0 +1,7 @@
+strata-vision: BF16 vision weights expanded losslessly to FP32; FP32 GEMMs
+strata-vision: HIP device AMD Instinct MI50/MI60 (gfx906:sramecc+:xnack-), flash attention off
+load_hparams: Qwen-VL models require at minimum 1024 image tokens to function correctly on grounding tasks
+load_hparams: if you encounter problems with accuracy, try adding --image-min-tokens 1024
+load_hparams: more info: https://github.com/ggml-org/llama.cpp/issues/16842
+
+strata-vision: warmed up at 289 image tokens

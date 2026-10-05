@@ -1,0 +1,32 @@
+{
+  "source_mmproj_sha256": "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0",
+  "independent_expanded_gguf_sha256": "877b0eabd83a5337273ae635b2c648997255336359dfc4ff5d80ef97ee3293ee",
+  "method": "Independent Python GGUF rewrite expands each BF16 uint16 by uint32 << 16, then views float32. Both CPU and HIP final embeddings are bitwise identical to the in-memory loader expansion on all five inputs. Derivative is diagnostic only; runtime reads original BF16 GGUF.",
+  "results": [
+    {
+      "image": "square",
+      "cpu_bitwise_equal": true,
+      "hip_bitwise_equal": true
+    },
+    {
+      "image": "wide",
+      "cpu_bitwise_equal": true,
+      "hip_bitwise_equal": true
+    },
+    {
+      "image": "tall",
+      "cpu_bitwise_equal": true,
+      "hip_bitwise_equal": true
+    },
+    {
+      "image": "large",
+      "cpu_bitwise_equal": true,
+      "hip_bitwise_equal": true
+    },
+    {
+      "image": "photo",
+      "cpu_bitwise_equal": true,
+      "hip_bitwise_equal": true
+    }
+  ]
+}

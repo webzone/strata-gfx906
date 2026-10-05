@@ -1,0 +1,10 @@
+............................................................................  [ok] draft layer: the token subset with the Cyrillic script
+..  [ok] draft layer: the token subset for French
+  [ok] draft layer: the token subset with Chinese, Japanese and Korean
+......................s.........................../opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+..................................................................................................................................
+----------------------------------------------------------------------
+Ran 258 tests in 0.651s
+
+OK (skipped=1)

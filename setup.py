@@ -1345,7 +1345,7 @@ def cuda_lib_dirs(toolkit=13):
 # backend (docs/AMD_HIP.md); the RX 7800 XT / 7700 XT (gfx1101, #254) and the RX 9060 XT (gfx1200, #256) were run by
 # their owners; the RX 6800 / 6900 series (gfx1030, #311) and the RX 6700 XT (gfx1031, #524) run but are unvalidated.  There is no ready-made AMD engine: ROCm comes from AMD's TheRock Python wheels into .venv (no sudo;
 # a system ROCm 7 in /opt/rocm is used when it has hipcc and hipBLAS) and the engine is compiled here for the cards.
-# Layer-split MI50 / MI60 gfx906 requires explicit opt-in and system ROCm; no images yet.
+# Layer-split MI50 / MI60 gfx906 and HIP images require explicit opt-in and system ROCm.
 ROCM_INDEXES = {"gfx1100": "https://rocm.nightlies.amd.com/v2/gfx110X-dgpu/",   # TheRock's wheels per GPU family
                 "gfx1101": "https://rocm.nightlies.amd.com/v2/gfx110X-dgpu/",
                 "gfx1200": "https://rocm.nightlies.amd.com/v2/gfx120X-all/",
@@ -1877,11 +1877,14 @@ def hipblaslt_table(arch, lib_dirs, ver=None):
 
 def build_engine_hip(gpu, llama, vision="none", *, experimental_gfx906=False) -> Path:
     """Compile for EVERY selected AMD architecture; MI50/MI60 needs opt-in and system ROCm.
-    vision "cpu" also builds the CPU image encoder; it is not gfx906 hardware acceptance."""
+    vision "gpu" builds the experimental gfx906 HIP encoder; "cpu" keeps CPU encoding."""
     archs = sorted(set(gpu.get("archs") or [gpu["arch"]]))
     gfx906 = "gfx906" in archs
     if gfx906 and not experimental_gfx906:
         fail("gfx906 engine build requires --experimental-gfx906")
+    if vision == "gpu" and (WIN or not sys.platform.startswith("linux") or archs != ["gfx906"]
+                            or not experimental_gfx906):
+        fail("HIP GPU vision requires Linux, only gfx906 cards and --experimental-gfx906")
     eng = ROOT / "engine"
     eng.mkdir(exist_ok=True)
     stamp = eng / "BUILD.json"
@@ -1892,11 +1895,14 @@ def build_engine_hip(gpu, llama, vision="none", *, experimental_gfx906=False) ->
     engine_ok = (meta.get("backend") == "hip" and (eng / EXE).exists() and meta.get("src") == src and has_archs
                  and (not gfx906 or meta.get("experimental_gfx906") is True)
                  and (meta.get("isa_floor") or "") == floor)
-    vision_ok = vision == "none" or ((eng / VEXE).exists() and meta.get("vision_src") == vsrc)
+    vision_ok = vision == "none" or ((eng / VEXE).exists() and meta.get("vision_src") == vsrc
+                                    and meta.get("vision") == vision)
     if engine_ok and vision_ok:
         ok("engine already built for this PC")
         return eng
     if engine_ok:
+        if vision == "gpu":
+            return build_vision_hip(eng, stamp, meta, llama, vsrc)
         return build_vision_cpu(eng, stamp, meta, llama, vsrc)
     if not (shutil.which("c++") or shutil.which("g++")) or not shutil.which("git"):
         fail("a C++ compiler and git are needed to compile the AMD engine",
@@ -1926,17 +1932,20 @@ def build_engine_hip(gpu, llama, vision="none", *, experimental_gfx906=False) ->
             "experimental_gfx906": gfx906, "vision": "none", "lib_dirs": dirs, "src": src,
             **({"isa_floor": floor} if floor else {})}
     if vision != "none":
+        if vision == "gpu":
+            return build_vision_hip(eng, stamp, meta, llama, vsrc)
         return build_vision_cpu(eng, stamp, meta, llama, vsrc)
     stamp.write_text(json.dumps(meta, indent=1))
     ok(f"engine compiled: {eng / EXE}")
     return eng
 
 
-def hip_vision(asked) -> str:
-    """The image encoder with the AMD backend (--vision): the CPU one when asked for (#304); a HIP (GPU) encoder build
-    is a later step, so `yes`/`gpu` leave images off, as before, and say how to get them."""
+def hip_vision(asked, *, experimental_gfx906=False, archs=()) -> str:
+    """HIP GPU encoding is opt-in for Linux gfx906 only; preserve upstream CPU choices on other AMD cards."""
     if asked in ("yes", "gpu"):
-        warn("the AMD backend has no GPU image encoder yet: images off"
+        if not WIN and sys.platform.startswith("linux") and experimental_gfx906 and set(archs) == {"gfx906"}:
+            return "gpu"
+        warn("GPU image encoding requires experimental Linux gfx906 support: images off"
              + ("" if WIN else " (--vision cpu reads them on the CPU)"))
     if asked == "cpu" and WIN:
         warn("images on the CPU with an AMD card are Linux-only for now (the ready-made Windows AMD engine has no "
@@ -1947,13 +1956,29 @@ def hip_vision(asked) -> str:
 
 def build_vision_cpu(eng: Path, stamp: Path, meta: dict, llama, vsrc) -> Path:
     """#304: the CPU image encoder beside the HIP engine (tools/vision without CUDA), recorded in its BUILD.json."""
-    if not ((eng / VEXE).exists() and meta.get("vision_src") == vsrc):
+    if not ((eng / VEXE).exists() and meta.get("vision_src") == vsrc and meta.get("vision") == "cpu"):
         say("  Compiling the image encoder (for the CPU) ...")
         cmake_build(ROOT / "tools" / "vision", ROOT / "build-vision", "strata-vision",
-                    [f"-DLLAMA_DIR={llama}", "-DSTRATA_VISION_CUDA=OFF"], None, "")
+                    [f"-DLLAMA_DIR={llama}", "-DSTRATA_VISION_CUDA=OFF", "-DSTRATA_VISION_HIP=OFF"], None, "")
         shutil.copy2(ROOT / "build-vision" / "bin" / VEXE, eng / VEXE)
     stamp.write_text(json.dumps({**meta, "vision": "cpu", "vision_src": vsrc}, indent=1))
     ok(f"engine: {eng / EXE}, image encoder (CPU): {eng / VEXE}")
+    return eng
+
+
+def build_vision_hip(eng: Path, stamp: Path, meta: dict, llama, vsrc) -> Path:
+    """Experimental gfx906 encoder, separate build folder so CPU/CUDA caches cannot select the wrong backend."""
+    root, dirs = rocm_root(["gfx906"])
+    bdir = ROOT / "build-vision-hip"
+    cmake_build(ROOT / "tools" / "vision", bdir, "strata-vision",
+                [f"-DLLAMA_DIR={llama}", "-DSTRATA_VISION_CUDA=OFF", "-DSTRATA_VISION_HIP=ON",
+                 "-DSTRATA_EXPERIMENTAL_GFX906=ON", "-DCMAKE_HIP_ARCHITECTURES=gfx906",
+                 f"-DCMAKE_HIP_COMPILER={root / 'llvm' / 'bin' / 'clang++'}",
+                 f"-DCMAKE_HIP_COMPILER_ROCM_ROOT={root}", f"-DCMAKE_PREFIX_PATH={root}",
+                 "-DSTRATA_PORTABLE=ON"], None, "")
+    shutil.copy2(bdir / "bin" / VEXE, eng / VEXE)
+    stamp.write_text(json.dumps({**meta, "vision": "gpu", "vision_src": vsrc, "lib_dirs": dirs}, indent=1))
+    ok(f"engine: {eng / EXE}, image encoder (experimental HIP gfx906): {eng / VEXE}")
     return eng
 
 
@@ -2093,7 +2118,8 @@ def update_installed_engine(url_base, toolkit=None) -> None:
                      "starting the installed one")
         return
     if meta.get("backend") == "hip":                   # AMD: compiled here, again when its source changed
-        if meta.get("src") != source_hash(ENGINE_SOURCES):
+        if meta.get("src") != source_hash(ENGINE_SOURCES) or (meta.get("vision") not in (None, "none")
+                and meta.get("vision_src") != source_hash(VISION_SOURCES)):
             try:
                 experimental = meta.get("experimental_gfx906") is True
                 usable = [x for x in amd_gpus() if amd_problem(x, experimental) is None]
@@ -3143,7 +3169,7 @@ def start(cfg_path: Path, port: int | None, gpu: int | list | None = None, open_
                 fail("no ready-made AMD engine for this card", "see docs/AMD_HIP.md")
             cfg["hip_ordinal"] = hip_card(eng, cards[0], found)["index"]
         else:
-            vision = "cpu" if cfg.get("vision") else "none"
+            vision = ("gpu" if cfg["vision"].get("gpu") else "cpu") if cfg.get("vision") else "none"
             eng = build_engine_hip({**cards[0], "archs": sorted({g["arch"] for g in cards})}, get_llama_cpp(), vision,
                                    experimental_gfx906=experimental)
         meta = json.loads((eng / "BUILD.json").read_text())
@@ -4049,7 +4075,8 @@ def main() -> int:
         if a.vision not in (None, "no", "none"):
             warn(f"images are not available with {model} yet: off")
     elif hip:
-        vision = hip_vision(a.vision)
+        vision = hip_vision(a.vision, experimental_gfx906=a.experimental_gfx906,
+                            archs=[g["arch"] for g in chosen])
     elif a.vision:
         vision = {"yes": "gpu", "no": "none"}.get(a.vision, a.vision)
     else:

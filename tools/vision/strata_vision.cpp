@@ -5,7 +5,7 @@
 // rows at the image's pad tokens and gives them their 2-D M-RoPE positions (see --serve GENI in generate.cpp).
 //
 //   strata-vision --mmproj <mmproj.gguf> --model <text model .gguf, first split> [--gpu] [--threads N]
-//                 [--max-tokens N] [--flash-attn on|off|auto]
+//                 [--max-tokens N] [--flash-attn on|off|auto] [--verbose]
 //
 // Resident: prints "READY <n_embd>", then per stdin line
 //   ENC <image path> <output path>   ->  "OK <n_tokens> <nx> <ny> <ms>"  or  "ERR <message>"
@@ -16,6 +16,9 @@
 #include "llama.h"
 #include "mtmd.h"
 #include "mtmd-helper.h"
+#ifdef STRATA_VISION_HIP
+#include <hip/hip_runtime_api.h>
+#endif
 
 #include <algorithm>
 #include <chrono>
@@ -30,8 +33,9 @@
 
 namespace {
 
+bool verbose = false;
 void quiet_log(ggml_log_level level, const char* text, void*) {
-    if (level >= GGML_LOG_LEVEL_WARN) std::fputs(text, stderr);
+    if (verbose || level >= GGML_LOG_LEVEL_WARN) std::fputs(text, stderr);
 }
 
 // "ENC <image> <out>": paths may contain spaces, so the image path ends at the last " " before the output path;
@@ -62,6 +66,7 @@ int main(int argc, char** argv) {
         if (a == "--mmproj") mmproj = next();
         else if (a == "--model") model = next();
         else if (a == "--gpu") gpu = true;
+        else if (a == "--verbose") verbose = true;
         else if (a == "--threads") threads = std::atoi(next().c_str());
         else if (a == "--max-tokens") max_tokens = std::atoi(next().c_str());
         else if (a == "--flash-attn") {   // FA keeps K and V in FP16; off = the attention in FP32
@@ -73,18 +78,28 @@ int main(int argc, char** argv) {
     }
     if (mmproj.empty() || model.empty()) {
         std::fprintf(stderr, "usage: strata-vision --mmproj <mmproj.gguf> --model <model.gguf> [--gpu] [--threads N] "
-                             "[--max-tokens N] [--flash-attn on|off|auto]\n");
+                             "[--max-tokens N] [--flash-attn on|off|auto] [--verbose]\n");
         return 2;
     }
-    // On the CPU the GPU stays unseen: a CUDA build otherwise opens a context there (measured: 0.4-0.7 GB of VRAM,
+    // On the CPU the GPU stays unseen: a GPU build otherwise opens a context there (CUDA: 0.4-0.7 GB of VRAM,
     // 150-260 expert slots less for the engine beside it).  Before anything reaches the CUDA runtime.
     if (!gpu) {
 #ifdef _WIN32
         _putenv_s("CUDA_VISIBLE_DEVICES", "-1");
 #else
         setenv("CUDA_VISIBLE_DEVICES", "-1", 1);
+#ifdef STRATA_VISION_HIP
+        setenv("HIP_VISIBLE_DEVICES", "-1", 1);
+        setenv("ROCR_VISIBLE_DEVICES", "-1", 1);
+#endif
 #endif
     }
+#ifdef STRATA_VISION_HIP
+    // The vision-only loader expands BF16 weights exactly to FP32 in both modes.
+    // Keep GEMM activations/accumulation in FP32, including inherited overrides.
+    setenv("GGML_CUDA_CUBLAS_COMPUTE_TYPE", "f32", 1);
+    std::fprintf(stderr, "strata-vision: BF16 vision weights expanded losslessly to FP32; FP32 GEMMs\n");
+#endif
     llama_log_set(quiet_log, nullptr);
     mtmd_helper_log_set(quiet_log, nullptr);
     llama_backend_init();
@@ -96,6 +111,32 @@ int main(int argc, char** argv) {
 
     mtmd_context_params cp = mtmd_context_params_default();
     cp.use_gpu = gpu;
+#ifdef STRATA_VISION_HIP
+    if (gpu) {
+        hipDeviceProp_t props{};
+        if (hipGetDeviceProperties(&props, 0) != hipSuccess ||
+            std::string(props.gcnArchName).substr(0, 6) != "gfx906") {
+            std::printf("ERR HIP vision requires a visible real gfx906 device\n");
+            std::fflush(stdout);
+            return 1;
+        }
+        cp.device = ggml_backend_dev_by_type(GGML_BACKEND_DEVICE_TYPE_GPU);
+        if (!cp.device || std::strcmp(ggml_backend_reg_name(ggml_backend_dev_backend_reg(cp.device)), "ROCm") != 0) {
+            std::printf("ERR HIP vision requires the ROCm ggml backend\n");
+            std::fflush(stdout);
+            return 1;
+        }
+        if (fa == LLAMA_FLASH_ATTN_TYPE_ENABLED) {
+            std::printf("ERR gfx906 vision uses --flash-attn off (no compiled flash attention)\n");
+            std::fflush(stdout);
+            return 2;
+        }
+        fa = LLAMA_FLASH_ATTN_TYPE_DISABLED;
+        if (max_tokens <= 0) max_tokens = 1024;
+        std::fprintf(stderr, "strata-vision: HIP device %s (%s), flash attention off\n",
+                     props.name, props.gcnArchName);
+    }
+#endif
     cp.print_timings = false;
     cp.warmup = false;
     cp.flash_attn_type = fa;
@@ -145,6 +186,11 @@ int main(int argc, char** argv) {
         std::fprintf(stderr, "strata-vision: warmed up at %d image tokens\n", warm_tokens);
         mtmd_input_chunks_free(chunks);
         if (bm) mtmd_bitmap_free(bm);
+        if (warm_tokens <= 0) {
+            std::printf("ERR GPU vision warm-up failed\n");
+            std::fflush(stdout);
+            return 1;
+        }
     }
     std::printf("READY %d\n", n_embd);
     std::fflush(stdout);

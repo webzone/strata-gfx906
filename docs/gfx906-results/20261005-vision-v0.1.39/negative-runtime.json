@@ -1,0 +1,14 @@
+[
+  {
+    "name": "missing-gpu",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "pass_check": true
+  },
+  {
+    "name": "flash-attn",
+    "exit_code": 2,
+    "expected_exit": 2,
+    "pass_check": true
+  }
+]
