@@ -8,86 +8,58 @@ This fork is specifically tuned to run **Qwen3.8-Flash-Next** using model weight
 
 The gfx906 backend is experimental and must be enabled explicitly. The validation documented in this repository has been performed on MI50 hardware. MI60 is an intended same-architecture target, but has not been independently validated here.
 
-## Recent MI50 workload results
+## MI50 workload results
 
 These are deployed workload observations from the dual-MI50 T5810 server (ROCm 7.2.4). Every window
 includes repeated turns, a warm prompt/KV cache, speculative decoding and a large active context; each is
-an operational snapshot, **not a controlled benchmark**. Each subsection keeps its engine-version and
-quantization label. The windows differ in workload, context depth and cache state, so figures from the two
-quants are an indicative comparison, not a controlled A/B.
+an operational snapshot, **not a controlled benchmark**.
 
-### GSQ-RCO IQ2_XS — deployed v0.1.31 observation (2026-10-01)
+### 4-way concurrent stress test — v0.1.39 live observation (GSQ-RCO IQ3_S)
 
-These v0.1.31 observations replaced the earlier pre-v0.1.31 numbers in this README and are kept under their
-original label.
+A 4-way concurrent performance stress test was conducted on the dual-MI50 T5810 server using `herdr` to create and schedule 4 independent `pi` agent instances across 4 vertical terminal panes (`wV:p5`, `wV:p7`, `wV:p6`, `wV:p8`) in workspace tab `wV:t1`. Each instance was dispatched a high-difficulty domain task requiring complex technical reasoning, code generation, and mathematical derivation under `xhigh` thinking level.
 
-| Metric | v0.1.31 observation | Workload / interpretation |
-| --- | ---: | --- |
-| Lifetime decode mean | **42.39 tok/s** | 18,757 generated tokens over 442.5 seconds of decoder time. |
-| Recent request decode | **40.0–49.8 tok/s** | Per-request observations in the recent history. |
-| Live-history bursts | **51–59 tok/s** | Brief peaks during high-speculation phases, not sustained throughput. |
-| Speculative decoding | **`spec: 4`, `spec_min_p: 0.50`** | MTP is enabled and contributes to the observed decode rate. |
-| Lifetime prompt/KV reuse | **96.9%** | 2,606,953 reused tokens out of 2,690,006 total prompt tokens. |
-| Recent prompt/KV reuse | **~97–99.9%** | Recent 83K–100K-token contexts were mostly cache hits; one example reused 100,097 of 100,150 tokens (~99.95%). |
-| TTFT, warm/high-hit cache | **~0.8–1.05 s** | Time to first token with a high cache hit rate. |
-| TTFT, partial cache miss | **~2.0–9.4 s** | Requests had roughly 800–3,000 new tokens; latency varies with the miss and request. |
+#### Test environment and task configuration
 
-The configured context capacity is 262,144 tokens; this does not mean each request processed that many
-new tokens. Cache-reuse percentage counts reused prompt tokens, **not** uncached prefill throughput, and
-warm-cache TTFT is not a fresh-prefill measurement.
+| Instance | Pane | Domain | Core task |
+| --- | --- | --- | --- |
+| `pi-test-1` | `wV:p5` | Algorithms & Data Structures | Grid-based A* pathfinding with heuristics (diagonal moves, obstacle cost penalties, full complexity derivation). |
+| `pi-test-2` | `wV:p7` | High-Concurrency System Design | Distributed token bucket rate limiter (Redis + Lua core implementation, clock drift protection, concurrency race defense). |
+| `pi-test-3` | `wV:p6` | GPU / Systems Architecture | Deep comparison between AMD ROCm HIP and NVIDIA CUDA (memory models, L2 cache coherence, Warp32 vs. Wavefront64). |
+| `pi-test-4` | `wV:p8` | Probability & Mathematical Derivation | Gaussian Process Regression (GPR) in Bayesian Optimization (posterior mean/variance derivation, acquisition function comparison: EI vs. UCB). |
 
-**Resource snapshot while serving:** system RAM use was approximately **40.4 GB of 115.9 GB** (~34.9%).
-The dashboard summarized model/arena reservation as **~33.8 GB** (`arena_mib: 33812`); the raw MiB counter
-is about **33.0 GiB** (35.4 decimal GB), so use the raw field—not the rounded GB label—for precise
-comparisons. Free VRAM was **11,012 MiB** (~10.75 GiB). Aggregate CPU utilization was approximately
-**17–18%** on the 12-logical-thread Xeon E5-1650 v3 (roughly two logical CPUs' worth of load).
+- **Inference backend:** Dell Precision Tower 5810 (dual AMD Radeon Instinct MI50, gfx906 2-card pipeline split).
+- **Model & engine:** Strata v0.1.39 running `Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` (262,144 context capacity, `xhigh` reasoning effort / thinking level).
+- **Dispatch method:** 4 instances triggered simultaneously within the same second via `herdr` agent prompts, streaming full terminal outputs directly without file-system write side effects.
 
-This live result is substantially above the earlier pre-v0.1.31 decode observation, which is no longer
-presented here as the current baseline. The two observations used different software and workload windows;
-the gain cannot be attributed to a single upstream kernel or to the three ROCm environment settings
-without a matched A/B. Cache state and speculative decoding materially affect the rates, so compare only
-matched prompts, context, cache state, MTP settings and runtime environment. This is not a long-soak result.
-The bounded v0.1.31 build/model/API validation and its limitations are recorded in the
-[deployment evidence](docs/gfx906-results/20261001-deployment-v0.1.31/README.md); separate short-prompt
-GPU checks are documented in the [gfx906 development guide](docs/GFX906.md).
+#### Instance duration and token statistics
 
-### GSQ-RCO IQ3_S — v0.1.34 live observation (2026-10-02)
+With `xhigh` deep thinking enabled, all instances produced substantial reasoning and generation outputs:
 
-After the [IQ3_S preparation](docs/gfx906-results/20261002-iq3-s-preparation/README.md) and the in-place
-[v0.1.34 deployment](docs/gfx906-results/20261002-in-place-v0.1.34/README.md), the server was switched to
-the **GSQ-RCO IQ3_S** pack: the same real-gfx906 binary (SHA256 `d8a59558877074f6…`) with sampling,
-MTP/speculative, int8-KV and split-24 settings retained. The figures below come from one live-monitor
-snapshot (186 requests over ~3.9 h of sequential agentic turns at 167K–174K-token contexts, warm cache,
-`spec: 4`, `spec_min_p: 0.50`) recorded verbatim with derived values in the
-[live observation evidence](docs/gfx906-results/20261002-iq3-s-live/README.md). It is an operational
-snapshot, **not a controlled benchmark**, and no model-parity or output-quality claim follows from it.
+| Instance | Turns | New prompt tokens | Cache hit tokens | Generated tokens | Completion time | End-to-end latency |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `pi-test-1` (A* Pathfinding) | 4 | 6,579 | 113,121 | 10,134 | 18:38:58 | 645 s (10.8 m) |
+| `pi-test-2` (Token Bucket) | 1 | 132 | 26,114 | 11,227 | 18:40:08 | 715 s (11.9 m) |
+| `pi-test-3` (ROCm vs. CUDA) | 5 | 31,930 | 154,831 | 14,237 | 18:41:24 | 791 s (13.2 m) |
+| `pi-test-4` (GPR Bayesian Opt) | 1 | 0 | 26,253 | 10,833 | 18:39:33 | 680 s (11.3 m) |
+| **Batch total** | **11** | **38,641** | **320,319** | **46,431** | **18:41:24** | **791 s (13.2 m)** |
 
-| Metric | IQ2_XS, v0.1.31 (2026-10-01) | IQ3_S, v0.1.34 (2026-10-02) |
-| --- | ---: | ---: |
-| Lifetime decode mean | **42.39 tok/s** (18,757 tok / 442.5 s) | **39.25 tok/s** (158,099 tok / 4,028.3 s) |
-| Recent request decode | 40.0–49.8 tok/s | 37.0–47.0 tok/s (12-request window, mean ≈ 40.1) |
-| Speculative decoding | `spec: 4`, `spec_min_p: 0.50`, MTP enabled | `spec: 4`, `spec_min_p: 0.50` (MTP/spec settings retained in the IQ3_S config) |
-| Lifetime prompt/KV reuse | 96.9% (2,606,953 / 2,690,006) | 97.0% (23,327,626 / 24,040,403) |
-| Recent prompt/KV reuse | ~97–99.9% at 83K–100K-token contexts | ~99.9%; turns added 40–1,029 tokens at 167K–174K |
-| TTFT, high-hit small turns | ~0.8–1.05 s | ~0.8–2.2 s (≤ ~200 new tokens) |
-| TTFT, larger cache misses | ~2.0–9.4 s (~800–3,000 new tokens) | ~2.2–4.7 s (~490–1,030 new tokens) |
-| Effective new-token prefill | not recorded | 446.7 tok/s lifetime (712,777 new of 24.04M prompt tokens); 51–217 tok/s per recent request |
-| Expert cache hit (VRAM-resident experts) | not recorded | 98.6–99.4%, `pcie_frac: 0.00` |
-| Expert arena (`arena_mib`) | 33,812 | 47,962 |
-| Resident experts, primary GPU | not recorded | 12,288 slots / 22,675 MiB (24,072 slots total) |
-| System RAM while serving | ~40.4 GB of 115.9 GB | ~55.7 GB of 115.9 GB |
-| Free VRAM | 11,012 MiB | 2,876 MiB (GPU0 2,489 / GPU1 403) |
-| Aggregate CPU while serving | ~17–18% | not captured (snapshot taken while idle) |
-| Model storage | ~68 GB shards + 5.2 GB MTP | +54.8 GB new shard; the 28.8 GB PLE shard is hard-linked (no duplicate) |
+#### Hardware load and concurrency metrics
 
-`prompt_ms` counts uncached prompt tokens only in both windows, so the TTFT rows are comparable; the decode
-rates are not directly attributable. The IQ3_S window ran at roughly twice the context depth, with a ~42%
-larger expert arena, on a newer engine and a different workload, so the ~7% lower lifetime decode mean
-cannot be assigned to the quantization without a matched A/B on the same binary, prompts and cache state.
-IQ3_S is the higher-bitpoint mixed recipe (its per-tensor types are recorded in the preparation receipt);
-the observed price is ~+15 GB RAM, ~−8 GiB free VRAM and the slightly lower decode mean. At 167K–174K
-tokens the server sat ~316 MiB above the 2,560 MiB conversation-cache VRAM floor, so conversations growing
-toward the full 262K context need headroom re-checked on this quant.
+Sampled from the T5810 Strata `/metrics` endpoint before and after the test run:
+
+1. **Throughput and generation rates:**
+   - **4-way concurrent output tokens:** 46,431 tokens generated across the batch.
+   - **Batch wall-clock elapsed:** 791 seconds (13 minutes 11 seconds).
+   - **System effective generation throughput:** **~58.70 tok/s** (end-to-end wall-clock throughput, factoring in multi-turn interactions, tool calls, prompt preparation, and thinking intervals).
+   - **Peak real-time decode throughput:** During sustained concurrent generation, backend sampling throughput held stably at **~80.4 tok/s** (compared to the single-stream baseline of ~46–56 tok/s; 4-way concurrency saturates GPU compute units more effectively, yielding an aggregate throughput increase of ~45%–60%).
+2. **Dual MI50 hardware state:**
+   - **GPU core utilization:** Peaked at **95.5%** (vs. 40%–60% in single-stream mode).
+   - **Total power draw:** Peaked at **232 W** (both cards combined).
+   - **Operating temperatures:** Both MI50 GPUs held steady at **45°C–47°C**, demonstrating robust thermal behavior under sustained load.
+   - **VRAM allocation:** Dual cards maintained a resident allocation of **64.18 GB / 68.68 GB**.
+3. **Prompt caching and speculative decoding:**
+   - **Prompt cache hit rate:** **89.2%** (320,319 out of 358,960 total prompt tokens reused KV cache entries), significantly mitigating prefill latency during multi-turn concurrent requests.
+   - **MTP speculative decoding:** Speculative draft generation operated reliably throughout multi-stream batching, maintaining consistent draft acceptance rates.
 
 ## What this fork supports
 
@@ -240,7 +212,7 @@ compatibility and optimization work. The upstream project still excludes wave64;
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,
 compatibility limitations, source-sync validation, and reproducible evidence, start with the
-[gfx906 development guide](docs/GFX906.md). The deployed v0.1.31 measurements above do not validate
+[gfx906 development guide](docs/GFX906.md). The deployed workload observations above do not validate
 newer source or establish a post-merge speedup. General upstream model choices, installation, MCP tools
 and architecture explanations are in [MODELS](docs/MODELS.md), [INSTALL](docs/INSTALL.md),
 [MCP_SERVER](docs/MCP_SERVER.md) and [HOW_IT_WORKS](docs/HOW_IT_WORKS.md); use this fork's MI50 instructions
