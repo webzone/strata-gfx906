@@ -1740,7 +1740,9 @@ bool fused_gr_read_multi(const FusedGrArgs* a, int n_tok, float* xn_scratch, voi
             std::fprintf(stderr, "fused_gr_read_multi: %s\n", cudaGetErrorString(e));
             std::exit(1);
         }
-        return;
+        // ROCm 10 clang 23 makes a missing return value an error (-Wreturn-mismatch). The split read does not
+        // write the q8_1 images, so it reports false and the caller quantizes, as the STRATA_GR_V3 read above does.
+        return false;
     }
 #endif
     // the default read (STRATA_GR_V3 unset): v1, or the bitwise-equal v2 / v3 this card's check accepted

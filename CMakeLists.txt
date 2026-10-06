@@ -429,6 +429,12 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
     endforeach()
   endif()
 
+  if(STRATA_HIP_GFX906)
+    # vmm.cpp chooses its implementation from STRATA_USE_HIP. The gfx906 compat build has no CUDA driver VMM,
+    # so this one file takes the "HIP: no virtual memory" branch; every other STRATA_USE_HIP gate stays as it is.
+    set_source_files_properties(src/core/vmm.cpp PROPERTIES COMPILE_DEFINITIONS "STRATA_USE_HIP=1")
+  endif()
+
   # ---- strata_engine (P2.S5) -----------------------------------------------------
   # The COMPOSED layer lives here and not in `strata_core`, because it calls kernels and `strata_kernels`
   # already links `strata_core` - putting `gdn_layer` in core would make the two mutually dependent.  A third
