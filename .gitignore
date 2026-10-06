@@ -58,5 +58,10 @@ build-vision-cuda12.bat
 # Small, reviewed audit evidence only; model/binary/build outputs stay ignored.
 !/docs/gfx906-results/**/*.log
 
+# IDEs
+.vscode/
+.idea/
+.cursor/
+
 /.ccache/
 /.rocm-win/

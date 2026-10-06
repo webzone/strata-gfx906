@@ -1,7 +1,7 @@
 # strata-gfx906 — Development Rules
 
 This is a dedicated experimental MI50/MI60 gfx906 fork of `Niko1221/Strata`, synchronized through
-v0.1.34 / `1678de333d0e0711bc414ad992b640e1a37dd814` (original port: v0.1.30 / `30ec18e`).
+v0.1.40 / `1735d6471df29b42c26170efaac1f1446a58640f` (original port: v0.1.30 / `30ec18e`).
 The working branch is `gfx906`; `origin` is `webzone/strata-gfx906`. Absorb upstream updates with
 reviewed merge commits, never rebasing published fork history or pushing to `upstream`.
 Preserving and optimizing real gfx906 support is the fork's purpose: upstream's wave32-only GPU

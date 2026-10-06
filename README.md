@@ -1,13 +1,13 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.1.39**
+**Source version: Strata v0.1.40**
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
 - **GPU vision:** Experimental gfx906 HIP GPU-accelerated image encoding (`--vision gpu`) alongside upstream CPU fallback.
 - **Concurrent burst rate up to ~80 tok/s:** Aggregate decoding throughput reaching ~80 tok/s under 4-way concurrency on dual MI50s (~45%–60% throughput boost over single-stream baseline).
 
-**`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA; v0.1.39 also includes HIP support with an opt-in gfx906 path. This fork maintains its experimental AMD Instinct MI50 / MI60 wave64 backend and adds HIP GPU vision. It targets the real `gfx906` architecture and does not spoof another GPU generation.
+**`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA; v0.1.40 also includes HIP support with an opt-in gfx906 path. This fork maintains its experimental AMD Instinct MI50 / MI60 wave64 backend and adds HIP GPU vision. It targets the real `gfx906` architecture and does not spoof another GPU generation.
 
 This fork is specifically tuned to run **Qwen3.8-Flash-Next** using model weights in **GGUF** format. The model's native/trained context length is **262,144 tokens**. The `--context` setting configures runtime capacity; hardware limits may justify choosing less. Native context is not an extended-RoPE setting, and it does not imply that full-length inference has completed acceptance testing on every system.
 
@@ -220,7 +220,7 @@ For the engine's complete option list, run `./engine/strata --help` after instal
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.1.39 / `6f32ec0`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.1.40 / `1735d64`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,
