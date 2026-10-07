@@ -15,9 +15,74 @@ The gfx906 backend is experimental and must be enabled explicitly. The validatio
 
 ## MI50 workload results
 
-These are deployed workload observations from the dual-MI50 T5810 server (ROCm 7.2.4). Every window
-includes repeated turns, a warm prompt/KV cache, speculative decoding and a large active context; each is
-an operational snapshot, **not a controlled benchmark**.
+These are deployed workload observations from the dual-MI50 T5810 server. The 2026-10-07 observation runs
+on ROCm 10; the v0.1.39 observation below ran on ROCm 7.2.4. Every window includes repeated turns, a warm
+prompt/KV cache, speculative decoding and a large active context; each is an operational snapshot,
+**not a controlled benchmark**.
+
+### Long-context agent workload — v0.1.40 live observation (2026-10-07, ROCm 10, GSQ-RCO IQ3_S)
+
+A rolling `/metrics` window from the production `:8082` service, 2026-10-07 02:37:57 → 03:03:45 UTC
+(25.8 min). The engine is the upstream gfx906 text engine `bc1102ba…` (source v0.1.40.1 / `82f46a8` plus
+engine fix `74583c6`) on ROCm 10, with this fork's HIP GPU vision encoder loaded. The traffic was the
+owner's agent sessions; no client-side timing was recorded.
+
+| Item | Value |
+| --- | --- |
+| Requests | 38 |
+| Prompt tokens | 3,699,741 |
+| Reused K/V | 3,596,208 (**97.20%**) |
+| New prompt tokens | 103,533 |
+| Output tokens | 40,072 |
+| Output over the whole window | 25.9 tok/s (includes idle gaps; not a decode rate) |
+| Decode occupancy | 733.5 s of decode work inside a 1,548 s window (47.4% of one slot) |
+| MTP (`--spec 4`) | 34,513 drafts offered, 26,529 accepted (**76.87%**) |
+| Largest prompt | 134,007 tokens: 133,594 reused, 413 new |
+| Conversation cache (8 GiB, 4 slots) | 4 sessions parked, 4.60 GiB; 6 parks, 1 restore, 1 eviction; 35 of 38 requests reused (92.1%) |
+| VRAM resident | 61.35 / 63.97 GiB (the engine reports 2,186 MiB free) |
+| Host RAM | 72.46 / 107.96 GiB |
+| State at capture | idle: 0% GPU utilization, 42 W of a 450 W limit, 35 °C |
+
+The 12 request records the payload keeps (the most recent of the 38) ran on one growing session,
+126,422 → 134,007 tokens:
+
+| Time (UTC) | Prompt tokens | Reused | New | Output | Decode tok/s | Duration s |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 02:59:51 | 126,422 | 126,384 | 38 | 495 | 53.3 | 9.9 |
+| 03:00:04 | 127,034 | 126,916 | 118 | 521 | 55.4 | 11.3 |
+| 03:00:19 | 127,805 | 127,554 | 251 | 472 | 52.3 | 11.5 |
+| 03:00:33 | 129,131 | 128,276 | 855 | 1,019 | 49.5 | 25.1 |
+| 03:00:59 | 130,201 | 130,149 | 52 | 269 | 51.0 | 6.1 |
+| 03:01:05 | 130,521 | 130,469 | 52 | 510 | 51.5 | 10.7 |
+| 03:01:23 | 131,125 | 131,033 | 92 | 314 | 48.4 | 8.3 |
+| 03:01:32 | 131,596 | 131,438 | 158 | 641 | 56.5 | 13.4 |
+| 03:01:46 | 132,276 | 132,236 | 40 | 209 | 53.1 | 4.5 |
+| 03:01:51 | 132,524 | 132,487 | 37 | 656 | 57.9 | 11.9 |
+| 03:02:05 | 133,257 | 133,180 | 77 | 335 | 52.4 | 8.1 |
+| 03:02:14 | 134,007 | 133,594 | 413 | 1,130 | 53.0 | 24.4 |
+| **Sample total** | **1,565,899** | **1,563,716** | **2,183** | **6,571** | **52.9** (weighted) | **145.2** |
+
+What this shows:
+
+- K/V reuse holds at ~130K context in production. 99.86% of the sample's prompt tokens were reused, and
+each turn read only 37–855 new tokens. Before fix `74583c6` the same server logged a 65,846-token prompt
+with zero reuse.
+- Single-stream decode stayed at 48.4–57.9 tok/s (weighted 52.9 tok/s) with four batch slots and the vision
+encoder resident.
+- Parking works under pressure: four sessions parked inside the 8 GiB budget, one eviction, and one restore
+served a later turn.
+
+What this does not show:
+
+- This is not a controlled benchmark and not a matched A/B: one rolling window, mixed owner traffic, warm
+cache, no client-side timing.
+- A new-token prefill rate is not derivable from this payload. `prompt_ms` also covers cache restore and
+admission work, so 103,533 new tokens over 248.2 s of `prompt_ms` is not a prefill throughput.
+- No accuracy, output-quality, full-262K-context, MI60, or long-soak measurement.
+- The payload's `hardware_static.gpu_name` string reads "Radeon Instinct MI50 16GB"; `mem_total` reports
+31.98 GiB per card, which matches the hardware. The name string is a monitor label, not a capacity claim.
+- Raw payload: [`metrics-snapshot.json`](docs/gfx906-results/20261007-mi50-workload/metrics-snapshot.json).
+The all-zero `history` sample arrays are omitted; every other key is verbatim.
 
 ### 4-way concurrent stress test — v0.1.39 live observation (GSQ-RCO IQ3_S)
 

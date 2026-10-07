@@ -1,0 +1,5 @@
+# Monitor payload supplied by the owner on 2026-10-07; authenticity re-checked read-only
+# against chris@t5810 http://127.0.0.1:8082/metrics at 2026-10-07 03:15:15 UTC.
+# sha256sum-compatible; paths relative to this directory.
+e702a9554557f198b465158b1909825365afcc63ceb781517ffe0ee84995ccfa  README.md
+fc68fddd3951e23b2c7189d86d6e61cf08bede412643dd49bf59163390a44fac  metrics-snapshot.json
