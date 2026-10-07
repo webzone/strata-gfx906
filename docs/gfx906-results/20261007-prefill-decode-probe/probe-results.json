@@ -1,0 +1,47 @@
+[
+ {
+  "salt": 1,
+  "items": 150,
+  "prompt_tokens": 6642,
+  "cached_tokens": 0,
+  "completion_tokens": 41,
+  "prompt_ms": 13647.5,
+  "prompt_per_second": 486.7,
+  "predicted_ms": 686.3,
+  "predicted_per_second": 59.7,
+  "draft_n": 36,
+  "draft_n_accepted": 30,
+  "client_wall_s": 14.36,
+  "content": "42"
+ },
+ {
+  "salt": 2,
+  "items": 600,
+  "prompt_tokens": 26765,
+  "cached_tokens": 0,
+  "completion_tokens": 41,
+  "prompt_ms": 41420.0,
+  "prompt_per_second": 646.2,
+  "predicted_ms": 710.6,
+  "predicted_per_second": 57.7,
+  "draft_n": 34,
+  "draft_n_accepted": 30,
+  "client_wall_s": 42.21,
+  "content": "42"
+ },
+ {
+  "salt": 3,
+  "items": 1200,
+  "prompt_tokens": 53846,
+  "cached_tokens": 0,
+  "completion_tokens": 41,
+  "prompt_ms": 80342.1,
+  "prompt_per_second": 670.2,
+  "predicted_ms": 738.5,
+  "predicted_per_second": 55.5,
+  "draft_n": 36,
+  "draft_n_accepted": 30,
+  "client_wall_s": 81.23,
+  "content": "42"
+ }
+]

@@ -1,0 +1,5 @@
+# Bounded probe run by the agent on the live T5810 service, 2026-10-07 03:26:40-03:29:24 UTC.
+# Raw copy also on chris@t5810:/home/chris/dev/strata-gfx906/logs/prefill-decode-probe-20261007T0320Z/
+# sha256sum-compatible; paths relative to this directory.
+fa96bd04356a9b66c53e718034d4e157ddf8982b526aa163732a5f512716f0fb  README.md
+b0917f13cc84e35740cc9e280d4fed0cb4561854ff513107fef7e55804227b22  probe-results.json

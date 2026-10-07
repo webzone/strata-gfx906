@@ -47,6 +47,14 @@ All project documentation and maintenance notes must be written in English. Pres
    deployment version labels; never relabel old evidence as the new version. Keep unrelated machine
    diagnostics out of this project. Do not commit weights, binaries, virtual environments, or full
    compiler-warning logs; small, auditable validation evidence may be committed.
+10. **Keep only the newest workload result in `README.md`, and always name both rates.** The *MI50 workload
+   results* section holds one observation: the latest. Move the previous one to `docs/GFX906.md` under its
+   own dated heading, with its original version and ROCm labels intact, before adding the new one. State the
+   decode rate and the prefill rate explicitly. Give prefill in two labelled forms: the **real** rate (new
+   prompt tokens per prefill second, measured with `cached_tokens: 0`) and the **effective** rate (the whole
+   prompt per prompt-phase second, reused K/V tokens counted). The effective number shows how fast a warm
+   turn is accepted; it is not compute throughput, so never quote it as a prefill speed. Record how each
+   number was measured, and keep the raw payload under `docs/gfx906-results/`.
 
 ## Upstream navigation
 

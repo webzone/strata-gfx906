@@ -5,7 +5,9 @@
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
 - **GPU vision:** Experimental gfx906 HIP GPU-accelerated image encoding (`--vision gpu`) alongside upstream CPU fallback.
-- **Concurrent burst rate up to ~80 tok/s:** Aggregate decoding throughput reaching ~80 tok/s under 4-way concurrency on dual MI50s (~45%–60% throughput boost over single-stream baseline).
+- **Measured on dual MI50 (v0.1.40, ROCm 10, IQ3_S):** decode **48.4–59.7 tok/s** per stream; cold prefill
+  **487–670 tok/s**; prompt handling with a warm K/V cache reaches **~247,000 effective tok/s** (reused
+  tokens counted, not compute throughput). See [MI50 workload results](#mi50-workload-results).
 
 **`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** Current T5810 builds use the upstream `STRATA_HIP_GFX906` text engine and the fork HIP GPU vision encoder, both with ROCm 10. The fork wave64 text backend is deprecated for deployment. Both current components target the real `gfx906` architecture. See [current build selection](docs/GFX906.md#deployment-decision-which-gfx906-path-is-current-2026-10-06).
 
@@ -15,12 +17,50 @@ The gfx906 backend is experimental and must be enabled explicitly. The validatio
 
 ## MI50 workload results
 
-These are deployed workload observations from the dual-MI50 T5810 server. The 2026-10-07 observation runs
-on ROCm 10; the v0.1.39 observation below ran on ROCm 7.2.4. Every window includes repeated turns, a warm
-prompt/KV cache, speculative decoding and a large active context; each is an operational snapshot,
-**not a controlled benchmark**.
+This section keeps **only the newest** workload observation. Older observations are archived under their
+own dated headings in [`docs/GFX906.md`](docs/GFX906.md). Every number below is an operational observation
+from the dual-MI50 T5810 server, **not a controlled benchmark**.
 
-### Long-context agent workload — v0.1.40 live observation (2026-10-07, ROCm 10, GSQ-RCO IQ3_S)
+### Current result — v0.1.40 on ROCm 10 (2026-10-07, GSQ-RCO IQ3_S)
+
+Engine `build-text-rocm10/strata` = `bc1102ba…` (upstream gfx906 path, source v0.1.40.1 / `82f46a8` plus
+engine fix `74583c6`), vision encoder `build-vision-rocm10/bin/strata-vision` = `709fc4d2…`, both on
+`10.0.0-gfx906+20260917140126`. Model GSQ-RCO IQ3_S, 262,144 configured context, `--kv int8`,
+`--kv-resident 32768`, `--spec 4`, `--batch 4 --batch-groups 2`, `--layer-split 24`, `--pcie-frac 0`.
+
+#### Prefill and decode rates
+
+| Rate | Value | How it was measured |
+| --- | ---: | --- |
+| **Prefill — real (cold, no reuse)** | **486.7 tok/s** at 6,642 tokens; **646.2 tok/s** at 26,765; **670.2 tok/s** at 53,846 | Three one-shot probes with `cached_tokens: 0`; the engine's own `prompt_per_second` |
+| **Prefill — effective (reused tokens counted)** | **14,904 tok/s** across the window; **29,129–246,878 tok/s** per request | `prompt_tokens / prompt_ms` on production traffic with a warm K/V cache |
+| **Decode — production traffic** | **48.4–57.9 tok/s**, weighted **52.9 tok/s** | 12 request records in the window (`decode_tok_s`) |
+| **Decode — probe runs** | **55.5–59.7 tok/s** | Same three probes, the engine's `predicted_per_second`, MTP `--spec 4` active |
+
+The two prefill numbers answer different questions. **Real prefill** is compute: new prompt tokens divided
+by prefill time, with no cache hit. **Effective prefill** divides the whole prompt, including tokens served
+from the K/V cache, by the prompt-phase time. It shows how fast a long conversation turn is accepted; it is
+not compute throughput. Do not compare them, and do not quote the effective number as a prefill speed.
+
+#### Cold prefill and decode probe (bounded, 2026-10-07 03:26:40–03:29:24 UTC)
+
+Three one-shot requests with unique text, so nothing was reused (`cached_tokens: 0`), `temperature 0`,
+`max_tokens 64`, sent to the idle production service. The engine reported these timings:
+
+| Prompt tokens | Reused | Prefill s | **Prefill tok/s** | **Decode tok/s** | MTP drafts accepted |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 6,642 | 0 | 13.65 | **486.7** | **59.7** | 30 / 36 |
+| 26,765 | 0 | 41.42 | **646.2** | **57.7** | 30 / 34 |
+| 53,846 | 0 | 80.34 | **670.2** | **55.5** | 30 / 36 |
+
+- Prefill gets faster per token as the prompt grows: 486.7 tok/s at 6.6K, 670.2 tok/s at 53.8K.
+- Decode stayed 55.5–59.7 tok/s while the prompt grew to 53,846 tokens.
+- Cost: about 137 s of GPU prefill on the idle service. No restart, no config change, no model change.
+- Raw payload: [`probe-results.json`](docs/gfx906-results/20261007-prefill-decode-probe/probe-results.json).
+- Limits: synthetic filler text, one run per size, `max_tokens 64`; not a matched A/B against another build
+or ROCm version, and not a long-soak measurement.
+
+#### Production window (rolling `/metrics`, 2026-10-07 02:37:57 → 03:03:45 UTC)
 
 A rolling `/metrics` window from the production `:8082` service, 2026-10-07 02:37:57 → 03:03:45 UTC
 (25.8 min). The engine is the upstream gfx906 text engine `bc1102ba…` (source v0.1.40.1 / `82f46a8` plus
@@ -76,60 +116,14 @@ What this does not show:
 
 - This is not a controlled benchmark and not a matched A/B: one rolling window, mixed owner traffic, warm
 cache, no client-side timing.
-- A new-token prefill rate is not derivable from this payload. `prompt_ms` also covers cache restore and
-admission work, so 103,533 new tokens over 248.2 s of `prompt_ms` is not a prefill throughput.
+- A new-token prefill rate is **not** derivable from this payload: `prompt_ms` also covers cache restore
+and admission work, so 103,533 new tokens over 248.2 s of `prompt_ms` is not a prefill throughput. The
+measured cold prefill rates are in the probe subsection above.
 - No accuracy, output-quality, full-262K-context, MI60, or long-soak measurement.
 - The payload's `hardware_static.gpu_name` string reads "Radeon Instinct MI50 16GB"; `mem_total` reports
 31.98 GiB per card, which matches the hardware. The name string is a monitor label, not a capacity claim.
 - Raw payload: [`metrics-snapshot.json`](docs/gfx906-results/20261007-mi50-workload/metrics-snapshot.json).
 The all-zero `history` sample arrays are omitted; every other key is verbatim.
-
-### 4-way concurrent stress test — v0.1.39 live observation (GSQ-RCO IQ3_S)
-
-A 4-way concurrent performance stress test was conducted on the dual-MI50 T5810 server using `herdr` to create and schedule 4 independent `pi` agent instances across 4 vertical terminal panes (`wV:p5`, `wV:p7`, `wV:p6`, `wV:p8`) in workspace tab `wV:t1`. Each instance was dispatched a high-difficulty domain task requiring complex technical reasoning, code generation, and mathematical derivation under `xhigh` thinking level.
-
-#### Test environment and task configuration
-
-| Instance | Pane | Domain | Core task |
-| --- | --- | --- | --- |
-| `pi-test-1` | `wV:p5` | Algorithms & Data Structures | Grid-based A* pathfinding with heuristics (diagonal moves, obstacle cost penalties, full complexity derivation). |
-| `pi-test-2` | `wV:p7` | High-Concurrency System Design | Distributed token bucket rate limiter (Redis + Lua core implementation, clock drift protection, concurrency race defense). |
-| `pi-test-3` | `wV:p6` | GPU / Systems Architecture | Deep comparison between AMD ROCm HIP and NVIDIA CUDA (memory models, L2 cache coherence, Warp32 vs. Wavefront64). |
-| `pi-test-4` | `wV:p8` | Probability & Mathematical Derivation | Gaussian Process Regression (GPR) in Bayesian Optimization (posterior mean/variance derivation, acquisition function comparison: EI vs. UCB). |
-
-- **Inference backend:** Dell Precision Tower 5810 (dual AMD Radeon Instinct MI50, gfx906 2-card pipeline split).
-- **Model & engine:** Strata v0.1.39 running `Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S` (262,144 context capacity, `xhigh` reasoning effort / thinking level).
-- **Dispatch method:** 4 instances triggered simultaneously within the same second via `herdr` agent prompts, streaming full terminal outputs directly without file-system write side effects.
-
-#### Instance duration and token statistics
-
-With `xhigh` deep thinking enabled, all instances produced substantial reasoning and generation outputs:
-
-| Instance | Turns | New prompt tokens | Cache hit tokens | Generated tokens | Completion time | End-to-end latency |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `pi-test-1` (A* Pathfinding) | 4 | 6,579 | 113,121 | 10,134 | 18:38:58 | 645 s (10.8 m) |
-| `pi-test-2` (Token Bucket) | 1 | 132 | 26,114 | 11,227 | 18:40:08 | 715 s (11.9 m) |
-| `pi-test-3` (ROCm vs. CUDA) | 5 | 31,930 | 154,831 | 14,237 | 18:41:24 | 791 s (13.2 m) |
-| `pi-test-4` (GPR Bayesian Opt) | 1 | 0 | 26,253 | 10,833 | 18:39:33 | 680 s (11.3 m) |
-| **Batch total** | **11** | **38,641** | **320,319** | **46,431** | **18:41:24** | **791 s (13.2 m)** |
-
-#### Hardware load and concurrency metrics
-
-Sampled from the T5810 Strata `/metrics` endpoint before and after the test run:
-
-1. **Throughput and generation rates:**
-   - **4-way concurrent output tokens:** 46,431 tokens generated across the batch.
-   - **Batch wall-clock elapsed:** 791 seconds (13 minutes 11 seconds).
-   - **System effective generation throughput:** **~58.70 tok/s** (end-to-end wall-clock throughput, factoring in multi-turn interactions, tool calls, prompt preparation, and thinking intervals).
-   - **Peak real-time decode throughput:** During sustained concurrent generation, backend sampling throughput held stably at **~80.4 tok/s** (compared to the single-stream baseline of ~46–56 tok/s; 4-way concurrency saturates GPU compute units more effectively, yielding an aggregate throughput increase of ~45%–60%).
-2. **Dual MI50 hardware state:**
-   - **GPU core utilization:** Peaked at **95.5%** (vs. 40%–60% in single-stream mode).
-   - **Total power draw:** Peaked at **232 W** (both cards combined).
-   - **Operating temperatures:** Both MI50 GPUs held steady at **45°C–47°C**, demonstrating robust thermal behavior under sustained load.
-   - **VRAM allocation:** Dual cards maintained a resident allocation of **64.18 GB / 68.68 GB**.
-3. **Prompt caching and speculative decoding:**
-   - **Prompt cache hit rate:** **89.2%** (320,319 out of 358,960 total prompt tokens reused KV cache entries), significantly mitigating prefill latency during multi-turn concurrent requests.
-   - **MTP speculative decoding:** Speculative draft generation operated reliably throughout multi-stream batching, maintaining consistent draft acceptance rates.
 
 ## What this fork supports
 
