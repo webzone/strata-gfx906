@@ -1,6 +1,6 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.1.40**
+**Source version: Strata v0.1.40.1 / `82f46a8`** (the engine reports v0.1.40).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
@@ -231,7 +231,7 @@ For the engine's complete option list, run `./engine/strata --help` after instal
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.1.40 / `1735d64`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.1.40.1 / `82f46a8`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,
