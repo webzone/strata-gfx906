@@ -25,8 +25,8 @@ RDNA = dict(index=2, arch="gfx1201", name="RDNA4", vram_gb=48.0, vendor="amd")
 
 class UpstreamIntegration(unittest.TestCase):
     def test_version_and_acceptance_pins(self):
-        self.assertEqual(setup.source_version(), "0.1.40.2")
-        self.assertEqual(setup.MIN_ENGINE, (0, 1, 40, 2))
+        self.assertEqual(setup.source_version(), "0.1.40.3")
+        self.assertEqual(setup.MIN_ENGINE, (0, 1, 40, 3))
         self.assertEqual(setup.LLAMA_CPP_COMMIT, "3cf03257f219afbe7334045ff7c6a06ac68c627d")
         self.assertEqual(setup.HF_REVISIONS[gfx906_model.REPO], gfx906_model.REVISION)
         self.assertEqual(mtp_fetch.REVISION, "de4b8e4d43b917e7706784d8bb445c9af86a3540")
