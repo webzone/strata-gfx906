@@ -50,6 +50,8 @@ All project documentation and maintenance notes must be written in English. Pres
 
 ## Upstream navigation
 
+When invoking `omp`, use the `herdr` skill from a Herdr-managed pane, as requested by the owner.
+
 Upstream's general user workflow is in `docs/AI_SETUP.md` and `docs/MCP_SERVER.md`; for this fork's
 MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upstream's RDNA/prebuilt defaults.
 The owner-authorized T5810 private-LAN deployment uses `0.0.0.0:8082` without an API key; do not add

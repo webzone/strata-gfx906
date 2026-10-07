@@ -1,0 +1,17 @@
+[strata] reading the prompt: 65,129 of 65,846 tokens, 103 s so far
+[strata] reading the prompt: 65,841 of 65,846 tokens, 105 s so far
+[strata] thinking: 2 of max 32768 tokens, 3.2 tok/s, 106 s
+[strata] done: 3 tokens in 106 s (0.0 tok/s) (cancel, cancel=True), expert cache 100.0% hit
+[strata] thinking: 54 of max 32768 tokens, 33.2 tok/s, 107 s
+[strata] thinking: 111 of max 32768 tokens, 41.8 tok/s, 108 s
+[strata] writing a tool call: bash: 181 of max 32768 tokens, 48.9 tok/s, 109 s
+[strata] writing a tool call: bash: 247 of max 32768 tokens, 52.1 tok/s, 110 s
+[strata] done: 301 tokens in 111 s (54.7 tok/s) (stop, cancel=False), expert cache 100.0% hit
+[strata] reading the prompt: 611 of 618 tokens, 3 s so far
+[strata] done: 0 tokens in 3 s (0.0 tok/s) (cancel, cancel=True)
+[strata] reading the prompt: 2,048 of 66,274 tokens, 8 s so far
+[strata] reading the prompt: 4,096 of 66,274 tokens, 11 s so far
+[strata] reading the prompt: 6,144 of 66,274 tokens, 14 s so far
+[strata] reading the prompt: 8,192 of 66,274 tokens, 17 s so far
+[strata] reading the prompt: 10,240 of 66,274 tokens, 20 s so far
+[strata] reading the prompt: 12,288 of 66,274 tokens, 23 s so far

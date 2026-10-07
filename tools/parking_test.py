@@ -59,7 +59,8 @@ def run(a, cfg, tok, with_b):
     if with_b:
         pb = tok.encode(chat("Write a short poem about the sea, then explain its metaphors." * 50), parse_special=True)
         if a.cancel_b:
-            pb = pb[:611] + pb[-7:]   # match the owner's 618-token interrupted admission
+            tail = tok.encode("<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n", parse_special=True)
+            pb = pb[:618 - len(tail)] + tail   # match the owner's 618-token interrupted admission
         _, interruption = gen(eng, out, pb, a.max_new, cancel_prefill=a.cancel_b)
     end = tok.encode("<|im_end|>\n", parse_special=True)
     follow = pa + ans + ([] if ans and ans[-1] in end else end) + \
