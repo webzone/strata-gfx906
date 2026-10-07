@@ -22,15 +22,23 @@ def chat(user):
     return f"<|im_start|>user\n{user}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
 
 
-def gen(eng, out, ids, n):
+def gen(eng, out, ids, n, cancel_prefill=False):
     eng.send(f"GEN {n} " + ",".join(map(str, ids)))
     got = []
+    stopped = False
     for line in out:
         if line.startswith("T "):
             got.append(int(line.split()[1]))
+        elif cancel_prefill and not stopped and line.startswith("PP "):
+            reached, total = map(int, line.split()[1:3])
+            if 0 < reached < total:
+                eng.send("STOP")
+                stopped = True
         elif line.startswith("ERR"):
             raise SystemExit("engine: " + line)
         elif line.startswith("DONE"):
+            if cancel_prefill and (not stopped or got or line.split()[5] != "cancel"):
+                raise SystemExit("the short request was not cancelled during prefill: " + line)
             return got, line
     raise SystemExit("the engine ended")
 
@@ -47,9 +55,12 @@ def run(a, cfg, tok, with_b):
     out = eng.lines()
     pa = tok.encode(chat(DOC * a.repeat + "\nSummarize this text in five sentences."), parse_special=True)
     ans, _ = gen(eng, out, pa, a.max_new)
+    interruption = None
     if with_b:
-        pb = tok.encode(chat("Write a short poem about the sea, then explain its metaphors." * 20), parse_special=True)
-        gen(eng, out, pb, a.max_new)
+        pb = tok.encode(chat("Write a short poem about the sea, then explain its metaphors." * 50), parse_special=True)
+        if a.cancel_b:
+            pb = pb[:611] + pb[-7:]   # match the owner's 618-token interrupted admission
+        _, interruption = gen(eng, out, pb, a.max_new, cancel_prefill=a.cancel_b)
     end = tok.encode("<|im_end|>\n", parse_special=True)
     follow = pa + ans + ([] if ans and ans[-1] in end else end) + \
         tok.encode(chat("Now give three keywords for that text, with one sentence each.")[0:], parse_special=True)
@@ -67,7 +78,7 @@ def run(a, cfg, tok, with_b):
     reparked = [int(x) for x in re.findall(r"parked \d+ tokens .*reused_kv_bytes=(\d+)", log)]
     return len(pa), len(follow), got, done, dt, restored, reparked, {
         "commands": commands, "tokens": got, "done": done, "log": log,
-        "snapshot_verified": "SNAPSHOT_VERIFY draft=" in log}
+        "snapshot_verified": "SNAPSHOT_VERIFY draft=" in log, "interruption": interruption}
 
 
 def main():
@@ -76,6 +87,7 @@ def main():
     ap.add_argument("--config", required=True)
     ap.add_argument("--repeat", type=int, default=60, help="copies of the paragraph in conversation A")
     ap.add_argument("--max-new", type=int, default=120)
+    ap.add_argument("--cancel-b", action="store_true", help="cancel a 618-token B during prefill, before any output")
     ap.add_argument("--extra", default="")
     ap.add_argument("--dump", default="", help="save exact commands, follow-up token IDs and both engine logs as JSON")
     a = ap.parse_args()
@@ -93,9 +105,13 @@ def main():
     print("   ", repr(tok.decode(park[2])[:200]))
     reused = park[6][-1] if park[6] else 0
     print(f"second park of A: {reused} bytes of K/V reused (retained from its restore)")
+    if a.cancel_b:
+        print("cancelled short admission:", park[7]["interruption"])
+    resumed = int(park[3].split()[8])
+    kept_history = resumed >= park[0] - 8   # a turn checkpoint may omit the assistant template's final seven tokens
     if a.dump:
         Path(a.dump).write_text(json.dumps({"reference": ref[7], "parked": park[7], "identical": same}, indent=2) + "\n")
-    return 0 if same and park[5] and reused > 0 and park[7]["snapshot_verified"] else 1
+    return 0 if same and kept_history and park[5] and reused > 0 and park[7]["snapshot_verified"] else 1
 
 
 if __name__ == "__main__":
