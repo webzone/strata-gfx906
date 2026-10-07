@@ -28,7 +28,9 @@ def gen(eng, out, ids, n):
     for line in out:
         if line.startswith("T "):
             got.append(int(line.split()[1]))
-        elif line.startswith("DONE") or line.startswith("ERR"):
+        elif line.startswith("ERR"):
+            raise SystemExit("engine: " + line)
+        elif line.startswith("DONE"):
             return got, line
     raise SystemExit("the engine ended")
 
@@ -63,7 +65,9 @@ def run(a, cfg, tok, with_b):
     if with_b and "SNAPSHOT_VERIFY draft=" not in log:
         print("no SNAPSHOT_VERIFY line: the draft ring was not read back", flush=True)
     reparked = [int(x) for x in re.findall(r"parked \d+ tokens .*reused_kv_bytes=(\d+)", log)]
-    return len(pa), len(follow), got, done, dt, restored, reparked, {"commands": commands, "tokens": got, "done": done, "log": log}
+    return len(pa), len(follow), got, done, dt, restored, reparked, {
+        "commands": commands, "tokens": got, "done": done, "log": log,
+        "snapshot_verified": "SNAPSHOT_VERIFY draft=" in log}
 
 
 def main():
@@ -91,7 +95,7 @@ def main():
     print(f"second park of A: {reused} bytes of K/V reused (retained from its restore)")
     if a.dump:
         Path(a.dump).write_text(json.dumps({"reference": ref[7], "parked": park[7], "identical": same}, indent=2) + "\n")
-    return 0 if same and park[5] and reused > 0 else 1
+    return 0 if same and park[5] and reused > 0 and park[7]["snapshot_verified"] else 1
 
 
 if __name__ == "__main__":
