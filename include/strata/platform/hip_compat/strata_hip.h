@@ -49,6 +49,7 @@
 #define cudaStreamCaptureStatusNone hipStreamCaptureStatusNone
 #define cudaStreamCaptureStatusActive hipStreamCaptureStatusActive
 #define cudaEventDisableTiming hipEventDisableTiming
+#define cudaEventBlockingSync hipEventBlockingSync   // upstream's Stager sleep waits (#1057); HIP names it hipEventBlockingSync
 #define cudaEventDefault hipEventDefault
 #define cudaHostAllocDefault hipHostMallocDefault
 #define cudaHostAllocPortable hipHostMallocPortable
