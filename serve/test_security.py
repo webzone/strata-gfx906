@@ -202,7 +202,7 @@ class OverHttp(unittest.TestCase):
             self.assertEqual(body["choices"][0]["message"]["content"], "ok")
 
     def test_cross_site_page_is_refused(self):
-        self.start()
+        self.start(cors_origins=[])
         for path in ("/v1/chat/completions", "/v1/messages", "/v1/messages/count_tokens"):
             for ctype in ("text/plain", "application/json"):
                 code, body, log = self.req("POST", path, self.chat_body(),

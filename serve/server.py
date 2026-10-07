@@ -2169,9 +2169,8 @@ class Service:
         self.conv_log = ConvCacheLog()                  # #596: the parked conversations, from the engine's log
         self.config_path = None                         # #564: the run config the web page's Settings view edits
         self.config_lock = threading.Lock()
-        # #321: browser pages of these origins may call /v1/* (CORS; "*" = any page - only with an api_key that
-        # matters); empty = no CORS headers at all, as before
-        self.cors_origins: list[str] = []
+        # Browser pages may call /v1/* from any origin by default; an explicit empty list disables CORS.
+        self.cors_origins: list[str] = ["*"]
         # #321: origins that count as Strata's own page for /settings and MCP tools, e.g. the web app reached through a
         # reverse proxy or tunnel whose Host differs ("https://strata.example.com"); never a wildcard
         self.trusted_origins: list[str] = []
@@ -4898,7 +4897,7 @@ def main() -> int:
               file=sys.stderr)
         return 2
     svc.api_key = a.api_key or cfg.get("api_key", "")
-    svc.cors_origins = origins_of(cfg.get("cors_origins"), "cors_origins", wildcard=True)
+    svc.cors_origins = origins_of(cfg.get("cors_origins", ["*"]), "cors_origins", wildcard=True)
     svc.trusted_origins = origins_of(cfg.get("trusted_origins"), "trusted_origins", wildcard=False)
     try:
         svc.allowed_hosts = allowed_hosts_of(cfg.get("allowed_hosts"), os.environ.get("STRATA_ALLOWED_HOSTS", ""))

@@ -2426,8 +2426,17 @@ class UsageAndStatus(unittest.TestCase):
         with urllib.request.urlopen(req, timeout=10) as r:
             return r.status, r.headers
 
-    def test_cors_is_off_by_default(self):
-        # #321: OPTIONS is answered, but without cors_origins no page of another origin is let in
+    def test_cors_accepts_any_origin_by_default(self):
+        for origin in ("https://chat.example.com", "http://another.example:3000", "null"):
+            status, h = self.preflight("/v1/chat/completions", origin)
+            self.assertEqual((status, h.get("Access-Control-Allow-Origin")), (204, "*"))
+        req = urllib.request.Request(self.base + "/v1/models", headers={"Origin": "https://any.example"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            self.assertEqual(r.headers.get("Access-Control-Allow-Origin"), "*")
+        self.assertIsNone(self.preflight("/settings")[1].get("Access-Control-Allow-Origin"))
+
+    def test_cors_can_be_disabled_explicitly(self):
+        self.svc.cors_origins = []
         status, h = self.preflight("/v1/chat/completions")
         self.assertEqual(status, 204)
         self.assertIsNone(h.get("Access-Control-Allow-Origin"))
@@ -3641,8 +3650,8 @@ class ImageSources(unittest.TestCase):
 
             try:
                 f = str(Path(d) / "secret.png")
-                # a page on any site, no api_key (the default): text/plain needs no CORS preflight - 0.1.38 refuses
-                # such a page outright (403)
+                # Explicitly disabled CORS refuses foreign pages before their body is interpreted.
+                svc.cors_origins = []
                 page = {"Content-Type": "text/plain;charset=UTF-8", "Origin": "https://evil.example"}
                 status, b = post("/v1/chat/completions", f, page)
                 self.assertEqual(status, 403, b)

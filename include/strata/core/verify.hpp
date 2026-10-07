@@ -158,11 +158,12 @@ public:
     void set_batch_graph_limit(size_t n) { batch_graph_limit_ = n; }
 
     // ---- The stages of a layer split as a PIPELINE.  A batch window over the slot GROUP
-    // [base, base + S) is launched on ONE stage with its commit right behind it on the stage's stream (a batch window
+    // is launched on ONE stage with its commit right behind it on the stage's stream (a batch window
     // keeps every row, so the commit needs no host decision), and the host serves the rings of every stage that has
     // a window in flight from one thread (batch_poll does not block).  Stage k can then run group g while stage k+1
     // runs group g-1.  Rows of group `base` use hand-off rows [base, base + S), so groups never share a hand-off row.
-    bool batch_launch(int base, int S, const int32_t* tokens, const int64_t* pos, std::string& err);
+    // `rows` lists only active slots; idle slots keep their state. `base` reserves the group's hand-off region.
+    bool batch_launch(int base, const int* rows, int S, const int32_t* tokens, const int64_t* pos, std::string& err);
     /// 1 = this stage's window and commit are done (the last stage's picks are in batch_out), 0 = still running,
     /// -1 = an error (err).  Serves every layer that has rung so far.
     int batch_poll(PoolMultiFn pool, void* user, std::string& err);

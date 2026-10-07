@@ -33,10 +33,13 @@ LONG = ("The history of mathematics is long and full of surprising turns. Early 
 def run(eng, out, line, slot=None):
     """Send one GEN/BGEN; returns (tokens of the request line, the BADM flag) - BT/BDONE of other slots are kept."""
     eng.send(line)
+    eng.resumed = 0
     got = []
     for l in out:
         if l.startswith("T "):
             got.append(int(l.split()[1]))
+        elif l.startswith("RESUME "):
+            eng.resumed = int(l.split()[1])
         elif l.startswith(("BT ", "BDONE ")):
             eng.pending.append(l)
         elif l.startswith("ERR"):
@@ -54,6 +57,8 @@ def main():
     ap.add_argument("--config", required=True)
     ap.add_argument("--max-new", type=int, default=200)
     ap.add_argument("--long", type=int, default=5000, help="tokens of the long prompt C (several prompt chunks)")
+    ap.add_argument("--batch", type=int, default=3, help="use 4 with --extra '--batch-groups 2' for pipeline cache checks")
+    ap.add_argument("--dump", default="", help="save exact engine commands and reference/batch token IDs as JSON")
     ap.add_argument("--extra", default="")
     a = ap.parse_args()
     cfg = json.loads(Path(a.config).read_text())
@@ -69,7 +74,13 @@ def main():
     D = chat(body + "\nWhat are the three most important ideas in the text above?")
     E = chat("Describe the life cycle of a star like the Sun.")
     print(f"prompts: A {len(A)}, B {len(B)}, C {len(C)} tokens", flush=True)
-    eng = Engine(a.exe, cfg, 3, {"STRATA_IQ_MT_MIN": "1"}, a.extra.split())
+    eng = Engine(a.exe, cfg, a.batch, {**cfg.get("env", {}), "STRATA_IQ_MT_MIN": "1"}, a.extra.split())
+    commands = []
+    send = eng.send
+    def record(line):
+        commands.append(line)
+        send(line)
+    eng.send = record
     eng.pending = []
     out = eng.lines()
     ids = lambda v: ",".join(map(str, v))
@@ -126,6 +137,8 @@ def main():
 
     # 3. A's next turn from slot 0 (the engine's log says "slot 0 gave back ...")
     first, cont = run(eng, out, f"BGEN 0 {M} {ids(A2)}", slot=0)
+    reuse2 = eng.resumed
+    ok &= reuse2 >= len(A)   # reuse is required, not just output equality after a full re-prefill
     got2, done = first, {}
     if cont:
         while True:
@@ -137,7 +150,7 @@ def main():
     same = got2 == sA2
     ok &= same
     d = next((k for k in range(min(len(got2), len(sA2))) if got2[k] != sA2[k]), None)
-    print(f"A's next turn from its slot: {len(got2)} tokens, solo {len(sA2)}: "
+    print(f"A's next turn from its slot: reused {reuse2}, {len(got2)} tokens, solo {len(sA2)}: "
           f"{'IDENTICAL' if same else f'DIFFERS at {d}'}", flush=True)
     # 4. a long prompt D gives way (BYIELD) to a short E at its first chunk boundary, then goes on from its slot
     eng.send(f"BGEN 2 {M} {ids(D)}")
@@ -187,12 +200,27 @@ def main():
                 sent = True
         elif l.startswith("BDONE 1 "):
             break
+    # Overwrite the main session and run the stopped slot's sibling three times. Pipeline padding used to
+    # destroy slot 1 here, making GEN below read A's entire context again. Slot 1 must keep every committed token.
+    if len(got6) < M:
+        for burst in range(3):
+            short = E + chat(f"Short interruption {burst}: answer briefly.")
+            _, short_cont = run(eng, out, f"BGEN 0 8 {ids(short)}", slot=0)
+            while short_cont:
+                l = eng.pending.pop(0) if eng.pending else next(out)
+                if l.startswith("BDONE 0 "):
+                    break
+                if l.startswith("ERR"):
+                    raise SystemExit("engine: " + l)
     tail6, _ = run(eng, out, f"GEN {M - len(got6)} {ids(A + got6)}") if len(got6) < M else ([], None)
+    reuse6 = eng.resumed
+    if len(got6) < M:
+        ok &= reuse6 >= len(A) + len(got6) - 1
     same = got6 + tail6 == sA
     ok &= same
     both = got6 + tail6
     d = next((k for k in range(min(len(both), len(sA))) if both[k] != sA[k]), None)
-    print(f"A in a slot, then solo again after {len(got6)} tokens: {len(both)} tokens, solo {len(sA)}: "
+    print(f"A in a slot, then solo again after {len(got6)} tokens: reused {reuse6}, {len(both)} tokens, solo {len(sA)}: "
           f"{'IDENTICAL' if same else f'DIFFERS at {d}'}", flush=True)
 
     # 5. (a measurement, not a check) a SOLO next turn continued from slot 0: its tokens are exact either way, but the
@@ -224,6 +252,11 @@ def main():
           f"{len(sF)}: {'IDENTICAL' if same else f'DIFFERS at {d}'}", flush=True)
     eng.send("QUIT")
     eng.p.wait(timeout=180)
+    if a.dump:
+        Path(a.dump).write_text(json.dumps({"commands": commands, "solo": [sA, sA2, sB, sC, sD, sE, sF],
+                                          "batch": got, "next_turn": got2, "yielded": got4,
+                                          "resumed_solo": both, "checkpoint": got7,
+                                          "reuse_next_turn": reuse2, "reuse_solo": reuse6, "ok": ok}, indent=2) + "\n")
     log = Path(eng.log_path).read_text(errors="replace")
     for l in log.splitlines():
         if "drafts accepted" in l:
