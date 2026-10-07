@@ -85,6 +85,10 @@ def main():
     out = eng.lines()
     ids = lambda v: ",".join(map(str, v))
     M = a.max_new
+    args = list(cfg["args"]) + a.extra.split()
+    groups = next((int(args[i + 1]) for i in range(len(args) - 1, -1, -1)
+                   if args[i] == "--batch-groups"), 1)
+    piped = groups > 1 and len(cfg.get("gpu") or []) > 1
 
     # 1. solo
     sA, _ = run(eng, out, f"GEN {M} {ids(A)}")
@@ -181,25 +185,33 @@ def main():
         print(f"long next turn after three sibling bursts: reused {reuse_long} of {len(C)} history tokens; "
               f"{'IDENTICAL' if same_long else 'DIFFERS'}", flush=True)
     # 4. a long prompt D gives way (BYIELD) to a short E at its first chunk boundary, then goes on from its slot
-    eng.send(f"BGEN 2 {M} {ids(D)}")
-    eng.send("BYIELD 2")
-    yielded = None
-    for l in out:
-        if l.startswith("YIELDED "):
-            yielded = l
-        elif l.startswith(("BT ", "BDONE ")):
-            eng.pending.append(l)
-        elif l.startswith("ERR"):
-            raise SystemExit("engine: " + l)
-        elif l.startswith("BADM 2 "):
-            break
-    print(f"D gave way: {yielded}", flush=True)
-    ok &= yielded is not None
     got4 = {1: [], 2: []}
+    if piped:
+        # Upstream read_part bypasses BYIELD for pipelined groups. Still compare D/E output parity;
+        # do not re-admit a decoding D into its occupied slot or claim that chunk yielding was tested.
+        first, cont2 = run(eng, out, f"BGEN 2 {M} {ids(D)}", slot=2)
+        got4[2] += first
+        print("SKIP BYIELD: upstream pipelined groups do not support chunk yielding", flush=True)
+    else:
+        eng.send(f"BGEN 2 {M} {ids(D)}")
+        eng.send("BYIELD 2")
+        yielded = None
+        for l in out:
+            if l.startswith("YIELDED "):
+                yielded = l
+            elif l.startswith(("BT ", "BDONE ")):
+                eng.pending.append(l)
+            elif l.startswith("ERR"):
+                raise SystemExit("engine: " + l)
+            elif l.startswith("BADM 2 "):
+                break
+        print(f"D gave way: {yielded}", flush=True)
+        ok &= yielded is not None
     first, cont1 = run(eng, out, f"BGEN 1 {M} {ids(E)}", slot=1)
     got4[1] += first
-    first, cont2 = run(eng, out, f"BGEN 2 {M} {ids(D)}", slot=2)
-    got4[2] += first
+    if not piped:
+        first, cont2 = run(eng, out, f"BGEN 2 {M} {ids(D)}", slot=2)
+        got4[2] += first
     done4 = {s for s, c in ((1, cont1), (2, cont2)) if not c}
     while len(done4) < 2:
         l = eng.pending.pop(0) if eng.pending else next(out)
