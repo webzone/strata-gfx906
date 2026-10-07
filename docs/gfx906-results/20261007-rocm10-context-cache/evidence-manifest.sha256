@@ -1,0 +1,43 @@
+# Local copies of small raw evidence retrieved read-only from
+# chris@t5810:/home/chris/dev/strata-gfx906/logs/cachefix-rocm10-20261007/ on 2026-10-07.
+# sha256sum-compatible; paths relative to this directory. Large captures
+# (tokens JSONs, long.request.json, long.response.sse, vision-smoke.request.json,
+# build.log) and the mode-0600 test config stay remote-only below.
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  remote/api-validation/cors_arbitrary.body
+72e68848622879a7e8ef08b9069515ed2af321af93d5fef617790dccf6485f9f  remote/api-validation/cors_arbitrary.headers
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  remote/api-validation/cors_null.body
+72e68848622879a7e8ef08b9069515ed2af321af93d5fef617790dccf6485f9f  remote/api-validation/cors_null.headers
+d6fbaf2159c273556c55809ca05a17297867bbeb235444a46a523b527207e4b1  remote/api-validation/health.body
+d4bff1304a128ca286ea2d7b4d47d176cbb22c5e78697d69d98c6b0d0818f64a  remote/api-validation/health.headers
+c6171adc8b1b564c48604a372b489285743ca765b4b58310dc89b56db9a0aa74  remote/api-validation/metrics.body
+f3d398fed811194e68935a0618f20a920edd4caaa37435da85aa52b529015b9b  remote/api-validation/metrics.headers
+25ba21e8a35a868388484934a1c1ffcde467e455e97783cf319bcd0acd40e308  remote/api-validation/v1_models.body
+78bda275c9c49df9e107173e2a0d09bfabfca8e09dc5dc9c967a1350b91e837c  remote/api-validation/v1_models.headers
+18877db36d12a1b794e082895419a0687840984366515585a38a2813039a3ff2  remote/api-validation/v1_status.body
+9971f9b2baeb9d69353bc0bf4f833ddf8028e0319ed583a9fe2e9dbf311c0406  remote/api-validation/v1_status.headers
+3d2f9a1a488c7741e95ce82c9858bc73fb9d558febf541ed2dd2cc6141fec3bd  remote/http-bursts/short-0.request.json
+67607c8765f42b0d546d6cc959c2d50824c4b1146b20efdee2425c26ffcfcb0f  remote/http-bursts/short-0.response.json
+6a3f259d9bca79740b84061d45655f83c5c66b6e47d2ddc543c0615d7d597e58  remote/http-bursts/short-1.request.json
+41823868048cc3427f502dbb52c8fc9b2746947f3a78c1c075d381e73f0cf149  remote/http-bursts/short-1.response.json
+bef7ddee84442a5c12e83eeb064c74e4de5fbc286e0c0c6d3e10aa4685251af1  remote/http-bursts/short-2.request.json
+240975050e6d0d5779d05b81e6b19be2b7c6582d3770c02b1f98489e22bb08a1  remote/http-bursts/short-2.response.json
+6787f467c936bf5a4deecbaf03531f8aec72fce1c67d6c55471ca2541d1b2bda  remote/http-bursts.stdout.log
+6787f467c936bf5a4deecbaf03531f8aec72fce1c67d6c55471ca2541d1b2bda  remote/http-bursts/summary.json
+c3e83a8597a3d8ef6fd759517e7a0ada917389d196568dc5d600f4d397d47f14  remote/http-server.stdout.log
+6726b66c193d8a6656bada4a0828f1bf11274186f5f6b062cc94f2009d45c66c  remote/iq2-parking-engine.log
+18e6f37d389e78b28babcc4d65279467767ecde060969dc8b7fe2e40df52e257  remote/iq2-parking.stdout.log
+c51b5cb2142be9bcb00d3ce63c88b391c538fb845b0eb4aa95d596725323f077  remote/iq2-pipeline-engine.log
+06b89c1fb2ec227bce0ffe04c03fe51e8e0eac700d824857023db5bf9180aa30  remote/iq2-pipeline.stdout.log
+6ca3753708ffb0061f8fa944e6e48aa01d60be0dc88ba9a00820b44cff62b1e6  remote/iq2-pipeline-unsupported-byield.stdout.log
+4ce52e53f60b7b388adf858f267695300eff6fa129711d792edd66a164d86cc7  remote/postflight.json
+128ff39f51e7a516f524c55da7c46ffbaa406007f025d871ab9e6d70cb9df5f0  remote/promotion.json
+452d9ef4e596895a65915d2a370cb1b86a8b2eaa926b1a70fdacd3a384d7cb68  remote/vision-smoke.http.txt
+6b775e1abdf5d552b9bb2ad0914b6010e1cc4b1f508626984dc8dd7afacb2a1d  remote/vision-smoke.response.json
+# Remote-only (not copied; verified by hash on t5810), same source directory:
+# c51b5cb2142be9bcb00d3ce63c88b391c538fb845b0eb4aa95d596725323f077  iq2-pipeline-engine.log (also copied above)
+# 942383031e84a5fceb2f089abc10fef2c6713bd9a7bcf9bd9c33baa619aa6d38  iq2-pipeline-unsupported-byield-engine.log
+# ba6e9ea1a6f24a854ef5bcb87a3fb693b2ef3815e90b297ef4912131f4ae26b3  iq2-pipeline.tokens.json
+# 94f4791443455f2f442d8d11ef900f93a5a686366eeda824f4b12b9845f076a1  iq2-parking.tokens.json
+# 52b326103b4c50dc2a9f14510d396360de2d1364748426ba8e6c76559c0fa011  http-bursts/long.request.json
+# d3a5b4e6a7f275022e3a2ef0f318f7744e90fab03e7649fbd032aab166693447  http-bursts/long.response.sse
+# (vision-smoke.request.json 166 KB image fixture intentionally not copied)

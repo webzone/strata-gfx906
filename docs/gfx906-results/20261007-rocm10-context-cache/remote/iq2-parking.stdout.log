@@ -1,0 +1,6 @@
+live (reference): prompt A 65902 tokens, follow-up 66011 tokens, reused 65986, follow-up in 1.96 s; restore lines: none
+parked (A, B, A): prompt A 65902 tokens, follow-up 66011 tokens, reused 65986, follow-up in 2.46 s; restore lines: ['restored 65986 tokens (live) in 484.5 ms; parked=0 bytes=1007246488']
+follow-up tokens: IDENTICAL (80 / 80)
+    '1. **Repetition**: The text is characterized by the exact same sentence being repeated hundreds of times without variation.\n2. **Origins**: The content identifies movable type in East Asia as the star'
+second park of A: 1007179776 bytes of K/V reused (retained from its restore)
+cancelled short admission: DONE 0 618 3480.3 0.0 cancel 0 0 0 0 0 0 0 0.0 611 0

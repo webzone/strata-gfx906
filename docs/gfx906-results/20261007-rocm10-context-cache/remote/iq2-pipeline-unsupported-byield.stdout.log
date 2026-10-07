@@ -1,0 +1,10 @@
+prompts: A 25, B 27, C 31908 tokens
+solo: A 200, A2 200, B 200, C 54, D 75, E 200 tokens
+slots: admissions 49.9s; 3 slot tokens arrived while the admissions read their prompts
+slot 0 (A): 200 tokens, solo 200: IDENTICAL
+slot 1 (B): 200 tokens, solo 200: IDENTICAL
+slot 2 (C): 54 tokens, solo 54: IDENTICAL
+A's next turn from its slot: reused 224, 200 tokens, solo 200: IDENTICAL
+long next turn after three sibling bursts: reused 31961 of 31908 history tokens; IDENTICAL
+D gave way: None
+engine: ERR BGEN: no such free slot (--batch 4) or a bad max_new

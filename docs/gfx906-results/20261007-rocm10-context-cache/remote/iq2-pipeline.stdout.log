@@ -1,0 +1,44 @@
+prompts: A 25, B 27, C 31908 tokens
+solo: A 200, A2 200, B 200, C 54, D 75, E 200 tokens
+slots: admissions 48.3s; 3 slot tokens arrived while the admissions read their prompts
+slot 0 (A): 200 tokens, solo 200: IDENTICAL
+slot 1 (B): 200 tokens, solo 200: IDENTICAL
+slot 2 (C): 54 tokens, solo 54: IDENTICAL
+A's next turn from its slot: reused 224, 200 tokens, solo 200: IDENTICAL
+long next turn after three sibling bursts: reused 31961 of 31908 history tokens; IDENTICAL
+SKIP BYIELD: upstream pipelined groups do not support chunk yielding
+slot 1 E (short, admitted while D waited): 200 tokens, solo 200: IDENTICAL
+slot 2 D (gave way, then went on): 75 tokens, solo 75: IDENTICAL
+A in a slot, then solo again after 51 tokens: reused 75, 200 tokens, solo 200: IDENTICAL
+solo next turn from a slot: drafts accepted 137 of 179 (200 tokens in 2896.8 ms)
+F (A's history without the reply's thinking) from slot 1's turn checkpoint: 200 tokens, solo 200: IDENTICAL
+  log: prompt 25 tokens = 0 reused + 25 read in 490 ms (51.0 tok/s), 200 generated in 2979 ms (67.1 tok/s), drafts accepted 132 of 171, 1 checkpoints
+  log: prompt 244 tokens = 224 reused + 20 read in 300 ms (66.7 tok/s), 200 generated in 2669 ms (74.9 tok/s), drafts accepted 141 of 162, 2 checkpoints
+  log: prompt 43 tokens = 18 reused + 25 read in 360 ms (69.5 tok/s), 200 generated in 2916 ms (68.6 tok/s), drafts accepted 136 of 178, 2 checkpoints
+  log: prompt 27 tokens = 0 reused + 27 read in 367 ms (73.6 tok/s), 200 generated in 3363 ms (59.5 tok/s), drafts accepted 115 of 165, 1 checkpoints
+  log: prompt 31908 tokens = 0 reused + 31908 read in 47107 ms (677.4 tok/s), 54 generated in 1127 ms (47.9 tok/s), drafts accepted 32 of 54, 2 checkpoints
+  log: prompt 31982 tokens = 31901 reused + 81 read in 1472 ms (55.0 tok/s), 20 generated in 502 ms (39.8 tok/s), drafts accepted 12 of 23, 3 checkpoints
+  log: prompt 31910 tokens = 16384 reused + 15526 read in 24671 ms (629.3 tok/s), 75 generated in 1257 ms (59.7 tok/s), drafts accepted 48 of 60, 2 checkpoints
+  log: prompt 23 tokens = 0 reused + 23 read in 325 ms (70.8 tok/s), 200 generated in 3532 ms (56.6 tok/s), drafts accepted 113 of 181, 1 checkpoints
+  log: prompt 25 tokens = 0 reused + 25 read in 353 ms (70.8 tok/s), 1 generated in 24 ms (42.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 27 tokens = 0 reused + 27 read in 361 ms (74.8 tok/s), 1 generated in 24 ms (42.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 31908 tokens = 0 reused + 31908 read in 46746 ms (682.6 tok/s), 1 generated in 26 ms (38.1 tok/s), drafts accepted 0 of 0, 2 checkpoints
+  log: prompt 244 tokens = 224 reused + 20 read in 382 ms (52.3 tok/s), 1 generated in 24 ms (41.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 44 tokens = 0 reused + 44 read in 557 ms (79.0 tok/s), 1 generated in 24 ms (41.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 44 tokens = 0 reused + 44 read in 552 ms (79.7 tok/s), 1 generated in 24 ms (42.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 44 tokens = 0 reused + 44 read in 554 ms (79.5 tok/s), 1 generated in 24 ms (41.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 31982 tokens = 31961 reused + 21 read in 688 ms (30.5 tok/s), 1 generated in 26 ms (38.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 31910 tokens = 0 reused + 31910 read in 46659 ms (683.9 tok/s), 1 generated in 26 ms (37.9 tok/s), drafts accepted 0 of 0, 2 checkpoints
+  log: prompt 23 tokens = 0 reused + 23 read in 324 ms (70.9 tok/s), 1 generated in 24 ms (42.1 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 25 tokens = 0 reused + 25 read in 350 ms (71.5 tok/s), 1 generated in 24 ms (42.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 43 tokens = 0 reused + 43 read in 522 ms (82.4 tok/s), 1 generated in 24 ms (42.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 43 tokens = 0 reused + 43 read in 522 ms (82.4 tok/s), 1 generated in 23 ms (42.6 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 43 tokens = 0 reused + 43 read in 523 ms (82.2 tok/s), 1 generated in 24 ms (42.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+  log: prompt 76 tokens = 75 reused + 1 read in 83 ms (12.0 tok/s), 149 generated in 2134 ms (69.8 tok/s), drafts accepted 101 of 133, 0 checkpoints
+  log: prompt 460 tokens = 224 reused + 236 read in 2002 ms (117.9 tok/s), 200 generated in 2897 ms (69.0 tok/s), drafts accepted 137 of 179, 1 checkpoints
+  log: prompt 43 tokens = 18 reused + 25 read in 419 ms (59.7 tok/s), 1 generated in 23 ms (42.7 tok/s), drafts accepted 0 of 0, 2 checkpoints
+engine log 'gave back': 4 lines
+engine log 'its turn checkpoint': 1 lines
+engine log 'takes': 15 lines
+engine log 'the prompt was read in': 0 lines
+engine log 'gives way': 0 lines

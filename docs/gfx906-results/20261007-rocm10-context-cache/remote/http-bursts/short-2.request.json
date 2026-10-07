@@ -1,0 +1,14 @@
+{
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+  "max_tokens": 16,
+  "temperature": 0,
+  "chat_template_kwargs": {
+    "enable_thinking": false
+  },
+  "messages": [
+    {
+      "role": "user",
+      "content": "Interruption 2: what is 17 + 25? Reply with only the number."
+    }
+  ]
+}

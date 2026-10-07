@@ -73,18 +73,18 @@ Sampled from the T5810 Strata `/metrics` endpoint before and after the test run:
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
-This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [current T5810 IQ3_S deployment](docs/GFX906.md#t5810-iq3_s-restored-upstream-text-engine-with-hip-gpu-vision-2026-10-05) uses the owner's original v0.1.39 upstream HIP-path text binary with this GPU encoder and passed short image/four-slot concurrent API checks.
+This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [current T5810 deployment](docs/GFX906.md#context-cache-fix-validated-on-real-models-2026-10-07) is the upstream gfx906 text engine built from the **v0.1.40.1 / `82f46a8`** merge for **ROCm 10** (`build-text-rocm10/strata`, the root-promoted validated `bc1102ba…` artifact with engine fix `74583c6`) plus this fork's HIP GPU vision encoder. Accepted scopes ([independent audit receipt](docs/gfx906-results/20261007-rocm10-context-cache/README.md)): four-slot pipeline/2-group ~32K-token parity with slot-cache reuse, 65K-token solo parking/reuse, 36K-token HTTP bursts, and Web CORS support. The formal 8082 service remains stopped per the owner's acceptance-only instruction.
 
 ## Install and build
 
 ### Requirements
 
-- Linux with the AMD GPU driver/KFD and an existing **ROCm 7 HIP + hipBLAS** installation. ROCm 7.2.4 is the version used in the documented MI50 validation. For the setup script, if ROCm is outside `/opt/rocm`, set `ROCM_PATH` to its installation directory. The example CMake preset itself points to `/opt/rocm`.
+- Linux with the AMD GPU driver/KFD and an existing **ROCm 10 HIP + hipBLAS** installation. The current deployment/build target is **ROCm 10**, on T5810 explicitly `/opt/rocm-10.0/core-10.0`; see [current build selection](docs/GFX906.md#deployment-decision-which-gfx906-path-is-current-2026-10-06). For the setup script, if ROCm is outside `/opt/rocm`, set `ROCM_PATH` to its installation directory. The example CMake preset itself points to `/opt/rocm`.
 - An **AVX2-capable x86-64 CPU**; v0.1.31 explicitly rejects CPUs without AVX2. The tested Xeon E5-1650 v3 meets this requirement.
 - Python 3.10 or newer with `venv`/`pip`, Git, and a C++ compiler. `setup.sh` creates a project-local `.venv` and installs the pinned Python dependencies there; the HIP engine is compiled locally for gfx906.
 - Disk requirements depend on model and quantization. A clean **IQ2_XS** install needs roughly **80 GB or more** of free space across the model/data volume; keep at least 4 GiB free on the system volume. The installer checks required space before downloading. Use `--data-dir` to place model data on a larger disk.
 
-### Recommended install (build engine, prepare model, do not start yet)
+### Archived experimental installer (build engine, prepare model, do not start yet)
 
 ```bash
 git clone --branch gfx906 https://github.com/webzone/strata-gfx906.git

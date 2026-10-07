@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-07T02:20:00.808370+00:00",
+  "ports": "",
+  "gpu": "\n\n============================ ROCm System Management Interface ============================\n=================================== % time GPU is busy ===================================\nGPU[0]\t\t: GPU use (%): 0\nGPU[1]\t\t: GPU use (%): 0\n==========================================================================================\n=================================== Current Memory Use ===================================\nGPU[0]\t\t: GPU Memory Allocated (VRAM%): 0\nGPU[0]\t\t: GPU Memory Read/Write Activity (%): 0\nGPU[0]\t\t: Memory Activity: N/A\nGPU[0]\t\t: Not supported on the given system\nGPU[1]\t\t: GPU Memory Allocated (VRAM%): 0\nGPU[1]\t\t: GPU Memory Read/Write Activity (%): 0\nGPU[1]\t\t: Memory Activity: N/A\nGPU[1]\t\t: Not supported on the given system\n==========================================================================================\n================================== End of ROCm SMI Log ===================================\n",
+  "ram": "               total        used        free      shared  buff/cache   available\nMem:           107Gi       3.0Gi        68Gi       267Mi        37Gi       104Gi\nSwap:          4.0Gi       148Mi       3.9Gi\n",
+  "disk": "Filesystem                         Size  Used Avail Use% Mounted on\n/dev/mapper/ubuntu--vg-ubuntu--lv  232G  199G   22G  91% /\n/dev/sdb1                          117G  4.7G  107G   5% /data\n",
+  "docker": ""
+}

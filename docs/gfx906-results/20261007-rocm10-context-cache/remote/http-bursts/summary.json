@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "seconds": 87.29229300099541,
+  "bursts": [
+    {
+      "seconds": 2.526226586982375,
+      "before": 8,
+      "after_short": 13,
+      "after": 21
+    },
+    {
+      "seconds": 2.4033437710022554,
+      "before": 21,
+      "after_short": 26,
+      "after": 35
+    },
+    {
+      "seconds": 1.6904663819877896,
+      "before": 35,
+      "after_short": 41,
+      "after": 49
+    }
+  ],
+  "chunks": 742,
+  "usage": {
+    "prompt_tokens": 36048,
+    "completion_tokens": 1024,
+    "total_tokens": 37072,
+    "prompt_tokens_details": {
+      "cached_tokens": 36109
+    }
+  },
+  "error": null
+}

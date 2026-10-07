@@ -1,0 +1,41 @@
+{
+  "text_path": "/home/chris/dev/strata-gfx906/build-text-rocm10/strata",
+  "text_sha256": "bc1102ba03c9ee2379699f9fb5c3cf7ce717132e7065efc5ac141606c5996853",
+  "vision_sha256": "709fc4d2c34abbede8b17cb93a4a9571c931338339d3848691c5b59f156d8452",
+  "backups": "/home/chris/dev/strata-gfx906/logs/cachefix-rocm10-20261007/promotion-backups",
+  "configs": {
+    "run-iq3-s.json": {
+      "exe": "/home/chris/dev/strata-gfx906/build-text-rocm10/strata",
+      "cors_origins": [
+        "*"
+      ],
+      "cache_mib": 8192,
+      "cache_slots": 4,
+      "min_free_mib": 16384,
+      "rocm_path": "/opt/rocm-10.0/core-10.0",
+      "mode": "0600",
+      "host": "0.0.0.0",
+      "port": 8082,
+      "parallel": 4,
+      "vision": true
+    },
+    "run-iq2-xs.json": {
+      "exe": "/home/chris/dev/strata-gfx906/build-text-rocm10/strata",
+      "cors_origins": [
+        "*"
+      ],
+      "cache_mib": 8192,
+      "cache_slots": 4,
+      "min_free_mib": 16384,
+      "rocm_path": "/opt/rocm-10.0/core-10.0",
+      "mode": "0600",
+      "host": "0.0.0.0",
+      "port": 8082,
+      "parallel": 1,
+      "vision": false
+    }
+  },
+  "formal_service_started": false,
+  "temporary_service_stopped": true,
+  "ldd": "\tlinux-vdso.so.1 (0x00007ebdcaffa000)\n\tlibhipblas.so.3 => /opt/rocm-10.0/core-10.0/lib/libhipblas.so.3 (0x00007ebdcaf40000)\n\tlibamdhip64.so.7 => /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7 (0x00007ebdc7e00000)\n\tlibm.so.6 => /usr/lib/x86_64-linux-gnu/libm.so.6 (0x00007ebdc7cda000)\n\tlibstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007ebdc7a00000)\n\tlibgcc_s.so.1 => /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007ebdcaf07000)\n\tlibc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6 (0x00007ebdc7600000)\n\tlibrocsolver.so.0 => /opt/rocm-10.0/core-10.0/lib/librocsolver.so.0 (0x00007ebdc4c00000)\n\tlibrocblas.so.5 => /opt/rocm-10.0/core-10.0/lib/librocblas.so.5 (0x00007ebdc3200000)\n\tlibrocm_kpack.so.0 => /opt/rocm-10.0/core-10.0/lib/librocm_kpack.so.0 (0x00007ebdcaeea000)\n\tlibrocprofiler-register.so.0 => /opt/rocm-10.0/core-10.0/lib/librocprofiler-register.so.0 (0x00007ebdc7971000)\n\tlibamd_comgr.so.3 => /opt/rocm-10.0/core-10.0/lib/libamd_comgr.so.3 (0x00007ebdc2400000)\n\tlibhsa-runtime64.so.1 => /opt/rocm-10.0/core-10.0/lib/libhsa-runtime64.so.1 (0x00007ebdc1e00000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007ebdcaffc000)\n\tlibroctx64.so.4 => /opt/rocm-10.0/core-10.0/lib/libroctx64.so.4 (0x00007ebdcaee4000)\n\tlibhipblaslt.so.1 => /opt/rocm-10.0/core-10.0/lib/libhipblaslt.so.1 (0x00007ebdc1600000)\n\tlibrocm_sysdeps_zstd.so.1 => /opt/rocm-10.0/core-10.0/lib/rocm_sysdeps/lib/librocm_sysdeps_zstd.so.1 (0x00007ebdc789f000)\n\tlibclang-cpp.so.23.0git => /opt/rocm-10.0/core-10.0/lib/llvm/lib/libclang-cpp.so.23.0git (0x00007ebdbce00000)\n\tlibLLVM.so.23.0git => /opt/rocm-10.0/core-10.0/lib/llvm/lib/libLLVM.so.23.0git (0x00007ebdb5c00000)\n\tlibrocm_sysdeps_z.so.1 => /opt/rocm-10.0/core-10.0/lib/rocm_sysdeps/lib/librocm_sysdeps_z.so.1 (0x00007ebdcaec4000)\n\tlibrocm_sysdeps_elf.so.1 => /opt/rocm-10.0/core-10.0/lib/rocm_sysdeps/lib/librocm_sysdeps_elf.so.1 (0x00007ebdcaea7000)\n\tlibrocm_sysdeps_drm.so.2 => /opt/rocm-10.0/core-10.0/lib/rocm_sysdeps/lib/librocm_sysdeps_drm.so.2 (0x00007ebdc99e9000)\n\tlibrocm_sysdeps_drm_amdgpu.so.1 => /opt/rocm-10.0/core-10.0/lib/rocm_sysdeps/lib/librocm_sysdeps_drm_amdgpu.so.1 (0x00007ebdc99d2000)\n\tlibrocm_sysdeps_numa.so.1 => /opt/rocm-10.0/core-10.0/lib/rocm_sysdeps/lib/librocm_sysdeps_numa.so.1 (0x00007ebdc99c2000)\n\tliborigami.so.1 => /opt/rocm-10.0/core-10.0/lib/liborigami.so.1 (0x00007ebdc7859000)\n\tlibrocroller.so.1 => /opt/rocm-10.0/core-10.0/lib/librocroller.so.1 (0x00007ebdacc00000)\n"
+}

@@ -51,6 +51,10 @@ All project documentation and maintenance notes must be written in English. Pres
 ## Upstream navigation
 
 When invoking `omp`, use the `herdr` skill from a Herdr-managed pane, as requested by the owner.
+The primary agent/thread owns only architecture, organization, review, and integration closeout;
+concrete tasks are delegated through `herdr` to fresh omp instances, at most four concurrent, each
+with a disjoint file scope (worktrees allowed as needed). When a task ends, the primary closes that
+round's omp instances and removes only that round's worktrees/branches, never another round's leftovers.
 
 Upstream's general user workflow is in `docs/AI_SETUP.md` and `docs/MCP_SERVER.md`; for this fork's
 MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upstream's RDNA/prebuilt defaults.
