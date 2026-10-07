@@ -98,6 +98,8 @@ def main():
     sF, _ = run(eng, out, f"GEN {M} {ids(F)}")
     sB, _ = run(eng, out, f"GEN {M} {ids(B)}")
     sC, _ = run(eng, out, f"GEN {M} {ids(C)}")
+    C2 = C + sC + chat("Summarize that in one sentence.")
+    sC2, _ = run(eng, out, f"GEN {M} {ids(C2)}")
     sD, _ = run(eng, out, f"GEN {M} {ids(D)}")
     sE, _ = run(eng, out, f"GEN {M} {ids(E)}")
     print(f"solo: A {len(sA)}, A2 {len(sA2)}, B {len(sB)}, C {len(sC)}, D {len(sD)}, E {len(sE)} tokens", flush=True)
@@ -152,6 +154,32 @@ def main():
     d = next((k for k in range(min(len(got2), len(sA2))) if got2[k] != sA2[k]), None)
     print(f"A's next turn from its slot: reused {reuse2}, {len(got2)} tokens, solo {len(sA2)}: "
           f"{'IDENTICAL' if same else f'DIFFERS at {d}'}", flush=True)
+    # The long conversation in slot 2 must survive three admissions into its group sibling (slot 3).
+    # This exercises both pipeline groups and a sparse window containing only the upper-numbered slot.
+    if a.batch >= 4:
+        for burst in range(3):
+            short = E + chat(f"Upper-group interruption {burst}: answer briefly.")
+            _, cont = run(eng, out, f"BGEN 3 8 {ids(short)}", slot=3)
+            while cont:
+                l = eng.pending.pop(0) if eng.pending else next(out)
+                if l.startswith("BDONE 3 "):
+                    break
+                if l.startswith("ERR"):
+                    raise SystemExit("engine: " + l)
+        long_next, cont = run(eng, out, f"BGEN 2 {M} {ids(C2)}", slot=2)
+        reuse_long = eng.resumed
+        while cont:
+            l = eng.pending.pop(0) if eng.pending else next(out)
+            if l.startswith("BT 2 "):
+                long_next.append(int(l.split()[2]))
+            elif l.startswith("BDONE 2 "):
+                break
+            elif l.startswith("ERR"):
+                raise SystemExit("engine: " + l)
+        same_long = long_next == sC2
+        ok &= same_long and reuse_long >= len(C)
+        print(f"long next turn after three sibling bursts: reused {reuse_long} of {len(C)} history tokens; "
+              f"{'IDENTICAL' if same_long else 'DIFFERS'}", flush=True)
     # 4. a long prompt D gives way (BYIELD) to a short E at its first chunk boundary, then goes on from its slot
     eng.send(f"BGEN 2 {M} {ids(D)}")
     eng.send("BYIELD 2")
@@ -256,6 +284,9 @@ def main():
         Path(a.dump).write_text(json.dumps({"commands": commands, "solo": [sA, sA2, sB, sC, sD, sE, sF],
                                           "batch": got, "next_turn": got2, "yielded": got4,
                                           "resumed_solo": both, "checkpoint": got7,
+                                          "long_next_turn": long_next if a.batch >= 4 else None,
+                                          "solo_long_next_turn": sC2,
+                                          "reuse_long_next_turn": reuse_long if a.batch >= 4 else None,
                                           "reuse_next_turn": reuse2, "reuse_solo": reuse6, "ok": ok}, indent=2) + "\n")
     log = Path(eng.log_path).read_text(errors="replace")
     for l in log.splitlines():

@@ -261,6 +261,9 @@ class OverHttp(Server):
         self.assertEqual(self.post({"model": "m", "input": "hi"})[0], 401)
         self.assertEqual(self.post({"model": "m", "input": "hi"}, headers={"Authorization": "Bearer s3cret"})[0], 200)
         self.svc.api_key = None
+        self.assertEqual(self.post({"model": "m", "input": "hi"},
+                                   headers={"Origin": "https://any.example.com"})[0], 200)
+        self.svc.cors_origins = []
         code, r = self.post({"model": "m", "input": "hi"}, headers={"Origin": "https://evil.example.com"})
         self.assertEqual(code, 403)
 

@@ -7,7 +7,7 @@
 - **GPU vision:** Experimental gfx906 HIP GPU-accelerated image encoding (`--vision gpu`) alongside upstream CPU fallback.
 - **Concurrent burst rate up to ~80 tok/s:** Aggregate decoding throughput reaching ~80 tok/s under 4-way concurrency on dual MI50s (~45%–60% throughput boost over single-stream baseline).
 
-**`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** The original Strata was built primarily for NVIDIA GPUs and CUDA; v0.1.40 also includes HIP support with an opt-in gfx906 path. This fork maintains its experimental AMD Instinct MI50 / MI60 wave64 backend and adds HIP GPU vision. It targets the real `gfx906` architecture and does not spoof another GPU generation.
+**`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** Current T5810 builds use the upstream `STRATA_HIP_GFX906` text engine and the fork HIP GPU vision encoder, both with ROCm 10. The fork wave64 text backend is deprecated for deployment. Both current components target the real `gfx906` architecture. See [current build selection](docs/GFX906.md#deployment-decision-which-gfx906-path-is-current-2026-10-06).
 
 This fork is specifically tuned to run **Qwen3.8-Flash-Next** using model weights in **GGUF** format. The model's native/trained context length is **262,144 tokens**. The `--context` setting configures runtime capacity; hardware limits may justify choosing less. Native context is not an extended-RoPE setting, and it does not imply that full-length inference has completed acceptance testing on every system.
 
@@ -134,6 +134,10 @@ RDNA wheel defaults.
 
 ## Start and stop
 
+On T5810, use the existing `run-iq3-s.sh` / `run-iq2-xs.sh` launchers and the
+[ROCm 10 build selection](docs/GFX906.md), rather than rebuilding the deprecated text backend
+with the experimental installer/preset above. The install examples describe that archived path.
+
 After the install command above, start the generated launcher (for the example, `IQ2_XS`):
 
 ```bash
@@ -153,6 +157,9 @@ To run without the generated launcher or browser-opening behavior, start the ser
 ```
 
 The generated config contains the API key, so the server enforces it when started directly. Stop it with **Ctrl+C** in the server terminal. The server shuts down the HTTP listener and engine gracefully; if needed, a second Ctrl+C forces the engine to exit. Restart by running the launcher again. Changes to the setup options below require stopping the server first.
+
+Web API CORS defaults to accepting any origin on `/v1/*`. Set `"cors_origins": []` in the saved
+config to disable it, or supply an explicit origin list to restrict it.
 
 `0.0.0.0` exposes the listener on all network interfaces. Always configure a strong API key and firewall restrictions; never publish the generated config or API key. If you need only local access, use a loopback bind instead.
 
