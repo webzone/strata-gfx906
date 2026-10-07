@@ -68,7 +68,7 @@ if(STRATA_HIP_GFX906)
   endif()
   set(STRATA_ENABLE_CUDA ON CACHE BOOL "" FORCE)
 endif()
-option(STRATA_ENABLE_HIP "Build HIP targets (RDNA2/3/4 wave32; MI50/MI60 wave64 with STRATA_EXPERIMENTAL_GFX906)" OFF)
+option(STRATA_ENABLE_HIP "Build HIP targets (RDNA2/3/4 wave32; MI50/MI60 wave64 with STRATA_EXPERIMENTAL_GFX906, deprecated for deployment - see docs/GFX906.md)" OFF)
 option(STRATA_PREFILL_MMQ "Build the optional GGML MMQ prefill path for HIP" OFF)
 # CUDA: MMQ prompt kernels for Q4_K / Q5_K / Q5_1 (Unsloth's UD-Q4_K_XL experts).  Off by default: the engine loads
 # every kernel when it starts (CUDA_MODULE_LOADING=EAGER), so these took ~5 MB of VRAM - 1-3 expert slots - from every
@@ -90,6 +90,13 @@ if(STRATA_ENABLE_CUDA AND STRATA_ENABLE_HIP AND NOT STRATA_HIP_GFX906)
 endif()
 if(STRATA_ENABLE_HIP)
   include(cmake/hip_backend.cmake)
+  if("gfx906" IN_LIST STRATA_HIP_ARCH_LIST)
+    message(WARNING
+      "STRATA_ENABLE_HIP on gfx906 is this fork's wave64 text backend. It is deprecated for "
+      "deployment: the upstream STRATA_HIP_GFX906 path measured faster on T5810 (MI50). Build the "
+      "text engine with -DSTRATA_HIP_GFX906=ON instead. The gfx906 image encoder is a separate "
+      "project (tools/vision, STRATA_VISION_HIP) and stays supported. docs/GFX906.md records the decision.")
+  endif()
 endif()
 # The test suite and the micro benchmarks live in tests/ and bench/micro/, which the published source leaves out.
 set(_strata_tests_default OFF)

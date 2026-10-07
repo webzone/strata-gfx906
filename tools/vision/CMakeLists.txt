@@ -3,7 +3,7 @@
 #
 #   cmake -S tools/vision -B build-vision -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLAMA_DIR=third_party/llama.cpp
 #         [-DSTRATA_VISION_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=native]
-#         [or -DSTRATA_VISION_HIP=ON -DSTRATA_EXPERIMENTAL_GFX906=ON -DCMAKE_HIP_ARCHITECTURES=gfx906]
+#         [or -DSTRATA_VISION_HIP=ON -DCMAKE_HIP_ARCHITECTURES=gfx906]
 #   cmake --build build-vision --target strata-vision
 cmake_minimum_required(VERSION 3.21)
 project(strata_vision C CXX)
@@ -11,15 +11,20 @@ project(strata_vision C CXX)
 set(LLAMA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/llama.cpp" CACHE PATH "llama.cpp checkout")
 option(STRATA_VISION_CUDA "run the vision encoder on the GPU (builds ggml-cuda)" OFF)
 option(STRATA_VISION_HIP "run the experimental gfx906 vision encoder on HIP" OFF)
-option(STRATA_EXPERIMENTAL_GFX906 "explicitly enable experimental MI50/MI60 support" OFF)
+# Accepted for backward compatibility only. STRATA_EXPERIMENTAL_GFX906 is the switch of the deprecated
+# gfx906 TEXT backend (main project, setup.py). The image encoder needs nothing but STRATA_VISION_HIP.
+option(STRATA_EXPERIMENTAL_GFX906 "deprecated alias, unused by strata_vision; keep STRATA_VISION_HIP=ON" OFF)
 if(STRATA_VISION_HIP)
   # HIP objects must be PIC when linked into Linux's default PIE executable.
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
   if(STRATA_VISION_CUDA OR NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(FATAL_ERROR "HIP vision requires Linux and STRATA_VISION_CUDA=OFF")
   endif()
-  if(NOT STRATA_EXPERIMENTAL_GFX906 OR NOT CMAKE_HIP_ARCHITECTURES STREQUAL "gfx906")
-    message(FATAL_ERROR "HIP vision requires STRATA_EXPERIMENTAL_GFX906=ON and CMAKE_HIP_ARCHITECTURES=gfx906")
+  if(NOT CMAKE_HIP_ARCHITECTURES STREQUAL "gfx906")
+    message(FATAL_ERROR "HIP vision requires CMAKE_HIP_ARCHITECTURES=gfx906 (Vega20: MI50 / MI60)")
+  endif()
+  if(STRATA_EXPERIMENTAL_GFX906)
+    message(STATUS "STRATA_EXPERIMENTAL_GFX906 is not needed by strata_vision; it selects the deprecated gfx906 text backend elsewhere")
   endif()
   # Vega has no MFMA/BF16 matrix instructions. Use GCN kernels and FP32 hipBLAS.
   set(GGML_HIP_NO_VMM ON CACHE BOOL "" FORCE)
