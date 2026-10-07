@@ -1,0 +1,7 @@
+# Bounded single-shot vs 4-concurrent probe by the agent on the live T5810 service, 2026-10-07 19:46:57-19:50:44 UTC.
+# Raw copies also on chris@t5810:/home/chris/dev/strata-gfx906/logs/concurrency-probe-20261007T194232Z/
+# sha256sum-compatible; paths relative to this directory.
+e52accb356aaad2579083136af6cb4b841f60c94c8f15966b89a4d72bb8156b3  README.md
+c0926ba4728841dccadd0de3106373fc3a29c05c89a1e1843f6782cd8945df30  probe-single-3976.json
+6cccca14686c700e23014ec4b90e5afb873676cedcd0720e60030d657d938911  probe-single-9877.json
+d522e19c111b45c85fae99a233c3601d3f9b5c08e678af94f1cd87c153aeffb6  probe-concurrent4-3976.json

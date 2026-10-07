@@ -1,0 +1,3566 @@
+{
+ "run_utc": "2026-10-07T19:50:01Z",
+ "url": "http://127.0.0.1:8082",
+ "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+ "request": {
+  "streams": 4,
+  "items": 60,
+  "max_tokens": 256,
+  "temperature": 0.0,
+  "stream": false,
+  "stagger_ms": 0.0,
+  "salt_base": 601,
+  "chat_template_kwargs": {
+   "enable_thinking": false
+  }
+ },
+ "elapsed_s": 42.68,
+ "summary": {
+  "streams": 4,
+  "ok": 4,
+  "prompt_tokens": [
+   3976,
+   3976,
+   3976,
+   3976
+  ],
+  "cached_tokens": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "finish_reason": [
+   "length",
+   "length",
+   "length",
+   "length"
+  ],
+  "completion_tokens": [
+   256,
+   256,
+   256,
+   256
+  ],
+  "engine_decode_tok_s": [
+   7.5,
+   14.7,
+   28.3,
+   9.9
+  ],
+  "engine_prefill_tok_s": [
+   7952000.0,
+   480.9,
+   480.6,
+   477.3
+  ],
+  "decode_tok_s_min": 7.5,
+  "decode_tok_s_max": 28.3,
+  "aggregate_completion_tok_s_client_window": 23.99,
+  "client_window_s": 42.68,
+  "max_live_running_observed": 4,
+  "client_estimated_prefill_tok_s": [
+   471.8,
+   157.4,
+   118.2,
+   235.6
+  ],
+  "contaminated_by_other_traffic": false,
+  "max_slots_busy_observed": 4
+ },
+ "streams": [
+  {
+   "stream_index": 0,
+   "client_start": 1791402601.621,
+   "client_end": 1791402644.21,
+   "client_wall_s": 42.59,
+   "finish_reason": "length",
+   "content": "A B-tree is a self-balancing tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time. Unlike binary search trees, which store one key per node, B-trees are designed to store many keys per node, making them highly efficient for systems that read and write large blocks of data, such as file systems and database management systems. The structure is defined by a minimum degree $t$, where $t \\ge 2$. A B-tree of order $m$ (where $m = 2t - 1$) ensures that every node except the root has at least $\\lceil m/2 \\rceil$ children and at most $m$ children. Consequently, every node except the root contains at least $\\lceil m/2 \\rceil - 1$ keys and at most $m - 1$ keys. The root node is special: it can have as few as one key (and two children) or be a leaf node with no children.\n\nThe insertion process begins by searching for the appropriate leaf node where the new key should reside. This search follows the standard B-tree traversal logic: starting at the root, the algorithm compares the new key with the keys",
+   "usage": {
+    "prompt_tokens": 3976,
+    "completion_tokens": 256,
+    "total_tokens": 4232,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    }
+   },
+   "timings": {
+    "cache_n": 0,
+    "prompt_n": 3976,
+    "prompt_ms": 0.5,
+    "prompt_per_token_ms": 0.0,
+    "prompt_per_second": 7952000.0,
+    "predicted_n": 256,
+    "predicted_ms": 34162.2,
+    "predicted_per_token_ms": 133.969,
+    "predicted_per_second": 7.5,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+   }
+  },
+  {
+   "stream_index": 1,
+   "client_start": 1791402601.622,
+   "client_end": 1791402644.288,
+   "client_wall_s": 42.67,
+   "finish_reason": "length",
+   "content": "### Detailed Explanation of B-Tree Insertion, Splitting, and Rebalancing\n\nA B-tree is a self-balancing tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time. Unlike binary search trees, B-trees are designed to work well with disk-based storage systems because they keep data in sorted order and allow for efficient range queries. The key characteristic of a B-tree of order $m$ is that every node has at most $m$ children and at least $\\lceil m/2 \\rceil$ children (except for the root, which can have as few as 2 children if it is not a leaf). Consequently, every internal node (except the root) contains between $\\lceil m/2 \\rceil - 1$ and $m - 1$ keys. All leaves appear at the same level, ensuring the tree remains balanced.\n\nThe insertion process in a B-tree is distinct from that of a binary search tree because it handles overflow proactively through node splitting, rather than allowing the tree to become unbalanced. The process generally follows these steps:\n\n1.  **Search for the Leaf Node**:\n    The insertion begins by searching for the appropriate leaf",
+   "usage": {
+    "prompt_tokens": 3976,
+    "completion_tokens": 256,
+    "total_tokens": 4232,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    }
+   },
+   "timings": {
+    "cache_n": 0,
+    "prompt_n": 3976,
+    "prompt_ms": 8268.6,
+    "prompt_per_token_ms": 2.08,
+    "prompt_per_second": 480.9,
+    "predicted_n": 256,
+    "predicted_ms": 17416.6,
+    "predicted_per_token_ms": 68.034,
+    "predicted_per_second": 14.7,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+   }
+  },
+  {
+   "stream_index": 2,
+   "client_start": 1791402601.622,
+   "client_end": 1791402644.302,
+   "client_wall_s": 42.68,
+   "finish_reason": "length",
+   "content": "### Detailed Explanation of B-Tree Insertion, Splitting, and Rebalancing\n\nA B-tree is a self-balancing tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time. Unlike binary search trees, which have at most two children per node, B-trees are designed to have many children per node, making them highly efficient for systems that read and write large blocks of data, such as file systems and database indexes. The \"B\" in B-tree generally stands for \"balanced,\" though it is also associated with the inventors Bayer and McCreight.\n\nThe core property of a B-tree of order $m$ is that every node can have at most $m$ children and at most $m-1$ keys. Furthermore, every node except the root and the leaves must have at least $\\lceil m/2 \\rceil$ children. This ensures that the tree remains balanced; all leaves are at the same depth, and the height of the tree grows very slowly as the number of keys increases.\n\n#### The Insertion Process\n\nInsertion in a B-tree is a recursive process that begins at the root and descends to the appropriate leaf node. The goal is to",
+   "usage": {
+    "prompt_tokens": 3976,
+    "completion_tokens": 256,
+    "total_tokens": 4232,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    }
+   },
+   "timings": {
+    "cache_n": 0,
+    "prompt_n": 3976,
+    "prompt_ms": 8272.7,
+    "prompt_per_token_ms": 2.081,
+    "prompt_per_second": 480.6,
+    "predicted_n": 256,
+    "predicted_ms": 9035.0,
+    "predicted_per_token_ms": 35.293,
+    "predicted_per_second": 28.3,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+   }
+  },
+  {
+   "stream_index": 3,
+   "client_start": 1791402601.623,
+   "client_end": 1791402644.263,
+   "client_wall_s": 42.64,
+   "finish_reason": "length",
+   "content": "A B-tree is a self-balancing tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time. Unlike binary search trees, which store one key per node, B-trees are designed to store many keys per node, making them highly efficient for systems that read and write large blocks of data, such as file systems and database management systems. The structure is defined by a minimum degree $t$, where $t \\ge 2$. A B-tree of order $m$ (where $m = 2t - 1$) ensures that every node except the root has at least $\\lceil m/2 \\rceil$ children and at most $m$ children.\n\nThe insertion process begins by searching for the appropriate leaf node where the new key should reside. This search follows the standard B-tree traversal logic: starting at the root, the algorithm compares the new key with the keys in the current node to determine which child pointer to follow. This continues until a leaf node is reached. If the leaf node has fewer than $m$ keys, the new key is simply inserted into the node in its sorted position. This is the simplest case and requires no further action.\n\nHowever, if the",
+   "usage": {
+    "prompt_tokens": 3976,
+    "completion_tokens": 256,
+    "total_tokens": 4232,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    }
+   },
+   "timings": {
+    "cache_n": 0,
+    "prompt_n": 3976,
+    "prompt_ms": 8329.7,
+    "prompt_per_token_ms": 2.095,
+    "prompt_per_second": 477.3,
+    "predicted_n": 256,
+    "predicted_ms": 25765.0,
+    "predicted_per_token_ms": 100.645,
+    "predicted_per_second": 9.9,
+    "draft_n": 0,
+    "draft_n_accepted": 0
+   }
+  }
+ ],
+ "idle_wait": {
+  "requested_s": 60,
+  "waited_s": 0.0,
+  "idle_at_start": true
+ },
+ "metrics_before": {
+  "engine": {
+   "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+   "max_context": 262144,
+   "images": true,
+   "version": "0.1.40",
+   "context": 262144,
+   "kv": "int8",
+   "kv_resident": 32768,
+   "expert_slots": 24576,
+   "expert_cache_mib": 47962,
+   "expert_slots_primary": 12288,
+   "expert_cache_primary_mib": 22675,
+   "spec": 4,
+   "mtp_max": 0,
+   "lookup": 0,
+   "vram_free_mib": 2186,
+   "cvec": 0,
+   "arena_mib": 47962,
+   "pool_workers": 6,
+   "pcie_frac": "0.00",
+   "spec_min_p": "0.50",
+   "conversation_cache_mib": 8192,
+   "conversation_cache_slots": 4,
+   "conversation_cache_min_free_mib": 16384,
+   "tail_role_token": -1,
+   "vram_elastic": 0,
+   "batch_slots": 4,
+   "slot_cache": 1,
+   "engine": "0.1.40"
+  },
+  "live": {
+   "state": "idle",
+   "queued": 0,
+   "phase": null,
+   "prompt_tokens": null,
+   "prompt_read": null,
+   "prompt_total": null,
+   "generated": null,
+   "max_tokens": null,
+   "elapsed_s": null,
+   "tok_s": null,
+   "tok_s_mean": null,
+   "prefill_tok_s_mean": null,
+   "tok_s_window_s": null,
+   "parallel": 4,
+   "running": 0,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle",
+     "held_tokens": 668
+    },
+    {
+     "slot": 1,
+     "state": "idle",
+     "held_tokens": 4028
+    },
+    {
+     "slot": 2,
+     "state": "idle",
+     "held_tokens": 667
+    },
+    {
+     "slot": 3,
+     "state": "idle",
+     "held_tokens": 75203
+    }
+   ],
+   "outside_slots": 0,
+   "waiting": 0
+  },
+  "requests": [
+   {
+    "projection": null,
+    "time": 1791402579.4590287,
+    "duration_s": 17.0,
+    "finish": "length",
+    "prompt_tokens": 3976,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 3976,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 203,
+    "prompt_ms": 70.3,
+    "decode_ms": 3674.8,
+    "decode_tok_s": 55.2,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 182,
+    "drafts_accepted": 121
+   },
+   {
+    "projection": null,
+    "time": 1791402579.4655902,
+    "duration_s": 13.2,
+    "finish": "stop",
+    "prompt_tokens": 618,
+    "reused": 0,
+    "output_tokens": 50,
+    "prompt_total": 618,
+    "prompt_read": 618,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1,
+    "prompt_ms": 3134.2,
+    "decode_ms": 25.6,
+    "decode_tok_s": 39.1,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402538.0148048,
+    "duration_s": 41.1,
+    "finish": "stop",
+    "prompt_tokens": 81904,
+    "reused": 80852,
+    "output_tokens": 1860,
+    "prompt_total": 81904,
+    "prompt_read": 1052,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1860,
+    "prompt_ms": 4391.1,
+    "decode_ms": 36731.7,
+    "decode_tok_s": 50.6,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 1598,
+    "drafts_accepted": 1109
+   },
+   {
+    "projection": null,
+    "time": 1791402522.6373813,
+    "duration_s": 14.9,
+    "finish": "stop",
+    "prompt_tokens": 80289,
+    "reused": 79382,
+    "output_tokens": 562,
+    "prompt_total": 80289,
+    "prompt_read": 907,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 562,
+    "prompt_ms": 3951.5,
+    "decode_ms": 10949.5,
+    "decode_tok_s": 51.3,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 481,
+    "drafts_accepted": 340
+   },
+   {
+    "projection": null,
+    "time": 1791402489.7850478,
+    "duration_s": 32.3,
+    "finish": "stop",
+    "prompt_tokens": 77938,
+    "reused": 77208,
+    "output_tokens": 1444,
+    "prompt_total": 77938,
+    "prompt_read": 730,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1444,
+    "prompt_ms": 3682.8,
+    "decode_ms": 28647.0,
+    "decode_tok_s": 50.4,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 1231,
+    "drafts_accepted": 846
+   },
+   {
+    "projection": null,
+    "time": 1791402477.0460045,
+    "duration_s": 12.2,
+    "finish": "stop",
+    "prompt_tokens": 76631,
+    "reused": 76525,
+    "output_tokens": 577,
+    "prompt_total": 76631,
+    "prompt_read": 106,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 577,
+    "prompt_ms": 1662.3,
+    "decode_ms": 10513.1,
+    "decode_tok_s": 54.9,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 492,
+    "drafts_accepted": 369
+   },
+   {
+    "projection": null,
+    "time": 1791402467.2126138,
+    "duration_s": 9.3,
+    "finish": "stop",
+    "prompt_tokens": 76186,
+    "reused": 75840,
+    "output_tokens": 338,
+    "prompt_total": 76186,
+    "prompt_read": 346,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 338,
+    "prompt_ms": 2597.3,
+    "decode_ms": 6691.5,
+    "decode_tok_s": 50.5,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 297,
+    "drafts_accepted": 204
+   },
+   {
+    "projection": null,
+    "time": 1791402445.356666,
+    "duration_s": 21.2,
+    "finish": "stop",
+    "prompt_tokens": 75150,
+    "reused": 74852,
+    "output_tokens": 689,
+    "prompt_total": 75150,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 635,
+    "prompt_ms": 291.9,
+    "decode_ms": 12505.4,
+    "decode_tok_s": 50.8,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 545,
+    "drafts_accepted": 378
+   },
+   {
+    "projection": null,
+    "time": 1791402445.380568,
+    "duration_s": 8.3,
+    "finish": "stop",
+    "prompt_tokens": 618,
+    "reused": 0,
+    "output_tokens": 51,
+    "prompt_total": 618,
+    "prompt_read": 618,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1,
+    "prompt_ms": 3194.8,
+    "decode_ms": 25.8,
+    "decode_tok_s": 38.8,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402431.1142578,
+    "duration_s": 13.9,
+    "finish": "stop",
+    "prompt_tokens": 672,
+    "reused": 0,
+    "output_tokens": 261,
+    "prompt_total": 672,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 5,
+    "prompt_ms": 63.8,
+    "decode_ms": 179.5,
+    "decode_tok_s": 27.9,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 9,
+    "drafts_accepted": 3
+   },
+   {
+    "projection": null,
+    "time": 1791402417.3271306,
+    "duration_s": 27.4,
+    "finish": "length",
+    "prompt_tokens": 9877,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 9877,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 255,
+    "prompt_ms": 0.9,
+    "decode_ms": 9938.4,
+    "decode_tok_s": 25.7,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402408.2536776,
+    "duration_s": 8.8,
+    "finish": "stop",
+    "prompt_tokens": 74482,
+    "reused": 74213,
+    "output_tokens": 369,
+    "prompt_total": 74482,
+    "prompt_read": 269,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 369,
+    "prompt_ms": 2387.8,
+    "decode_ms": 6422.1,
+    "decode_tok_s": 57.5,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 316,
+    "drafts_accepted": 246
+   }
+  ],
+  "conversation_cache": {
+   "enabled": true,
+   "budget_mib": 8192,
+   "slots": 4,
+   "parked": 4,
+   "bytes": 2783358232,
+   "evictions": 41,
+   "parks": 390,
+   "restores": 39,
+   "last_event": "parked",
+   "last_tokens": 618,
+   "last_at": 1791402592.9579387,
+   "requests": 70,
+   "requests_reused": 35,
+   "reused_tokens": 2059359,
+   "prompt_tokens": 2170236,
+   "last_reused": 0,
+   "last_prompt": 3976
+  },
+  "requests_kept": 70,
+  "totals": {
+   "since": 1791401095.8696287,
+   "requests": 70,
+   "prompt_tokens": 2170236,
+   "reused": 2059359,
+   "output_tokens": 26547,
+   "prompt_ms": 246814.09999999992,
+   "decode_ms": 472363.6,
+   "drafts_offered": 21715,
+   "drafts_accepted": 15550
+  },
+  "hardware": {
+   "gpus": [
+    {
+     "index": 0,
+     "util": 0,
+     "mem_used": 32454557696,
+     "mem_total": 34342961152,
+     "temp": 35.0,
+     "power": 19.0
+    },
+    {
+     "index": 1,
+     "util": 0,
+     "mem_used": 33531379712,
+     "mem_total": 34342961152,
+     "temp": 36.0,
+     "power": 22.0
+    }
+   ],
+   "gpu_util": 0.0,
+   "gpu_mem_used": 65985937408,
+   "gpu_mem_total": 68685922304,
+   "gpu_temp": 36.0,
+   "gpu_power": 41.0,
+   "gpu_power_limit": 450.0,
+   "gpu_pcie_rx_mb": null,
+   "gpu_pcie_tx_mb": null,
+   "cpu": 1.582014987510405,
+   "ram_used": 78959681536,
+   "ram_total": 115926331392,
+   "disk_read_mb": null,
+   "disk_write_mb": null,
+   "tok_s": 0.0,
+   "tok_s_mean": 0,
+   "prefill_tok_s_mean": 0.0
+  },
+  "hardware_static": {
+   "gpu_name": "Radeon Instinct MI50 16GB + Radeon Instinct MI50 16GB",
+   "gpu_count": 2,
+   "cpu_name": "Intel(R) Xeon(R) CPU E5-1650 v3 @ 3.50GHz",
+   "cores": null,
+   "threads": 12,
+   "psutil": false
+  },
+  "history": {
+   "gpu_util": [
+    50.0,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    37.5,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    48.5,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    52.0,
+    49.5,
+    49.5,
+    49.5,
+    40.0,
+    56.0,
+    49.5,
+    39.5,
+    50.0,
+    50.5,
+    49.5,
+    50.0,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    49.5,
+    52.5,
+    49.5,
+    49.5,
+    49.5,
+    50.0,
+    50.0,
+    100.0,
+    99.5,
+    50.0,
+    49.5,
+    49.0,
+    49.5,
+    50.0,
+    49.5,
+    49.5,
+    99.0,
+    49.5,
+    49.5,
+    49.0,
+    49.5,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "gpu_mem_used": [
+    65985265664,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985511424,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985916928,
+    65985916928,
+    65985916928,
+    65985916928,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408
+   ],
+   "gpu_temp": [
+    42.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    38.0,
+    39.0,
+    39.0,
+    38.0,
+    39.0,
+    39.0,
+    39.0,
+    38.0,
+    39.0,
+    39.0,
+    39.0,
+    38.0,
+    38.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    39.0,
+    40.0,
+    42.0,
+    44.0,
+    44.0,
+    44.0,
+    42.0,
+    43.0,
+    45.0,
+    41.0,
+    43.0,
+    42.0,
+    43.0,
+    43.0,
+    40.0,
+    41.0,
+    41.0,
+    41.0,
+    38.0,
+    37.0,
+    36.0,
+    36.0,
+    36.0
+   ],
+   "gpu_power": [
+    167.0,
+    173.0,
+    144.0,
+    175.0,
+    143.0,
+    184.0,
+    163.0,
+    174.0,
+    145.0,
+    181.0,
+    196.0,
+    135.0,
+    187.0,
+    126.0,
+    161.0,
+    181.0,
+    145.0,
+    132.0,
+    194.0,
+    196.0,
+    142.0,
+    200.0,
+    189.0,
+    165.0,
+    180.0,
+    274.0,
+    198.0,
+    193.0,
+    177.0,
+    143.0,
+    182.0,
+    183.0,
+    164.0,
+    181.0,
+    177.0,
+    160.0,
+    183.0,
+    234.0,
+    208.0,
+    225.0,
+    161.0,
+    393.0,
+    340.0,
+    198.0,
+    203.0,
+    231.0,
+    75.0,
+    197.0,
+    191.0,
+    95.0,
+    292.0,
+    194.0,
+    181.0,
+    144.0,
+    180.0,
+    42.0,
+    42.0,
+    41.0,
+    42.0,
+    41.0
+   ],
+   "gpu_pcie_rx_mb": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "cpu": [
+    10.85,
+    10.76,
+    11.43,
+    10.86,
+    10.88,
+    11.11,
+    10.28,
+    10.13,
+    11.19,
+    10.82,
+    11.2,
+    10.7,
+    10.47,
+    10.88,
+    10.03,
+    10.56,
+    11.21,
+    11.32,
+    10.97,
+    10.98,
+    11.3,
+    10.63,
+    10.03,
+    11.26,
+    10.95,
+    11.2,
+    10.93,
+    10.95,
+    11.51,
+    10.64,
+    9.85,
+    10.79,
+    10.97,
+    10.68,
+    10.95,
+    10.87,
+    10.6,
+    10.54,
+    10.92,
+    10.43,
+    10.6,
+    10.79,
+    11.19,
+    11.86,
+    10.54,
+    10.1,
+    10.36,
+    10.51,
+    10.25,
+    10.76,
+    10.76,
+    10.83,
+    11.22,
+    10.38,
+    9.87,
+    4.59,
+    1.67,
+    2.0,
+    1.75,
+    1.58
+   ],
+   "ram_used": [
+    78434750464,
+    78482006016,
+    78480609280,
+    78476677120,
+    78463217664,
+    78474571776,
+    78474039296,
+    78474891264,
+    78473998336,
+    78472011776,
+    78470762496,
+    78473859072,
+    78468116480,
+    78471647232,
+    78467915776,
+    78465433600,
+    78465593344,
+    78474338304,
+    78474047488,
+    78491316224,
+    78486355968,
+    78490046464,
+    78486261760,
+    78486331392,
+    78492610560,
+    78486921216,
+    78492291072,
+    78497501184,
+    78498721792,
+    78500909056,
+    78497705984,
+    78494777344,
+    78493167616,
+    78484021248,
+    78485647360,
+    78492712960,
+    78498648064,
+    78500028416,
+    78982402048,
+    78979989504,
+    78978359296,
+    78981087232,
+    78978850816,
+    78973673472,
+    78972329984,
+    78975975424,
+    78968999936,
+    78967853056,
+    78974349312,
+    78975340544,
+    78973956096,
+    78969892864,
+    78969057280,
+    78972203008,
+    78969843712,
+    78965977088,
+    78962307072,
+    78961319936,
+    78969446400,
+    78959681536
+   ],
+   "disk_read_mb": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "tok_s": [
+    0.0,
+    45.57,
+    49.66,
+    61.69,
+    58.58,
+    47.05,
+    52.03,
+    40.85,
+    52.51,
+    39.85,
+    51.26,
+    66.76,
+    55.52,
+    65.81,
+    39.33,
+    46.2,
+    43.18,
+    39.06,
+    48.63,
+    43.23,
+    44.4,
+    38.37,
+    39.13,
+    51.72,
+    45.76,
+    59.12,
+    55.23,
+    53.5,
+    44.2,
+    39.73,
+    52.96,
+    60.51,
+    50.6,
+    69.42,
+    58.61,
+    70.9,
+    68.87,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    8.0,
+    2.82,
+    1.45,
+    0.98,
+    76.39,
+    41.68,
+    61.13,
+    63.41,
+    55.02,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "prefill_tok_s_mean": [
+    229.3,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    0.0,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    239.4,
+    366.6,
+    366.6,
+    366.6,
+    459.3,
+    459.3,
+    459.3,
+    209.4,
+    196.9,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "time": 1791402601.6186907
+ },
+ "engine_log_delta": "strata serve: conversation cache: parked 4232 tokens in 28.8 ms; parked=4 bytes=2720089648 evictions=42 snapshot_bytes=183073384 reused_kv_bytes=0\nstrata serve: prompt 3976 tokens = 0 reused + 3976 read in 8254 ms (481.7 tok/s), 1 generated in 31 ms (32.4 tok/s), drafts accepted 0 of 0, 1 checkpoints\nstrata serve: decode expert cache hit rate: 100.0% (480 hits / 480 lookups)\nstrata serve: KV streaming: 79.04% of 21564 block reads hit VRAM, 18.2 MiB read from RAM\nstrata batch: slot 0 takes 3977 tokens (copied in 52.0 ms)\nstrata serve: prompt 3977 tokens = 3976 reused + 1 read in 1 ms (1945.0 tok/s), 1 generated in 27 ms (36.5 tok/s), drafts accepted 0 of 0, 1 checkpoints\nstrata serve: decode expert cache hit rate: 100.0% (480 hits / 480 lookups)\nstrata serve: KV streaming: 81.18% of 24648 block reads hit VRAM, 18.7 MiB read from RAM\nstrata serve: conversation cache: parked 3977 tokens in 38.4 ms; parked=4 bytes=1024780584 evictions=43 snapshot_bytes=297682616 reused_kv_bytes=0\nstrata batch: slot 3 takes 3976 tokens (copied in 49.1 ms)\nstrata serve: prompt 3976 tokens = 0 reused + 3976 read in 8330 ms (477.3 tok/s), 1 generated in 27 ms (37.4 tok/s), drafts accepted 0 of 0, 1 checkpoints\nstrata serve: decode expert cache hit rate: 100.0% (480 hits / 480 lookups)\nstrata serve: KV streaming: 78.91% of 21564 block reads hit VRAM, 18.3 MiB read from RAM\nstrata serve: conversation cache: parked 3976 tokens in 34.7 ms; parked=4 bytes=1024725664 evictions=44 snapshot_bytes=297627696 reused_kv_bytes=0\nstrata batch: slot 2 takes 3976 tokens (copied in 50.3 ms)\nstrata serve: prompt 3976 tokens = 0 reused + 3976 read in 8269 ms (480.9 tok/s), 1 generated in 27 ms (37.7 tok/s), drafts accepted 0 of 0, 1 checkpoints\nstrata serve: decode expert cache hit rate: 100.0% (480 hits / 480 lookups)\nstrata serve: KV streaming: 78.98% of 21564 block reads hit VRAM, 18.3 MiB read from RAM\nstrata serve: conversation cache: parked 3976 tokens in 37.5 ms; parked=4 bytes=1076011392 evictions=45 snapshot_bytes=297627696 reused_kv_bytes=0\nstrata batch: slot 1 takes 3976 tokens (copied in 52.3 ms)\nstrata serve: prompt 3976 tokens = 0 reused + 3976 read in 8273 ms (480.6 tok/s), 1 generated in 27 ms (37.2 tok/s), drafts accepted 0 of 0, 1 checkpoints\nstrata serve: decode expert cache hit rate: 100.0% (480 hits / 480 lookups)\nstrata serve: KV streaming: 79.08% of 21564 block reads hit VRAM, 18.2 MiB read from RAM\nstrata batch (pipelined, 2 groups of 2): 513 group-steps, 1019 rows in 34244 ms = 29.8 rows/s (admissions included)\n",
+ "metrics_during": [
+  {
+   "t": 1791402601.624,
+   "state": "idle",
+   "phase": null,
+   "running": 0,
+   "queued": 0,
+   "parallel": 4,
+   "generated": null,
+   "tok_s": null,
+   "prefill_tok_s_mean": null,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402602.627,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 196.9,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402603.629,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 196.9,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402604.632,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 196.9,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402605.635,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 196.9,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402606.636,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 196.9,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402607.639,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 394.3,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402608.642,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 394.3,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402609.645,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 501.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "idle"
+    }
+   ]
+  },
+  {
+   "t": 1791402610.648,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 481.6,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402611.65,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 481.6,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402612.653,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 481.6,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402613.656,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 481.6,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402614.658,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 481.6,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402615.66,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 389.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402616.662,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 389.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402617.664,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 389.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "idle"
+    },
+    {
+     "slot": 3,
+     "state": "reading"
+    }
+   ]
+  },
+  {
+   "t": 1791402618.667,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 477.2,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402619.669,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 477.2,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402620.671,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 477.2,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402621.674,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 477.2,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402622.676,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 477.2,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402623.678,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 477.2,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402624.681,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 393.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402625.683,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 393.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402626.686,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 500.8,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "idle"
+    },
+    {
+     "slot": 2,
+     "state": "reading"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402627.688,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 480.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402628.691,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 480.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402629.693,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 480.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402630.695,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 480.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402631.698,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 480.7,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402632.7,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 393.4,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402633.702,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 393.4,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402634.704,
+   "state": "reading",
+   "phase": "reading the prompt",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 0,
+   "tok_s": null,
+   "prefill_tok_s_mean": 393.4,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "reading"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402635.706,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 12,
+   "tok_s": 109.1,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402636.708,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 41,
+   "tok_s": 114.2,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402637.711,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 69,
+   "tok_s": 113.6,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402638.713,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 97,
+   "tok_s": 113.2,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402639.714,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 126,
+   "tok_s": 112.7,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402640.717,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 154,
+   "tok_s": 113.7,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402641.719,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 183,
+   "tok_s": 113.4,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402642.722,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 211,
+   "tok_s": 112.4,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  },
+  {
+   "t": 1791402643.724,
+   "state": "generating",
+   "phase": "answering",
+   "running": 4,
+   "queued": 0,
+   "parallel": 4,
+   "generated": 239,
+   "tok_s": 112.7,
+   "prefill_tok_s_mean": 480.5,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "decoding"
+    },
+    {
+     "slot": 1,
+     "state": "decoding"
+    },
+    {
+     "slot": 2,
+     "state": "decoding"
+    },
+    {
+     "slot": 3,
+     "state": "decoding"
+    }
+   ]
+  }
+ ],
+ "metrics_after": {
+  "engine": {
+   "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S",
+   "max_context": 262144,
+   "images": true,
+   "version": "0.1.40",
+   "context": 262144,
+   "kv": "int8",
+   "kv_resident": 32768,
+   "expert_slots": 24576,
+   "expert_cache_mib": 47962,
+   "expert_slots_primary": 12288,
+   "expert_cache_primary_mib": 22675,
+   "spec": 4,
+   "mtp_max": 0,
+   "lookup": 0,
+   "vram_free_mib": 2186,
+   "cvec": 0,
+   "arena_mib": 47962,
+   "pool_workers": 6,
+   "pcie_frac": "0.00",
+   "spec_min_p": "0.50",
+   "conversation_cache_mib": 8192,
+   "conversation_cache_slots": 4,
+   "conversation_cache_min_free_mib": 16384,
+   "tail_role_token": -1,
+   "vram_elastic": 0,
+   "batch_slots": 4,
+   "slot_cache": 1,
+   "engine": "0.1.40"
+  },
+  "live": {
+   "state": "idle",
+   "queued": 0,
+   "phase": null,
+   "prompt_tokens": null,
+   "prompt_read": null,
+   "prompt_total": null,
+   "generated": null,
+   "max_tokens": null,
+   "elapsed_s": null,
+   "tok_s": null,
+   "tok_s_mean": null,
+   "prefill_tok_s_mean": null,
+   "tok_s_window_s": null,
+   "parallel": 4,
+   "running": 0,
+   "slots": [
+    {
+     "slot": 0,
+     "state": "idle",
+     "held_tokens": 4231
+    },
+    {
+     "slot": 1,
+     "state": "idle",
+     "held_tokens": 4231
+    },
+    {
+     "slot": 2,
+     "state": "idle",
+     "held_tokens": 4231
+    },
+    {
+     "slot": 3,
+     "state": "idle",
+     "held_tokens": 4231
+    }
+   ],
+   "outside_slots": 0,
+   "waiting": 0
+  },
+  "requests": [
+   {
+    "projection": null,
+    "time": 1791402601.7499719,
+    "duration_s": 42.6,
+    "finish": "length",
+    "prompt_tokens": 3976,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 3976,
+    "prompt_read": 3976,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 256,
+    "prompt_ms": 8272.7,
+    "decode_ms": 9035.0,
+    "decode_tok_s": 28.3,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402601.7179809,
+    "duration_s": 42.6,
+    "finish": "length",
+    "prompt_tokens": 3976,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 3976,
+    "prompt_read": 3976,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 256,
+    "prompt_ms": 8268.6,
+    "decode_ms": 17416.6,
+    "decode_tok_s": 14.7,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402601.7030597,
+    "duration_s": 42.6,
+    "finish": "length",
+    "prompt_tokens": 3976,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 3976,
+    "prompt_read": 3976,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 256,
+    "prompt_ms": 8329.7,
+    "decode_ms": 25765.0,
+    "decode_tok_s": 9.9,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402601.6877387,
+    "duration_s": 42.5,
+    "finish": "length",
+    "prompt_tokens": 3976,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 3976,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 255,
+    "prompt_ms": 0.5,
+    "decode_ms": 34162.2,
+    "decode_tok_s": 7.5,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402579.4590287,
+    "duration_s": 17.0,
+    "finish": "length",
+    "prompt_tokens": 3976,
+    "reused": 0,
+    "output_tokens": 256,
+    "prompt_total": 3976,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 203,
+    "prompt_ms": 70.3,
+    "decode_ms": 3674.8,
+    "decode_tok_s": 55.2,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 182,
+    "drafts_accepted": 121
+   },
+   {
+    "projection": null,
+    "time": 1791402579.4655902,
+    "duration_s": 13.2,
+    "finish": "stop",
+    "prompt_tokens": 618,
+    "reused": 0,
+    "output_tokens": 50,
+    "prompt_total": 618,
+    "prompt_read": 618,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1,
+    "prompt_ms": 3134.2,
+    "decode_ms": 25.6,
+    "decode_tok_s": 39.1,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 0,
+    "drafts_accepted": 0
+   },
+   {
+    "projection": null,
+    "time": 1791402538.0148048,
+    "duration_s": 41.1,
+    "finish": "stop",
+    "prompt_tokens": 81904,
+    "reused": 80852,
+    "output_tokens": 1860,
+    "prompt_total": 81904,
+    "prompt_read": 1052,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1860,
+    "prompt_ms": 4391.1,
+    "decode_ms": 36731.7,
+    "decode_tok_s": 50.6,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 1598,
+    "drafts_accepted": 1109
+   },
+   {
+    "projection": null,
+    "time": 1791402522.6373813,
+    "duration_s": 14.9,
+    "finish": "stop",
+    "prompt_tokens": 80289,
+    "reused": 79382,
+    "output_tokens": 562,
+    "prompt_total": 80289,
+    "prompt_read": 907,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 562,
+    "prompt_ms": 3951.5,
+    "decode_ms": 10949.5,
+    "decode_tok_s": 51.3,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 481,
+    "drafts_accepted": 340
+   },
+   {
+    "projection": null,
+    "time": 1791402489.7850478,
+    "duration_s": 32.3,
+    "finish": "stop",
+    "prompt_tokens": 77938,
+    "reused": 77208,
+    "output_tokens": 1444,
+    "prompt_total": 77938,
+    "prompt_read": 730,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 1444,
+    "prompt_ms": 3682.8,
+    "decode_ms": 28647.0,
+    "decode_tok_s": 50.4,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 1231,
+    "drafts_accepted": 846
+   },
+   {
+    "projection": null,
+    "time": 1791402477.0460045,
+    "duration_s": 12.2,
+    "finish": "stop",
+    "prompt_tokens": 76631,
+    "reused": 76525,
+    "output_tokens": 577,
+    "prompt_total": 76631,
+    "prompt_read": 106,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 577,
+    "prompt_ms": 1662.3,
+    "decode_ms": 10513.1,
+    "decode_tok_s": 54.9,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 492,
+    "drafts_accepted": 369
+   },
+   {
+    "projection": null,
+    "time": 1791402467.2126138,
+    "duration_s": 9.3,
+    "finish": "stop",
+    "prompt_tokens": 76186,
+    "reused": 75840,
+    "output_tokens": 338,
+    "prompt_total": 76186,
+    "prompt_read": 346,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 338,
+    "prompt_ms": 2597.3,
+    "decode_ms": 6691.5,
+    "decode_tok_s": 50.5,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 297,
+    "drafts_accepted": 204
+   },
+   {
+    "projection": null,
+    "time": 1791402445.356666,
+    "duration_s": 21.2,
+    "finish": "stop",
+    "prompt_tokens": 75150,
+    "reused": 74852,
+    "output_tokens": 689,
+    "prompt_total": 75150,
+    "prompt_read": 1,
+    "reasoning_recoveries": 0,
+    "reasoning_repeat_coverage": 0.0,
+    "engine_generated": 635,
+    "prompt_ms": 291.9,
+    "decode_ms": 12505.4,
+    "decode_tok_s": 50.8,
+    "hit_rate": 1.0,
+    "pcie_share": 0.0,
+    "ram_blobs": 0,
+    "file_blobs": 0,
+    "file_mb": 0,
+    "drafts_offered": 545,
+    "drafts_accepted": 378
+   }
+  ],
+  "conversation_cache": {
+   "enabled": true,
+   "budget_mib": 8192,
+   "slots": 4,
+   "parked": 4,
+   "bytes": 1076011392,
+   "evictions": 45,
+   "parks": 394,
+   "restores": 39,
+   "last_event": "parked",
+   "last_tokens": 3976,
+   "last_at": 1791402627.0584435,
+   "requests": 74,
+   "requests_reused": 35,
+   "reused_tokens": 2059359,
+   "prompt_tokens": 2186140,
+   "last_reused": 0,
+   "last_prompt": 3976
+  },
+  "requests_kept": 74,
+  "totals": {
+   "since": 1791401095.8696287,
+   "requests": 74,
+   "prompt_tokens": 2186140,
+   "reused": 2059359,
+   "output_tokens": 27571,
+   "prompt_ms": 271685.5999999999,
+   "decode_ms": 558742.4,
+   "drafts_offered": 21715,
+   "drafts_accepted": 15550
+  },
+  "hardware": {
+   "gpus": [
+    {
+     "index": 0,
+     "util": 87,
+     "mem_used": 32454963200,
+     "mem_total": 34342961152,
+     "temp": 47.0,
+     "power": 113.0
+    },
+    {
+     "index": 1,
+     "util": 99,
+     "mem_used": 33531691008,
+     "mem_total": 34342961152,
+     "temp": 47.0,
+     "power": 162.0
+    }
+   ],
+   "gpu_util": 93.0,
+   "gpu_mem_used": 65986654208,
+   "gpu_mem_total": 68685922304,
+   "gpu_temp": 47.0,
+   "gpu_power": 275.0,
+   "gpu_power_limit": 450.0,
+   "gpu_pcie_rx_mb": null,
+   "gpu_pcie_tx_mb": null,
+   "cpu": 11.176470588235299,
+   "ram_used": 77498126336,
+   "ram_total": 115926331392,
+   "disk_read_mb": null,
+   "disk_write_mb": null,
+   "tok_s": 56.14904311426008,
+   "tok_s_mean": 42.78216960793569,
+   "prefill_tok_s_mean": 0.0
+  },
+  "hardware_static": {
+   "gpu_name": "Radeon Instinct MI50 16GB + Radeon Instinct MI50 16GB",
+   "gpu_count": 2,
+   "cpu_name": "Intel(R) Xeon(R) CPU E5-1650 v3 @ 3.50GHz",
+   "cores": null,
+   "threads": 12,
+   "psutil": false
+  },
+  "history": {
+   "gpu_util": [
+    50.0,
+    49.5,
+    49.0,
+    49.5,
+    50.0,
+    49.5,
+    49.5,
+    99.0,
+    49.5,
+    49.5,
+    49.0,
+    49.5,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    50.0,
+    49.5,
+    99.0,
+    100.0,
+    99.5,
+    50.0,
+    50.0,
+    50.0,
+    50.0,
+    50.0,
+    49.5,
+    100.0,
+    99.5,
+    100.0,
+    50.0,
+    50.0,
+    50.0,
+    50.0,
+    50.0,
+    84.0,
+    100.0,
+    100.0,
+    49.5,
+    50.0,
+    50.0,
+    49.5,
+    50.0,
+    50.0,
+    100.0,
+    100.0,
+    50.0,
+    50.0,
+    50.0,
+    2.0,
+    98.0,
+    99.0,
+    98.0,
+    99.0,
+    94.0,
+    91.5,
+    99.0,
+    99.0,
+    93.0
+   ],
+   "gpu_mem_used": [
+    65985888256,
+    65985888256,
+    65985888256,
+    65985888256,
+    65985916928,
+    65985916928,
+    65985916928,
+    65985916928,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65985937408,
+    65986048000,
+    65986048000,
+    65986048000,
+    65986048000,
+    65986048000,
+    65986048000,
+    65986048000,
+    65986048000,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986347008,
+    65986535424,
+    65986535424,
+    65986535424,
+    65986535424,
+    65986535424,
+    65986535424,
+    65986535424,
+    65986535424,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208,
+    65986654208
+   ],
+   "gpu_temp": [
+    42.0,
+    43.0,
+    45.0,
+    41.0,
+    43.0,
+    42.0,
+    43.0,
+    43.0,
+    40.0,
+    41.0,
+    41.0,
+    41.0,
+    38.0,
+    37.0,
+    36.0,
+    36.0,
+    36.0,
+    41.0,
+    43.0,
+    45.0,
+    45.0,
+    46.0,
+    44.0,
+    44.0,
+    45.0,
+    40.0,
+    45.0,
+    46.0,
+    47.0,
+    47.0,
+    47.0,
+    45.0,
+    46.0,
+    43.0,
+    45.0,
+    47.0,
+    47.0,
+    48.0,
+    48.0,
+    46.0,
+    46.0,
+    47.0,
+    45.0,
+    47.0,
+    48.0,
+    48.0,
+    49.0,
+    47.0,
+    47.0,
+    48.0,
+    44.0,
+    46.0,
+    47.0,
+    46.0,
+    47.0,
+    47.0,
+    48.0,
+    47.0,
+    47.0,
+    47.0
+   ],
+   "gpu_power": [
+    198.0,
+    203.0,
+    231.0,
+    75.0,
+    197.0,
+    191.0,
+    95.0,
+    292.0,
+    194.0,
+    181.0,
+    144.0,
+    180.0,
+    42.0,
+    42.0,
+    41.0,
+    42.0,
+    41.0,
+    185.0,
+    208.0,
+    335.0,
+    443.0,
+    356.0,
+    214.0,
+    194.0,
+    215.0,
+    314.0,
+    192.0,
+    221.0,
+    361.0,
+    322.0,
+    345.0,
+    169.0,
+    214.0,
+    101.0,
+    174.0,
+    194.0,
+    267.0,
+    407.0,
+    360.0,
+    217.0,
+    186.0,
+    213.0,
+    226.0,
+    266.0,
+    287.0,
+    382.0,
+    407.0,
+    283.0,
+    237.0,
+    286.0,
+    49.0,
+    316.0,
+    311.0,
+    310.0,
+    317.0,
+    309.0,
+    262.0,
+    308.0,
+    307.0,
+    275.0
+   ],
+   "gpu_pcie_rx_mb": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "cpu": [
+    11.86,
+    10.54,
+    10.1,
+    10.36,
+    10.51,
+    10.25,
+    10.76,
+    10.76,
+    10.83,
+    11.22,
+    10.38,
+    9.87,
+    4.59,
+    1.67,
+    2.0,
+    1.75,
+    1.58,
+    9.22,
+    9.36,
+    10.19,
+    11.1,
+    11.12,
+    11.3,
+    10.61,
+    10.53,
+    10.94,
+    9.53,
+    10.69,
+    10.52,
+    11.13,
+    11.12,
+    11.21,
+    10.6,
+    11.27,
+    9.21,
+    10.61,
+    10.29,
+    11.26,
+    11.05,
+    11.73,
+    10.38,
+    10.03,
+    10.61,
+    10.37,
+    10.62,
+    11.02,
+    10.93,
+    11.82,
+    10.53,
+    10.1,
+    10.7,
+    11.02,
+    10.87,
+    11.05,
+    10.98,
+    10.88,
+    10.97,
+    10.68,
+    10.4,
+    11.18
+   ],
+   "ram_used": [
+    78973673472,
+    78972329984,
+    78975975424,
+    78968999936,
+    78967853056,
+    78974349312,
+    78975340544,
+    78973956096,
+    78969892864,
+    78969057280,
+    78972203008,
+    78969843712,
+    78965977088,
+    78962307072,
+    78961319936,
+    78969446400,
+    78959681536,
+    78957629440,
+    78958129152,
+    78957953024,
+    78967570432,
+    78976700416,
+    78976532480,
+    78967365632,
+    78967209984,
+    77491269632,
+    77489422336,
+    77504270336,
+    77511557120,
+    77509124096,
+    77517856768,
+    77517987840,
+    77503643648,
+    77511401472,
+    77511430144,
+    77511839744,
+    77512114176,
+    77504221184,
+    77513109504,
+    77523726336,
+    77526589440,
+    77530357760,
+    77525143552,
+    77525585920,
+    77522108416,
+    77510852608,
+    77504950272,
+    77512708096,
+    77521457152,
+    77519921152,
+    77518184448,
+    77509812224,
+    77503201280,
+    77505708032,
+    77505556480,
+    77512867840,
+    77517463552,
+    77513318400,
+    77502791680,
+    77498126336
+   ],
+   "disk_read_mb": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "tok_s": [
+    0.0,
+    0.0,
+    0.0,
+    8.0,
+    2.82,
+    1.45,
+    0.98,
+    76.39,
+    41.68,
+    61.13,
+    63.41,
+    55.02,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    10.98,
+    2.35,
+    1.32,
+    0.92,
+    0.7,
+    0.57,
+    0.48,
+    0.41,
+    0.36,
+    2.84,
+    1.41,
+    0.98,
+    0.77,
+    0.64,
+    0.55,
+    0.49,
+    0.44,
+    2.79,
+    1.12,
+    0.8,
+    0.66,
+    0.57,
+    0.51,
+    0.46,
+    0.43,
+    4.4,
+    111.9,
+    114.2,
+    113.65,
+    112.73,
+    113.1,
+    113.98,
+    112.51,
+    112.57,
+    56.15
+   ],
+   "prefill_tok_s_mean": [
+    366.6,
+    366.6,
+    366.6,
+    459.3,
+    459.3,
+    459.3,
+    209.4,
+    196.9,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    196.9,
+    196.9,
+    196.9,
+    196.9,
+    196.9,
+    394.3,
+    394.3,
+    394.3,
+    481.6,
+    481.6,
+    481.6,
+    481.6,
+    481.6,
+    481.6,
+    389.5,
+    389.5,
+    497.0,
+    477.2,
+    477.2,
+    477.2,
+    477.2,
+    477.2,
+    393.7,
+    393.7,
+    393.7,
+    480.7,
+    480.7,
+    480.7,
+    480.7,
+    480.7,
+    393.4,
+    393.4,
+    393.4,
+    480.5,
+    480.5,
+    480.5,
+    480.5,
+    480.5,
+    480.5,
+    480.5,
+    480.5,
+    480.5,
+    0.0
+   ]
+  },
+  "time": 1791402644.3029191
+ }
+}
