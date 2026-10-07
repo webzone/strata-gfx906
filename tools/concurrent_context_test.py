@@ -20,7 +20,9 @@ def main():
     folder.mkdir(parents=True, exist_ok=False)
     url = a.url.rstrip("/")
     headers = {"Content-Type": "application/json", "Origin": "https://arbitrary-origin.example"}
-    body = {"model": "m", "stream": True, "stream_options": {"include_usage": True},
+    with urllib.request.urlopen(url + "/v1/models", timeout=10) as r:
+        model = json.load(r)["data"][0]["id"]
+    body = {"model": model, "stream": True, "stream_options": {"include_usage": True},
             "max_tokens": 1024, "temperature": 0, "chat_template_kwargs": {"enable_thinking": False},
             "messages": [{"role": "user", "content":
                 "Context log:\n" + "alpha beta gamma delta epsilon\n" * 6000 +
@@ -63,7 +65,7 @@ def main():
             assert state["error"] is None, state
         for i in range(3):
             before = state["chunks"]
-            short = {"model": "m", "max_tokens": 16, "temperature": 0,
+            short = {"model": model, "max_tokens": 16, "temperature": 0,
                      "chat_template_kwargs": {"enable_thinking": False},
                      "messages": [{"role": "user", "content": f"Interruption {i}: what is 17 + 25? Reply with only the number."}]}
             (folder / f"short-{i}.request.json").write_text(json.dumps(short, indent=2) + "\n")
