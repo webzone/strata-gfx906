@@ -1,14 +1,18 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.1.41 / `fb58e0db`** (the engine reports v0.1.41).
+**Source version: Strata v0.1.41 / `fb58e0db`** (the source tree; the deployed 8082 engine still reports
+`0.1.40` — the v0.1.41 build check passed but no v0.1.41 binary was deployed).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
 - **GPU vision:** Experimental gfx906 HIP GPU-accelerated image encoding (`--vision gpu`) alongside upstream CPU fallback.
-- **Measured on dual MI50 (v0.1.40, ROCm 10, IQ3_S):** one request decodes at **55.2 tok/s** with cold
-  prefill **459–568 tok/s**; four concurrent requests decode at **7.5–28.3 tok/s** per stream,
-  **29.9 tok/s** in aggregate — on this build concurrency costs throughput. Warm K/V turns are accepted
-  at up to **~247,000 effective tok/s** (reused tokens counted, not compute throughput).
+- **Measured on dual MI50 (v0.1.40, ROCm 10, IQ3_S, probe of 2026-10-07 19:49 UTC):** one request decodes
+  at **55.2 tok/s** with cold prefill **459–568 tok/s**; four concurrent requests decode at **7.5–28.3 tok/s**
+  per stream, **29.9 tok/s** in aggregate — on this build concurrency costs throughput. Warm K/V turns are
+  accepted at up to **~247,000 effective tok/s** (reused tokens counted, not compute throughput).
+- **Newest monitor payload (2026-10-07 21:53:56–21:57:42 UTC): an idle window, 0 requests, so it names no
+  decode or prefill rate.** It records what the deployment holds at idle: **61.16 / 63.97 GiB** VRAM
+  (95.6 %), **67.56 / 107.96 GiB** host RAM, 44–46 °C at 41–48 W, 4 batch slots all idle.
   See [MI50 workload results](#mi50-workload-results).
 
 **`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** Current T5810 builds use the upstream `STRATA_HIP_GFX906` text engine and the fork HIP GPU vision encoder, both with ROCm 10. The fork wave64 text backend is deprecated for deployment. Both current components target the real `gfx906` architecture. See [current build selection](docs/GFX906.md#deployment-decision-which-gfx906-path-is-current-2026-10-06).
@@ -21,61 +25,68 @@ The gfx906 backend is experimental and must be enabled explicitly. The validatio
 
 This section keeps **only the newest** workload observation. Older observations are archived under their
 own dated headings in [`docs/GFX906.md`](docs/GFX906.md). Every number below is an operational observation
-from the dual-MI50 T5810 server, **not a controlled benchmark**.
+from the dual-MI50 T5810 server, **not a controlled benchmark**. The section always names the decode rate
+and both prefill rates; when the newest payload carried no traffic, the rates named are the newest measured
+ones, with their date and source.
 
-### Current result — v0.1.40 on ROCm 10: one request vs four concurrent (2026-10-07, GSQ-RCO IQ3_S)
+### Current observation — v0.1.40 on ROCm 10: idle engine window (2026-10-07 21:53:56–21:57:42 UTC, GSQ-RCO IQ3_S)
 
 Engine `build-text-rocm10/strata` = `bc1102ba…` (upstream gfx906 path, source v0.1.40.1 / `82f46a8` plus
 engine fix `74583c6`), vision encoder `build-vision-rocm10/bin/strata-vision` = `709fc4d2…`, both on
 `10.0.0-gfx906+20260917140126`. Model GSQ-RCO IQ3_S, 262,144 configured context, `--kv int8`,
 `--kv-resident 32768`, `--spec 4`, `--batch 4 --batch-groups 2`, `--layer-split 24`, `--pcie-frac 0`.
+The payload itself reports engine `0.1.40`; the artifact hashes come from the deployment record.
 
-#### Prefill and decode rates
+**Decode rate: not measured in this window. Prefill rate, real and effective: not measured in this window.**
+The payload covers 225.9 s of an engine session that served **0 requests**: `totals.requests`,
+`prompt_tokens`, `reused`, `output_tokens`, `prompt_ms`, `decode_ms` and both draft counters are 0, and all
+60 `history.tok_s` and `history.prefill_tok_s_mean` samples are 0. It is an idle resource snapshot, not a
+workload measurement, so it replaces no rate below.
 
-| Rate | One request | Four concurrent | How it was measured |
-| --- | ---: | ---: | --- |
-| **Prefill — real (cold, no reuse)** | **459.5 tok/s** at 3,976 tokens; **568.3 tok/s** at 9,877 | **477.3–481.7 tok/s per stream**, ≈**480 tok/s aggregate** | Engine log `prompt N tokens = 0 reused + N read in Z ms`; `cached_tokens: 0` on every request |
-| **Prefill — effective (reused tokens counted)** | not measured | not measured | Every probe request had `cached_tokens: 0`, so there were no reused tokens to count. The warm-traffic effective rate (29,129–246,878 tok/s per request) is in the archived 2026-10-07 production window |
-| **Decode — per stream** | **55.2 tok/s** | **7.5 / 9.9 / 14.7 / 28.3 tok/s** | Engine log `M generated in W ms` (single stream); per-request `predicted_per_second`, which also spans queue and admission time (concurrent) |
-| **Decode — aggregate accepted tokens** | 55.2 tok/s | **29.9 tok/s** | 1,024 completion tokens over the 34.2 s batch window (`513 group-steps, 1019 rows in 34244 ms`) |
-| **End-to-end per request** | 17.15 s | 42.6 s | Client wall time measured on the T5810 host |
+#### What the payload does show — idle resource and configuration state
+
+| Item | Value | Where it comes from |
+| --- | ---: | --- |
+| Window | 225.9 s (2026-10-07 21:53:56.798 → 21:57:42.722 UTC) | `totals.since` → `time` |
+| Requests / running / queued / waiting | 0 / 0 / 0 / 0; all four batch slots `idle`, `held_tokens 0` | `totals`, `live` |
+| VRAM resident, both cards | **61.16 / 63.97 GiB (95.6 %)** — GPU0 30.06 / 31.98 GiB, GPU1 31.10 / 31.98 GiB | `hardware.gpu_mem_used`, `hardware.gpus` |
+| Free VRAM the engine reports | 2,186 MiB | `engine.vram_free_mib` |
+| Expert arena | 47,962 MiB (46.84 GiB) total, 22,675 MiB on the primary card; 24,576 slots, 12,288 primary | `engine.arena_mib`, `engine.expert_cache_*_mib`, `engine.expert_slots*` |
+| Host RAM | **67.56 / 107.96 GiB (62.6 %)**; 67.55–67.58 GiB across the 60 samples (31 MiB spread) | `hardware.ram_used`, `history.ram_used` |
+| GPU temperature at idle | 44–46 °C, mean 45.4 °C | `history.gpu_temp` (60 samples) |
+| GPU power at idle | 41–48 W, mean 42.0 W = 9.3 % of the 450 W limit | `history.gpu_power`, `hardware.gpu_power_limit` |
+| GPU utilization / host CPU at idle | 0 % in all 60 samples; CPU 0.25–2.08 %, mean 1.51 % | `history.gpu_util`, `history.cpu` |
+| Conversation cache | enabled, 8,192 MiB / 4 slots / 16,384 MiB free floor — 0 parked, 0 bytes, 0 parks, 0 restores, 0 evictions | `conversation_cache` |
+| Engine configuration | `0.1.40`, 262,144 context, `int8` KV with 32,768 resident cells, `--spec 4` with `spec_min_p 0.50`, `mtp_max 0`, `lookup 0`, `pool_workers 6`, `pcie_frac 0.00`, 4 batch slots, `slot_cache 1`, images on | `engine` block, byte-identical to the 2026-10-07 workload snapshot's `engine` block |
+
+#### Newest measured rates on this build (not re-measured by this payload)
+
+| Rate | Value | How it was measured |
+| --- | ---: | --- |
+| **Decode — one request** | **55.2 tok/s** | probe of 2026-10-07 19:49 UTC; engine log `M generated in W ms` |
+| **Prefill — real (cold, no reuse)** | **459.5 tok/s** at 3,976 tokens; **568.3 tok/s** at 9,877 | same probe; engine log `prompt N tokens = 0 reused + N read in Z ms`, `cached_tokens: 0` |
+| **Decode — four concurrent** | **29.9 tok/s** aggregate (7.5 / 9.9 / 14.7 / 28.3 per stream) | 1,024 completion tokens over the 34.2 s batch window |
+| **Prefill — effective (reused tokens counted)** | up to **246,878 tok/s** per warm request | production window of 2026-10-07 02:37–03:03 UTC, `prompt_tokens / prompt_ms` on warm K/V traffic |
 
 The two prefill numbers answer different questions. **Real prefill** is compute: new prompt tokens divided
 by prefill time, with no cache hit. **Effective prefill** divides the whole prompt, including tokens served
 from the K/V cache, by the prompt-phase time; it shows how fast a warm turn is accepted and is not compute
-throughput. Do not compare them, and do not quote an effective number as a prefill speed.
+throughput. Do not compare them, and do not quote an effective number as a prefill speed. The full probe
+record, including why four concurrent streams lost throughput on this build and which two `/metrics`
+counters are unsafe to read as rates, is archived in
+[docs/GFX906.md](docs/GFX906.md#archived-workload-result-from-readmemd-v0140-one-request-vs-four-concurrent-2026-10-07).
 
-#### What four concurrent streams did (bounded probe, 2026-10-07 19:49:39–19:50:44 UTC)
-
-One request alone, then four identical-shape requests released together (`max_tokens 256`, `temperature 0`,
-unique filler prompts so nothing was reused, `finish_reason: length` on all five records):
-
-- **Concurrency cost throughput on this build.** Accepted decode went from **55.2 tok/s** for one stream to
-  **29.9 tok/s** across four, and each request took **42.6 s** instead of **17.2 s**.
-- **Prefill did not parallelize.** The four 3,976-token admissions ran one after another at
-  477.3–481.7 tok/s each, so 15,904 prompt tokens took ≈33 s — the rate a single stream already gets.
-- **The batch path gained rows, not tokens.** Rows/s rose only ~35% (single stream 22.1 rows/s → batch
-  29.8 rows/s), but accepted tokens per row fell from ≈2.0 (single stream, MTP `--spec 4`, 121 of 182
-  drafts accepted) to ≈1.0 (batch: 1,019 rows → 1,024 tokens). The batch admissions logged
-  `drafts accepted 0 of 0`; whether the batch path drops MTP speculation by design or loses it to
-  admission churn still needs a source-level check.
-- **The live `tok_s` counter is not a decode rate.** It read **109–114** while all four slots decoded,
-  because it counts offered rows and draft tokens, not accepted tokens.
-- **Two reporting traps found while measuring.** Under batch admission the per-request HTTP
-  `timings.prompt_ms` collapses (it reported `0.9 ms` / `10,974,444 tok/s` for a cold 9,877-token prompt
-  whose engine log line says 17,380 ms / 568.3 tok/s), and per-request `predicted_per_second` spans queue
-  and admission time. Use the engine log lines for prefill and decode.
-
-Conditions and limits: one run per phase, synthetic filler text, `max_tokens 256`, thinking disabled; the
-service is a production service and was not empty (four parked owner conversations, 74K–78K-token agent
-prompts). The single-request phase shared the engine with one co-tenant during its prefill, so its
-459.5 tok/s prefill carries that load; its 55.2 tok/s decode segment ran alone. The four-concurrent phase
-ran with only the four probe streams (`live.running = 4` throughout). Not a matched A/B: no other engine
-build, ROCm version, `--batch` or `--batch-groups` value was tested. No accuracy, full-262K-context, MI60
-or long-soak measurement. Raw payload:
-[`probe-concurrent4-3976.json`](docs/gfx906-results/20261007-single-vs-4concurrent/probe-concurrent4-3976.json),
-method and per-phase detail in the
-[probe record](docs/gfx906-results/20261007-single-vs-4concurrent/README.md).
+Conditions and limits: one idle engine session, no request traffic, no client-side timing. The session is
+superseded — a read-only `GET /metrics` on the machine at 2026-10-08 22:38:39 UTC reports a later session
+start (2026-10-08 19:15:26 UTC) with 113 requests, 5,757,184 prompt tokens, 5,530,572 reused, 62,652 output
+tokens and 53,758 / 40,208 drafts offered/accepted, and the same `engine` configuration block.
+`hardware_static.gpu_name` in this payload prints "MI50 16GB" while `mem_total` reports 31.98 GiB per card;
+the label fix post-dates this session — the same read-only endpoint at 2026-10-08 22:45:34 UTC reports
+"Radeon Instinct MI50 32GB" with the driver-string note. See
+[the monitor note](docs/GFX906.md#monitor-a-32-gb-mi50-shown-as-mi50-16gb-2026-10-08). PCIe and disk
+counters are `null` on this host. No accuracy, full-262K-context, MI60 or long-soak measurement.
+Raw payload and derived figures:
+[idle-window snapshot](docs/gfx906-results/20261007-idle-window/README.md).
 
 ## What this fork supports
 
