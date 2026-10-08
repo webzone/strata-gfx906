@@ -329,7 +329,8 @@ class Telemetry:
         }
         self._disk_prev = None
         self._stop = threading.Event()
-        threading.Thread(target=self._loop, daemon=True).start()
+        self._thread = threading.Thread(target=self._loop, daemon=True)
+        self._thread.start()
 
     def _disk(self):
         if not self.ps:
@@ -383,8 +384,11 @@ class Telemetry:
         return s
 
     def close(self):
-        """Ends the sampler thread (a server that stops, a test's service): it used to run for the life of the process."""
+        """Ends the sampler thread (a server that stops, a test's service): it used to run for the life of the process.
+        The join makes the stop synchronous - server_close returns with the thread gone, so a test that counts sampler
+        threads around a server's lifetime cannot catch the previous one still winding down."""
         self._stop.set()
+        self._thread.join(2.0)      # the loop wakes from _stop.wait at once; 2s covers a sample() in flight
 
     def _loop(self):
         while not self._stop.is_set():
