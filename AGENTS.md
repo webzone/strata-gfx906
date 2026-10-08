@@ -1,3 +1,5 @@
+# 尽量使用 ASD-STE100（Simplified Technical English）
+
 # strata-gfx906 — Development Rules
 
 This is a dedicated experimental MI50/MI60 gfx906 fork of `Niko1221/Strata`, synchronized through
@@ -71,3 +73,24 @@ one unless the owner requests it. Other non-loopback deployments require an API 
 AMD upstream scope in `docs/AMD_HIP.md`, and pipeline splitting in `docs/MULTI_GPU.md`.
 GPU-independent setup tests run with `.venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py'`.
 Document measured results with their hardware, workload and validation limits, not unsupported performance claims.
+
+- How the engine works, every measured number, the API and all settings: [docs/DETAILS.md](docs/DETAILS.md) and
+  the [paper](docs/paper/Strata-Paper.pdf).
+- AMD (HIP) build and validation: [docs/AMD_HIP.md](docs/AMD_HIP.md); multi-GPU: [docs/MULTI_GPU.md](docs/MULTI_GPU.md).
+- Setup's own tests run without a GPU or downloads: `python tools/test_setup_<name>.py` (for example
+  `tools/test_setup_amd.py`, `tools/test_setup_choices.py`).
+- Keep the docs' style: plain words, measured numbers with what they were measured on, no claims without a
+  measurement.
+
+## Contributing a change or report
+
+- Search the open issues and pull requests first, and add to a thread that already covers your point.
+- Open an issue with the form that fits (bug report, feature request or question).
+- One change per pull request. Say what it changes and what it leaves alone.
+- A new feature is opt-in, and the default path stays byte-identical to the last release. Say how you checked.
+- Build every backend a file touches (CUDA, HIP, SYCL) before asking for review.
+- Change a default only where you measured it faster, and show the numbers with what they were measured on.
+- A report from hardware the maintainers do not have is welcome. Follow
+  [docs/COMMUNITY_BENCHMARKS.md](docs/COMMUNITY_BENCHMARKS.md), compare against a same-day run of the build you are
+  testing, and say what you did not test.
+- Open test requests and the hardware that is wanted are listed in [docs/TEST_REQUESTS.md](docs/TEST_REQUESTS.md).
