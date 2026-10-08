@@ -4410,9 +4410,13 @@ def make_handler(svc: Service):
                     self.record.update(values)
 
         def _cors(self):
-            """#321: CORS headers for an API path (/v1/*) and an origin the config lists in cors_origins - nothing
-            otherwise, so a browser keeps every other page away from the API, /settings, /unload and the MCP tools."""
-            if not svc.cors_origins or not self.path.split("?")[0].startswith("/v1/"):
+            path = self.path.split("?")[0].rstrip("/")
+            # #321: CORS headers for an API path (/v1/*) and an origin the config lists in cors_origins, plus
+            # the read-only /metrics monitor endpoint (GET, OPTIONS only). /metrics also answers Chrome's
+            # Private Network Access preflight, because a file:// page on a dashboard fetching a private-LAN
+            # address gets one. Nothing otherwise, so a browser keeps every other page away from the API,
+            # /settings, /unload and the MCP tools.
+            if not svc.cors_origins or not (path.startswith("/v1/") or path == "/metrics"):
                 return
             origin = (self.headers.get("Origin") or "").rstrip("/")
             if "*" in svc.cors_origins:
@@ -4423,7 +4427,12 @@ def make_handler(svc: Service):
             else:
                 return
             self.send_header("Access-Control-Allow-Origin", allow)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods",
+                             "GET, OPTIONS" if path == "/metrics" else "GET, POST, OPTIONS")
+            if path == "/metrics":
+                # Chrome's PNA: a more-public context (a file:// page) reaching a private-LAN address is
+                # granted the private network explicitly, in the preflight answer and on the response.
+                self.send_header("Access-Control-Allow-Private-Network", "true")
             # the headers the preflight asks for (SDKs add their own; "*" does not cover Authorization)
             asked = self.headers.get("Access-Control-Request-Headers")
             self.send_header("Access-Control-Allow-Headers",
@@ -4506,6 +4515,7 @@ def make_handler(svc: Service):
                         body = prometheus.render(svc.metrics(), svc.latencies.snapshot()).encode()
                         self.send_response(200)
                         self.send_header("Content-Type", prometheus.CONTENT_TYPE)
+                        self._cors()
                         self.send_header("Content-Length", str(len(body)))
                         self.end_headers()
                         self.wfile.write(body)

@@ -3020,6 +3020,35 @@ class UsageAndStatus(unittest.TestCase):
             self.assertEqual(r.headers.get("Access-Control-Allow-Origin"), "*")
         self.assertIsNone(self.preflight("/settings")[1].get("Access-Control-Allow-Origin"))
 
+    def test_metrics_cors_for_private_lan_dashboards(self):
+        # the owner's dashboards fetch the read-only /metrics from file:// pages on the private LAN: the origin
+        # grant and Chrome's Private Network Access allowance ride on both the response and the preflight, and
+        # the preflight names GET, OPTIONS because /metrics has no POST API. Both /metrics return branches
+        # (the JSON default and the Prometheus text format) must carry the headers.
+        self.svc.cors_origins = ["*"]
+        try:
+            req = urllib.request.Request(self.base + "/metrics", headers={"Origin": "null"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                self.assertEqual((r.status, r.headers.get("Access-Control-Allow-Origin")), (200, "*"))
+                self.assertEqual(r.headers.get("Access-Control-Allow-Private-Network"), "true")
+            req = urllib.request.Request(self.base + "/metrics?format=prometheus", headers={"Origin": "null"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                self.assertEqual(r.headers.get("Access-Control-Allow-Private-Network"), "true")
+            req = urllib.request.Request(self.base + "/metrics", method="OPTIONS",
+                                         headers={"Origin": "null", "Access-Control-Request-Method": "GET",
+                                                  "Access-Control-Request-Private-Network": "true"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                self.assertEqual(r.status, 204)
+                self.assertEqual(r.headers.get("Access-Control-Allow-Origin"), "*")
+                self.assertEqual(r.headers.get("Access-Control-Allow-Private-Network"), "true")
+                self.assertEqual(r.headers.get("Access-Control-Allow-Methods"), "GET, OPTIONS")
+        finally:
+            self.svc.cors_origins = []
+        # explicitly disabled CORS closes /metrics like every other non-API path
+        req = urllib.request.Request(self.base + "/metrics", headers={"Origin": "null"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            self.assertIsNone(r.headers.get("Access-Control-Allow-Origin"))
+
     def test_cors_can_be_disabled_explicitly(self):
         self.svc.cors_origins = []
         status, h = self.preflight("/v1/chat/completions")
