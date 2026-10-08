@@ -14,6 +14,7 @@ import collections
 import ctypes
 import os
 import platform
+import re
 import sys
 import threading
 import time
@@ -133,6 +134,28 @@ def amd_device_dir(index, sysfs=None):
     return dev if os.path.isdir(dev) else None
 
 
+AMD_CAP_TOKEN = re.compile(r"(\d+(?:\.\d+)?)\s*GB\b", re.IGNORECASE)
+
+
+def amd_product_name(raw, vram_gib):
+    """(the AMD card's name to show, a note when the driver's own capacity token contradicts its VRAM total).
+
+    amdgpu's `product_name` is a marketing string from the card's VBIOS/FRU, and on gfx906 it is wrong: the MI50
+    32 GB and the MI60 (PCI id 0x66a1, subsystem 0x0834) both report "Radeon Instinct MI50 16GB" while their own
+    `mem_info_vram_total` reads 34,342,961,152 bytes = 31.99 GiB (measured on the T5810 MI50 pair, 2026-10-08).
+    A card reports a little less than its label, so a token is rewritten only when it misses the driver's own
+    total by more than half; the driver's raw string is quoted in the note so the change stays auditable."""
+    m = AMD_CAP_TOKEN.search(raw or "")
+    if not m or not vram_gib or vram_gib < 1:
+        return raw, None
+    real = round(vram_gib)
+    if not (0.67 <= float(m.group(1)) / real <= 1.5):
+        return (raw[:m.start()] + f"{real}GB" + raw[m.end():]).strip(), (
+            f'the amdgpu driver names this card "{raw}", but its own VRAM total is {real} GB, '
+            "so the capacity in the name was corrected")
+    return raw, None
+
+
 class _Amd:
     """#301: an AMD card's readings from the amdgpu driver's sysfs files (Linux; no ROCm library needed), with _Nvml's
     interface: load (gpu_busy_percent), VRAM (mem_info_vram_used / _total), and from its hwmon folder the temperature
@@ -141,6 +164,7 @@ class _Amd:
     def __init__(self, index=0, sysfs=None):
         self.dev = amd_device_dir(index, sysfs)
         self.hwmon = None
+        self.name_note = None
         if self.dev:
             try:
                 hw = sorted(os.listdir(os.path.join(self.dev, "hwmon")))
@@ -162,9 +186,12 @@ class _Amd:
     def name(self):
         try:
             with open(os.path.join(self.dev, "product_name"), encoding="utf-8") as f:
-                return f.read().strip() or "AMD Radeon"
+                raw = f.read().strip() or "AMD Radeon"
         except (OSError, TypeError):
             return "AMD Radeon"
+        vram = self._int(os.path.join(self.dev, "mem_info_vram_total"))
+        name, self.name_note = amd_product_name(raw, None if vram is None else vram / 2 ** 30)
+        return name
 
     def read(self):
         out = {"util": self._int(os.path.join(self.dev, "gpu_busy_percent")),
@@ -284,8 +311,12 @@ class Telemetry:
         except ImportError:
             self.ps = None
         self.fallback = _CpuRamFallback()
+        names = [g.name() or "?" for _, g in self.gpus] if self.gpu.ok() else []
         self.static = {
-            "gpu_name": " + ".join(g.name() or "?" for _, g in self.gpus) if self.gpu.ok() else None,
+            "gpu_name": " + ".join(names) if names else None,
+            # the driver's product name carried the wrong capacity (gfx906 MI50 32 GB): say so, with the raw string
+            "gpu_name_note": " ; ".join(dict.fromkeys(g.name_note for _, g in self.gpus
+                                                      if getattr(g, "name_note", None))) or None,
             "gpu_count": len(self.gpus),
             # #1380: the AMD readings are the amdgpu driver's Linux sysfs files; a Windows AMD card has none yet, and the
             # dashboard said "not readable (NVML)" or showed empty tiles with no word why

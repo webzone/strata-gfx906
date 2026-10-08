@@ -65,6 +65,28 @@ class KfdDetection(unittest.TestCase):
         self.assertEqual(ok, ["gfx1101", "gfx1200", "gfx1201", "gfx1102", "gfx1100"])
         self.assertIn("gfx1036", setup.amd_problem(g[4]))
 
+    def test_mi50_32gb_product_name(self):
+        """gfx906: amdgpu's product_name is a VBIOS/FRU marketing string, and on the MI50 32 GB (PCI id 0x66a1,
+        subsystem 0x0834 - the same id the MI60 uses) it says "Radeon Instinct MI50 16GB" while the card's own
+        mem_info_vram_total reads 34,342,961,152 bytes (31.99 GiB, measured on the T5810 pair 2026-10-08).  setup
+        follows the driver's VRAM total, keeps the raw string in name_note, and leaves a name that agrees alone."""
+        fake_sysfs(self.root, [
+            (90006, 128, 128, "Radeon Instinct MI50 16GB", 34342961152),      # the MI50 32 GB on the T5810
+            (90006, 128, 129, "Radeon Instinct MI50 16GB", 16 << 30),         # a real 16 GB MI50: stands
+            (120001, 128, 130, "AMD Radeon AI PRO R9700 32GB", 32 << 30),     # agrees with its VRAM: stands
+            (110000, 128, 131, "Radeon RX 7600 XT 12GB", 11.4 * 2 ** 30),     # reports less than its label
+        ])
+        g = setup.amd_gpus(str(self.root))
+        self.assertEqual([x["arch"] for x in g], ["gfx906", "gfx906", "gfx1201", "gfx1100"])
+        self.assertEqual(g[0]["name"], "Radeon Instinct MI50 32GB")
+        self.assertIn('names this card "Radeon Instinct MI50 16GB"', g[0]["name_note"])
+        self.assertIn("its own VRAM total is 32 GB", g[0]["name_note"])
+        self.assertAlmostEqual(g[0]["vram_gb"], 31.984, places=3)
+        for x in g[1:]:
+            self.assertIsNone(x["name_note"])
+        self.assertEqual([x["name"] for x in g[1:]],
+                         ["Radeon Instinct MI50 16GB", "AMD Radeon AI PRO R9700 32GB", "Radeon RX 7600 XT 12GB"])
+
     def test_no_kfd(self):
         self.assertEqual(setup.amd_gpus(str(self.root)), [])
 

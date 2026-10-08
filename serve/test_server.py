@@ -3949,6 +3949,43 @@ class AmdTelemetry(unittest.TestCase):
                 self.assertFalse(telemetry.gpu_reader(0, amd=True).ok())
                 self.assertIsNone(telemetry.free_vram_mib(0, amd=True))
 
+    def test_mi50_32gb_product_name(self):
+        """gfx906: amdgpu's product_name is a VBIOS/FRU marketing string, and on the MI50 32 GB (PCI id 0x66a1,
+        subsystem 0x0834 - the same id the MI60 uses) it says "Radeon Instinct MI50 16GB" while the card's own
+        mem_info_vram_total reads 34,342,961,152 bytes (31.99 GiB, measured on the T5810 pair 2026-10-08).  The
+        Monitor tab follows the driver's VRAM total and says what it corrected; a name that agrees is left alone."""
+        from serve import telemetry
+        with tempfile.TemporaryDirectory() as d:
+            nodes = Path(d) / "class/kfd/kfd/topology/nodes"
+            for n, props in ((0, "cpu_cores_count 12\nsimd_count 0\ngfx_target_version 0\ndrm_render_minor 0\n"),
+                             (1, "simd_count 128\ngfx_target_version 90006\ndrm_render_minor 128\n")):
+                (nodes / str(n)).mkdir(parents=True)
+                (nodes / str(n) / "properties").write_text(props)
+            dev = Path(d) / "class/drm/renderD128/device"
+            dev.mkdir(parents=True)
+            (dev / "product_name").write_text("Radeon Instinct MI50 16GB\n")
+            (dev / "mem_info_vram_total").write_text("34342961152\n")
+            (dev / "mem_info_vram_used").write_text("32566714368\n")
+            (dev / "gpu_busy_percent").write_text("0\n")
+            with mock.patch.object(telemetry, "SYSFS", d):
+                g = telemetry.gpu_reader(0, amd=True)
+                self.assertEqual(g.name(), "Radeon Instinct MI50 32GB")
+                self.assertIn('names this card "Radeon Instinct MI50 16GB"', g.name_note)
+                t = telemetry.Telemetry(gpu_index=0, amd=True)
+                self.assertEqual(t.static["gpu_name"], "Radeon Instinct MI50 32GB")
+                self.assertIn("its own VRAM total is 32 GB", t.static["gpu_name_note"])
+        # a name that agrees with the card's own VRAM is left alone (a card reports a little less than its label)
+        self.assertEqual(telemetry.amd_product_name("Radeon Instinct MI50 16GB", 16.0),
+                         ("Radeon Instinct MI50 16GB", None))
+        self.assertEqual(telemetry.amd_product_name("AMD Radeon AI PRO R9700", 32.0),
+                         ("AMD Radeon AI PRO R9700", None))
+        self.assertEqual(telemetry.amd_product_name("Radeon RX 7600 XT 12GB", 11.4),
+                         ("Radeon RX 7600 XT 12GB", None))
+        self.assertEqual(telemetry.amd_product_name("Radeon Instinct MI50 16GB", None),
+                         ("Radeon Instinct MI50 16GB", None))
+        self.assertEqual(telemetry.amd_product_name("Radeon Instinct MI50 16GB", 0.5),
+                         ("Radeon Instinct MI50 16GB", None))
+
     def test_free_vram_on_hip(self):
         from serve import telemetry
         tok = ByteTokenizer()

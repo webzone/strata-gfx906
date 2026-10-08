@@ -1889,6 +1889,29 @@ def amd_pci_devices(sysfs="/sys") -> list[dict]:
     return found
 
 
+AMD_CAP_TOKEN = re.compile(r"(\d+(?:\.\d+)?)\s*GB\b", re.IGNORECASE)
+
+
+def amd_product_name(raw, vram_gib):
+    """(the AMD card's name to show, a note when the driver's own capacity token contradicts its VRAM total).
+
+    amdgpu's `product_name` is a marketing string from the card's VBIOS/FRU, and on gfx906 it is wrong: the MI50
+    32 GB and the MI60 (PCI id 0x66a1, subsystem 0x0834) both report "Radeon Instinct MI50 16GB" while their own
+    `mem_info_vram_total` reads 34,342,961,152 bytes = 31.99 GiB (measured on the T5810 MI50 pair, 2026-10-08).
+    A card reports a little less than its label, so a token is rewritten only when it misses the driver's own
+    total by more than half; the note quotes the driver's raw string, so the change stays auditable.  The same
+    rule lives in serve/telemetry.py (the Monitor tab reads the same sysfs file)."""
+    m = AMD_CAP_TOKEN.search(raw or "")
+    if not m or not vram_gib or vram_gib < 1:
+        return raw, None
+    real = round(vram_gib)
+    if not (0.67 <= float(m.group(1)) / real <= 1.5):
+        return (raw[:m.start()] + f"{real}GB" + raw[m.end():]).strip(), (
+            f'the amdgpu driver names this card "{raw}", but its own VRAM total is {real} GB, '
+            "so the capacity in the name was corrected")
+    return raw, None
+
+
 def amd_gpus(sysfs="/sys"):
     """AMD GPUs from the kernel's KFD topology (the amdgpu driver; no ROCm needed), numbered as HIP numbers them:
     the GPU nodes in order, the CPU nodes skipped.  Integrated GPUs are listed too (not supported).
@@ -1930,6 +1953,7 @@ def amd_gpus(sysfs="/sys"):
         except (OSError, ValueError):
             gtt = 0.0
         g = {"index": len(found), "name": name, "vram_gb": vram, "arch": arch, "driver": "amdgpu", "vendor": "amd"}
+        g["name"], g["name_note"] = amd_product_name(name, vram)
         try:
             g["pci_id"] = int((dev / "device").read_text().strip(), 16)
         except (OSError, ValueError):
@@ -4856,6 +4880,8 @@ def main() -> int:
             ok("GPUs: " + " + ".join(gpu_name(x) for x in chosen) + " together (the model's layers are split across them)")
         ok(f"GPU: {gpu['name']}, {amd_mem_text(gpu) if gpu.get('uma') else format(gpu['vram_gb'], '.1f') + ' GB VRAM'}, "
            f"{gpu['arch']} (AMD: docs/{'STRIX_HALO' if is_strix_halo(gpu) else 'AMD_HIP'}.md)")
+        if gpu.get("name_note"):                       # the driver's own product name contradicted its VRAM total
+            say("  note: " + gpu["name_note"])
         if WIN and str(gpu.get("arch") or "").startswith("gfx12"):   # only a pointer; no default changes
             say("  If Windows resets the AMD driver (VIDEO_ENGINE_TIMEOUT_DETECTED, flicker, the engine dies mid-answer): "
                 "docs/TROUBLESHOOTING.md, \"Windows AMD: the driver resets\"")
