@@ -28,6 +28,13 @@ under *MI50 workload results*.
   (`10.0.0-gfx906+20260917140126`). Model GSQ-RCO
   IQ3_S, 262,144 configured context, `--kv int8`, `--kv-resident 32768`, `--spec 4`,
   `--batch 4 --batch-groups 2`, `--layer-split 24`, `--pcie-frac 0`.
+- Correction (2026-10-08): the first committed copy of `metrics-snapshot.json` held 59 entries in
+  `gpu_mem_used`, `gpu_pcie_rx_mb` and `disk_read_mb` — a transcription loss, caught by the owner against
+  the payload tail. The sampler appends all ten history keys on every one-second tick under a lock
+  (`serve/telemetry.py`, `HISTORY = 60`), so a payload's history arrays always have the same length, and a
+  snapshot can never catch a half-appended tick. The three arrays are uniform (one repeated VRAM value,
+  nulls), so the missing element was restored unambiguously; all ten arrays now hold 60 samples, which is
+  also what the live endpoint reports.
 - The payload's whole `engine` block and whole `hardware_static` block are byte-identical to the
   `engine` and `hardware_static` blocks in
   [the 2026-10-07 production workload snapshot](../20261007-mi50-workload/metrics-snapshot.json): same
@@ -40,7 +47,7 @@ under *MI50 workload results*.
 
 | File | Content |
 |------|---------|
-| `metrics-snapshot.json` | The payload. Every key and value verbatim, including all six `history` sample arrays (60 samples each). Re-indented for readability. |
+| `metrics-snapshot.json` | The payload. Every key and value verbatim, including all ten `history` sample arrays (60 samples each — the last minute of the window, one sample per second). Re-indented for readability. |
 | `evidence-manifest.sha256` | SHA256 of the files in this directory. |
 
 ## Figures derived from the payload
@@ -54,7 +61,7 @@ under *MI50 workload results*.
 | Engine-reported free VRAM 2,186 MiB (2.13 GiB) | `engine.vram_free_mib` |
 | Expert arena 47,962 MiB (46.84 GiB), primary card 22,675 MiB (22.14 GiB) | `engine.arena_mib`, `engine.expert_cache_primary_mib` |
 | Host RAM 67.56 / 107.96 GiB (62.6 %) | `hardware.ram_used` / `ram_total` |
-| Host RAM over the window 67.55–67.58 GiB (31 MiB spread) | min/max of `history.ram_used` (60 samples) |
+| Host RAM in the last 60 one-second samples (≈ the final minute of the window) 67.55–67.58 GiB (31 MiB spread) | min/max of `history.ram_used` |
 | GPU temperature 44–46 °C, mean 45.4 °C | `history.gpu_temp` (60 samples) |
 | GPU package power 41–48 W, mean 42.0 W = 9.3 % of the 450 W limit | `history.gpu_power`, `hardware.gpu_power_limit` |
 | GPU utilization 0 % in all 60 samples | `history.gpu_util` |

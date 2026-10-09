@@ -1,7 +1,8 @@
 # Monitor payload supplied by the owner on 2026-10-08; the engine session it covers
 # started 2026-10-07 21:53:56.798 UTC and served 0 requests. Currency re-checked
 # read-only against chris@t5810 http://127.0.0.1:8082/metrics at 2026-10-08 22:38:39 UTC
-# and 22:45:34 UTC.
+# and 22:45:34 UTC. Three history arrays were re-lengthened to the payload's true 60
+# samples after the owner caught a transcription loss (see README.md).
 # sha256sum-compatible; paths relative to this directory.
-0186637d93abe018c203ec1e95eac9c4eda486cfb318bf5805763368fa39e6ae  README.md
-74ea14f932fc6afe5c66561c362638b11e2146d52018e475d81137a383872b8d  metrics-snapshot.json
+3e55a14d12709e35a3779e1dbda935e8a894ed2ab1fff33f01c790741b396445  README.md
+406626d47b5913526d72ae94de1627e6fe5efa7d8a59e4fc5c3f8b172264cc58  metrics-snapshot.json
