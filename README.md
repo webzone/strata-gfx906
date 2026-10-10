@@ -1,7 +1,7 @@
 # Strata for AMD Instinct MI50 / MI60
 
 **Source version: Strata v0.1.42 / `61b3fb5d`** (the source tree; the deployed 8082 engine still reports
-`0.1.40` — the v0.1.41 build check passed but no v0.1.41 binary was deployed).
+`0.1.40` — the v0.1.41 and v0.1.42 build checks passed but no post-v0.1.40 binary was deployed).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
