@@ -1,6 +1,6 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.1.41 / `fb58e0db`** (the source tree; the deployed 8082 engine still reports
+**Source version: Strata v0.1.42 / `61b3fb5d`** (the source tree; the deployed 8082 engine still reports
 `0.1.40` — the v0.1.41 build check passed but no v0.1.41 binary was deployed).
 
 **Key features in this release:**
@@ -260,7 +260,7 @@ For the engine's complete option list, run `./engine/strata --help` after instal
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.1.41 / `fb58e0db`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.1.42 / `61b3fb5d`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,
