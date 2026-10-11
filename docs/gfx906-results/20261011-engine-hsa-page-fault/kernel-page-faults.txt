@@ -1,0 +1,35 @@
+Oct 11 01:30:04 t5810 kernel: perf: interrupt took too long (2504 > 2500), lowering kernel.perf_event_max_sample_rate to 79000
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d04000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: VM_L2_PROTECTION_FAULT_STATUS:0x00841051
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:          Faulty UTCL2 client ID: TCP (0x8)
+--
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:          RW: 0x1
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d08000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d06000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d04000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d0d000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d09000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d0c000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d1c000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d0e000 from IH client 0x1b (UTCL2)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0: [gfxhub0] no-retry page fault (src_id:0 ring:40 vmid:8 pasid:128)
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:  Process strata pid 7184 thread strata pid 7184
+Oct 11 02:00:06 t5810 kernel: amdgpu 0000:07:00.0:   in page starting at address 0x0000622590d14000 from IH client 0x1b (UTCL2)
