@@ -37,6 +37,10 @@ extern "C" cudaError_t __wrap_cudaDeviceSynchronize() {
     return ++sync_calls == fail_sync ? cudaErrorUnknown : cudaSuccess;
 }
 extern "C" cudaError_t __wrap_cudaGetLastError() { return cudaSuccess; }
+// the fake pointers cannot be classified, so copy_nonblocking keeps its cudaMemcpyDefault path
+extern "C" cudaError_t __wrap_cudaPointerGetAttributes(cudaPointerAttributes*, const void*) {
+    return cudaErrorInvalidValue;
+}
 #endif
 
 using namespace strata::core;

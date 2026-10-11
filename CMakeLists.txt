@@ -576,6 +576,11 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
     target_link_libraries(conversation_snapshot_test PRIVATE strata_engine)
     add_test(NAME conversation_snapshot_test COMMAND conversation_snapshot_test)
     set_tests_properties(conversation_snapshot_test PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
+    add_executable(conversation_copy_test src/core/conversation_copy_test.cpp)
+    target_include_directories(conversation_copy_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/core)
+    target_link_libraries(conversation_copy_test PRIVATE strata_engine)
+    add_test(NAME conversation_copy_test COMMAND conversation_copy_test)
+    set_tests_properties(conversation_copy_test PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
     add_executable(conversation_validation_test src/core/conversation_validation_test.cpp)
     target_link_libraries(conversation_validation_test PRIVATE strata_engine)
     add_test(NAME conversation_validation_test COMMAND conversation_validation_test)
@@ -586,7 +591,8 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
       target_link_options(conversation_transfer_test PRIVATE
         -Wl,--wrap=cudaMemcpy -Wl,--wrap=cudaMemcpyAsync -Wl,--wrap=cudaStreamSynchronize
         -Wl,--wrap=cudaGetDevice -Wl,--wrap=cudaStreamCreateWithFlags
-        -Wl,--wrap=cudaDeviceSynchronize -Wl,--wrap=cudaGetLastError)
+        -Wl,--wrap=cudaDeviceSynchronize -Wl,--wrap=cudaGetLastError
+        -Wl,--wrap=cudaPointerGetAttributes)
       target_link_libraries(conversation_transfer_test PRIVATE strata_engine)
       add_test(NAME conversation_transfer_test COMMAND conversation_transfer_test)
       set_tests_properties(conversation_transfer_test PROPERTIES ENVIRONMENT "CUDA_VISIBLE_DEVICES=-1" TIMEOUT 120)

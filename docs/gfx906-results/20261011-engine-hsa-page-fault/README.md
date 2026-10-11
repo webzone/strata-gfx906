@@ -65,17 +65,46 @@ found the identical 2026-10-08 event. The bug is recurring, not one-off.
 Side effect of the restart: the RAM-only conversation cache (parked conversations, KV checkpoints)
 is empty; clients re-prefill.
 
-## Next steps for a real fix
+## Resolution (2026-10-11 03:40–04:10 round)
 
-- Reproduce under control: drive several 130K+ token conversations with frequent switches (to force
-  parking + evictions) on a maintenance window; the two crashes both followed that pattern.
-- Audit the capture path for frees relative to stream order: the conversation-snapshot
-  running-state copy (the 10-08 log names it), the physical-RAM gate's eviction loop (it frees 16 MiB
-  segments "back with the kernel"), and the two-phase `conversation_checkpoints_split`/merge-back.
-  The candidate defect is a destination or source host buffer freed/unmapped while its D2H copy is
-  still queued; a fix would add the missing stream synchronization (or ownership transfer) before the
-  free.
+The faulting buffer was pinned down as host memory: every fault address of each crash lies inside a single
+2 MiB span of the process heap (10-08 `0x5e0dd3b36000`–`0x5e0dd3b49000`; 10-11
+`0x622590d04000`–`0x622590d1c000`). The deployment runs no `--kv-grow`, so no runtime VMM unmap exists; a
+mapping that can vanish under an in-flight write is a plain host allocation that was freed. With
+`HSA_ENABLE_SDMA=0` every copy runs as a shader blit (the fault client is TCP): a blit touching a plain host
+buffer goes through a device mapping dropped when the pages are released, so a free before the blit executes
+faults the GPU on a write, and the sticky error surfaces at whichever call polls next — which is why the
+10-08 log named a checkpoint-save copy and the 10-11 run died at a KV-streaming line while neither enqueued
+the faulting write.
+
+The fix is in the copy layer only (`src/core/conversation_copy.hpp`, via a private non-blocking stream per
+caller): both endpoints are classified with `cudaPointerGetAttributes`; device and device-accessible host
+endpoints keep the direct copy, a plain host endpoint stages through a 4 MiB pinned bounce buffer (per
+thread), and host-to-host is a CPU `memmove`. No blit can reference pageable memory any more, so the fault
+class is dead by construction for all conversation traffic. The exact racing free was not pinpointed (a
+cross-thread release or a torn-down turn's buffer); the mechanism is removed regardless. Measured overhead:
+one extra CPU copy on plain-host legs, ~0.2–0.3 s per 3.3 GiB park/restore, microseconds for the small
+running-state copies.
+
+Verification on the T5810 gfx906 HIP stack (ROCm 10.0, `build-text-rocm10-copyfix`, service untouched):
+`conversation_copy_test` 165 checks across 9 endpoint pairs × 9 sizes (heap classifies `device=0
+accessible=0`, pinned `0/1`, device `1/1`); `conversation_validation_test` 972 host-only checks;
+`conversation_snapshot_test` 3901 checks through the new layer on a real GPU; the engine links clean. The
+fix takes effect at the next engine restart; the deployed binary and `run-iq3-s.json` are unchanged until
+then. Upstream carries the same copy layer, so the change applies there verbatim.
+
+## Original next steps (superseded by the resolution above)
+
+- ~~Reproduce under control: drive several 130K+ token conversations with frequent switches (to force
+  parking + evictions) on a maintenance window; the two crashes both followed that pattern.~~
+  Not needed for the mechanism fix; a soak under the repaired engine remains open below.
+- ~~Audit the capture path for frees relative to stream order…~~ Done as a mechanism fix in the copy layer
+  instead of a per-call-site sync: every plain-host blit endpoint is gone.
 - Note the fix must go upstream too: the fault reproduces on both v0.1.40.1 (`bc1102ba…`) and
-  v0.1.42 (`0550f3f2…`), i.e. it is in inherited upstream code, not a fork-only path.
+  v0.1.42 (`0550f3f2…`), i.e. it is in inherited upstream code, not a fork-only path. Still true; the fix
+  applies verbatim upstream.
 - Available mitigation (not applied — it costs a full re-prefill of long contexts on every switch,
-  ~5 min at the measured ~400 tok/s for 130K tokens): `--conversation-cache-mib 0`.
+  ~5 min at the measured ~400 tok/s for 130K tokens): `--conversation-cache-mib 0`. Now unnecessary; the
+  fixed copy layer keeps the cache.
+- Open: a soak of the repaired engine under the owner's normal 130K+ token traffic, confirming no
+  recurrence over the weeks-long horizon the two crashes spanned.
