@@ -1,18 +1,18 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.1.42 / `61b3fb5d`** (the source tree; the deployed 8082 engine still reports
-`0.1.40` — the v0.1.41 and v0.1.42 build checks passed but no post-v0.1.40 binary was deployed).
+**Source version: Strata v0.1.42 / `61b3fb5d`** (deployed T5810 text engine `build-text-rocm10/strata` =
+v0.1.42, SHA256 `0550f3f2…`, installed 2026-10-11 after the batch-groups A/B; the previous 0.1.40.1
+artifact `bc1102ba…` is kept beside it as `strata-v0.1.40.1`; the vision encoder is unchanged at
+`709fc4d2…`). The 8082 service was left stopped for the owner to start.
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
 - **GPU vision:** Experimental gfx906 HIP GPU-accelerated image encoding (`--vision gpu`) alongside upstream CPU fallback.
-- **Measured on dual MI50 (v0.1.40, ROCm 10, IQ3_S, probe of 2026-10-07 19:49 UTC):** one request decodes
-  at **55.2 tok/s** with cold prefill **459–568 tok/s**; four concurrent requests decode at **7.5–28.3 tok/s**
-  per stream, **29.9 tok/s** in aggregate — on this build concurrency costs throughput. Warm K/V turns are
-  accepted at up to **~247,000 effective tok/s** (reused tokens counted, not compute throughput).
-- **Newest monitor payload (2026-10-07 21:53:56–21:57:42 UTC): an idle window, 0 requests, so it names no
-  decode or prefill rate.** It records what the deployment holds at idle: **61.16 / 63.97 GiB** VRAM
-  (95.6 %), **67.56 / 107.96 GiB** host RAM, 44–46 °C at 41–48 W, 4 batch slots all idle.
+- **Measured on dual MI50 (v0.1.42, ROCm 10, IQ3_S, controlled A/B of 2026-10-10/11 UTC, same binary in
+  both arms):** four concurrent greedy decodes of 256 tokens aggregate **87.9 tok/s** with
+  `--batch-groups 2` (pipelined) vs **48.3 tok/s** with `--batch-groups 1 --batch-mtp` — with all experts
+  resident in VRAM, batch-window MTP costs ~45 % aggregate here (its drafts were accepted 62.6–67.3 %).
+  Cold 4-concurrent prefill of ~3,100-token prompts: **405–420 tok/s** in both arms (a near tie).
   See [MI50 workload results](#mi50-workload-results).
 
 **`strata-gfx906` is an AMD-focused Strata fork for gfx906 accelerators.** Current T5810 builds use the upstream `STRATA_HIP_GFX906` text engine and the fork HIP GPU vision encoder, both with ROCm 10. The fork wave64 text backend is deprecated for deployment. Both current components target the real `gfx906` architecture. See [current build selection](docs/GFX906.md#deployment-decision-which-gfx906-path-is-current-2026-10-06).
@@ -24,69 +24,48 @@ The gfx906 backend is experimental and must be enabled explicitly. The validatio
 ## MI50 workload results
 
 This section keeps **only the newest** workload observation. Older observations are archived under their
-own dated headings in [`docs/GFX906.md`](docs/GFX906.md). Every number below is an operational observation
-from the dual-MI50 T5810 server, **not a controlled benchmark**. The section always names the decode rate
+own dated headings in [`docs/GFX906.md`](docs/GFX906.md). Entries are operational observations
+from the dual-MI50 T5810 server unless labeled otherwise; the newest entry is a controlled A/B and says
+so. The section always names the decode rate
 and both prefill rates; when the newest payload carried no traffic, the rates named are the newest measured
 ones, with their date and source.
 
-### Current observation — v0.1.40 on ROCm 10: idle engine window (2026-10-07 21:53:56–21:57:42 UTC, GSQ-RCO IQ3_S)
+### Current observation — v0.1.42 on ROCm 10: batch-groups A/B at four concurrent slots (2026-10-10/11 UTC, GSQ-RCO IQ3_S)
 
-Engine `build-text-rocm10/strata` = `bc1102ba…` (upstream gfx906 path, source v0.1.40.1 / `82f46a8` plus
-engine fix `74583c6`), vision encoder `build-vision-rocm10/bin/strata-vision` = `709fc4d2…`, both on
-`10.0.0-gfx906+20260917140126`. Model GSQ-RCO IQ3_S, 262,144 configured context, `--kv int8`,
-`--kv-resident 32768`, `--spec 4`, `--batch 4 --batch-groups 2`, `--layer-split 24`, `--pcie-frac 0`.
-The payload itself reports engine `0.1.40`; the artifact hashes come from the deployment record.
+Controlled A/B on the T5810 dual MI50: the **same** freshly built v0.1.42 engine (SHA256 `0550f3f2…`,
+merge `7f104978` = upstream `61b3fb5d`, vision `709fc4d2…`) run twice against the production IQ3_S
+configuration (`--layer-split 24 --batch 4 --kv int8 --kv-resident 32768 --spec 4 --pcie-frac 0
+--adapt-every 0 --trim-stage-weights --vision`), differing only in `--batch-groups 1 --batch-mtp` vs
+`--batch-groups 2`. The engine logged 100 % of experts resident in VRAM on both cards in both arms, and
+`--batch-mtp: 4 slot drafters on CUDA1` in arm A. Full method, prompts and raw results:
+[docs/gfx906-results/20261010-batchgroups-ab](docs/gfx906-results/20261010-batchgroups-ab/README.md).
 
-**Decode rate: not measured in this window. Prefill rate, real and effective: not measured in this window.**
-The payload covers 225.9 s of an engine session that served **0 requests**: `totals.requests`,
-`prompt_tokens`, `reused`, `output_tokens`, `prompt_ms`, `decode_ms` and both draft counters are 0, and all
-60 `history.tok_s` and `history.prefill_tok_s_mean` samples are 0. It is an idle resource snapshot, not a
-workload measurement, so it replaces no rate below.
+| Rate | `--batch-groups 1 --batch-mtp` | `--batch-groups 2` |
+| --- | ---: | ---: |
+| **Decode — four concurrent 256-token greedy streams, aggregate** (median of 5 rounds) | **48.3 tok/s** (rounds 45.5–56.9) | **87.9 tok/s** (rounds 87.7–88.1 after a 76.9 first round) |
+| Decode — per stream, server-reported (median) | 14.8 tok/s | 24.2 tok/s |
+| **Prefill — real** (4 concurrent ~3,100-token prompts, `cached_tokens: 0`, engine-log reads) | 412.7–419.6 tok/s | 405.4–412.5 tok/s |
+| Prefill — aggregate wall, 4 concurrent (3 rounds) | 405.9–411.0 tok/s | 400.0–404.8 tok/s |
+| Prefill — effective (whole prompt / prompt phase) | equal to real in every measured round (`cached_tokens 0`); no warm-turn reuse measured in this A/B | equal to real in every measured round (`cached_tokens 0`); no warm-turn reuse measured in this A/B |
 
-#### What the payload does show — idle resource and configuration state
+Batch-window MTP drafts ran and were accepted 62.6–67.3 % of the time, and still cost ~45 % aggregate
+decode against the pipelined groups — with all experts resident in VRAM, consistent with the upstream
+note that `--batch-mtp` pays only when experts do not fit in VRAM. The pipelined default also held the
+stablest rounds. TTFB median was 2.6–2.7 s in both arms (admissions are serialized).
 
-| Item | Value | Where it comes from |
-| --- | ---: | --- |
-| Window | 225.9 s (2026-10-07 21:53:56.798 → 21:57:42.722 UTC) | `totals.since` → `time` |
-| Requests / running / queued / waiting | 0 / 0 / 0 / 0; all four batch slots `idle`, `held_tokens 0` | `totals`, `live` |
-| VRAM resident, both cards | **61.16 / 63.97 GiB (95.6 %)** — GPU0 30.06 / 31.98 GiB, GPU1 31.10 / 31.98 GiB | `hardware.gpu_mem_used`, `hardware.gpus` |
-| Free VRAM the engine reports | 2,186 MiB | `engine.vram_free_mib` |
-| Expert arena | 47,962 MiB (46.84 GiB) total, 22,675 MiB on the primary card; 24,576 slots, 12,288 primary | `engine.arena_mib`, `engine.expert_cache_*_mib`, `engine.expert_slots*` |
-| Host RAM | **67.56 / 107.96 GiB (62.6 %)**; 67.55–67.58 GiB across the 60 samples (31 MiB spread) | `hardware.ram_used`, `history.ram_used` |
-| GPU temperature at idle | 44–46 °C, mean 45.4 °C | `history.gpu_temp` (60 samples) |
-| GPU power at idle | 41–48 W, mean 42.0 W = 9.3 % of the 450 W limit | `history.gpu_power`, `hardware.gpu_power_limit` |
-| GPU utilization / host CPU at idle | 0 % in all 60 samples; CPU 0.25–2.08 %, mean 1.51 % | `history.gpu_util`, `history.cpu` |
-| Conversation cache | enabled, 8,192 MiB / 4 slots / 16,384 MiB free floor — 0 parked, 0 bytes, 0 parks, 0 restores, 0 evictions | `conversation_cache` |
-| Engine configuration | `0.1.40`, 262,144 context, `int8` KV with 32,768 resident cells, `--spec 4` with `spec_min_p 0.50`, `mtp_max 0`, `lookup 0`, `pool_workers 6`, `pcie_frac 0.00`, 4 batch slots, `slot_cache 1`, images on | `engine` block, byte-identical to the 2026-10-07 workload snapshot's `engine` block |
+**Outcome: `--batch-groups 2` kept** — which `run-iq3-s.json` already carried, so the production JSON
+settings are unchanged; the v0.1.42 binary was installed to the deployed path (`bc1102ba…` kept as
+`strata-v0.1.40.1`) and the service was left **stopped** for the owner to start.
 
-#### Newest measured rates on this build (not re-measured by this payload)
+The previous newest observation — the v0.1.40 idle engine window of 2026-10-07 21:53:56–21:57:42 UTC
+(0 requests, so no rates; idle VRAM 61.16/63.97 GiB, RAM 67.56/107.96 GiB, 44–46 °C at 41–48 W, 4 slots
+idle) including the measured-rates table that rode along with it — is archived with its labels intact in
+[docs/GFX906.md](docs/GFX906.md#archived-workload-result-from-readmemd-v0140-idle-engine-window-2026-10-07-215356215742-utc-gsq-rco-iq3_s).
 
-| Rate | Value | How it was measured |
-| --- | ---: | --- |
-| **Decode — one request** | **55.2 tok/s** | probe of 2026-10-07 19:49 UTC; engine log `M generated in W ms` |
-| **Prefill — real (cold, no reuse)** | **459.5 tok/s** at 3,976 tokens; **568.3 tok/s** at 9,877 | same probe; engine log `prompt N tokens = 0 reused + N read in Z ms`, `cached_tokens: 0` |
-| **Decode — four concurrent** | **29.9 tok/s** aggregate (7.5 / 9.9 / 14.7 / 28.3 per stream) | 1,024 completion tokens over the 34.2 s batch window |
-| **Prefill — effective (reused tokens counted)** | up to **246,878 tok/s** per warm request | production window of 2026-10-07 02:37–03:03 UTC, `prompt_tokens / prompt_ms` on warm K/V traffic |
-
-The two prefill numbers answer different questions. **Real prefill** is compute: new prompt tokens divided
-by prefill time, with no cache hit. **Effective prefill** divides the whole prompt, including tokens served
-from the K/V cache, by the prompt-phase time; it shows how fast a warm turn is accepted and is not compute
-throughput. Do not compare them, and do not quote an effective number as a prefill speed. The full probe
-record, including why four concurrent streams lost throughput on this build and which two `/metrics`
-counters are unsafe to read as rates, is archived in
-[docs/GFX906.md](docs/GFX906.md#archived-workload-result-from-readmemd-v0140-one-request-vs-four-concurrent-2026-10-07).
-
-Conditions and limits: one idle engine session, no request traffic, no client-side timing. The session is
-superseded — a read-only `GET /metrics` on the machine at 2026-10-08 22:38:39 UTC reports a later session
-start (2026-10-08 19:15:26 UTC) with 113 requests, 5,757,184 prompt tokens, 5,530,572 reused, 62,652 output
-tokens and 53,758 / 40,208 drafts offered/accepted, and the same `engine` configuration block.
-`hardware_static.gpu_name` in this payload prints "MI50 16GB" while `mem_total` reports 31.98 GiB per card;
-the label fix post-dates this session — the same read-only endpoint at 2026-10-08 22:45:34 UTC reports
-"Radeon Instinct MI50 32GB" with the driver-string note. See
-[the monitor note](docs/GFX906.md#monitor-a-32-gb-mi50-shown-as-mi50-16gb-2026-10-08). PCIe and disk
-counters are `null` on this host. No accuracy, full-262K-context, MI60 or long-soak measurement.
-Raw payload and derived figures:
-[idle-window snapshot](docs/gfx906-results/20261007-idle-window/README.md).
+Conditions and limits: one controlled A/B, 1 warm-up + measured rounds per arm as listed, client on the
+server host reading server-side `timings`; every decode round verified `finish_reason=length` and
+`cached_tokens 0`. Not measured: sampled decoding, prompts arriving beside decoders, more than 4
+concurrent requests, MI60, long soak, accuracy beyond those per-round checks.
 
 ## What this fork supports
 
@@ -95,7 +74,7 @@ Raw payload and derived figures:
 - Single-GPU inference and experimental multi-GPU **contiguous-layer / pipeline splitting**. This is not tensor parallelism.
 - CPU/GPU hybrid expert execution and speculative decoding with the supported MTP setup.
 
-This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [current T5810 deployment](docs/GFX906.md#context-cache-fix-validated-on-real-models-2026-10-07) is the upstream gfx906 text engine built from the **v0.1.40.1 / `82f46a8`** merge for **ROCm 10** (`build-text-rocm10/strata`, the root-promoted validated `bc1102ba…` artifact with engine fix `74583c6`) plus this fork's HIP GPU vision encoder. Accepted scopes ([independent audit receipt](docs/gfx906-results/20261007-rocm10-context-cache/README.md)): four-slot pipeline/2-group ~32K-token parity with slot-cache reuse, 65K-token solo parking/reuse, 36K-token HTTP bursts, and Web CORS support. The 8082 service runs these two artifacts as of 2026-10-07 02:36 UTC (started by the owner, not by the agent); a read-only check at 02:43 UTC confirmed both processes load ROCm 10 only and that the vision encoder no longer links ROCm 7.2.4. See [the deployment follow-up](docs/GFX906.md#deployment-follow-up-2026-10-07-0243-utc-read-only).
+This is not a general claim that every feature or model in upstream Strata is available on gfx906. The HTTP server serializes requests by default; configured batch slots can decode concurrently. This fork adds an experimental Linux gfx906 HIP image encoder (`--experimental-gfx906 --vision gpu`) alongside upstream's CPU encoder. It expands BF16 vision weights losslessly to FP32 in memory; see [the measured scope and activation-arithmetic limits](docs/GFX906.md#experimental-hip-vision-on-v0139) before enabling it. The [current T5810 deployment](docs/GFX906.md#batch-groups-ab-on-the-t5810-dual-mi50---batch-groups-1---batch-mtp-vs---batch-groups-2-four-concurrent-2026-101011-utc) is the upstream gfx906 text engine built from the **v0.1.42 / `61b3fb5d`** merge (`7f104978`) for **ROCm 10** (`build-text-rocm10/strata`, `0550f3f2…`, installed 2026-10-11 after the batch-groups A/B; the previous validated **v0.1.40.1 / `82f46a8`** artifact `bc1102ba…` with engine fix `74583c6` is kept beside it as `strata-v0.1.40.1`) plus this fork's HIP GPU vision encoder (`709fc4d2…`, unchanged). Accepted scopes ([independent audit receipt](docs/gfx906-results/20261007-rocm10-context-cache/README.md), validated on the `bc1102ba…` artifact): four-slot pipeline/2-group ~32K-token parity with slot-cache reuse, 65K-token solo parking/reuse, 36K-token HTTP bursts, and Web CORS support. The 8082 service previously ran the 0.1.40.1 pair from 2026-10-07 02:36 UTC (started by the owner, not by the agent); a read-only check at 02:43 UTC confirmed both processes load ROCm 10 only and that the vision encoder no longer links ROCm 7.2.4. See [the deployment follow-up](docs/GFX906.md#deployment-follow-up-2026-10-07-0243-utc-read-only). After the 2026-10-10/11 A/B the service is stopped; the owner starts it manually against the v0.1.42 engine.
 
 ## Install and build
 

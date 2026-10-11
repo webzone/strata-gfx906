@@ -1,0 +1,27 @@
+{
+ "upstream": "61b3fb5dd3f1e8ec09cf7e4e05208bc6d3c46406",
+ "merge": "7f1049784f2679d750816b98d84045545a022570",
+ "llama_cpp": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+ "build_flags": [
+  "CMAKE_BUILD_TYPE=Release",
+  "STRATA_HIP_GFX906=ON",
+  "STRATA_ENABLE_HIP=OFF",
+  "STRATA_WERROR=OFF",
+  "GGML_AVX=ON",
+  "GGML_AVX2=ON",
+  "GGML_AVX512=OFF",
+  "CMAKE_PREFIX_PATH=/opt/rocm-10.0/core-10.0",
+  "CMAKE_HIP_COMPILER=/opt/rocm-10.0/core-10.0/lib/llvm/bin/clang++",
+  "CMAKE_HIP_COMPILER_ROCM_ROOT=/opt/rocm-10.0/core-10.0"
+ ],
+ "text": {
+  "path": "/home/chris/dev/strata-merge-check-42/build-text-rocm10-v42/strata",
+  "sha256": "0550f3f224351a7927fece988ae596cd0f5bbaa8d6e39a59dfd85c1e991226b2"
+ },
+ "vision": {
+  "path": "/home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision",
+  "sha256": "709fc4d2c34abbede8b17cb93a4a9571c931338339d3848691c5b59f156d8452"
+ },
+ "hf_revision": "ed59f92082b1e93c0e96d60a8b11aab089b52f09",
+ "note": "v0.1.42 rebuild 2026-10-10 23:2x UTC in worktree strata-merge-check-42 (merge 7f104978), bit-identical to the 2026-10-10 18:32-18:51 build-check artifact; installed to build-text-rocm10/strata after the batch-groups A/B; 0.1.40.1 backed up as build-text-rocm10/strata-v0.1.40.1 (bc1102ba). Vision unchanged (709fc4d2). ggml commit 3cf03257f confirmed in build log; gfx906 arch confirmed."
+}

@@ -1,0 +1,89 @@
+=== engine-a42.log: startup verification (batch-mtp on layer split) ===
+[strata] 2026-10-10 23:31:21 engine started: /home/chris/dev/strata-merge-check-42/build-text-rocm10-v42/strata --serve --pack /home/chris/dev/strata-gfx906/packs/iq3_s --native /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf --ple-gguf /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf --expert-profile /home/chris/dev/strata-gfx906/data/expert-profile.bin --expert-cache auto --max-context 262144 --kv int8 --kv-resident 32768 --pool-workers 6 --prefill 2048 --spec 4 --mtp /home/chris/dev/strata-gfx906/mtp/rt --mtp-window 32768 --spec-min-p 0.5 --suffix-draft 0 --prompt-cache 6 --adapt-every 0 --pcie-frac 0 --vram-reserve-mib 1024 --vram-reserve-later-mib 0 --batch-groups 1 --batch-mtp --trim-stage-weights --vision --conversation-cache-mib 8192 --conversation-cache-slots 4 --conversation-cache-min-free-mib 16384 --layer-split 24 --batch 4
+strata mtp: shared draft weights, 48 MiB of private state and buffers
+strata mtp: shared draft weights, 48 MiB of private state and buffers
+strata mtp: shared draft weights, 48 MiB of private state and buffers
+strata mtp: shared draft weights, 48 MiB of private state and buffers
+strata generate: --batch-mtp: 4 slot drafters on CUDA1 (48 MiB of private K/V state and buffers each, sharing the solo drafter's weights); 25.87 GiB free there
+strata generate: expert cache auto: 24.39 GiB free, 1024 MiB reserved (+0 MiB for the draft head) -> 9433 slots
+strata serve: 2164 MiB of VRAM free with everything loaded
+
+=== engine-a42.log: batch window summaries (decode rounds) ===
+strata batch: 160 windows, avg 6.37 rows, 97.68 ms/window = run 87.86 (CUDA0 GPU-reach wait 48.56 + CPU experts 0.29) + commit 4.84 + emit 4.98 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 48.56 + pool 0.29, CUDA1 wait 38.27 + pool 0.21; per layer-window: CPU experts 0.00, VRAM hits 85.00, PCIe 0.00; routed entries per window: VRAM 4080.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 55.4 rows/s over 18378 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 410 of 609 (67.3%)
+strata batch: 332 windows, avg 6.29 rows, 93.02 ms/window = run 82.80 (CUDA0 GPU-reach wait 43.80 + CPU experts 0.28) + commit 4.86 + emit 5.36 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 43.80 + pool 0.28, CUDA1 wait 38.64 + pool 0.22; per layer-window: CPU experts 0.00, VRAM hits 85.27, PCIe 0.00; routed entries per window: VRAM 4093.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 51.5 rows/s over 40534 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 840 of 1249 (67.3%)
+strata batch: 344 windows, avg 6.07 rows, 91.97 ms/window = run 82.15 (CUDA0 GPU-reach wait 43.53 + CPU experts 0.29) + commit 4.49 + emit 5.33 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 43.53 + pool 0.29, CUDA1 wait 38.08 + pool 0.21; per layer-window: CPU experts 0.00, VRAM hits 84.27, PCIe 0.00; routed entries per window: VRAM 4045.1 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 50.8 rows/s over 41131 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 804 of 1285 (62.6%)
+strata batch: 176 windows, avg 6.07 rows, 93.58 ms/window = run 83.71 (CUDA0 GPU-reach wait 46.22 + CPU experts 0.23) + commit 4.64 + emit 5.23 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 46.22 + pool 0.23, CUDA1 wait 36.97 + pool 0.21; per layer-window: CPU experts 0.00, VRAM hits 81.19, PCIe 0.00; routed entries per window: VRAM 3897.3 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 47.4 rows/s over 22529 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 429 of 639 (67.1%)
+strata batch: 1 windows, avg 1.00 rows, 38.19 ms/window = run 36.89 (CUDA0 GPU-reach wait 17.39 + CPU experts 0.06) + commit 1.28 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.39 + pool 0.06, CUDA1 wait 17.38 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.2 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 44.72 ms/window = run 43.42 (CUDA0 GPU-reach wait 17.33 + CPU experts 0.06) + commit 1.29 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.33 + pool 0.06, CUDA1 wait 23.94 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 22.4 rows/s over 45 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 37.96 ms/window = run 36.68 (CUDA0 GPU-reach wait 17.30 + CPU experts 0.06) + commit 1.28 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.30 + pool 0.06, CUDA1 wait 17.33 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.3 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 38.36 ms/window = run 37.08 (CUDA0 GPU-reach wait 17.51 + CPU experts 0.06) + commit 1.27 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.51 + pool 0.06, CUDA1 wait 17.50 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.1 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 37.74 ms/window = run 36.56 (CUDA0 GPU-reach wait 17.26 + CPU experts 0.06) + commit 1.17 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.26 + pool 0.06, CUDA1 wait 17.23 + pool 0.06; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.5 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 44.26 ms/window = run 43.05 (CUDA0 GPU-reach wait 17.22 + CPU experts 0.06) + commit 1.20 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.22 + pool 0.06, CUDA1 wait 23.70 + pool 0.06; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 22.6 rows/s over 44 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 37.81 ms/window = run 36.52 (CUDA0 GPU-reach wait 17.28 + CPU experts 0.06) + commit 1.28 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.28 + pool 0.06, CUDA1 wait 17.16 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.4 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 38.11 ms/window = run 36.78 (CUDA0 GPU-reach wait 17.42 + CPU experts 0.06) + commit 1.33 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.42 + pool 0.06, CUDA1 wait 17.28 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.2 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 37.94 ms/window = run 36.65 (CUDA0 GPU-reach wait 17.30 + CPU experts 0.06) + commit 1.28 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.30 + pool 0.06, CUDA1 wait 17.27 + pool 0.06; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.4 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 44.75 ms/window = run 43.44 (CUDA0 GPU-reach wait 17.41 + CPU experts 0.06) + commit 1.30 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.41 + pool 0.06, CUDA1 wait 23.91 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 22.3 rows/s over 45 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 38.37 ms/window = run 37.03 (CUDA0 GPU-reach wait 17.42 + CPU experts 0.06) + commit 1.32 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.42 + pool 0.06, CUDA1 wait 17.54 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.1 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+strata batch: 1 windows, avg 1.00 rows, 38.14 ms/window = run 36.80 (CUDA0 GPU-reach wait 17.32 + CPU experts 0.06) + commit 1.33 + emit 0.01 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 17.32 + pool 0.06, CUDA1 wait 17.42 + pool 0.05; per layer-window: CPU experts 0.00, VRAM hits 20.00, PCIe 0.00; routed entries per window: VRAM 960.0 (100.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 26.2 rows/s over 38 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 0 of 1 (0.0%)
+
+=== engine-b42.log: startup (no batch-mtp) ===
+strata generate: expert cache auto: 24.39 GiB free, 1024 MiB reserved (+0 MiB for the draft head) -> 9433 slots
+strata serve: 2186 MiB of VRAM free with everything loaded
+
+=== engine-b42.log: batch lines (slot hand-offs; pipelined path prints no window summaries) ===
+strata batch: slot 0 takes 48 tokens (copied in 130.2 ms)
+strata batch: slot 2 takes 47 tokens (copied in 130.9 ms)
+strata batch: slot 1 takes 48 tokens (copied in 128.1 ms)
+strata batch: slot 3 takes 47 tokens (copied in 128.8 ms)
+
+=== prefill prompt-read lines, arm A (0-reused reads only) ===
+strata serve: prompt 3123 tokens = 0 reused + 3123 read in 7554 ms (413.4 tok/s), 1 generated in 32 ms (31.4 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3125 tokens = 0 reused + 3125 read in 7531 ms (415.0 tok/s), 1 generated in 27 ms (36.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3124 tokens = 0 reused + 3124 read in 7545 ms (414.1 tok/s), 1 generated in 27 ms (37.1 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3108 tokens = 0 reused + 3108 read in 7531 ms (412.7 tok/s), 1 generated in 27 ms (37.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3185 tokens = 0 reused + 3185 read in 7616 ms (418.2 tok/s), 1 generated in 32 ms (31.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3170 tokens = 0 reused + 3170 read in 7569 ms (418.8 tok/s), 1 generated in 27 ms (36.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3127 tokens = 0 reused + 3127 read in 7553 ms (414.0 tok/s), 1 generated in 27 ms (36.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3172 tokens = 0 reused + 3172 read in 7608 ms (416.9 tok/s), 1 generated in 27 ms (36.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3186 tokens = 0 reused + 3186 read in 7607 ms (418.8 tok/s), 1 generated in 32 ms (31.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3184 tokens = 0 reused + 3184 read in 7588 ms (419.6 tok/s), 1 generated in 27 ms (36.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3188 tokens = 0 reused + 3188 read in 7608 ms (419.0 tok/s), 1 generated in 27 ms (37.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3171 tokens = 0 reused + 3171 read in 7570 ms (418.9 tok/s), 1 generated in 29 ms (34.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 618 tokens = 0 reused + 618 read in 3310 ms (186.7 tok/s), 46 generated in 729 ms (63.1 tok/s), drafts accepted 29 of 36, 1 checkpoints
+strata serve: prompt 618 tokens = 0 reused + 611 of 618 read in 4640 ms (131.7 tok/s), 0 generated in 0 ms (0.0 tok/s), drafts accepted 0 of 0, 1 checkpoints (cancelled)
+strata serve: prompt 618 tokens = 0 reused + 618 read in 3372 ms (183.3 tok/s), 49 generated in 868 ms (56.5 tok/s), drafts accepted 33 of 40, 1 checkpoints
+strata serve: prompt 618 tokens = 0 reused + 618 read in 3351 ms (184.4 tok/s), 51 generated in 804 ms (63.5 tok/s), drafts accepted 36 of 45, 1 checkpoints
+
+=== prefill prompt-read lines, arm B (0-reused reads only) ===
+strata serve: prompt 3122 tokens = 0 reused + 3122 read in 7701 ms (405.4 tok/s), 1 generated in 30 ms (32.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3108 tokens = 0 reused + 3108 read in 7658 ms (405.8 tok/s), 1 generated in 27 ms (37.5 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3121 tokens = 0 reused + 3121 read in 7694 ms (405.6 tok/s), 1 generated in 27 ms (37.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3107 tokens = 0 reused + 3107 read in 7660 ms (405.6 tok/s), 1 generated in 27 ms (37.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3124 tokens = 0 reused + 3124 read in 7679 ms (406.8 tok/s), 1 generated in 31 ms (32.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3123 tokens = 0 reused + 3123 read in 7663 ms (407.6 tok/s), 1 generated in 27 ms (37.1 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3108 tokens = 0 reused + 3108 read in 7643 ms (406.7 tok/s), 1 generated in 27 ms (36.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3125 tokens = 0 reused + 3125 read in 7660 ms (408.0 tok/s), 1 generated in 27 ms (36.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3127 tokens = 0 reused + 3127 read in 7679 ms (407.2 tok/s), 1 generated in 31 ms (32.5 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3172 tokens = 0 reused + 3172 read in 7723 ms (410.7 tok/s), 1 generated in 27 ms (36.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3185 tokens = 0 reused + 3185 read in 7736 ms (411.7 tok/s), 1 generated in 27 ms (36.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3170 tokens = 0 reused + 3170 read in 7711 ms (411.1 tok/s), 1 generated in 27 ms (36.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3188 tokens = 0 reused + 3188 read in 7739 ms (412.0 tok/s), 1 generated in 31 ms (32.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3171 tokens = 0 reused + 3171 read in 7686 ms (412.5 tok/s), 1 generated in 27 ms (37.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3184 tokens = 0 reused + 3184 read in 7728 ms (412.0 tok/s), 1 generated in 27 ms (37.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: prompt 3186 tokens = 0 reused + 3186 read in 7736 ms (411.8 tok/s), 1 generated in 27 ms (37.4 tok/s), drafts accepted 0 of 0, 1 checkpoints
