@@ -1,75 +1,81 @@
-# T5810 8082 text engine: one-off HSA page-fault crash and restart — 2026-10-11
+# T5810 8082 text engine: recurring HSA page-fault crash in the conversation-snapshot copy — 2026-10-11
 
 All times UTC. Machine: T5810, 2× MI50 (gfx906), deployed pair per the device record: text engine
-`build-text-rocm10/strata` (v0.1.42, SHA256 `0550f3f2…`) + fork HIP vision `709fc4d2…`, both ROCm 10.
+`build-text-rocm10/strata` + fork HIP vision `709fc4d2…`, both ROCm 10.
 
-## What happened
+**Verdict: this is a software bug in the engine's conversation-cache snapshot path (a rare
+free/unmap-while-in-flight race), not a hardware fault.** It has now occurred twice with the same
+signature (2026-10-08 on the v0.1.40.1 engine, 2026-10-11 on the v0.1.42 engine), both times after
+heavy 130K–155K-token traffic with the conversation cache actively parking/evicting.
 
-- 2026-10-11 00:53 — owner rebooted after DIMM maintenance (pulled DIMM7, installed DIMM6).
-- 00:59:03 — owner started the 8082 service through `./run-iq3-s.sh` (server PID 7055, vision 7107,
-  text engine 7184). Config unchanged: `run-iq3-s.json` with `--batch-groups 2`, conversation cache
-  8192 MiB / 4 slots / min-free 16384 MiB, `--batch 4`, layer split 24, MTP spec 4.
-- ~01:00–02:00 — real traffic: several 96K–137K-token conversations (drafts accepted, KV streaming
-  with part of block reads served from RAM, 6 KV checkpoints on the last request).
-- 02:00:06 — the text engine died. The engine log ends:
+## The two occurrences (same signature)
 
-  ```
-  strata serve: prompt 137069 tokens = 136927 reused + 142 read in 1963 ms (72.3 tok/s), 2094 generated in 38937 ms (53.8 tok/s), drafts accepted 1385 of 1802, 6 checkpoints
-  strata serve: decode expert cache hit rate: 100.0% (1205760 hits / 1205760 lookups)
-  strata serve: KV streaming: 96.11% of 32251866 block reads hit VRAM, 5056.5 MiB read from RAM
-  Warning: Queue error - HSA_STATUS_ERROR_MEMORY_FAULT
-  rocBLAS error during freeing of allocated memory in handle destructor: rocblas_status_internal_error
-  ```
+| | 2026-10-08 08:27:41 | 2026-10-11 02:00:06 |
+|---|---|---|
+| Engine binary | `bc1102ba…` (v0.1.40.1) | `0550f3f2…` (v0.1.42) |
+| Kernel page faults | 10 × `no-retry`, GPU0 `0000:07:00.0`, gfxhub0, **TCP (shader)** client, write (`RW: 0x1`, status `0x00841051`) | identical shape, status `0x00841051` |
+| Host VA region | `0x5e0dd3b36000…` | `0x622590d04000…0x622590d1c000` (9 sparse pages, ~96 KiB) |
+| Process | strata pid 1544046 | strata pid 7184 |
+| Engine log | `HSA_STATUS_ERROR_MEMORY_FAULT` + **"checkpoint save: conversation snapshot running-state copy: an illegal memory access was encountered"** (engine-log line 4666) | `HSA_STATUS_ERROR_MEMORY_FAULT` (the detail line did not print; fault during the same post-request capture window) |
+| Preceding churn | 155,969-token conversation parked moments before; evictions 6→7→8; two small requests parked in between | 137,069-token request finished; capture in flight; earlier lines show `evictions=41`, parked ~8 GiB |
 
-  The kernel logged ten `[gfxhub0] no-retry page fault` events in the same second, all on GPU0
-  (`0000:07:00.0`), all `Process strata pid 7184`, all `IH client 0x1b (UTCL2)`, faulty client
-  `TCP (0x8)` (shader side), `PERMISSION_FAULTS: 0x5`, `RW: 0x1` (write), at host-mapped addresses
-  `0x0000622590d04000` … `0x0000622590d1c000` (nine sparse 4 KiB pages over a ~96 KiB span of one
-  host region). `MAPPING_ERROR: 0x0`.
-- The server survived with `"loaded": false` and an empty `/v1/models`; the dead engine stayed a
-  zombie child (PID 7184). The engine had run 61 minutes since load (started 00:58:52, loaded ~01:00).
+Both runs had served hundreds of long requests (10-08 run: 67 requests, 20 park events, 0.93M parked
+tokens; 10-11 run: 143 requests, 126 park events, 8.06M parked tokens). The fault rate is roughly two
+crashes in four days of this workload; earlier runs with the same churn (e.g. 10-09: 313 park events)
+did not crash — a timing race, not a deterministic fault.
+
+Boot -2 (2026-10-02 → 10-05) has zero page faults.
+
+## What the fault means
+
+A shader-side **write** to a host-mapped region for which the GPU page tables no longer had a valid
+mapping. Host RAM going bad does not invalidate GPU mappings (it corrupts data, or raises EDAC/MCE —
+none present); VRAM is ECC (`sramecc+:xnack-`). A mapping that disappears is a software lifecycle
+event: the buffer was freed/unmapped while a GPU write into it was still in flight. The engine hands
+large host buffers to the GPU (fine-grain PCIe is forced), and the conversation-cache capture path
+(conversation parking / KV checkpoint saves) is the code that writes GPU→host — both crashes sit
+exactly in that path.
+
+**Correction of an earlier claim in this directory's first version:** the "first fault in the kernel
+journal, checked back 7 days" statement was wrong — `journalctl -k` shows the current boot only, so
+the check had silently covered just the 2026-10-11 boot. Re-running it per boot (`journalctl -k -b -1`)
+found the identical 2026-10-08 event. The bug is recurring, not one-off.
 
 ## Evidence (verbatim)
 
-- `engine-log-tail.txt` — last 60 lines of
-  `logs/cachefix-rocm10-20261007/iq3-engine.log` on the machine (append-only across runs; the crash
-  lines are the file's final lines, mtime 02:00:06).
-- `kernel-page-faults.txt` — `journalctl -b -k` excerpt for the fault second.
-
-## Assessment (bounded)
-
-- First `no-retry page fault` in the available kernel journal (checked across boots back 7 days).
-  The same binary served the same heavy long-conversation workload for days (2026-10-09/10) without it.
-- No MCE / EDAC / `hardware error` entries in this boot's journal; host RAM clean at crash time.
-- A GPU write permission fault to a host VA range means the shader no longer had a valid mapping for
-  it — consistent with a host buffer freed/unmapped while an in-flight shader write still referenced
-  it, i.e. a rare use-after-unmap race in the engine's host-buffer lifecycle (the post-request
-  housekeeping paths are the GPU→host write paths: conversation parking, KV checkpoint saves), or a
-  one-off driver/hardware event after the DIMM rearrangement. The evidence does not distinguish these,
-  so no code fix and no config change was made.
+- `engine-log-tail.txt` — last 60 lines of the 2026-10-11 run from
+  `logs/cachefix-rocm10-20261007/iq3-engine.log` (the crash lines are the file's final lines for that
+  run, mtime 02:00:06).
+- `kernel-page-faults.txt` — `journalctl -b -k` excerpt for the 2026-10-11 fault second.
+- The 2026-10-08 counterpart is in the same append-only engine log (lines 4640–4667: the fault plus
+  the "illegal memory access" detail line) and in boot -1's kernel journal (10 faults at 08:27:41,
+  strata pid 1544046, VA `0x5e0dd3b36000`).
 
 ## Action taken (2026-10-11 01:55–02:15 round)
 
-1. Evidence captured (the two files above) before touching the service.
-2. Graceful stop: `SIGTERM` to server 7055; all three processes gone in 2 s, port 8082 free, both
-   GPUs drained to 0 % VRAM, zombie reaped.
-3. Restart through the unchanged `./run-iq3-s.sh` (setsid, console to
-   `logs/serve-console-20261011.log`): server PID 31772, vision PID 31784, engine PID 31817.
-   Load to ready ~120 s; `2186 MiB of VRAM free with everything loaded` (matches the 2026-10-11
-   A/B record).
-4. Acceptance: `/health` → `status ok, loaded true, images true, api_key false, max_context 262144`;
-   real greedy request answered `STRATA OK` (`finish_reason: stop`, 4 completion tokens,
-   `cached_tokens 0`); `mi50-t5810/scripts/strata-current.sh` → exit 0 (engine `0550f3f2…`, vision
-   `709fc4d2…`, only `/opt/rocm-10.0` runtime libs).
+1. Evidence captured, then graceful stop (SIGTERM, 2 s, port free, both GPUs drained to 0 % VRAM).
+2. Restart through the unchanged `./run-iq3-s.sh` (setsid, console to
+   `logs/serve-console-20261011.log`): server PID 31772, vision PID 31784, engine PID 31817, ready
+   after ~120 s (`2186 MiB of VRAM free with everything loaded`).
+3. Acceptance: `/health` ok `loaded:true images:true`; real greedy request answered `STRATA OK`
+   (`finish_reason: stop`, `cached_tokens 0`); `strata-current.sh` exit 0.
+4. No config or code change: the fix belongs in the snapshot-capture path and needs a reproducing
+   workload first. The deployed artifacts and `run-iq3-s.json` are byte-unchanged.
 
-Side effect of the restart: the RAM-only conversation cache (parked conversations, KV checkpoints in
-RAM) is empty; clients re-prefill.
+Side effect of the restart: the RAM-only conversation cache (parked conversations, KV checkpoints)
+is empty; clients re-prefill.
 
-## If it recurs
+## Next steps for a real fix
 
-- Capture `journalctl -k` around the event plus the engine log, and keep the workload notes.
-- Reproduce with instrumentation (`AMD_LOG_LEVEL`, core dumps) before touching code; the audit
-  targets are the conversation-cache eviction/parking paths and the KV-checkpoint save path
-  (host buffers freed relative to stream order).
-- `--conversation-cache-mib 0` is the available mitigation (drops parked-conversation reuse); it was
-  deliberately not applied because it changes the 2026-10-11 A/B-winner config for an unconfirmed cause.
+- Reproduce under control: drive several 130K+ token conversations with frequent switches (to force
+  parking + evictions) on a maintenance window; the two crashes both followed that pattern.
+- Audit the capture path for frees relative to stream order: the conversation-snapshot
+  running-state copy (the 10-08 log names it), the physical-RAM gate's eviction loop (it frees 16 MiB
+  segments "back with the kernel"), and the two-phase `conversation_checkpoints_split`/merge-back.
+  The candidate defect is a destination or source host buffer freed/unmapped while its D2H copy is
+  still queued; a fix would add the missing stream synchronization (or ownership transfer) before the
+  free.
+- Note the fix must go upstream too: the fault reproduces on both v0.1.40.1 (`bc1102ba…`) and
+  v0.1.42 (`0550f3f2…`), i.e. it is in inherited upstream code, not a fork-only path.
+- Available mitigation (not applied — it costs a full re-prefill of long contexts on every switch,
+  ~5 min at the measured ~400 tok/s for 130K tokens): `--conversation-cache-mib 0`.
