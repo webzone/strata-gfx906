@@ -89,9 +89,16 @@ running-state copies.
 Verification on the T5810 gfx906 HIP stack (ROCm 10.0, `build-text-rocm10-copyfix`, service untouched):
 `conversation_copy_test` 165 checks across 9 endpoint pairs × 9 sizes (heap classifies `device=0
 accessible=0`, pinned `0/1`, device `1/1`); `conversation_validation_test` 972 host-only checks;
-`conversation_snapshot_test` 3901 checks through the new layer on a real GPU; the engine links clean. The
-fix takes effect at the next engine restart; the deployed binary and `run-iq3-s.json` are unchanged until
-then. Upstream carries the same copy layer, so the change applies there verbatim.
+`conversation_snapshot_test` 3901 checks through the new layer on a real GPU; the engine links clean.
+
+**Deployed 2026-10-11 04:02–04:12 UTC during an idle window** (running 0, queued 0): the v0.1.42 binary
+backed up as `build-text-rocm10/strata.v0142-0550f3f2.bak`, the verified build installed to
+`build-text-rocm10/strata` (ff24e50b980fa555…), restart via the unchanged `./run-iq3-s.sh`, engine PID
+67141. Acceptance: `/health` ok `loaded:true`; real generation "STRATA OK" (`finish_reason: stop`); a
+park/restore round-trip through the new copy layer ("conversation cache: parked 104 tokens … parked=3")
+with the engine alive; `strata-current.sh` exit 0. `run-iq3-s.json` stayed byte-unchanged. Open: a soak
+under the owner's normal 130K+ token traffic (the two crashes spanned four days of that pattern). Upstream
+carries the same copy layer, so the change applies there verbatim.
 
 ## Original next steps (superseded by the resolution above)
 
