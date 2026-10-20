@@ -32,6 +32,9 @@ inline bool gfx_arch_is_gfx12_wmma(const char* gcn) { return gfx_arch_is(gcn, "g
 /// Strix Halo (Ryzen AI Max, RDNA3.5): the part the gfx1151 defaults (docs/STRIX_HALO.md) are measured on.
 inline bool gfx_arch_is_gfx1151(const char* gcn) { return gfx_arch_is(gcn, "gfx1151"); }
 
+/// Instinct MI50 / MI60, Radeon VII (GCN5, wave64): the part the gfx906 defaults (docs/GFX906.md) are measured on.
+inline bool gfx_arch_is_gfx906(const char* gcn) { return gfx_arch_is(gcn, "gfx906"); }
+
 /// RDNA4 (Radeon AI PRO R9700 = gfx1201, RX 9070 / 9070 XT = gfx1201, RX 9060 = gfx1200).
 inline bool gfx_arch_is_gfx12(const char* gcn) { return gfx_arch_is(gcn, "gfx1200") || gfx_arch_is(gcn, "gfx1201"); }
 

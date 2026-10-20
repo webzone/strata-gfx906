@@ -260,6 +260,36 @@ __device__ __forceinline__ void attn_chunk_body(const float* __restrict__ q, Qsa
     float acc[G];
 #pragma unroll
     for (int h = 0; h < G; ++h) acc[h] = 0.0f;
+#if defined(STRATA_HIP_GFX906)
+    // gfx906, INT8 V: the cells' values are loaded 16 at a time before their FMAs.  The loop below waits for each cell's
+    // V load before the next one is issued, up to 64 memory round trips in a row per block (~74 us a chunk call on
+    // MI50 however many chunks run).  The same value expression and the same FMAs in the same cell order, a masked
+    // cell still skipped: bitwise the loop's result.
+    if constexpr (KV_MODE == 1) {
+        constexpr int U = 16;
+        for (int cb = 0; cb < n_here; cb += U) {
+            float vv[U];
+            bool ok[U];
+#pragma unroll
+            for (int u = 0; u < U; ++u) {
+                const long long r = cb + u < n_here ? srow[cb + u] : -1;
+                ok[u] = r >= 0;
+                const long long rr = ok[u] ? r : 0;   // row 0 exists: the load is unconditional, its value unused
+                const float sc = __half2float(__ushort_as_half(p.v_scale[rr * (HD / KV_Q8_GROUP) + t / KV_Q8_GROUP]));
+                vv[u] = (float) p.v_q[rr * HD + t] * sc;
+            }
+#pragma unroll
+            for (int u = 0; u < U; ++u) {
+                if (!ok[u]) continue;
+#pragma unroll
+                for (int h = 0; h < G; ++h) acc[h] = fmaf(sp[h][cb + u], vv[u], acc[h]);
+            }
+        }
+#pragma unroll
+        for (int h = 0; h < G; ++h) part_acc[((size_t) slot * G + h) * HD + t] = acc[h];
+        return;
+    }
+#endif
     for (int c = 0; c < n_here; ++c) {
         if (srow[c] < 0) continue;   // masked above, weight 0
         float v;
