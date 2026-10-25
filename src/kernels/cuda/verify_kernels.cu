@@ -794,7 +794,9 @@ void row_top_prob(const float* logits, int n_rows, int n_vocab, const int32_t* i
     check("row_top_prob");
 }
 
-#if !defined(__HIPCC__)   // warp-32 kernels: an AMD card keeps the one-block row_top_prob and sampler_greedy_kernel
+// warp-32 kernels: an AMD card keeps the one-block row_top_prob and sampler_greedy_kernel, except gfx906 (the compat
+// build runs the 32-lane shuffles on logical warps, so these kernels run unchanged there; see argmax_rows_wanted)
+#if !defined(__HIPCC__) || defined(STRATA_HIP_GFX906)
 namespace {
 
 constexpr int kArgMaxBlocks = 128, kArgThreads = 256, kTopBlocks = 8;
@@ -967,7 +969,7 @@ void logits_nonfinite_rows(const float* logits, int n_rows, int n, uint32_t* fla
 }
 
 bool multi_block_head_ops() {
-#if defined(__HIPCC__)
+#if defined(__HIPCC__) && !defined(STRATA_HIP_GFX906)
     return false;
 #else
     static const bool on = [] {
@@ -979,7 +981,12 @@ bool multi_block_head_ops() {
 }
 
 bool argmax_rows_wanted() {
-#if defined(__HIPCC__)
+#if defined(STRATA_HIP_GFX906)
+    // gfx906: one block scanned a 248K-logit row per token (~67 us a row on MI50).  The pick over many blocks gives the
+    // same token (a total order: the larger value, on equality the lower index); STRATA_MULTI_BLOCK_ARGMAX=0 keeps the
+    // one-block kernels.
+    return multi_block_head_ops();
+#elif defined(__HIPCC__)
     return false;
 #else
     // sm_80 to sm_89, and sm_7x with STRATA_ARGMAX_ROWS_SM70=1: sample_tokens' greedy pick there is the one-block kernel (sm_90+ has the cluster kernel)

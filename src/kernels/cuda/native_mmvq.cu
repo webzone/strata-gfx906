@@ -1822,7 +1822,10 @@ void launch_check() {
 // 2 KB row spent most of its time being launched and joined.  The SAME kernel serves every column count 1..8, so a
 // column's sums do not depend on how many columns (verify tokens) ride along.  STRATA_MMVQ_WAVE=0: the CUDA layout.
 bool g_wave_off = std::getenv("STRATA_MMVQ_WAVE") && std::string(std::getenv("STRATA_MMVQ_WAVE")) == "0";
-template<typename F, int NCOLS, int R>
+// U > 1: the weights of U consecutive strides (for all R rows) are loaded before any of them is applied.  Each
+// (column, row) sum still takes its blocks in ascending kbx order with the same expression, so the outputs are the
+// U = 1 kernel's bit for bit; R only decides which rows share a wavefront, never how a row is summed.
+template<typename F, int NCOLS, int R, int U = 1>
 __launch_bounds__(256)
 __global__ void native_mmvq_wave_kernel(const typename F::Block* __restrict__ w, const Q81Block* __restrict__ x,
                                         float* __restrict__ y, int n_in, int n_out) {
@@ -1835,7 +1838,30 @@ __global__ void native_mmvq_wave_kernel(const typename F::Block* __restrict__ w,
     const int x_stride = n_in / Q8K;
     const int kqs = F::kqs(lane);
     float tmp[NCOLS][R] = {};
-    for (int kbx = lane / F::T; kbx < blocks_per_row; kbx += BPIW) {
+    int kbx = lane / F::T;
+    if constexpr (U > 1) {
+        for (; kbx + BPIW * (U - 1) < blocks_per_row; kbx += BPIW * U) {
+            typename F::W wv[U][R];
+#pragma unroll
+            for (int u = 0; u < U; ++u)
+#pragma unroll
+                for (int i = 0; i < R; ++i)
+                    if (row0 + i < n_out) wv[u][i] = F::load(w + std::size_t(row0 + i) * blocks_per_row + kbx + BPIW * u, kqs);
+#pragma unroll
+            for (int u = 0; u < U; ++u) {
+                const int kby = (kbx + BPIW * u) * F::KBY;
+#pragma unroll
+                for (int i = 0; i < R; ++i) {
+                    if (row0 + i < n_out) {
+#pragma unroll
+                        for (int j = 0; j < NCOLS; ++j)
+                            tmp[j][i] += F::apply(wv[u][i], x + std::size_t(j) * x_stride + kby, kqs);
+                    }
+                }
+            }
+        }
+    }
+    for (; kbx < blocks_per_row; kbx += BPIW) {
         const int kby = kbx * F::KBY;
 #pragma unroll
         for (int i = 0; i < R; ++i) {
@@ -1860,9 +1886,13 @@ template<typename F, int NCOLS>
 void wave_launch_n(const void* weights, const void* x_q8_1, float* y, int n_in, int n_out, cudaStream_t s) {
     const auto* w = static_cast<const typename F::Block*>(weights);
     const auto* x = static_cast<const Q81Block*>(x_q8_1);
-    constexpr int R = 1;
+    // Q8_0 with 2+ columns (a verify window): two rows a wavefront and two strides of weights in flight.  MI50,
+    // isolated calls, 2560-wide rows, 10240 of them: 4 columns 112.0 -> 55.5 us, 2 columns 58.5 -> 45.2 us (decode
+    // +3.5%); one column keeps R = 1, U = 1, already the fastest there.  Bitwise the R = 1 kernel (native_mmvq_wave_kernel).
+    constexpr bool q8_multi = std::is_same<typename F::Block, Q80Block>::value && NCOLS >= 2;
+    constexpr int R = q8_multi ? 2 : 1, U = q8_multi ? 2 : 1;
     const unsigned blocks = unsigned((std::size_t(n_out) + 4 * R - 1) / (4 * R));
-    native_mmvq_wave_kernel<F, NCOLS, R><<<blocks, 256, 0, s>>>(w, x, y, n_in, n_out);
+    native_mmvq_wave_kernel<F, NCOLS, R, U><<<blocks, 256, 0, s>>>(w, x, y, n_in, n_out);
 }
 template<typename F>
 void wave_launch(const void* weights, const void* x_q8_1, float* y, int n_in, int n_out, int ncols, void* stream) {

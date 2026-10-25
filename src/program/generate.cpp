@@ -2796,8 +2796,9 @@ int main(int argc, char** argv) {
         }
         }
     }
-#if defined(STRATA_USE_HIP)
-    {   // gfx1151 (Strix Halo): the switches that are exact there are on by default (strata/core/arch_defaults.hpp); before
+#if defined(STRATA_USE_HIP) || defined(STRATA_HIP_GFX906)
+    {   // gfx1151 (Strix Halo), gfx12, gfx906 (MI50 / MI60, the compat build): the switches that are exact and measured
+        // faster there are on by default (strata/core/arch_defaults.hpp); before
         // any engine code reads its switches (they are read at first use), and the user's own settings are kept
         cudaDeviceProp ad{};
         if (cudaGetDeviceProperties(&ad, 0) == cudaSuccess) {

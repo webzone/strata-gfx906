@@ -29,6 +29,20 @@ std::vector<std::pair<std::string, std::string>> arch_default_env(const char* gc
         };
         return t;
     }
+    if (strata::kernels::gfx_arch_is_gfx906(gcn_arch)) {
+        // gfx906 (MI50 / MI60, the STRATA_HIP_GFX906 build): measured on 4x MI50 with UD-Q5_K_XL, a deterministic greedy
+        // A/B with the same output hashes on and off (docs/GFX906.md, 2026-10-20).  Most of the gfx1151 decode table is
+        // slower on this card (STRATA_QFUSE, STRATA_KQ_SPLIT, STRATA_GDN_SPLIT, STRATA_Q8_PACKED: -2 to -10%) and stays off.
+        const char* off906 = std::getenv("STRATA_GFX906_DEFAULTS");
+        if (off906 != nullptr && off906[0] == '0') return t;
+        t = {
+            {"STRATA_ATTN_MERGE_V2", "1"},               // the attention merge bounded by the context: the drafter's
+                                                         // merge walked all 512 chunks of its window (decode +1.0%)
+            {"STRATA_GFX906_ATTN_QUERY_SWIZZLE", "1"},   // the INT8 attention chunks with the swizzled query and
+            {"STRATA_GFX906_ATTN_REDUCE12", "1"},        // the 16-exchange score reduce (decode +0.7%, prompt +3%)
+        };
+        return t;
+    }
     if (!strata::kernels::gfx_arch_is_gfx1151(gcn_arch)) return t;
     const char* off = std::getenv("STRATA_GFX1151_DEFAULTS");
     if (off != nullptr && off[0] == '0') return t;
@@ -123,10 +137,11 @@ std::vector<std::string> apply_arch_defaults(const char* gcn_arch, bool integrat
     }
     if (!set.empty()) {
         const bool g12 = strata::kernels::gfx_arch_is_gfx12(gcn_arch);
+        const bool g906 = strata::kernels::gfx_arch_is_gfx906(gcn_arch);
         std::fprintf(stderr, "strata: %s: %zu exact speed switches on by default (%s=0 turns "
                              "them off; a switch you set is kept): ",
-                     g12 ? "gfx12 (RDNA4)" : "gfx1151 (Strix Halo)", set.size(),
-                     g12 ? "STRATA_GFX12_DEFAULTS" : "STRATA_GFX1151_DEFAULTS");
+                     g12 ? "gfx12 (RDNA4)" : g906 ? "gfx906 (MI50 / MI60)" : "gfx1151 (Strix Halo)", set.size(),
+                     g12 ? "STRATA_GFX12_DEFAULTS" : g906 ? "STRATA_GFX906_DEFAULTS" : "STRATA_GFX1151_DEFAULTS");
         for (size_t i = 0; i < set.size(); ++i) std::fprintf(stderr, "%s%s", i ? " " : "", set[i].c_str() + 7);
         std::fprintf(stderr, "\n");
     }

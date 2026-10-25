@@ -2401,6 +2401,13 @@ if(STRATA_HIP_GFX906)
   if(_strata_mmq)
     file(GLOB _strata_mmq_cu ${_strata_mmq}/*.cu ${_strata_mmq}/template-instances/*.cu)
     list(APPEND _strata_cu ${_strata_mmq_cu})
+    # the trellis overlay (STRATA_MMQ_TQ_OVERLAY) gives strata_mmq its own quantize.cu and the tq2_t/tqk6/tqk7
+    # instances from the build tree: compile them as HIP too, or the engine links without quantize_mmq_q8_1_cuda
+    # and the trellis mul_mat_q_case instances
+    if(_strata_mmq_tq_overlay)
+      file(GLOB _strata_tq_overlay_cu ${_strata_tq_overlay_dir}/*.cu ${_strata_tq_overlay_dir}/template-instances/*.cu)
+      list(APPEND _strata_cu ${_strata_tq_overlay_cu})
+    endif()
     target_compile_definitions(strata_mmq PRIVATE GGML_USE_HIP)
     # #3172: strata_mmq_w4a4 is built from llama.cpp's headers too; without GGML_USE_HIP its common.cuh took the CUDA vendor header
     # (cuda.h, cuda_bf16.h: not found). Here it only reports that W4A4 (RTX 50's FP4 MMA) is not available.

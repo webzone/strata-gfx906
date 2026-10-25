@@ -9,6 +9,9 @@
 // (HIP_WMMA, PF_GEMM, PA_FAST, SELECT_WMMA, HC_UPMIX) are an opt-in set on an integrated Radeon (igpu_default_env() below).
 //
 // A switch the user set (to anything) is never overridden; STRATA_GFX1151_DEFAULTS=0 turns the whole table off.
+//
+// gfx906 (MI50 / MI60, the STRATA_HIP_GFX906 build) has its own, shorter table, measured on 4x MI50 with the same
+// byte-identical rule; STRATA_GFX906_DEFAULTS=0 turns it off.
 #pragma once
 
 #include <string>

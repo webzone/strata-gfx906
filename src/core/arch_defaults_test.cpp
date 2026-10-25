@@ -57,6 +57,19 @@ int main() {
         }
     }
     CHECK(arch_default_env("gfx12010").empty());
+    // gfx906: the MI50 table, without the gfx1151 decode switches that measured slower there
+    unset("STRATA_GFX906_DEFAULTS");
+    for (const char* a : {"gfx906", "gfx906:sramecc+:xnack-"}) {
+        const auto t = arch_default_env(a);
+        CHECK(!t.empty());
+        for (const auto& kv : t)
+            CHECK(kv.first != "STRATA_Q8_PACKED" && kv.first != "STRATA_QFUSE" && kv.first != "STRATA_KQ_SPLIT" &&
+                  kv.first != "STRATA_GDN_SPLIT" && kv.first != "STRATA_LFUSE");
+    }
+    CHECK(arch_default_env("gfx9060").empty());
+    put("STRATA_GFX906_DEFAULTS", "0");
+    CHECK(arch_default_env("gfx906").empty());
+    unset("STRATA_GFX906_DEFAULTS");
     put("STRATA_GFX12_DEFAULTS", "0");
     CHECK(arch_default_env("gfx1201").empty());
     unset("STRATA_GFX12_DEFAULTS");

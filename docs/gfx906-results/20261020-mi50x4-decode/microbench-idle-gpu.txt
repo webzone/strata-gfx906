@@ -1,0 +1,289 @@
+== bf16 isolation
+n_out  128: ld2560    4.1  ld2688    4.2  ld2624    4.1  ld2816    4.2  perm7    4.2  n_in2048    4.5 n_in3072    4.6
+n_out  256: ld2560    4.9  ld2688    4.9  ld2624    4.9  ld2816    4.9  perm7    4.9  n_in2048    5.4 n_in3072    5.3
+n_out  384: ld2560    5.5  ld2688    5.6  ld2624    5.6  ld2816    5.6  perm7    5.6  n_in2048    6.2 n_in3072    6.1
+n_out  512: ld2560   45.3  ld2688   45.3  ld2624   45.3  ld2816   45.3  perm7   45.3  n_in2048   45.3 n_in3072   45.5
+n_out  640: ld2560    8.3  ld2688    8.3  ld2624    8.3  ld2816    8.3  perm7    8.3  n_in2048    8.3 n_in3072    9.3
+n_out  768: ld2560    8.8  ld2688    8.8  ld2624    8.9  ld2816    8.8  perm7    8.8  n_in2048    9.1 n_in3072   10.0
+n_out 1024: ld2560   50.3  ld2688   50.6  ld2624   50.8  ld2816   50.6  perm7   50.5  n_in2048   46.4 n_in3072   51.7
+n_out   64: engine    4.0  noblockred    3.6  noshfl    3.4  B64    7.0  B128    5.0  wave-row    5.0  empty(n_out blocks)    4.4 us
+n_out  512: engine   45.3  noblockred   45.2  noshfl   45.3  B64    8.6  B128    6.7  wave-row    7.0  empty(n_out blocks)    3.0 us
+n_out 2048: engine   40.1  noblockred   44.6  noshfl   23.9  B64   48.7  B128   20.0  wave-row   45.4  empty(n_out blocks)    7.0 us
+n_out 4096: engine   32.6  noblockred   31.8  noshfl   30.7  B64   42.4  B128   34.2  wave-row   62.8  empty(n_out blocks)   13.0 us
+== bf16 bench
+v0 engine B256           45.14 us      58 GB/s  bitwise
+v0 engine B256 (hot L2)   45.41 us      58 GB/s  bitwise
+v1 prefetch B256         45.47 us      58 GB/s  bitwise
+launch floor              3.02 us
+== q8 bench
+shape          ncols   variant        us  GB/s / bitwise
+  2560x4096    1         v0 R1      19.6     569 
+  2560x4096    1         v0 R2      19.5     571 
+  2560x4096    1       v1 R1U1      19.2     580 
+  2560x4096    1       v1 R1U2      27.6     403 
+  2560x4096    1       v1 R1U4      35.4     314 
+  2560x4096    1       v1 R2U2      20.1     556 
+  2560x4096    1       v2 R1U2      28.6     389 
+  2560x4096    1       v2 R1U4      32.3     345 
+  2560x4096    1       v2 R2U2      22.0     507 
+  2560x4096    2         v0 R1      24.8     449 
+  2560x4096    2         v0 R2      21.8     510 
+  2560x4096    2       v1 R1U1      23.9     466 
+  2560x4096    2       v1 R1U2      24.4     456 
+  2560x4096    2       v1 R1U4      26.3     423 
+  2560x4096    2       v1 R2U2      24.9     448 
+  2560x4096    2       v2 R1U2      26.0     429 
+  2560x4096    2       v2 R1U4      25.1     444 
+  2560x4096    2       v2 R2U2      20.6     540 
+  2560x4096    4         v0 R1      44.3     251 
+  2560x4096    4         v0 R2      27.8     401 
+  2560x4096    4       v1 R1U1      44.3     252 
+  2560x4096    4       v1 R1U2      37.8     295 
+  2560x4096    4       v1 R1U4      47.7     233 
+  2560x4096    4       v1 R2U2      26.3     423 
+  2560x4096    4       v2 R1U2      37.8     295 
+  2560x4096    4       v2 R1U4      44.1     253 
+  2560x4096    4       v2 R2U2      26.1     427 
+  2560x6144    1         v0 R1      27.8     602 
+  2560x6144    1         v0 R2      28.0     596 
+  2560x6144    1       v1 R1U1      27.7     602 
+  2560x6144    1       v1 R1U2      46.4     360 
+  2560x6144    1       v1 R1U4      45.8     365 
+  2560x6144    1       v1 R2U2      28.0     596 
+  2560x6144    1       v2 R1U2      47.5     352 
+  2560x6144    1       v2 R1U4      46.0     363 
+  2560x6144    1       v2 R2U2      30.8     543 
+  2560x6144    2         v0 R1      33.2     504 
+  2560x6144    2         v0 R2      31.2     536 
+  2560x6144    2       v1 R1U1      33.2     503 
+  2560x6144    2       v1 R1U2      35.3     473 
+  2560x6144    2       v1 R1U4      37.7     444 
+  2560x6144    2       v1 R2U2      35.0     478 
+  2560x6144    2       v2 R1U2      37.4     447 
+  2560x6144    2       v2 R1U4      40.2     415 
+  2560x6144    2       v2 R2U2      28.8     580 
+  2560x6144    4         v0 R1      64.9     258 
+  2560x6144    4         v0 R2      39.7     421 
+  2560x6144    4       v1 R1U1      64.9     257 
+  2560x6144    4       v1 R1U2      53.6     312 
+  2560x6144    4       v1 R1U4      71.5     234 
+  2560x6144    4       v1 R2U2      36.9     453 
+  2560x6144    4       v2 R1U2      53.7     311 
+  2560x6144    4       v2 R1U4      61.9     270 
+  2560x6144    4       v2 R2U2      36.5     458 
+  2560x8192    1         v0 R1      37.5     594 
+  2560x8192    1         v0 R2      38.8     575 
+  2560x8192    1       v1 R1U1      37.4     595 
+  2560x8192    1       v1 R1U2      49.5     450 
+  2560x8192    1       v1 R1U4      59.0     378 
+  2560x8192    1       v1 R2U2      37.3     597 
+  2560x8192    1       v2 R1U2      53.2     419 
+  2560x8192    1       v2 R1U4      59.9     372 
+  2560x8192    1       v2 R2U2      42.4     526 
+  2560x8192    2         v0 R1      44.9     496 
+  2560x8192    2         v0 R2      41.9     532 
+  2560x8192    2       v1 R1U1      44.4     501 
+  2560x8192    2       v1 R1U2      45.8     487 
+  2560x8192    2       v1 R1U4      49.7     449 
+  2560x8192    2       v1 R2U2      48.5     459 
+  2560x8192    2       v2 R1U2      49.0     455 
+  2560x8192    2       v2 R1U4      57.8     385 
+  2560x8192    2       v2 R2U2      37.7     591 
+  2560x8192    4         v0 R1      85.6     260 
+  2560x8192    4         v0 R2      51.0     437 
+  2560x8192    4       v1 R1U1      85.7     260 
+  2560x8192    4       v1 R1U2      68.8     324 
+  2560x8192    4       v1 R1U4      93.7     238 
+  2560x8192    4       v1 R2U2      47.8     466 
+  2560x8192    4       v2 R1U2      68.9     324 
+  2560x8192    4       v2 R1U4      80.5     277 
+  2560x8192    4       v2 R2U2      48.1     464 
+ 10240x2560    1         v0 R1      48.5     574 
+ 10240x2560    1         v0 R2      63.4     439 
+ 10240x2560    1       v1 R1U1      46.9     593 
+ 10240x2560    1       v1 R1U2      47.8     583 
+ 10240x2560    1       v1 R1U4      52.5     531 
+ 10240x2560    1       v1 R2U2      43.1     646 
+ 10240x2560    1       v2 R1U2      47.9     581 
+ 10240x2560    1       v2 R1U4      50.4     553 
+ 10240x2560    1       v2 R2U2      51.5     541 
+ 10240x2560    2         v0 R1      58.5     476 
+ 10240x2560    2         v0 R2      46.7     596 
+ 10240x2560    2       v1 R1U1      59.3     470 
+ 10240x2560    2       v1 R1U2      59.6     467 
+ 10240x2560    2       v1 R1U4      56.8     490 
+ 10240x2560    2       v1 R2U2      51.6     540 
+ 10240x2560    2       v2 R1U2      53.6     520 
+ 10240x2560    2       v2 R1U4      52.2     534 
+ 10240x2560    2       v2 R2U2      45.2     616 
+ 10240x2560    4         v0 R1     112.0     249 
+ 10240x2560    4         v0 R2      57.0     488 
+ 10240x2560    4       v1 R1U1     112.0     249 
+ 10240x2560    4       v1 R1U2      82.6     337 
+ 10240x2560    4       v1 R1U4     101.7     274 
+ 10240x2560    4       v1 R2U2      55.3     503 
+ 10240x2560    4       v2 R1U2      84.3     330 
+ 10240x2560    4       v2 R1U4      96.6     288 
+ 10240x2560    4       v2 R2U2      55.5     502 
+  6144x2560    1         v0 R1      30.2     554 
+  6144x2560    1         v0 R2      48.0     348 
+  6144x2560    1       v1 R1U1      29.6     566 
+  6144x2560    1       v1 R1U2      33.6     498 
+  6144x2560    1       v1 R1U4      36.5     458 
+  6144x2560    1       v1 R2U2      27.2     615 
+  6144x2560    1       v2 R1U2      34.2     489 
+  6144x2560    1       v2 R1U4      36.3     460 
+  6144x2560    1       v2 R2U2      32.2     519 
+  6144x2560    2         v0 R1      39.9     419 
+  6144x2560    2         v0 R2      29.8     560 
+  6144x2560    2       v1 R1U1      38.8     430 
+  6144x2560    2       v1 R1U2      60.3     277 
+  6144x2560    2       v1 R1U4      35.0     478 
+  6144x2560    2       v1 R2U2      33.2     503 
+  6144x2560    2       v2 R1U2      34.1     490 
+  6144x2560    2       v2 R1U4      32.6     513 
+  6144x2560    2       v2 R2U2      28.8     580 
+  6144x2560    4         v0 R1      80.8     207 
+  6144x2560    4         v0 R2      36.1     463 
+  6144x2560    4       v1 R1U1      80.7     207 
+  6144x2560    4       v1 R1U2      51.5     325 
+  6144x2560    4       v1 R1U4      64.7     258 
+  6144x2560    4       v1 R2U2      34.8     481 
+  6144x2560    4       v2 R1U2      51.6     324 
+  6144x2560    4       v2 R1U4      61.5     272 
+  6144x2560    4       v2 R2U2      34.8     480 
+ 12288x2560    1         v0 R1      56.1     596 
+ 12288x2560    1         v0 R2      69.0     484 
+ 12288x2560    1       v1 R1U1      54.5     613 
+ 12288x2560    1       v1 R1U2      55.7     600 
+ 12288x2560    1       v1 R1U4      58.1     576 
+ 12288x2560    1       v1 R2U2      51.3     651 
+ 12288x2560    1       v2 R1U2      55.8     599 
+ 12288x2560    1       v2 R1U4      60.5     553 
+ 12288x2560    1       v2 R2U2      60.8     549 
+ 12288x2560    2         v0 R1      66.9     500 
+ 12288x2560    2         v0 R2      55.5     603 
+ 12288x2560    2       v1 R1U1      67.0     499 
+ 12288x2560    2       v1 R1U2      65.6     509 
+ 12288x2560    2       v1 R1U4      67.1     498 
+ 12288x2560    2       v1 R2U2      61.5     544 
+ 12288x2560    2       v2 R1U2      63.4     527 
+ 12288x2560    2       v2 R1U4      62.0     539 
+ 12288x2560    2       v2 R2U2      53.4     626 
+ 12288x2560    4         v0 R1     127.7     262 
+ 12288x2560    4         v0 R2      67.1     498 
+ 12288x2560    4       v1 R1U1     127.7     262 
+ 12288x2560    4       v1 R1U2      98.0     341 
+ 12288x2560    4       v1 R1U4     120.7     277 
+ 12288x2560    4       v1 R2U2      65.6     509 
+ 12288x2560    4       v2 R1U2      99.3     337 
+ 12288x2560    4       v2 R1U4     114.3     292 
+ 12288x2560    4       v2 R2U2      65.7     509 
+   640x2560    1         v0 R1       5.8     299 
+   640x2560    1         v0 R2       7.7     227 
+   640x2560    1       v1 R1U1       5.6     309 
+   640x2560    1       v1 R1U2       5.9     296 
+   640x2560    1       v1 R1U4       6.2     281 
+   640x2560    1       v1 R2U2       6.3     274 
+   640x2560    1       v2 R1U2       5.9     293 
+   640x2560    1       v2 R1U4       6.2     281 
+   640x2560    1       v2 R2U2       7.5     231 
+   640x2560    2         v0 R1       6.3     275 
+   640x2560    2         v0 R2       8.4     208 
+   640x2560    2       v1 R1U1       6.3     276 
+   640x2560    2       v1 R1U2       7.3     238 
+   640x2560    2       v1 R1U4       7.8     224 
+   640x2560    2       v1 R2U2       8.5     206 
+   640x2560    2       v2 R1U2       7.4     234 
+   640x2560    2       v2 R1U4       7.1     246 
+   640x2560    2       v2 R2U2       7.2     241 
+   640x2560    4         v0 R1      11.3     153 
+   640x2560    4         v0 R2      10.3     169 
+   640x2560    4       v1 R1U1      11.3     154 
+   640x2560    4       v1 R1U2       9.7     179 
+   640x2560    4       v1 R1U4      10.5     165 
+   640x2560    4       v1 R2U2       9.4     185 
+   640x2560    4       v2 R1U2       9.8     178 
+   640x2560    4       v2 R1U4      10.1     172 
+   640x2560    4       v2 R2U2       9.3     188 
+   512x2560    1         v0 R1       5.3     261 
+   512x2560    1         v0 R2       7.5     185 
+   512x2560    1       v1 R1U1       5.3     262 
+   512x2560    1       v1 R1U2       5.8     240 
+   512x2560    1       v1 R1U4       5.8     239 
+   512x2560    1       v1 R2U2       6.1     228 
+   512x2560    1       v2 R1U2       5.9     237 
+   512x2560    1       v2 R1U4       5.9     237 
+   512x2560    1       v2 R2U2       7.3     190 
+   512x2560    2         v0 R1       6.1     229 
+   512x2560    2         v0 R2       8.2     169 
+   512x2560    2       v1 R1U1       6.1     229 
+   512x2560    2       v1 R1U2       7.1     196 
+   512x2560    2       v1 R1U4       7.1     195 
+   512x2560    2       v1 R2U2       8.3     168 
+   512x2560    2       v2 R1U2       7.1     196 
+   512x2560    2       v2 R1U4       6.8     204 
+   512x2560    2       v2 R2U2       7.1     197 
+   512x2560    4         v0 R1      10.9     128 
+   512x2560    4         v0 R2      10.1     137 
+   512x2560    4       v1 R1U1      10.9     128 
+   512x2560    4       v1 R1U2       9.4     148 
+   512x2560    4       v1 R1U4      10.0     139 
+   512x2560    4       v1 R2U2       9.3     150 
+   512x2560    4       v2 R1U2       9.4     148 
+   512x2560    4       v2 R1U4       9.8     142 
+   512x2560    4       v2 R2U2       9.1     153 
+106299x2560    1         v0 R1     439.7     658 
+106299x2560    1         v0 R2     440.0     657 
+106299x2560    1       v1 R1U1     441.5     655 
+106299x2560    1       v1 R1U2     432.3     669 
+106299x2560    1       v1 R1U4     466.0     620 
+106299x2560    1       v1 R2U2     426.8     677 
+106299x2560    1       v2 R1U2     430.5     672 
+106299x2560    1       v2 R1U4     465.8     621 
+106299x2560    1       v2 R2U2     491.9     588 
+106299x2560    2         v0 R1     522.9     553 
+106299x2560    2         v0 R2     457.5     632 
+106299x2560    2       v1 R1U1     523.7     552 
+106299x2560    2       v1 R1U2     519.1     557 
+106299x2560    2       v1 R1U4     560.9     515 
+106299x2560    2       v1 R2U2     505.7     572 
+106299x2560    2       v2 R1U2     519.9     556 
+106299x2560    2       v2 R1U4     518.4     558 
+106299x2560    2       v2 R2U2     442.1     654 
+106299x2560    4         v0 R1     834.6     346 
+106299x2560    4         v0 R2     548.2     527 
+106299x2560    4       v1 R1U1     833.2     347 
+106299x2560    4       v1 R1U2     817.4     354 
+106299x2560    4       v1 R1U4    1004.6     288 
+106299x2560    4       v1 R2U2     532.7     543 
+106299x2560    4       v2 R1U2     818.1     353 
+106299x2560    4       v2 R1U4     952.7     303 
+106299x2560    4       v2 R2U2     532.3     543 
+== gr up8 on
+COLD(16 sets) fast 0 T 1 | read   61.7 us (events) | stamps median: norm  18.2 down  24.8 up  24.3 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 1 | read   53.1 us (events) | stamps median: norm  12.0 down  25.0 up  21.8 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 1 | read   36.6 us (events) | stamps median: norm   1.9 down  17.3 up  23.0 us (incl. a stamp kernel each)
+COLD(16 sets) fast 0 T 2 | read   72.1 us (events) | stamps median: norm  18.2 down  31.0 up  28.6 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 2 | read   64.0 us (events) | stamps median: norm  12.2 down  31.2 up  25.8 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 2 | read   48.7 us (events) | stamps median: norm   1.9 down  21.4 up  30.6 us (incl. a stamp kernel each)
+COLD(16 sets) fast 0 T 3 | read   83.8 us (events) | stamps median: norm  18.4 down  39.2 up  32.2 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 3 | read   75.9 us (events) | stamps median: norm  12.2 down  39.7 up  29.8 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 3 | read   64.5 us (events) | stamps median: norm   1.9 down  33.8 up  34.4 us (incl. a stamp kernel each)
+COLD(16 sets) fast 0 T 4 | read  115.9 us (events) | stamps median: norm  19.4 down  47.0 up  55.8 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 4 | read   88.5 us (events) | stamps median: norm  12.5 down  47.4 up  33.3 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 4 | read   76.3 us (events) | stamps median: norm   1.9 down  40.6 up  39.0 us (incl. a stamp kernel each)
+== gr up8 off
+COLD(16 sets) fast 0 T 1 | read   61.7 us (events) | stamps median: norm  18.2 down  25.0 up  24.3 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 1 | read   54.9 us (events) | stamps median: norm  11.5 down  25.3 up  23.8 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 1 | read   36.7 us (events) | stamps median: norm   1.9 down  17.1 up  22.9 us (incl. a stamp kernel each)
+COLD(16 sets) fast 0 T 2 | read   72.2 us (events) | stamps median: norm  18.2 down  31.0 up  28.5 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 2 | read   63.3 us (events) | stamps median: norm  12.0 down  31.5 up  25.4 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 2 | read   48.6 us (events) | stamps median: norm   1.9 down  21.4 up  30.6 us (incl. a stamp kernel each)
+COLD(16 sets) fast 0 T 3 | read   84.2 us (events) | stamps median: norm  18.4 down  39.7 up  32.2 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 3 | read   75.1 us (events) | stamps median: norm  12.2 down  39.5 up  29.0 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 3 | read   64.6 us (events) | stamps median: norm   1.9 down  33.8 up  34.2 us (incl. a stamp kernel each)
+COLD(16 sets) fast 0 T 4 | read  116.3 us (events) | stamps median: norm  19.4 down  47.7 up  56.0 us (incl. a stamp kernel each)
+COLD(16 sets) fast 1 T 4 | read   86.4 us (events) | stamps median: norm  12.5 down  47.5 up  32.3 us (incl. a stamp kernel each)
+COLD(16 sets) fast 2 T 4 | read   76.3 us (events) | stamps median: norm   1.9 down  40.6 up  39.0 us (incl. a stamp kernel each)
+done

@@ -260,10 +260,12 @@ bool batch_self_commits(const int* rows, int S) { return g_batch_self_commit && 
 // gfx1030 (RX 6800, Windows, 42.5 -> 56.4 t/s).  STRATA_SH_STREAM overrides either default: `=1` forks, `=0` does not.
 // Strix Halo (gfx1151, unified memory) is the exception: the fork pays there (+1.8% UD-IQ4_XS, +6.7% UD-Q4_K_XL decode
 // at 8K, ids identical), so the gfx1151 arch table sets STRATA_SH_STREAM=1.  Read on first use, after that table ran.
+// gfx906 (the STRATA_HIP_GFX906 compat build, which does not define STRATA_USE_HIP) took the CUDA default until
+// 2026-10-20: on 4x MI50 (UD-Q5_K_XL, layer split) the fork off decodes +5% with identical output (docs/GFX906.md).
 bool sh_stream_on() {
     static const bool on = [] {
         if (const char* v = std::getenv("STRATA_SH_STREAM")) return v[0] != '0';
-#if defined(STRATA_USE_HIP)
+#if defined(STRATA_USE_HIP) || defined(STRATA_HIP_GFX906)
         return false;
 #else
         return true;
