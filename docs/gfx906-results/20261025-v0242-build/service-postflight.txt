@@ -1,0 +1,12 @@
+# service postflight, 2026-10-25T02:1xZ, after the build check
+nothing was installed, restarted or stopped
+
+running engine PID 3935565 = build-text-rocm10/strata (sha256 1ba389debc278dda5622c893989e54d9bfea398e2ffeca6255be25009c2d674e, engine 0.1.45)
+running vision PID 3935538 = build-vision-rocm10/bin/strata-vision (sha256 f8a183ffd518133ed5079f6edc9f98fc826b180b540d202c242bead2502bc75d)
+
+/health: {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+/metrics engine.version: 0.1.45 (the merge build was never run)
+~/mi50-t5810/scripts/strata-current.sh exit: 0
+git status --porcelain (tracked changes) in the machine checkout: 0
+df -h / : 232G 203G 19G 92% (before: 20G free)
+GPU: both cards 0% util, 32.43 GiB + 33.52 GiB held by the service

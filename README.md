@@ -2,14 +2,18 @@
 
 **Source version: Strata v0.2.4.2+ / `7dd5cf18`** (upstream/main at fetch time, 6 commits past the
 `v0.2.4.2` tag `dfa3f402`; merged into `gfx906` on 2026-10-24; engine version string is now `0.1.49.2`,
-upstream's `MIN_ENGINE` is `(0, 1, 46)`). A build check on T5810 is still owed for this round and must be
-recorded in [docs/GFX906.md](docs/GFX906.md) before any deploy claim.
-**Deployed, not yet running:** on owner instruction ("deploy, I restart myself") the **v0.1.45** text
+upstream's `MIN_ENGINE` is `(0, 1, 46)`). The T5810 build check for this source ran on 2026-10-25: the
+gfx906 text engine (479 targets) and the gfx906 HIP picture reader (275 targets) both compiled with 0 errors
+against ROCm 10, `strata --version` prints `0.1.49.2`, and 87 of 160 ctest tests passed with no GPU visible
+to the test run. Nothing was installed or restarted, so there is still no deploy or speed claim for this
+source; the record, including the 73 failures and why each one failed, is in
+[docs/GFX906.md](docs/GFX906.md).
+**Deployed and running:** on owner instruction ("deploy, I restart myself") the **v0.1.45** text
 engine was installed on 2026-10-17 23:15 UTC with `install -m 0755` while 8082 kept running:
-`build-text-rocm10/strata` is now **`1ba389de…`**. The running processes (server 1786203, vision
-1786213, text 1786240, up since 2026-10-14 ~20:55 UTC) still execute the previous inode — **v0.1.44.1**
-text `050b83e6…`, shown as `(deleted)` — so `/metrics` still reports engine `0.1.44.1` until the owner
-restarts 8082. The vision encoder was **not** replaced: upstream changed nothing under `tools/vision` in
+`build-text-rocm10/strata` is now **`1ba389de…`**. The owner restarted 8082 on 2026-10-20 08:17 UTC: server
+3935529, vision 3935538 and text 3935565 now run that installed file — `/proc/3935565/exe` hashes to
+`1ba389de…` — and `/metrics` reports engine `0.1.45`. Re-checked 2026-10-25: `/health` `ok` with
+`loaded: true`, and `bash /home/chris/mi50-t5810/scripts/strata-current.sh` exits 0. The vision encoder was **not** replaced: upstream changed nothing under `tools/vision` in
 `296b59d2..477ac13c` and the llama.cpp pin is unchanged, so `f8a183ff…` stays the current artifact and
 `build-vision-rocm10/bin/strata-vision` is untouched. Backups: text `strata.v01441-050b83e6.bak`
 (restore with `rollback-v45.sh`, which also restores the previous `strata-current.sh` expectations);
