@@ -2,30 +2,32 @@
 
 **Source version: Strata v0.2.4.2+ / `7dd5cf18`** (upstream/main at fetch time, 6 commits past the
 `v0.2.4.2` tag `dfa3f402`; merged into `gfx906` on 2026-10-24; engine version string is now `0.1.49.2`,
-upstream's `MIN_ENGINE` is `(0, 1, 46)`). The T5810 build check for this source ran on 2026-10-25: the
-gfx906 text engine (479 targets) and the gfx906 HIP picture reader (275 targets) both compiled with 0 errors
-against ROCm 10, `strata --version` prints `0.1.49.2`, and 87 of 160 ctest tests passed with no GPU visible
-to the test run. Nothing was installed or restarted, so there is still no deploy or speed claim for this
-source; the record, including the 73 failures and why each one failed, is in
-[docs/GFX906.md](docs/GFX906.md).
-**Deployed and running:** on owner instruction ("deploy, I restart myself") the **v0.1.45** text
-engine was installed on 2026-10-17 23:15 UTC with `install -m 0755` while 8082 kept running:
-`build-text-rocm10/strata` is now **`1ba389de…`**. The owner restarted 8082 on 2026-10-20 08:17 UTC: server
-3935529, vision 3935538 and text 3935565 now run that installed file — `/proc/3935565/exe` hashes to
-`1ba389de…` — and `/metrics` reports engine `0.1.45`. Re-checked 2026-10-25: `/health` `ok` with
-`loaded: true`, and `bash /home/chris/mi50-t5810/scripts/strata-current.sh` exits 0. The vision encoder was **not** replaced: upstream changed nothing under `tools/vision` in
-`296b59d2..477ac13c` and the llama.cpp pin is unchanged, so `f8a183ff…` stays the current artifact and
-`build-vision-rocm10/bin/strata-vision` is untouched. Backups: text `strata.v01441-050b83e6.bak`
-(restore with `rollback-v45.sh`, which also restores the previous `strata-current.sh` expectations);
-older text backups `strata.v01431-11b847dc.bak`, `strata.v0143-dd7eaf97.bak` (`rollback-v431.sh`),
+upstream's `MIN_ENGINE` is `(0, 1, 46)`). The T5810 build check ran on 2026-10-25. The gfx906 text engine
+(479 targets) and the gfx906 HIP picture reader (275 targets) compiled with 0 errors against ROCm 10.
+87 of 160 ctest tests passed with no GPU visible to the test run. The record, with every failure and its
+cause, is in [docs/GFX906.md](docs/GFX906.md).
+**Deployed, awaiting the owner's restart:** the merged build went in on 2026-10-25 02:36 UTC with
+`install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`274e00da…`**, engine
+`0.1.49.2`. `build-vision-rocm10/bin/strata-vision` is now **`8e77e424…`**, built as
+`bin/strata-vision-hip`: upstream `fb14c354` renamed the HIP reader, and the config keeps the old path.
+The replaced pair was v0.1.45 — text `1ba389de…`, vision `f8a183ff…`. The running processes (server
+3935529, vision 3935538, text 3935565, up since 2026-10-20 08:17 UTC) still execute their own inodes.
+So `/metrics` still reports engine `0.1.45`, and `strata-current.sh` exits 1 until the restart. Nothing
+was started or stopped. `run-iq3-s.json` is byte-unchanged (md5 `e45b9806…`), so the conversation-cache
+budget stays the explicit 16384 MiB and upstream's new automatic sizing does not apply here. After the
+owner restarts, `bash /home/chris/mi50-t5810/scripts/verify-v0242.sh` checks both hashes, engine
+`0.1.49.2`, the mapped ROCm 10 runtime, one real `STRATA OK` generation and `strata-current.sh`. Roll
+back with `rollback-v0242.sh`; it swaps files only, and `--stop-current` is the only path that restarts.
+The installed engine has served no request, so no speed or parity claim exists for it. Disk freed on
+T5810: `/` went from 19 GB to 49 GB free, and the 27.9 GiB 2026-10-03 benchmark archive moved to
+`/data/t5810-archive/` with a symlink left behind.
+Backups: text `strata.v0145-1ba389de.bak`, `strata.v01441-050b83e6.bak` (`rollback-v45.sh`, now superseded
+by `rollback-v0242.sh`), `strata.v01431-11b847dc.bak`, `strata.v0143-dd7eaf97.bak` (`rollback-v431.sh`),
 `strata.v0142-copyfix-ff24e50b.bak`, `strata.v0142-0550f3f2.bak` and the **v0.1.40.1** artifact
-`strata-v0.1.40.1`; the v0.1.43.1 vision backup `strata-vision.v01431-709fc4d2.bak` stays
-(`rollback-v441.sh` restores that v0.1.43.1 pair). After the restart,
-`bash /home/chris/mi50-t5810/scripts/verify-v45.sh` checks the deployed text hash, the vision hash, the
-engine version (`0.1.45`), the mapped ROCm 10 runtime, one real `STRATA OK` generation and
-`strata-current.sh`. `run-iq3-s.json` is byte-unchanged this round (md5 `e45b9806…`); the owner starts
-the service manually. The restart also turns on v0.1.45's request-side defaults and its new switches:
-see [New startup parameters in v0.1.45](#new-startup-parameters-in-v0145).
+`strata-v0.1.40.1`; vision `strata-vision.v0145-f8a183ff.bak` and `strata-vision.v01431-709fc4d2.bak`.
+The earlier installs (v0.1.45 on 2026-10-17, v0.1.44.1 on 2026-10-14) and their switch lists are recorded
+in [docs/GFX906.md](docs/GFX906.md), including
+[New startup parameters in v0.1.45](#new-startup-parameters-in-v0145).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.

@@ -1,0 +1,32 @@
+{
+ "upstream": "7dd5cf18",
+ "upstream_tag": "v0.2.4.2 (dfa3f402) + 6 commits",
+ "merge": "859785a6",
+ "gfx906_build_fixes": "4a25a533 (ISA guard allow-list entry iq512x_rows)",
+ "engine_change": "21f7472b",
+ "llama_cpp": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+ "engine_version": "0.1.49.2",
+ "text": {
+  "path": "/home/chris/dev/strata-gfx906/build-text-rocm10-v0242/strata",
+  "sha256": "274e00da8cef729a0b45647533b04ffadb97b68d3d60e725f5a11bda21d607f8",
+  "bytes": 35680008
+ },
+ "vision": {
+  "path": "/home/chris/dev/strata-gfx906/build-vision-rocm10-v0242/bin/strata-vision-hip",
+  "sha256": "8e77e424714470dd386154b807b8303d7b187a407babc72a062bb411cf894e7d",
+  "bytes": 48830632,
+  "note": "installed as build-vision-rocm10/bin/strata-vision, the path the config points at"
+ },
+ "build_flags": [
+  "-DSTRATA_HIP_GFX906=ON",
+  "-DSTRATA_ENABLE_HIP=OFF",
+  "-DCMAKE_HIP_ARCHITECTURES=gfx906",
+  "-DSTRATA_VISION_HIP=ON",
+  "-DSTRATA_VISION_HIP_ARCHS=gfx906",
+  "-DCMAKE_HIP_COMPILER=/opt/rocm-10.0/core-10.0/lib/llvm/bin/clang++",
+  "-DCMAKE_PREFIX_PATH=/opt/rocm-10.0/core-10.0",
+  "-DSTRATA_PORTABLE=ON",
+  "-DSTRATA_PREFILL_MMQ=OFF"
+ ],
+ "note": "build check 2026-10-25: text 479 targets / 0 errors / 3316 warnings, vision 275 targets / 0 errors / 0 warnings; ctest 87/160 pass with no visible device"
+}

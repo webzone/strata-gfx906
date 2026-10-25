@@ -1,0 +1,24 @@
+[02:36:06] log dir: /home/chris/dev/strata-gfx906/logs/v0242-deploy-20261025T023606Z
+[02:36:07] 8082 server: 3935529
+[02:36:07] free on /: 19G, RAM available: 28 GiB
+[02:36:07] source text   : 274e00da8cef729a...   deployed text: 1ba389debc278dda...
+[02:36:08] source vision : 8e77e424714470dd...   deployed vision: f8a183ffd518133e...
+[02:36:08] health before : {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+[02:36:08] backups: strata.v0145-1ba389de.bak, strata-vision.v0145-f8a183ff.bak
+[02:36:08] script backup: strata-current.sh.bak-20261025T023606Z
+[02:36:09] installed text   : 274e00da8cef729a... (35680008 B)
+[02:36:09] installed vision : 8e77e424714470dd... (48830632 B)
+[02:36:09]   strata: rocm-10 libs 20, rocm-7.2.4 libs 0
+[02:36:09]   strata-vision: rocm-10 libs 20, rocm-7.2.4 libs 0
+[02:36:09] installed engine --version: strata 0.1.49.2
+[02:36:09] config md5: e45b98065beb593d (was e45b9806, must be unchanged)
+[02:36:09] health after  : {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+[02:36:09] metrics engine version (running inode, unchanged until the owner restarts): 
+[02:36:10] strata-current.sh exit=1 (1 is expected until 8082 restarts: the running file changed under the process)
+== ROCm 默认
+  /opt/rocm -> /opt/rocm-10.0
+  libamdhip64: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7
+== 健康
+  {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+结论: 不符合现役规则
+[02:36:10] no process was started or stopped; the owner restarts 8082, then runs verify-v0242.sh

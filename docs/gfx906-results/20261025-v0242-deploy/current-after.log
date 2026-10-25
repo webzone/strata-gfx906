@@ -1,0 +1,36 @@
+== 配置所指(run-iq3-s.json)
+  text   : /home/chris/dev/strata-gfx906/build-text-rocm10/strata
+  vision : /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision
+  sha256 274e00da8cef729a... strata
+  sha256 8e77e424714470dd... strata-vision
+== 构建身份(logs/*/build-identity.json)
+  text: logs/v0242-deploy-20261025T023606Z/build-identity.json
+    upstream = 7dd5cf18
+    merge = 859785a6
+    engine_change = 21f7472b
+    llama_cpp = 3cf03257f219afbe7334045ff7c6a06ac68c627d
+    编译位置: /home/chris/dev/strata-gfx906/build-text-rocm10-v0242/strata
+    开关(build-text-rocm10-v0242/CMakeCache.txt): STRATA_HIP_GFX906=BOOL=ON STRATA_ENABLE_HIP=BOOL=OFF CMAKE_HIP_ARCHITECTURES=UNINITIALIZED=gfx906 CMAKE_HOME_DIRECTORY=INTERNAL=/home/chris/dev/strata-gfx906
+  vision: logs/v0242-deploy-20261025T023606Z/build-identity.json
+    upstream = 7dd5cf18
+    merge = 859785a6
+    engine_change = 21f7472b
+    llama_cpp = 3cf03257f219afbe7334045ff7c6a06ac68c627d
+    编译位置: /home/chris/dev/strata-gfx906/build-vision-rocm10-v0242/bin/strata-vision-hip
+    开关(build-vision-rocm10-v0242/CMakeCache.txt): STRATA_VISION_HIP=BOOL=ON STRATA_EXPERIMENTAL_GFX906=BOOL=OFF CMAKE_HIP_ARCHITECTURES=STRING=gfx906 CMAKE_PROJECT_NAME=STATIC=strata_vision CMAKE_HOME_DIRECTORY=INTERNAL=/home/chris/dev/strata-gfx906/tools/vision
+== 正在跑的进程
+  server PID: 3935529
+  PID 3935565  /home/chris/dev/strata-gfx906/build-text-rocm10/strata (deleted)
+          runtime: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333-0000000
+          sha256: ...
+违反规则: 进程 3935565 跑的不是配置所指文件: /home/chris/dev/strata-gfx906/build-text-rocm10/strata (deleted)
+  PID 3935538  /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision (deleted)
+          runtime: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333-0000000
+          sha256: ...
+违反规则: 进程 3935538 跑的不是配置所指文件: /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision (deleted)
+== ROCm 默认
+  /opt/rocm -> /opt/rocm-10.0
+  libamdhip64: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7
+== 健康
+  {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+结论: 不符合现役规则

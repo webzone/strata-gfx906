@@ -1,0 +1,58 @@
+# Disk freed on T5810 (2026-10-25 02:42–02:45 UTC)
+
+Before: `/dev/mapper/ubuntu--vg-ubuntu--lv 232G 203G 19G 92%`, `/data` 117G / 4.7G used / 107G free.
+
+## 1. Archive move, not a delete
+
+`logs/gfx906-prefill-goal-20261003T040756Z` (2026-10-03 MMQ and QSA benchmark captures plus the
+`mmq-*-fixtures` weight files) held 27.9 GiB of the checkout. `logs/` is gitignored (`.gitignore:14`).
+It was copied to `/data/t5810-archive/` with `rsync -a --numeric-ids`, verified, and only then removed; a
+symlink keeps the old path readable.
+
+```
+rsync-exit=0
+src_kb=29256872 dst_kb=29256312        # du block counts differ by 560 KB (block rounding on /dev/sdb1)
+files  12363 / 12363                   # identical on both sides
+dirs   1658  / 1658                    # identical
+apparent 27.867 GiB / 27.867 GiB       # identical byte totals
+(size,name) listing md5: ebc1fd220677b90d99d1f0969f3a4fff on both sides
+spot md5sum of the 12 largest files under 100 MB: all equal (bad=0)
+files newer than 2026-10-24 in the destination: 0
+```
+
+After: `logs/gfx906-prefill-goal-20261003T040756Z -> /data/t5810-archive/gfx906-prefill-goal-20261003T040756Z`.
+
+## 2. Superseded build directories removed
+
+Their artifacts are backed up in the deployed directories (`build-text-rocm10/strata.v0142-*.bak`,
+`strata.v0142-copyfix-*.bak`, `strata.v0143-*.bak`, `strata.v01431-*.bak`, `strata.v01441-*.bak`,
+`strata.v0145-1ba389de.bak`, `build-vision-rocm10/bin/strata-vision.v01431-709fc4d2.bak`,
+`strata-vision.v0145-f8a183ff.bak`), and `rollback-v43.sh` / `rollback-v431.sh` / `rollback-v441.sh` /
+`rollback-v45.sh` reference only `build-text-rocm10/` and `build-vision-rocm10/`, never these directories.
+
+| Removed | Size |
+|---|---|
+| `build-text-rocm10-cachefix` | 696 MB |
+| `build-text-rocm10-v45` | 350 MB |
+| `build-text-rocm10-v441` | 276 MB |
+| `build-vision-rocm10-v45` | 194 MB |
+| `build-vision-rocm10-v441` | 193 MB |
+| `build-text-rocm10-v431` | 187 MB |
+| `build-text-rocm10-v43` | 187 MB |
+| `build-text-rocm10-copyfix` | 93 MB |
+| `build-vision-hip-rocm10` (empty) | 0 |
+| `build-upstream-gfx906-rocm10` (empty) | 0 |
+
+Kept: `build-text-rocm10` and `build-vision-rocm10` (deployed, with backups), `build-text-rocm10-v0242` and
+`build-vision-rocm10-v0242` (this round's artifacts and `CMakeCache.txt`, which `strata-current.sh` reads
+for build switches), `build-hip`, `build-hip-experimental-rocm10`, `build-vision-hip`, `build-llama-cpu`.
+Nothing under `models/`, `packs/`, `mtp/`, `data/`, `.venv/` or `/home/chris/models` was touched.
+
+## 3. Result
+
+```
+Filesystem                         Size  Used Avail Use% Mounted on
+/dev/mapper/ubuntu--vg-ubuntu--lv  232G  173G   49G  79% /
+/dev/sdb1                          117G   33G   79G  30% /data
+du -sh /home/chris/dev/strata-gfx906   129G   (was 158G)
+```

@@ -1,0 +1,31 @@
+# Live traffic around the deploy and the archive copy (read-only `/metrics` on port 8082, 2026-10-25 UTC)
+
+The engine running during this whole window was the **old** v0.1.45 binary (`1ba389de…`): the install
+replaced the file on disk, and no process was restarted. Nothing here is a workload result for v0.2.4.2+.
+
+Fields come from `/metrics` `requests[]`: `decode_tok_s`, `prompt_read` (new prompt tokens, i.e. no KV
+reuse counted), `reused`, `prompt_total`, `prompt_ms`.
+* **real prefill** = new prompt tokens / prompt seconds.
+* **effective** = the whole prompt / prompt seconds, reused K/V counted. It shows how fast a warm turn is
+  accepted and is not compute throughput.
+
+```
+02:44:59 decode=50.4 tok/s  new=118 reused=69244 total=69362 prompt_s=2.25 -> real_prefill=52.4 effective=30819
+02:39:53 decode=54.2 tok/s  new=304 reused=68945 total=69249 prompt_s=2.82 -> real_prefill=107.9 effective=24581
+02:39:15 decode=67.2 tok/s  new=474 reused=68476 total=68950 prompt_s=3.21 -> real_prefill=147.9 effective=21510
+02:38:56 decode=53.9 tok/s  new=2591 reused=65890 total=68481 prompt_s=8.28 -> real_prefill=313.0 effective=8272
+02:38:50 decode=61.9 tok/s  new=133 reused=65762 total=65895 prompt_s=2.09 -> real_prefill=63.7 effective=31556
+02:34:41 decode=59.2 tok/s  new=118 reused=65649 total=65767 prompt_s=2.05 -> real_prefill=57.5 effective=32056
+02:29:37 decode=62.1 tok/s  new=335 reused=65319 total=65654 prompt_s=2.87 -> real_prefill=116.6 effective=22848
+02:29:30 decode=61.7 tok/s  new=258 reused=65066 total=65324 prompt_s=2.52 -> real_prefill=102.3 effective=25893
+02:29:23 decode=51.0 tok/s  new=118 reused=64953 total=65071 prompt_s=1.86 -> real_prefill=63.4 effective=34962
+02:27:31 decode=61.1 tok/s  new=618 reused=0 total=618 prompt_s=3.05 -> real_prefill=202.6 effective=203
+02:27:01 decode=70.1 tok/s  new=618 reused=0 total=618 prompt_s=3.01 -> real_prefill=205.2 effective=205
+02:26:53 decode=67.0 tok/s  new=618 reused=0 total=618 prompt_s=3.39 -> real_prefill=182.5 effective=182
+```
+
+Ranges: before the copy (02:26:53–02:34:41) decode 51.0–70.1 tok/s, real prefill 57.5–205.2 tok/s. During
+the copy and the install (02:38:50–02:44:59) decode 50.4–67.2 tok/s, real prefill 52.4–313.0 tok/s. The
+copy ran on the same disk as the model files, so these samples are the check that it did not slow the
+service; they are one request each, not a benchmark. The three 02:27 requests reused nothing, so their
+real and effective prefill are the same figure (~203 tok/s for 618 new tokens).
