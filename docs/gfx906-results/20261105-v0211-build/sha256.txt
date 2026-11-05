@@ -1,0 +1,2 @@
+6f4618150e833f1cde5bc9266aadde5c3d37d7557d2765c219db4ad7379f29eb  /home/chris/dev/strata-gfx906/build-text-rocm10-v0211/strata
+ab6c9ef0076e68a752cb57ce0505dbf24d7590e1d46631807fe5af77088b8310  /home/chris/dev/strata-gfx906/build-vision-rocm10-v0211/bin/strata-vision-hip

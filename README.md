@@ -1,31 +1,23 @@
 # Strata for AMD Instinct MI50 / MI60
 
 **Source version: Strata v0.2.11-3 / `9f7d977d`** (upstream/main at fetch time, 3 commits past the
-`v0.2.11` tag `4a416016`; merged into `gfx906` on 2026-11-05; engine version string is now `0.1.57`,
-upstream's `MIN_ENGINE` is still `(0, 1, 46)`). The T5810 build check and deploy for this source are
-recorded below once they finish; the previous v0.2.4.2+ build record stays in [docs/GFX906.md](docs/GFX906.md).
-**Previous deploy (v0.2.4.2+), still awaiting the owner's restart:** the merged build went in on 2026-10-25 02:36 UTC with
-`install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`274e00da…`**, engine
-`0.1.49.2`. `build-vision-rocm10/bin/strata-vision` is now **`8e77e424…`**, built as
-`bin/strata-vision-hip`: upstream `fb14c354` renamed the HIP reader, and the config keeps the old path.
-The replaced pair was v0.1.45 — text `1ba389de…`, vision `f8a183ff…`. The running processes (server
-3935529, vision 3935538, text 3935565, up since 2026-10-20 08:17 UTC) still execute their own inodes.
-So `/metrics` still reports engine `0.1.45`, and `strata-current.sh` exits 1 until the restart. Nothing
-was started or stopped. `run-iq3-s.json` is byte-unchanged (md5 `e45b9806…`), so the conversation-cache
-budget stays the explicit 16384 MiB and upstream's new automatic sizing does not apply here. After the
-owner restarts, `bash /home/chris/mi50-t5810/scripts/verify-v0242.sh` checks both hashes, engine
-`0.1.49.2`, the mapped ROCm 10 runtime, one real `STRATA OK` generation and `strata-current.sh`. Roll
-back with `rollback-v0242.sh`; it swaps files only, and `--stop-current` is the only path that restarts.
-The installed engine has served no request, so no speed or parity claim exists for it. Disk freed on
-T5810: `/` went from 19 GB to 49 GB free, and the 27.9 GiB 2026-10-03 benchmark archive moved to
-`/data/t5810-archive/` with a symlink left behind.
-Backups: text `strata.v0145-1ba389de.bak`, `strata.v01441-050b83e6.bak` (`rollback-v45.sh`, now superseded
-by `rollback-v0242.sh`), `strata.v01431-11b847dc.bak`, `strata.v0143-dd7eaf97.bak` (`rollback-v431.sh`),
-`strata.v0142-copyfix-ff24e50b.bak`, `strata.v0142-0550f3f2.bak` and the **v0.1.40.1** artifact
-`strata-v0.1.40.1`; vision `strata-vision.v0145-f8a183ff.bak` and `strata-vision.v01431-709fc4d2.bak`.
-The earlier installs (v0.1.45 on 2026-10-17, v0.1.44.1 on 2026-10-14) and their switch lists are recorded
-in [docs/GFX906.md](docs/GFX906.md), including
-[New startup parameters in v0.1.45](#new-startup-parameters-in-v0145).
+`v0.2.11` tag `4a416016`; merged into `gfx906` on 2026-11-05 as `9512c550`; engine version string is
+now `0.1.57`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`). ISA-guard allow-list follow-up
+`c1e19467` (`iq512_reference_gu_rows`).
+**Deployed, awaiting the owner's restart:** the merged build went in on 2026-11-05 20:39 UTC with
+`install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`6f461815…`**, engine
+`0.1.57` (568 targets, 0 errors, 3827 warnings). `build-vision-rocm10/bin/strata-vision` is now
+**`ab6c9ef0…`**, built as `bin/strata-vision-hip` (275 targets, 0 errors). Both link 20 ROCm 10
+libraries and 0 from 7.2.4. The replaced pair was v0.2.4.2+ — text `274e00da…`, vision `8e77e424…`
+(backed up as `strata.v0242-274e00da.bak` / `strata-vision.v0242-8e77e424.bak`). The running processes
+(server 1840608, vision 1840620, text 1840648, up ~11 d) still execute their old inodes, so
+`/metrics` still reports engine `0.1.49.2`, and `strata-current.sh` exits 1 until the restart. Nothing
+was started or stopped. `run-iq3-s.json` is byte-unchanged (md5 `e45b9806…`). Host ctest with no GPU
+visible: 141/269 pass; `isa_guard_check` passes after `c1e19467`. No speed or parity claim for the
+installed `0.1.57` binary until the owner restarts and a real generation is measured. Evidence:
+`docs/gfx906-results/20261105-v0211-build/` and machine
+`logs/v0211-build-20261105T202801Z/`, `logs/v0211-deploy-20261105T203936Z/`. The previous v0.2.4.2+
+deploy record stays in [docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.

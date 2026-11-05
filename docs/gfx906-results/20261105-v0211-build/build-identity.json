@@ -1,0 +1,27 @@
+{
+  "upstream": "9f7d977d",
+  "upstream_tag": "v0.2.11 (4a416016) + 3 commits",
+  "merge": "9512c550",
+  "gfx906_build_fixes": "c1e19467 (ISA guard allow-list entry iq512_reference_gu_rows)",
+  "llama_cpp": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+  "engine_version": "0.1.57",
+  "deployed_utc": "2026-11-05T20:39:39Z",
+  "restart": false,
+  "text": {
+    "build_dir": "build-text-rocm10-v0211",
+    "sha256": "6f4618150e833f1cde5bc9266aadde5c3d37d7557d2765c219db4ad7379f29eb",
+    "bytes": 41760312,
+    "deployed_as": "build-text-rocm10/strata"
+  },
+  "vision": {
+    "build_dir": "build-vision-rocm10-v0211",
+    "program": "bin/strata-vision-hip",
+    "sha256": "ab6c9ef0076e68a752cb57ce0505dbf24d7590e1d46631807fe5af77088b8310",
+    "bytes": 48830632,
+    "deployed_as": "build-vision-rocm10/bin/strata-vision"
+  },
+  "backup": {
+    "text": "build-text-rocm10/strata.v0242-274e00da.bak",
+    "vision": "build-vision-rocm10/bin/strata-vision.v0242-8e77e424.bak"
+  }
+}
