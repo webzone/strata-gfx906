@@ -143,11 +143,15 @@ class FeedChecks(unittest.TestCase):
             self.load(*signed(document(channel="beta"), self.key), channel="stable")
 
     def test_malformed_entries_are_errors_not_defaults(self):
-        for change in ({"sha256": "nothex"}, {"size": 0}, {"format": "rar"}, {"platform": "plan9"}, {"backend": "tpu"},
-                       {"version": "latest"}, {"archs": []}, {"manifest_sha256": None}, {"size": True}):
+        for change in ({"sha256": "nothex"}, {"size": 0}, {"version": "latest"}, {"archs": []}, {"manifest_sha256": None}, {"size": True}):
             with self.subTest(change=change):
                 with self.assertRaises(feedmod.FeedError):
                     self.load(*signed(document(engine={"packages": [entry(**change)]}), self.key))
+        for change in ({"format": "rar"}, {"platform": "plan9"}, {"backend": "tpu"}):       # a kind this Control does not know: left out with a line, not an error (0.1.53)
+            with self.subTest(unknown=change):
+                feed = self.load(*signed(document(engine={"packages": [entry(), entry(**change, url="other.tar.gz")]}), self.key))
+                self.assertEqual(len(feed.engine), 1)
+                self.assertEqual(len(feed.skipped), 1)
         with self.assertRaisesRegex(feedmod.FeedError, "twice"):
             self.load(*signed(document(engine={"packages": [entry(), entry()]}), self.key))
         with self.assertRaises(feedmod.FeedError):
@@ -174,6 +178,16 @@ class Selection(unittest.TestCase):
         self.assertEqual(old[0].variant, "cuda12")
         self.assertTrue(any("580.65" in r for r in old[1]))
         self.assertIsNone(self.pick(both, nvidia_driver="500.00")[0])
+
+    def test_an_update_keeps_the_cuda_build_that_runs_here(self):                       # #3835
+        both = [entry(variant="cuda12", driver="575.51", archs=("sm_60", "sm_61", "sm_86", "compute_89")), entry(variant="cuda13")]
+        two_cards = {"cuda_archs": ["sm_61", "sm_86"], "nvidia_driver": "615.71"}
+        self.assertEqual(self.pick(both, **two_cards)[0].variant, "cuda13")             # nothing installed: as before
+        kept, reasons = self.pick(both, installed_variant="cuda12", **two_cards)
+        self.assertEqual(kept.variant, "cuda12")
+        self.assertTrue(any("is kept" in r for r in reasons))
+        only13 = [entry(variant="cuda13")]
+        self.assertEqual(self.pick(only13, installed_variant="cuda12")[0].variant, "cuda13")   # the feed has no 12: the best fit
 
     def test_the_newest_version_wins_and_the_card_must_be_covered(self):
         newer = [entry("0.1.45"), entry("0.1.46")]

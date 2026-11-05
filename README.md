@@ -1,12 +1,10 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.2.4.2+ / `7dd5cf18`** (upstream/main at fetch time, 6 commits past the
-`v0.2.4.2` tag `dfa3f402`; merged into `gfx906` on 2026-10-24; engine version string is now `0.1.49.2`,
-upstream's `MIN_ENGINE` is `(0, 1, 46)`). The T5810 build check ran on 2026-10-25. The gfx906 text engine
-(479 targets) and the gfx906 HIP picture reader (275 targets) compiled with 0 errors against ROCm 10.
-87 of 160 ctest tests passed with no GPU visible to the test run. The record, with every failure and its
-cause, is in [docs/GFX906.md](docs/GFX906.md).
-**Deployed, awaiting the owner's restart:** the merged build went in on 2026-10-25 02:36 UTC with
+**Source version: Strata v0.2.11-3 / `9f7d977d`** (upstream/main at fetch time, 3 commits past the
+`v0.2.11` tag `4a416016`; merged into `gfx906` on 2026-11-05; engine version string is now `0.1.57`,
+upstream's `MIN_ENGINE` is still `(0, 1, 46)`). The T5810 build check and deploy for this source are
+recorded below once they finish; the previous v0.2.4.2+ build record stays in [docs/GFX906.md](docs/GFX906.md).
+**Previous deploy (v0.2.4.2+), still awaiting the owner's restart:** the merged build went in on 2026-10-25 02:36 UTC with
 `install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`274e00da…`**, engine
 `0.1.49.2`. `build-vision-rocm10/bin/strata-vision` is now **`8e77e424…`**, built as
 `bin/strata-vision-hip`: upstream `fb14c354` renamed the HIP reader, and the config keeps the old path.
@@ -373,7 +371,7 @@ kernel-level switches. Do not turn them on for the live MI50 service without a n
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.2.4.2+ / `7dd5cf18`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.2.11-3 / `9f7d977d`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,

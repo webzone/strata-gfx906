@@ -25,7 +25,7 @@ RDNA = dict(index=2, arch="gfx1201", name="RDNA4", vram_gb=48.0, vendor="amd")
 
 class UpstreamIntegration(unittest.TestCase):
     def test_version_and_acceptance_pins(self):
-        self.assertEqual(setup.source_version(), "0.1.49.2")   # engine string of upstream v0.2.4.2+
+        self.assertEqual(setup.source_version(), "0.1.57")   # engine string of upstream v0.2.11
         self.assertEqual(setup.MIN_ENGINE, (0, 1, 46))
         self.assertEqual(setup.LLAMA_CPP_COMMIT, "3cf03257f219afbe7334045ff7c6a06ac68c627d")
         self.assertEqual(setup.HF_REVISIONS[gfx906_model.REPO], gfx906_model.REVISION)
@@ -77,6 +77,8 @@ class UpstreamIntegration(unittest.TestCase):
             nv.assert_not_called()
 
     def test_saved_amd_start_all_uses_saved_opt_in_not_nvidia_detection(self):
+        # Upstream 0.2.x no longer compiles at start; the fork still expands "all" through
+        # select_amd_gpus(..., experimental_gfx906) so a saved gfx906 opt-in admits both cards.
         with tempfile.TemporaryDirectory() as directory, contextlib.ExitStack() as stack:
             root = Path(directory)
             exe = root / setup.EXE
@@ -87,13 +89,14 @@ class UpstreamIntegration(unittest.TestCase):
                                           "experimental_gfx906": True}))
             stack.enter_context(patch.object(setup, "amd_gpus", return_value=CARDS))
             stack.enter_context(patch.object(setup, "get_llama_cpp", return_value=Path("unused")))
-            build = stack.enter_context(patch.object(setup, "build_engine_hip", return_value=root))
+            build = stack.enter_context(patch.object(setup, "build_engine_hip"))
             nv = stack.enter_context(patch.object(setup, "gpus"))
             process = stack.enter_context(patch.object(setup.subprocess, "call", return_value=0))
             with contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(setup.start(config, 8095, "all", open_browser=False), 0)
             self.assertEqual(json.loads(config.read_text())["gpu"], [0, 1])
-            self.assertIs(build.call_args.kwargs["experimental_gfx906"], True)
+            self.assertTrue(json.loads(config.read_text())["experimental_gfx906"])
+            build.assert_not_called()   # upstream structure: start does not compile
             self.assertNotIn("--gpu", process.call_args.args[0])
             nv.assert_not_called()
 

@@ -39,12 +39,12 @@ class Upgrade(Dsv41Engine):
     def folders(self):
         return sorted(p.name.split("-")[0] for p in self.dest.iterdir() if p.is_dir())
 
-    def test_a_newer_package_in_the_feed_is_installed_next_to_the_old_and_the_old_goes(self):
+    def test_a_newer_package_in_the_feed_is_installed_next_to_the_old_and_the_old_stays(self):
         self.publish("0.1.49.1")
         lines = []
         exe = self.upgrade(lines)
         self.assertIsNotNone(exe, lines)
-        self.assertEqual(self.folders(), ["0.1.49.1"])
+        self.assertEqual(self.folders(), ["0.1.49", "0.1.49.1"], "the older engine stays until the person deletes it (Settings > Engine)")
         self.assertTrue(exe.is_file())
         self.assertEqual(dsv41_engine.find(self.dest), exe)
         self.assertIn("updated from 0.1.49 to 0.1.49.1", " ".join(lines))
@@ -60,7 +60,7 @@ class Upgrade(Dsv41Engine):
         with mock.patch.object(dsv41_engine, "_test_start", side_effect=start):
             self.assertIsNotNone(dsv41_engine.upgrade(self.dest, self.url, installed=self.old, hardware=self.hw, emit=lambda m: None))
         self.assertEqual(seen["folders"], ["0.1.49", "0.1.49.1"])
-        self.assertEqual(self.folders(), ["0.1.49.1"])
+        self.assertEqual(self.folders(), ["0.1.49", "0.1.49.1"])
 
     def test_the_same_version_in_the_feed_changes_nothing(self):
         lines = []
@@ -146,17 +146,25 @@ class LaunchChoice(unittest.TestCase):
                 self.assertEqual(self.runner().upgrade_dsv41_engine(found), found)
             self.assertEqual(self.runner().upgrade_dsv41_engine(Path("/x/engine/strata-dsv41")), Path("/x/engine/strata-dsv41"))     # not a package folder
 
-    def test_an_unreachable_feed_does_not_start_an_upgrade(self):
+    def test_a_launch_never_starts_an_upgrade_whatever_the_feed_says(self):
+        """Owner, 11-01: an engine update is the person's choice (`strata update`), never a side effect of a launch."""
         found = Path("/x/engine-dsv41/0.1.49-a/strata-dsv41")
-        with mock.patch.object(dsv41_engine, "source_reachable", return_value=False), \
-                mock.patch.object(dsv41_engine, "upgrade", side_effect=AssertionError("must not run")):
+        with mock.patch.object(dsv41_engine, "source_reachable", return_value=True),                 mock.patch.object(dsv41_engine, "upgrade", side_effect=AssertionError("a launch must not upgrade")):
             self.assertEqual(self.runner().upgrade_dsv41_engine(found), found)
 
-    def test_a_newer_package_replaces_the_choice(self):
-        found = Path("/x/engine-dsv41/0.1.49-a/strata-dsv41")
-        new = Path("/x/engine-dsv41/0.1.49.1-a/strata-dsv41")
-        with mock.patch.object(dsv41_engine, "source_reachable", return_value=True), mock.patch.object(dsv41_engine, "upgrade", return_value=new):
-            self.assertEqual(self.runner().upgrade_dsv41_engine(found), new)
+
+class SetupPathLines(unittest.TestCase):
+    """The upgrade lines setup prints are shown by strata launch, the failure one especially (0.2.5 list)."""
+
+    def test_the_failure_line_is_a_warning_and_the_success_line_is_news(self):
+        from strata_cli.launch.runner import deepseek_engine_note
+        bad = deepseek_engine_note("  A newer DeepSeek engine is available but could not be installed: no space left; still using 0.1.49.")
+        self.assertEqual(bad[0], "warn")
+        self.assertTrue(bad[1].endswith("still using 0.1.49."))
+        self.assertEqual(deepseek_engine_note("[!] A newer DeepSeek engine may be available but could not be checked (OSError); still using 0.1.49.")[0], "warn")
+        good = deepseek_engine_note("  DeepSeek engine updated from 0.1.49 to 0.1.49.2.")
+        self.assertEqual(good, ("info", "DeepSeek engine updated from 0.1.49 to 0.1.49.2."))
+        self.assertIsNone(deepseek_engine_note("  checking model.gguf (SHA-256, 5 GB) ..."))
 
 
 if __name__ == "__main__":
