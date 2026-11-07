@@ -1,20 +1,16 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.2.11-3 / `9f7d977d`** (upstream/main at fetch time, 3 commits past the
-`v0.2.11` tag `4a416016`; merged into `gfx906` on 2026-11-05 as `9512c550`; engine version string is
-now `0.1.57`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`). ISA-guard allow-list follow-up
-`c1e19467` (`iq512_reference_gu_rows`).
-**Deployed, awaiting the owner's restart:** the merged build went in on 2026-11-05 20:39 UTC with
-`install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`6f461815…`**, engine
-`0.1.57` (568 targets, 0 errors, 3827 warnings). `build-vision-rocm10/bin/strata-vision` is now
-**`ab6c9ef0…`**, built as `bin/strata-vision-hip` (275 targets, 0 errors). Both link 20 ROCm 10
-libraries and 0 from 7.2.4. The replaced pair was v0.2.4.2+ — text `274e00da…`, vision `8e77e424…`
-(backed up as `strata.v0242-274e00da.bak` / `strata-vision.v0242-8e77e424.bak`). The running processes
-(server 1840608, vision 1840620, text 1840648, up ~11 d) still execute their old inodes, so
-`/metrics` still reports engine `0.1.49.2`, and `strata-current.sh` exits 1 until the restart. Nothing
-was started or stopped. `run-iq3-s.json` is byte-unchanged (md5 `e45b9806…`). Host ctest with no GPU
-visible: 141/269 pass; `isa_guard_check` passes after `c1e19467`. No speed or parity claim for the
-installed `0.1.57` binary until the owner restarts and a real generation is measured. Evidence:
+**Source version: Strata v0.2.12 / `146df3c4`** (the tag's own commit, upstream/main at fetch time; merged
+into `gfx906` on 2026-11-07; engine version string is
+now `0.1.58`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`).
+**Deployed and running:** the owner restarted 8082, so the live service executes the v0.2.11-3 pair —
+`build-text-rocm10/strata` **`6f461815…`** (engine `0.1.57`, 568 targets, 0 errors, 3827 warnings) and
+`build-vision-rocm10/bin/strata-vision` **`ab6c9ef0…`** (275 targets, 0 errors), both linking 20 ROCm 10
+libraries and 0 from 7.2.4. They went in on 2026-11-05 20:39 UTC with `install -m 0755` while 8082 kept
+running; the replaced pair was v0.2.4.2+ — text `274e00da…`, vision `8e77e424…` (backed up as
+`strata.v0242-274e00da.bak` / `strata-vision.v0242-8e77e424.bak`). `run-iq3-s.json` is byte-unchanged
+(md5 `e45b9806…`). Host ctest with no GPU visible: 141/269 pass; `isa_guard_check` passes after
+`c1e19467`. Evidence:
 `docs/gfx906-results/20261105-v0211-build/` and machine
 `logs/v0211-build-20261105T202801Z/`, `logs/v0211-deploy-20261105T203936Z/`. The previous v0.2.4.2+
 deploy record stays in [docs/GFX906.md](docs/GFX906.md).
@@ -363,7 +359,7 @@ kernel-level switches. Do not turn them on for the live MI50 service without a n
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.2.11-3 / `9f7d977d`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.2.12 / `146df3c4`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,
