@@ -1,0 +1,25 @@
+{
+ "upstream": "146df3c4",
+ "upstream_tag": "v0.2.12",
+ "merge": "519f148e",
+ "engine_version": "0.1.58",
+ "deployed_utc": "20261107T231456Z",
+ "restart": false,
+ "text": {
+  "build_dir": "build-text-rocm10-v0212",
+  "sha256": "4e0cfecb5c038c4d2bf44d75ea65ce1d5b30777a55ea5e88527b74a53cc9c676",
+  "bytes": 42068896,
+  "deployed_as": "build-text-rocm10/strata"
+ },
+ "vision": {
+  "build_dir": "build-vision-rocm10-v0212",
+  "program": "bin/strata-vision-hip",
+  "sha256": "1435091542d4b53b128519af37e78a8c416221fd3788b6b90956fa072e09a3d2",
+  "bytes": 48830632,
+  "deployed_as": "build-vision-rocm10/bin/strata-vision"
+ },
+ "backup": {
+  "text": "build-text-rocm10/strata.v0211-6f461815.bak",
+  "vision": "build-vision-rocm10/bin/strata-vision.v0211-ab6c9ef0.bak"
+ }
+}
