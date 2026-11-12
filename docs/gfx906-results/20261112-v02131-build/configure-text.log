@@ -1,0 +1,44 @@
+-- The CXX compiler identification is GNU 15.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- strata: compiled geometry flash_next (default)
+-- Strata: verify / batch windows hold up to 8 rows
+-- The HIP compiler identification is Clang 23.0.0
+-- Detecting HIP compiler ABI info
+-- Detecting HIP compiler ABI info - done
+-- Check for working HIP compiler: /opt/rocm-10.0/core-10.0/lib/llvm/bin/clang++ - skipped
+-- Detecting HIP compile features
+-- Detecting HIP compile features - done
+-- HIP: Using hipcc from relative path: /opt/rocm-10.0/core-10.0/bin/hipcc
+-- HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- HIP: Using hipcc from relative path: /opt/rocm-10.0/core-10.0/bin/hipcc
+-- Strata: HIP (gfx906 compat) enabled, arch gfx906
+-- strata: pack/full/experts.bin absent - the expert arena load test is NOT registered
+-- Performing Test STRATA_HAVE_AVXVNNI_INTRINSICS
+-- Performing Test STRATA_HAVE_AVXVNNI_INTRINSICS - Success
+-- The C compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- The ASM compiler identification is GNU
+-- Found assembler: /usr/bin/cc
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: x86_64
+-- GGML_SYSTEM_ARCH: x86
+-- x86 detected
+-- Adding CPU backend variant ggml-cpu: -msse4.2;-mf16c;-mfma;-mbmi2;-mavx;-mavx2 GGML_SSE42;GGML_F16C;GGML_FMA;GGML_BMI2;GGML_AVX;GGML_AVX2
+-- ggml version: 0.24.0
+-- ggml commit:  ca5a7ec9
+-- trellis MMQ (Gyro prompts): vendored /home/chris/dev/strata-gfx906/third_party/strata-ggml/ggml/src/ggml-cuda-tq
+-- strata tests: ON - cpu, cuda
+-- Configuring done (5.3s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/chris/dev/strata-gfx906/build-text-rocm10-v02131

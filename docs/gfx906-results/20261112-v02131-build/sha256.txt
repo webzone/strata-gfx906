@@ -1,0 +1,4 @@
+74bfc9bffe99bc602ec42d174697f9b754ca51cab0f3e6ec96d34e7c3cfeb15a  build-text-rocm10-v02131/strata (42,090,608 B; deployed as build-text-rocm10/strata)
+0e72e7601ca79ea7634779700476a96e8bf137767c8bb11e42170ca30555ddcf  build-vision-rocm10-v02131/bin/strata-vision-hip (48,830,632 B; compile check only, NOT deployed)
+4e0cfecb5c038c4d2bf44d75ea65ce1d5b30777a55ea5e88527b74a53cc9c676  build-text-rocm10/strata.v0212-4e0cfecb.bak (the replaced v0.2.12 text engine)
+1435091542d4b53b128519af37e78a8c416221fd3788b6b90956fa072e09a3d2  build-vision-rocm10/bin/strata-vision (unchanged, still deployed)

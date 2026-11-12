@@ -1,0 +1,25 @@
+{
+ "upstream": "628f7495",
+ "upstream_tag": "v0.2.13.1",
+ "merge": "ca5a7ec9",
+ "engine_version": "0.1.59.1",
+ "deployed_utc": "20261112T062306Z",
+ "restart": false,
+ "text": {
+  "build_dir": "build-text-rocm10-v02131",
+  "sha256": "74bfc9bffe99bc602ec42d174697f9b754ca51cab0f3e6ec96d34e7c3cfeb15a",
+  "bytes": 42090608,
+  "deployed_as": "build-text-rocm10/strata"
+ },
+ "vision": {
+  "status": "not deployed",
+  "reason": "tools/vision and the llama.cpp pin are unchanged in 146df3c4..628f7495",
+  "build_dir": "build-vision-rocm10-v02131",
+  "compile_check_sha256": "0e72e7601ca79ea7634779700476a96e8bf137767c8bb11e42170ca30555ddcf",
+  "deployed_sha256": "1435091542d4b53b128519af37e78a8c416221fd3788b6b90956fa072e09a3d2",
+  "deployed_as": "build-vision-rocm10/bin/strata-vision"
+ },
+ "backup": {
+  "text": "build-text-rocm10/strata.v0212-4e0cfecb.bak"
+ }
+}

@@ -2,25 +2,26 @@
 
 **Source version: Strata v0.2.13.1 / `628f7495`** (the tag's own commit; merged into `gfx906` on
 2026-11-11; engine version string is now `0.1.59.1`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`,
-Terminal 0.2.13.1, Control 0.1.59.1, engine package 0.1.59). No gfx906 build check has been run on
-this source yet: the deployed pair below is the previous v0.2.12 build. The merge record, including the
-CMake restructure the fork's gating was rebuilt on, is in [docs/GFX906.md](docs/GFX906.md).
+Terminal 0.2.13.1, Control 0.1.59.1, engine package 0.1.59). The gfx906 build check for this source ran
+on the T5810 on 2026-11-12; the merge record, including the CMake restructure the fork's gating was
+rebuilt on, is in [docs/GFX906.md](docs/GFX906.md).
 
-**Deployed, awaiting the owner's restart:** the merged build went in on 2026-11-07 23:15 UTC with
-`install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`4e0cfecb…`**, engine
-`0.1.58` (587 targets, 0 errors, 3839 warnings). `build-vision-rocm10/bin/strata-vision` is now
-**`14350915…`**, built as `bin/strata-vision-hip` (275 targets, 0 errors). Both link 20 ROCm 10
-libraries and 0 from 7.2.4. The replaced pair was v0.2.11-3 — text `6f461815…`, vision `ab6c9ef0…`
-(backed up as `strata.v0211-6f461815.bak` / `strata-vision.v0211-ab6c9ef0.bak`). The running processes
-(server 1988446, vision 1988460, text 1988499, up ~1.7 d) still execute their old inodes, so
-`/metrics` still reports engine `0.1.57`, and `strata-current.sh` exits 1 until the restart. Nothing
-was started or stopped; post-install greedy request answered `STRATA OK`. `run-iq3-s.json` startup
-parameters optimized against T5810 hardware: `--conversation-cache-min-free-mib` 16384 -> 4096,
-`--conversation-cache-mib` 16384 -> 6144 (md5 `41bbcf3a…`), fixing the 100% admission skip failure.
-Host ctest: 266/278 passed (96%); `isa_guard_check` passed (2.45 s). No speed or parity claim for the
-installed `0.1.58` binary until the owner restarts and a real generation is measured. Evidence:
-`docs/gfx906-results/20261107-v0212-build/` and machine
-`logs/v0212-build-20261107T225206Z/`, `logs/v0212-deploy-20261107T231456Z/`. The previous v0.2.11-3
+**Deployed, awaiting the owner's restart:** the v0.2.13.1 text engine went in on 2026-11-12 06:23 UTC
+with `install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`74bfc9bf…`**, engine
+`0.1.59.1` (587 targets, 0 errors, 3843 warnings, 42,090,608 B, 20 ROCm 10 libraries, 0 from 7.2.4).
+`build-vision-rocm10/bin/strata-vision` stays **`14350915…`**: `git diff 146df3c4 628f7495 --
+tools/vision` is empty and the llama.cpp pin is unchanged, so the deployed encoder is already current
+for this source; the v0.2.13.1 rebuild (`0e72e760…`, 275 targets, 0 errors, 0 warnings) is a compile
+check only. The replaced text binary is backed up as `strata.v0212-4e0cfecb.bak`. The running processes
+(server 2866485, vision 2866494, text 2866533, up since 2026-11-08 01:28 UTC) still execute their old
+inode (`(deleted)`), so `/metrics` still reports engine `0.1.58`, and `strata-current.sh` exits 1 until
+the restart. Nothing was started or stopped; post-install greedy request answered `STRATA OK`.
+`run-iq3-s.json` is byte-unchanged (md5 `41bbcf3a…`). Host ctest: 268/277 passed (97%), 17 skipped,
+`isa_guard_check` passed (2.45 s); the 9 failures are the same known set as the v0.2.12 round, and that
+round's three `conversation_snapshot_test` failures now pass. No speed or parity claim for the installed
+`0.1.59.1` binary until the owner restarts and a real generation is measured. Evidence:
+`docs/gfx906-results/20261112-v02131-build/` and `docs/gfx906-results/20261112-v02131-deploy/`, machine
+`logs/v02131-build-20261112T053522Z/`, `logs/v02131-deploy-20261112T062306Z/`. The previous v0.2.12
 deploy record stays in [docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**
