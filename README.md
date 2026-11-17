@@ -2,31 +2,13 @@
 
 **Source version: Strata v0.2.15 / `c77572806`** (the tag's own commit; merged into `gfx906` on
 2026-11-17; engine version string is now `0.1.61`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`,
-Terminal 0.2.15, Control 0.1.61, engine package 0.1.60). No gfx906 build check for this source has run
-yet; the merge record, including the upstream MMQ prompt-kernel gate the fork's gfx906 oracle tests were
-moved onto, is in [docs/GFX906.md](docs/GFX906.md).
+Terminal 0.2.15, Control 0.1.61, engine package 0.1.60). The merge and installation records are in
+[docs/GFX906.md](docs/GFX906.md).
 
-**No build check yet for v0.2.15.** The T5810 gfx906 compile, install and measurement for `0.1.61` are
-not done, so no speed or parity claim is made for this source. The paragraph below describes the
-deployed v0.2.13.1 build, not this source.
-
-**Deployed, awaiting the owner's restart:** the v0.2.13.1 text engine went in on 2026-11-12 06:23 UTC
-with `install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`74bfc9bf…`**, engine
-`0.1.59.1` (587 targets, 0 errors, 3843 warnings, 42,090,608 B, 20 ROCm 10 libraries, 0 from 7.2.4).
-`build-vision-rocm10/bin/strata-vision` stays **`14350915…`**: `git diff 146df3c4 628f7495 --
-tools/vision` is empty and the llama.cpp pin is unchanged, so the deployed encoder is already current
-for this source; the v0.2.13.1 rebuild (`0e72e760…`, 275 targets, 0 errors, 0 warnings) is a compile
-check only. The replaced text binary is backed up as `strata.v0212-4e0cfecb.bak`. The running processes
-(server 2866485, vision 2866494, text 2866533, up since 2026-11-08 01:28 UTC) still execute their old
-inode (`(deleted)`), so `/metrics` still reports engine `0.1.58`, and `strata-current.sh` exits 1 until
-the restart. Nothing was started or stopped; post-install greedy request answered `STRATA OK`.
-`run-iq3-s.json` is byte-unchanged (md5 `41bbcf3a…`). Host ctest: 268/277 passed (97%), 17 skipped,
-`isa_guard_check` passed (2.45 s); the 9 failures are the same known set as the v0.2.12 round, and that
-round's three `conversation_snapshot_test` failures now pass. No speed or parity claim for the installed
-`0.1.59.1` binary until the owner restarts and a real generation is measured. Evidence:
-`docs/gfx906-results/20261112-v02131-build/` and `docs/gfx906-results/20261112-v02131-deploy/`, machine
-`logs/v02131-build-20261112T053522Z/`, `logs/v02131-deploy-20261112T062306Z/`. The previous v0.2.12
-deploy record stays in [docs/GFX906.md](docs/GFX906.md).
+**Installed without restart:** the T5810 text and vision binaries were built from fork commit
+`17b177478` and installed on 2026-11-17. The existing processes continue to run their previous binaries.
+No model tests or performance measurements were run for this installation. See [docs/GFX906.md](docs/GFX906.md).
+Earlier deployment evidence remains in [docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
