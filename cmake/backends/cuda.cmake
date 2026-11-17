@@ -330,6 +330,12 @@ macro(strata_cuda_prompt_tests)
       if(_strata_cuda_below75)
         message(STATUS "Strata: prefill_decode_golden not built: ${CMAKE_CUDA_ARCHITECTURES} has an architecture below sm_75")
       else()
+      # gfx906 (this fork): this build has no CUDA compiler, so the .cu is compiled as HIP, as every other
+      # CUDA-shaped source of the tree (cmake/backends/hip.cmake strata_hip_gfx906_sources). Without this the
+      # target has no object file and the link fails.
+      if(STRATA_HIP_GFX906)
+        set_source_files_properties(tests/cuda/prefill_decode_golden.cu PROPERTIES LANGUAGE HIP)
+      endif()
         add_executable(prefill_decode_golden tests/cuda/prefill_decode_golden.cu)
         target_include_directories(prefill_decode_golden PRIVATE $<TARGET_PROPERTY:strata_pf_own,INCLUDE_DIRECTORIES>)
         target_compile_definitions(prefill_decode_golden PRIVATE $<TARGET_PROPERTY:strata_pf_own,COMPILE_DEFINITIONS>)
