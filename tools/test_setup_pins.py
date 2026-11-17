@@ -102,7 +102,7 @@ class HuggingFacePins(unittest.TestCase):
             raise not_found(req.full_url)
 
         # the pinned Hugging Face path itself (setup's --source huggingface; auto may pick ModelScope)
-        with tempfile.TemporaryDirectory() as d, mock.patch.object(setup.urllib.request, "urlopen", urlopen),                 mock.patch.dict(setup.os.environ, {"STRATA_SOURCE": "huggingface", "STRATA_ALLOW_UNPINNED": "1"}),                 mock.patch.object(setup, "_unpinned_said", []):
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(setup.netpolicy, "urlopen", urlopen),                 mock.patch.dict(setup.os.environ, {"STRATA_SOURCE": "huggingface", "STRATA_ALLOW_UNPINNED": "1"}),                 mock.patch.object(setup, "_unpinned_said", []):
             dst = Path(d) / "m.gguf"
             part = dst.with_name(dst.name + ".part")
             part.write_bytes(b"existing pinned partial")
@@ -125,7 +125,7 @@ class HuggingFacePins(unittest.TestCase):
                 return Response(b"model bytes")
             raise urllib.error.HTTPError(req.full_url, 416, "Range Not Satisfiable", {}, None)
 
-        with tempfile.TemporaryDirectory() as d, mock.patch.object(setup.urllib.request, "urlopen", urlopen), \
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(setup.netpolicy, "urlopen", urlopen), \
                 mock.patch.object(setup.time, "sleep", lambda s: None):
             dst = Path(d) / "m.gguf"
             dst.with_name("m.gguf.part").write_bytes(b"model bytes")
@@ -140,13 +140,18 @@ class HuggingFacePins(unittest.TestCase):
         self.assertIn(mtp_fetch.REVISION, mtp_fetch.REPO)
         pinned = mtp_fetch.REPO
 
-        with mock.patch.object(mtp_fetch.urllib.request, "urlopen",
-                               side_effect=not_found(pinned)) as request:
+        seen = []
+
+        def urlopen(req, timeout=None):
+            seen.append(req.full_url)
+            raise not_found(req.full_url)
+
+        with mock.patch.object(mtp_fetch.netpolicy, "urlopen", urlopen):
             with self.assertRaisesRegex(RuntimeError, "refusing to fall back to mutable main"):
                 mtp_fetch.resolve_repo()
         self.assertEqual(mtp_fetch.REPO, pinned)
-        self.assertEqual(request.call_count, 1)
-        self.assertIn(mtp_fetch.REVISION, request.call_args.args[0].full_url)
+        self.assertEqual(len(seen), 1)                 # one probe of the pinned revision, no fallback to main
+        self.assertIn(mtp_fetch.REVISION, seen[0])
 
     def test_hf_endpoint(self):
         # #495: HF_ENDPOINT (a mirror) serves the same pinned revision; a trailing slash and blanks are dropped
@@ -241,7 +246,7 @@ class Engine(unittest.TestCase):
                 raise not_found(req.full_url)
             return Response()
 
-        with mock.patch.object(setup.urllib.request, "urlopen", urlopen), \
+        with mock.patch.object(setup.netpolicy, "urlopen", urlopen), \
                 mock.patch.object(setup, "download", self.fake_download(got, wrote)), \
                 mock.patch.object(setup, "engine_digest", self.fake_digest(wrote)):
             eng, out = quiet(setup.get_prebuilt, setup.PREBUILT_URL, {"arch": 89}, "gpu")
@@ -280,7 +285,7 @@ class Engine(unittest.TestCase):
                         z.writestr(setup.EXE, b"engine")
                     setup.mark(dst)
 
-                with mock.patch.object(setup.urllib.request, "urlopen", lambda req, timeout=None: Response()), \
+                with mock.patch.object(setup.netpolicy, "urlopen", lambda req, timeout=None: Response()), \
                         mock.patch.object(setup, "download", download), \
                         mock.patch.object(setup, "engine_digest", self.fake_digest(wrote)):
                     eng, _ = quiet(setup.get_prebuilt, setup.PREBUILT_URL, {"arch": 89}, "gpu")
@@ -312,7 +317,7 @@ class Engine(unittest.TestCase):
         def urlopen(req, timeout=None):
             raise AssertionError("asked the network for an installed engine")
 
-        with mock.patch.object(setup.urllib.request, "urlopen", urlopen):
+        with mock.patch.object(setup.netpolicy, "urlopen", urlopen):
             eng, out = quiet(setup.get_prebuilt, setup.PREBUILT_URL, {"arch": 89}, "gpu")
         self.assertEqual(eng, self.root / "engine")
         self.assertEqual((self.root / "engine" / setup.EXE).read_bytes(), b"old")
@@ -370,6 +375,9 @@ class Requirements(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             if stamp is not None:
                 (Path(d) / ".strata-pip.json").write_text(json.dumps(stamp))
+                # written by this system (#3634's marker): without it the stamp is believed only when numpy/jinja2/regex/yaml import in the
+                # Python running the tests, which made these tests depend on the box
+                (Path(d) / ".strata-pip.json.os").write_text(setup.sys.platform)
             with mock.patch.object(setup.sys, "prefix", d), \
                     mock.patch.object(setup, "run", lambda cmd, **kw: ran.append(cmd)), \
                     mock.patch.object(setup, "_installed", lambda name: name in installed):

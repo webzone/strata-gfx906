@@ -1,10 +1,14 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.2.13.1 / `628f7495`** (the tag's own commit; merged into `gfx906` on
-2026-11-11; engine version string is now `0.1.59.1`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`,
-Terminal 0.2.13.1, Control 0.1.59.1, engine package 0.1.59). The gfx906 build check for this source ran
-on the T5810 on 2026-11-12; the merge record, including the CMake restructure the fork's gating was
-rebuilt on, is in [docs/GFX906.md](docs/GFX906.md).
+**Source version: Strata v0.2.15 / `c77572806`** (the tag's own commit; merged into `gfx906` on
+2026-11-17; engine version string is now `0.1.61`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`,
+Terminal 0.2.15, Control 0.1.61, engine package 0.1.60). No gfx906 build check for this source has run
+yet; the merge record, including the upstream MMQ prompt-kernel gate the fork's gfx906 oracle tests were
+moved onto, is in [docs/GFX906.md](docs/GFX906.md).
+
+**No build check yet for v0.2.15.** The T5810 gfx906 compile, install and measurement for `0.1.61` are
+not done, so no speed or parity claim is made for this source. The paragraph below describes the
+deployed v0.2.13.1 build, not this source.
 
 **Deployed, awaiting the owner's restart:** the v0.2.13.1 text engine went in on 2026-11-12 06:23 UTC
 with `install -m 0755` while 8082 kept running. `build-text-rocm10/strata` is now **`74bfc9bf…`**, engine
@@ -368,7 +372,7 @@ kernel-level switches. Do not turn them on for the live MI50 service without a n
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.2.13.1 / `628f7495`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.2.15 / `c77572806`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,

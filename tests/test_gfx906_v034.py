@@ -132,20 +132,26 @@ class V034Integration(unittest.TestCase):
 
     def test_mtp_verify_is_offline(self):
         with tempfile.TemporaryDirectory() as d, patch.object(sys, "argv", ["mtp", "verify", "--out", d]), \
-                patch.object(mtp_fetch.urllib.request, "urlopen") as request, self.assertRaises(SystemExit) as exit:
+                patch.object(mtp_fetch.netpolicy, "urlopen") as request, self.assertRaises(SystemExit) as exit:
             mtp_fetch.main()
         self.assertEqual(exit.exception.code, 0)
         request.assert_not_called()
 
     def test_posix_process_identity_rejects_zombie_and_missing_process(self):
+        """The fork binds a POSIX identity to the process start time (a reused PID is not ours). ps's state letter
+        decides whether the process runs (upstream's lane 8 check); ps's start time names the identity."""
         with patch.object(strata_mcp, "WIN", False), patch.object(strata_mcp.Path, "exists", return_value=False), \
-                patch.object(strata_mcp.subprocess, "run") as run:
-            for result in (Mock(returncode=0, stdout="Z Thu Oct  1 12:00:00 2026"),
-                           Mock(returncode=1, stdout="")):
-                run.return_value = result
-                self.assertIsNone(strata_mcp.proc_identity(123))
-            run.return_value = Mock(returncode=0, stdout="S Thu Oct  1 12:00:00 2026")
-            self.assertEqual(strata_mcp.proc_identity(123), "posix:Thu Oct  1 12:00:00 2026")
+                patch.object(strata_mcp.subprocess, "run",
+                             return_value=Mock(returncode=0, stdout="Thu Oct  1 12:00:00 2026")) as run:
+            for state in ("Z", "X", ""):               # an unreaped zombie, a dead process, and no process at all
+                with patch.object(strata_mcp, "_ps_state", lambda pid, s=state: s):
+                    self.assertIsNone(strata_mcp.proc_identity(123), state)
+            run.assert_not_called()                     # nothing running: the start time is never asked
+            with patch.object(strata_mcp, "_ps_state", lambda pid: "S"):
+                self.assertEqual(strata_mcp.proc_identity(123), "posix:Thu Oct  1 12:00:00 2026")
+            with patch.object(strata_mcp, "_ps_state", lambda pid: "S"), \
+                    patch.object(strata_mcp.subprocess, "run", return_value=Mock(returncode=1, stdout="")):
+                self.assertEqual(strata_mcp.proc_identity(123), "pid")   # running, no start time to bind
 
     def test_reused_pid_is_not_terminated(self):
         with patch.object(strata_mcp, "proc_identity", return_value="posix:new-start"), \

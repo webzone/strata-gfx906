@@ -226,7 +226,7 @@ class StorageAndRanges(unittest.TestCase):
         response.__enter__.return_value = response
         response.status = 200
         response.headers = {}
-        with patch.object(mtp.urllib.request, "urlopen", return_value=response):
+        with patch.object(mtp.netpolicy, "urlopen", lambda req, timeout=None: response):
             with self.assertRaisesRegex(IOError, "did not honor"):
                 mtp.get(mtp.REPO+"shard", 0, 7, retries=1)
         response.read.assert_not_called()
@@ -235,7 +235,7 @@ class StorageAndRanges(unittest.TestCase):
         response = io.BytesIO(b"data")
         response.status = 206
         response.headers = {"Content-Range": "bytes 8-11/100"}
-        with patch.object(mtp.urllib.request, "urlopen", return_value=response):
+        with patch.object(mtp.netpolicy, "urlopen", lambda req, timeout=None: response):
             self.assertEqual(mtp.get(mtp.REPO+"shard", 8, 11, retries=1), b"data")
 
     def test_oversized_safetensors_header(self):
