@@ -9,6 +9,7 @@ docs/gfx906-results/20261120-main-sync/health.json
 docs/gfx906-results/20261120-main-sync/pids.txt
 docs/gfx906-results/20261120-main-sync/strata-current.txt
 docs/gfx906-results/20261120-main-sync/sync-paths.txt
+docs/gfx906-results/20261120-main-sync/sync-run-tip.log
 docs/gfx906-results/20261120-main-sync/sync-run.log
 docs/gfx906-results/20261120-main-sync/sync-scope.txt
 docs/gfx906-results/20261120-main-sync/vendored.txt

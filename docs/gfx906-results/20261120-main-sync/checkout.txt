@@ -1,1 +1,1 @@
-e2eb4c4191c9f7f08142d439d0b1cc6e39b31233 gfx906: sync the T5810 checkout to upstream main 58ee32277 without restart
+90be64366e1ad02e4ca6e1f1b20586a912edbda6 gfx906: record the --tip sync run that moved T5810 to the record commit

@@ -7,8 +7,8 @@ restart, no model request, no CTest run. The fork merge is `b3aaee7e4`
 
 | Check | Result | File |
 |---|---|---|
-| Checkout | `3c28629c9` → `b3aaee7e4` (the merge), then `e2eb4c4191c9f7f08142d439d0b1cc6e39b31233` (the commit that carries this record), branch `gfx906`, upstream `58ee32277` and merge `b3aaee7e4` both ancestors | `checkout.txt` |
-| Round scope | 11 paths from the merge (+192 / −94): `README.md`, `SUPPORTERS.md`, 7 translations, `tools/docker/build.sh`, `docs/GFX906.md`; 23 paths since `3c28629c9` once this directory is in the tree | `sync-scope.txt`, `sync-paths.txt` |
+| Checkout | `3c28629c9` → `b3aaee7e4` (the merge) → `e2eb4c419` → `90be64366e1ad02e4ca6e1f1b20586a912edbda6` (the pushed tip, `--tip` run), branch `gfx906`, upstream `58ee32277` and merge `b3aaee7e4` both ancestors | `checkout.txt` |
+| Round scope | 11 paths from the merge (+192 / −94): `README.md`, `SUPPORTERS.md`, 7 translations, `tools/docker/build.sh`, `docs/GFX906.md`; 24 paths since `3c28629c9` once this directory is in the tree | `sync-scope.txt`, `sync-paths.txt` |
 | Engine scope | 0 paths under `engine/`, `terminal/`, `serve/`, `tools/vision`, `tools/hip` → no rebuild needed | `sync-paths.txt` |
 | Workflow files | `git ls-files .github/workflows` prints nothing | `workflows.txt` (empty) |
 | Vendored pin | `check_vendored: ok`, pin `3cf03257f`; strata-ggml 62 files (2 edited), strata-gguf-py 116, strata-llama 918, stb 2 | `vendored.txt` |
@@ -33,8 +33,9 @@ remains compile-verified only. The restart path was not exercised.
 
 ## Machine records
 
-`/home/chris/dev/strata-gfx906/logs/main-sync-20261120T040711Z/` and
-`logs/main-sync-20261120T040925Z/`, plus `logs/main-sync-run.log` and `logs/main-sync-run-tip.log`
+`/home/chris/dev/strata-gfx906/logs/main-sync-20261120T040711Z/`,
+`logs/main-sync-20261120T040925Z/` and `logs/main-sync-20261120T041022Z/`, plus
+`logs/main-sync-run.log` and `logs/main-sync-run-tip.log`
 (`sync-run.log` and `sync-run-tip.log` here are those two files). The script lives at
 `/home/chris/dev/strata-gfx906/tools/deploy-main-sync.sh` (untracked, like the earlier rounds' deploy
 scripts); `deploy-main-sync.sh` in this directory is that same file.
