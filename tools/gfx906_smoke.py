@@ -14,7 +14,8 @@ import threading
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+TERMINAL = ROOT / "terminal"
+sys.path.insert(0, str(TERMINAL))
 from serve.server import StrataEngine, child_env, engine_args
 from serve.frontend import ChatTemplate
 from tools.strata_tokenizer import Tokenizer
@@ -51,7 +52,7 @@ def main():
     cfg = {"exe": str(ROOT / "build-hip/strata"), "backend": "hip", "gpu": ids,
            "layer_split": a.split, "args": [
                "--pack", str(pack), "--native", str(shards[0]), "--ple-gguf", str(shards[1]),
-               "--expert-profile", str(ROOT / "data/expert-profile.bin"), "--expert-cache", "auto",
+               "--expert-profile", str(TERMINAL / "data/expert-profile.bin"), "--expert-cache", "auto",
                "--max-context", str(a.context), "--kv", "int8", "--pool-workers", "6",
                "--prefill", "128", "--spec", "4", "--spec-min-p", str(a.min_p),
                "--mtp", str(mtp), "--suffix-draft", "0", "--prompt-cache", "0",

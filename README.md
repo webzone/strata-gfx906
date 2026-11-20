@@ -1,8 +1,8 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.2.15 / `c77572806`** (the tag's own commit; merged into `gfx906` on
-2026-11-17; engine version string is now `0.1.61`, upstream's `MIN_ENGINE` is still `(0, 1, 46)`,
-Terminal 0.2.15, Control 0.1.61, engine package 0.1.60). The merge and installation records are in
+**Source version: Strata v0.2.16 / `64524fb9f`** (the tag's own commit; merged into `gfx906` on
+2026-11-20; engine version `0.1.62`, upstream's `MIN_ENGINE` `(0, 1, 46)`, Terminal 0.2.16,
+Control 0.1.62, engine package 0.1.62). The merge and installation records are in
 [docs/GFX906.md](docs/GFX906.md).
 
 **Installed without restart:** the T5810 text and vision binaries were built from fork commit
@@ -128,7 +128,7 @@ This is not a general claim that every feature or model in upstream Strata is av
 
 - Linux with the AMD GPU driver/KFD and an existing **ROCm 10 HIP + hipBLAS** installation. The current deployment/build target is **ROCm 10**, on T5810 explicitly `/opt/rocm-10.0/core-10.0`; see [current build selection](docs/GFX906.md#deployment-decision-which-gfx906-path-is-current-2026-10-06). For the setup script, if ROCm is outside `/opt/rocm`, set `ROCM_PATH` to its installation directory. The example CMake preset itself points to `/opt/rocm`.
 - An **AVX2-capable x86-64 CPU**; v0.1.31 explicitly rejects CPUs without AVX2. The tested Xeon E5-1650 v3 meets this requirement.
-- Python 3.10 or newer with `venv`/`pip`, Git, and a C++ compiler. `setup.sh` creates a project-local `.venv` and installs the pinned Python dependencies there; the HIP engine is compiled locally for gfx906.
+- Python 3.10 or newer with `venv`/`pip`, Git, and a C++ compiler. `setup.sh` creates `terminal/.venv` and installs the pinned Python dependencies there. It compiles the HIP engine locally for gfx906.
 - Disk requirements depend on model and quantization. A clean **IQ2_XS** install needs roughly **80 GB or more** of free space across the model/data volume; keep at least 4 GiB free on the system volume. The installer checks required space before downloading. Use `--data-dir` to place model data on a larger disk.
 
 ### Archived experimental installer (build engine, prepare model, do not start yet)
@@ -154,15 +154,15 @@ export STRATA_API_KEY="$(python3 -c 'import secrets; print(secrets.token_urlsafe
   --no-start
 ```
 
-This first run creates `.venv`, fetches the pinned llama.cpp source, downloads the two model shards (about 68 GB) and selected MTP tensors (about 5.2 GB), builds the HIP engine for the selected card(s), prepares the model, and writes a config plus a `run-*.sh` launcher. It may take a while and requires a large download. The example selects two GPUs; use `--gpu 0` for one card instead of `--gpus 0,1`. GPU numbers are the AMD indices printed by the installer. The default layer placement is automatic; for two MI50s you may explicitly set `--layer-split 24`.
+This first run creates `terminal/.venv` and fetches the pinned llama.cpp source. It downloads two model shards (about 68 GB) and selected MTP tensors (about 5.2 GB). It builds the HIP engine, prepares the model, and writes a config and launcher under `terminal/`.
+The example selects two GPUs. Use `--gpu 0` for one card. GPU numbers are the AMD indices printed by the installer. Two MI50s can use automatic layer placement or an explicit `--layer-split 24`.
 
 The install example configures the model's native **262,144-token** context. A lower value can reduce memory use on a constrained system, but it is a runtime cap below the model's native length. Omit `--no-start` if you want setup to launch the server immediately after installation.
 
 For a lower-level developer rebuild after setup has fetched the pinned dependency, use:
 
 ```bash
-cmake --preset hip-gfx906
-cmake --build --preset hip-gfx906
+(cd engine && cmake --preset hip-gfx906 && cmake --build --preset hip-gfx906)
 ```
 
 This compiles the engine only; it does not download model files or create a serving config. See the [gfx906 development guide](docs/GFX906.md) for the dual-GPU test preset and the full regression coverage. Do not set `HSA_OVERRIDE_GFX_VERSION` or use a wheel built for a different GPU architecture.
@@ -190,7 +190,7 @@ with the experimental installer/preset above. The install examples describe that
 After the install command above, start the generated launcher (for the example, `IQ2_XS`):
 
 ```bash
-./run-iq2_xs.sh
+./terminal/run-iq2_xs.sh
 ```
 
 It starts the server in the foreground and opens the local web app when the model is ready. The example listens on all interfaces and requires the API key generated above. On the server itself, open **<http://localhost:8095/>**; from another device, use the MI50 host's IP address and provide the API key. The OpenAI-compatible API is at `http://<MI50-host>:8095/v1`.
@@ -198,9 +198,9 @@ It starts the server in the foreground and opens the local web app when the mode
 To run without the generated launcher or browser-opening behavior, start the server directly:
 
 ```bash
-.venv/bin/python serve/server.py \
+terminal/.venv/bin/python terminal/serve/server.py \
   --engine strata \
-  --config strata-iq2_xs.json \
+  --config terminal/strata-iq2_xs.json \
   --host 0.0.0.0 \
   --port 8095
 ```
@@ -240,7 +240,7 @@ The first setup also compiles the HIP engine automatically; `--build` is not nee
 
 ### Direct server options
 
-When invoking `serve/server.py` directly, `--engine strata` and `--config <file>` are required. The commonly used wrapper options are:
+When invoking `terminal/serve/server.py` directly, pass `--engine strata` and `--config <file>`.
 
 | Option | Purpose |
 | --- | --- |
@@ -286,7 +286,7 @@ To change engine tuning, edit the generated `strata-iq2_xs.json` and preserve it
 
 With a multi-GPU config (`"gpu": [0, 1]`), the server wrapper supplies `--layer-split` from the config automatically; do **not** add a second `--layer-split` to `args`. The HTTP server serializes requests by default, but decodes concurrently up to the configured batch slots (`"parallel": N` in config / `--batch N` in engine args). API request fields such as `max_tokens` control the response length; they are not installer startup flags. This engine does not take llama.cpp-style `-c`, `-ngl`, or `--tensor-split` options.
 
-For the engine's complete option list, run `./engine/strata --help` after installation. The archived **v0.1.30** MI50 regression run had **40 passed, 1 skipped and 0 failed** out of 41 tests, plus **18/18** Python entrypoint/download-safety tests. Skips and excluded tests are described in the [evidence notes](docs/gfx906-results/20261001/README.md); these software checks do not establish production readiness or long-run stability.
+For the engine's complete option list, run `./terminal/engine/strata --help` after installation. The archived **v0.1.30** MI50 regression run had **40 passed, 1 skipped and 0 failed** out of 41 tests, plus **18/18** Python entrypoint/download-safety tests. Skips and excluded tests are described in the [evidence notes](docs/gfx906-results/20261001/README.md); these software checks do not establish production readiness or long-run stability.
 
 ### New startup parameters in v0.1.45
 
@@ -354,7 +354,7 @@ kernel-level switches. Do not turn them on for the live MI50 service without a n
 
 ## Project background
 
-This repository tracks upstream Strata through **v0.2.15 / `c77572806`** while maintaining its own gfx906
+This repository tracks upstream Strata through **v0.2.16 / `64524fb9f`** while maintaining its own gfx906
 compatibility and optimization work. The upstream project still excludes wave64; this fork's purpose is
 to keep MI50 / MI60 usable as upstream evolves. It is not the upstream project's general NVIDIA/CUDA
 release. Upstream source: [Niko1221/Strata](https://github.com/Niko1221/Strata). For architecture details,

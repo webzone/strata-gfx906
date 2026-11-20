@@ -3,7 +3,7 @@
 # strata-gfx906 — Development Rules
 
 This is a dedicated experimental MI50/MI60 gfx906 fork of `Niko1221/Strata`, synchronized through
-v0.2.15 / `c77572806` (original port: v0.1.30 / `30ec18e`).
+v0.2.16 / `64524fb9f` (original port: v0.1.30 / `30ec18e`).
 The working branch is `gfx906`; `origin` is `webzone/strata-gfx906`. Absorb upstream updates with
 reviewed merge commits, never rebasing published fork history or pushing to `upstream`.
 Preserving and optimizing real gfx906 support is the fork's purpose: upstream's wave32-only GPU
@@ -76,14 +76,14 @@ MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upst
 The owner-authorized T5810 private-LAN deployment uses `0.0.0.0:8082` without an API key; do not add
 one unless the owner requests it. Other non-loopback deployments require an API key. Engine/API details are in `docs/DETAILS.md`,
 AMD upstream scope in `docs/AMD_HIP.md`, and pipeline splitting in `docs/MULTI_GPU.md`.
-GPU-independent setup tests run with `.venv/bin/python -m unittest discover -s tools -p 'test_setup_*.py'`.
+GPU-independent setup tests run with `terminal/.venv/bin/python -m unittest discover -s terminal/tools -p 'test_setup_*.py'`.
 Document measured results with their hardware, workload and validation limits, not unsupported performance claims.
 
 - How the engine works, every measured number, the API and all settings: [docs/DETAILS.md](docs/DETAILS.md) and
   the [paper](docs/paper/Strata-Paper.pdf).
 - AMD (HIP) build and validation: [docs/AMD_HIP.md](docs/AMD_HIP.md); multi-GPU: [docs/MULTI_GPU.md](docs/MULTI_GPU.md).
-- Setup's own tests run without a GPU or downloads: `python tools/test_setup_<name>.py` (for example
-  `tools/test_setup_amd.py`, `tools/test_setup_choices.py`).
+- Setup's own tests run without a GPU or downloads: `python terminal/tools/test_setup_<name>.py` (for example
+  `terminal/tools/test_setup_amd.py`, `terminal/tools/test_setup_choices.py`).
 - Keep the docs' style: plain words, measured numbers with what they were measured on, no claims without a
   measurement.
 

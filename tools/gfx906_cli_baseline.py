@@ -9,7 +9,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+TERMINAL = ROOT / "terminal"
+sys.path.insert(0, str(TERMINAL))
 from serve.frontend import ChatTemplate
 from tools.strata_tokenizer import Tokenizer
 
@@ -27,7 +28,7 @@ tpl = ChatTemplate(pack / "tokenizer/chat_template.jinja")
 text = tpl.render([{"role": "user", "content": "只回答一个数字：7+5等于几？"}], enable_thinking=False)
 ids = tk.encode(text, parse_special=True)
 cmd = [str(ROOT / "build-hip/strata"), "--pack", str(pack), "--native", str(shard), "--ple-gguf", str(ple),
-       "--expert-profile", str(ROOT / "data/expert-profile.bin"), "--expert-cache", "auto",
+       "--expert-profile", str(TERMINAL / "data/expert-profile.bin"), "--expert-cache", "auto",
        # Native packs require the verifier window >=2 and a prefill chunk,
        # even without --mtp. This selects the existing no-MTP verifier path.
        "--tokens", ",".join(map(str, ids)), "--max-new", "3", "--spec", "2", "--prefill", "128",

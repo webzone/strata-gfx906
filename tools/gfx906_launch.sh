@@ -29,5 +29,5 @@ fi
 # The private-LAN deployment intentionally has no API key. Do not export an empty key.
 unset HSA_OVERRIDE_GFX_VERSION STRATA_API_KEY
 # Descriptor 9 keeps the model lock held for the lifetime of this foreground server.
-exec "$ROOT/.venv/bin/python" "$ROOT/serve/server.py" --engine strata \
+exec "$ROOT/terminal/.venv/bin/python" "$ROOT/terminal/serve/server.py" --engine strata \
     --config "$CONFIG" --host 0.0.0.0 --port 8082 "$@"

@@ -11,7 +11,8 @@ import threading
 import time
 
 ROOT = Path("/home/chris/dev/strata-gfx906")
-sys.path.insert(0, str(ROOT))
+TERMINAL = ROOT / "terminal"
+sys.path.insert(0, str(TERMINAL))
 from serve.server import StrataEngine, child_env, engine_args
 from serve.frontend import ChatTemplate
 from tools.strata_tokenizer import Tokenizer
@@ -71,7 +72,7 @@ def run_suite(label, bin_path, out_dir):
             "--pack", str(pack),
             "--native", str(shard1),
             "--ple-gguf", str(shard2),
-            "--expert-profile", str(ROOT / "data/expert-profile.bin"),
+            "--expert-profile", str(TERMINAL / "data/expert-profile.bin"),
             "--expert-cache", "auto",
             "--max-context", "4096",
             "--kv", "int8",
