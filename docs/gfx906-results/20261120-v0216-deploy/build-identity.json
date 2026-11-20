@@ -1,0 +1,57 @@
+{
+ "upstream": "64524fb9f",
+ "upstream_tag": "v0.2.16",
+ "merge": "3961026f0",
+ "engine_version": "0.1.62",
+ "min_engine": "(0, 1, 46)",
+ "llama_pin": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+ "built_utc": "20261120T025858Z",
+ "deployed_utc": "20261120T0322Z",
+ "restart": false,
+ "model_test": false,
+ "ctest": false,
+ "text": {
+  "build_dir": "build-text-rocm10-v0216",
+  "sha256": "a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b",
+  "bytes": 26960536,
+  "flags": [
+   "STRATA_HIP_GFX906=ON",
+   "STRATA_ENABLE_HIP=OFF",
+   "CMAKE_HIP_ARCHITECTURES=gfx906",
+   "STRATA_PORTABLE=ON",
+   "STRATA_PREFILL_MMQ=OFF",
+   "STRATA_BUILD_TESTS=ON",
+   "STRATA_BUILD_CONVERSATION_TESTS=ON",
+   "ROCm 10 (/opt/rocm-10.0/core-10.0)",
+   "-j 2"
+  ],
+  "build_log_lines": 35919,
+  "build_errors": 0,
+  "build_warnings": 3837,
+  "deployed_as": "build-text-rocm10/strata"
+ },
+ "vision": {
+  "status": "compile check only, not deployed",
+  "reason": "upstream's picture tower changed in c77572806..64524fb9f and is not validated on gfx906",
+  "source": "terminal/tools/vision",
+  "build_dir": "build-vision-rocm10-v0216",
+  "compile_check_sha256": "51f830a42d7cf6f9b5d589142912a129f13a28cb5b0e4a7db5c4c4f4b74c1b05",
+  "compile_check_bytes": 49578864,
+  "build_errors": 0,
+  "build_warnings": 0,
+  "deployed_sha256": "943a54bd7a683446a63904ae37f39f2f40add0f79a10b8a33ef9e60582f02d7f",
+  "deployed_as": "build-vision-rocm10/bin/strata-vision"
+ },
+ "backup": {
+  "text": "build-text-rocm10/strata.v0215-b424d55b.bak",
+  "sha256": "b424d55bea4a8b791c4d2594e4d31907bf1893fe29773542fc4c4877e9187568"
+ },
+ "config": "run-iq3-s.json (unchanged by this round, md5 e996f0f9e1e60b2dade05f188ee8c4e3, last owner edit 2026-11-17 19:17 UTC)",
+ "layout": "upstream moved the engine to engine/, the serving layer to terminal/ and the picture reader to terminal/tools/vision; terminal/.venv is a link to the existing root .venv",
+ "running_trio_pids": [
+  2863631,
+  2863645,
+  2863677
+ ],
+ "metrics_engine_version_after": "0.1.61"
+}

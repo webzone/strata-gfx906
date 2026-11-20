@@ -5,10 +5,11 @@
 Control 0.1.62, engine package 0.1.62). The merge and installation records are in
 [docs/GFX906.md](docs/GFX906.md).
 
-**Installed without restart:** the T5810 text and vision binaries were built from fork commit
-`17b177478` and installed on 2026-11-17. The existing processes continue to run their previous binaries.
-No model tests or performance measurements were run for this installation. See [docs/GFX906.md](docs/GFX906.md).
-Earlier deployment evidence remains in [docs/GFX906.md](docs/GFX906.md).
+**Installed without restart:** the T5810 text engine was built from fork commit `3961026f0` (upstream
+v0.2.16, engine `0.1.62`) and installed on 2026-11-20; the HIP picture reader was compiled as a check and
+left in place. The existing processes continue to run their previous binaries (engine `0.1.61`). No model
+tests, no CTest run and no performance measurements were made for this installation. See
+[docs/GFX906.md](docs/GFX906.md). Earlier deployment evidence remains in [docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.
