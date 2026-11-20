@@ -6,7 +6,8 @@ that tag; merged into `gfx906` on 2026-11-20; engine version `0.1.62`, upstream'
 merge). The merge and installation records are in [docs/GFX906.md](docs/GFX906.md).
 
 **Installed without restart:** the T5810 checkout moved `3c28629c9` → `b3aaee7e4` on 2026-11-20 with
-`tools/deploy-main-sync.sh`. The merge changed no engine, Terminal or picture-reader source, so no rebuild
+`tools/deploy-main-sync.sh`, then to the commit that carries this note (same script, `--tip`, exit 0).
+The merge changed no engine, Terminal or picture-reader source, so no rebuild
 was needed: the text engine stays `a9c9ac4a…` (26,960,536 B, `strata 0.1.62`) and the picture reader stays
 14350915… (49,529,624 B). The server, text engine and picture reader keep PIDs `2863631`,
 `2863677` and `2863645`, and `/metrics` still reports engine `0.1.61`, so the `0.1.62` binary takes effect

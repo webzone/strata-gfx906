@@ -3,7 +3,7 @@
 # checkout only. No build, no stop, no restart, no model request, no ctest. The script verifies its own
 # result: source identity, the changed-path scope, the vendored pin, both deployed binary hashes, the
 # run config, the running PIDs, and the listener.
-# Usage: deploy-main-sync.sh [--dry-run]
+# Usage: deploy-main-sync.sh [--dry-run] [--tip]   (--tip syncs to the origin/gfx906 tip instead of MERGE)
 set -euo pipefail
 ROOT=/home/chris/dev/strata-gfx906
 MERGE=b3aaee7e4          # fork merge commit of upstream main 58ee32277
@@ -21,9 +21,11 @@ RAM_FLOOR_MIB=3000       # rule 2: the live engine must not be pushed out
 VENV=$ROOT/.venv/bin/python
 
 DRY=0
+TIP=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY=1; shift;;
+    --tip) TIP=1; shift;;
     *) echo "unknown argument: $1"; exit 2;;
   esac
 done
@@ -58,15 +60,17 @@ if [ "$DRY" = 1 ]; then say "DRY RUN: nothing changed."; exit 0; fi
 
 say "=== 2. checkout ==="
 git -C "$ROOT" fetch -q origin gfx906 || fail "git fetch failed"
+TARGET=$( [ "$TIP" = 1 ] && git -C "$ROOT" rev-parse --short=9 origin/gfx906 || echo "$MERGE" )
 HEAD_BEFORE=$(git -C "$ROOT" rev-parse --short=9 HEAD)
-if [ "$HEAD_BEFORE" != "$MERGE" ]; then
+if [ "$HEAD_BEFORE" != "$TARGET" ]; then
   git -C "$ROOT" merge --ff-only origin/gfx906 || fail "checkout is not fast-forwardable from $HEAD_BEFORE"
 fi
 HEAD_NOW=$(git -C "$ROOT" rev-parse --short=9 HEAD)
-[ "$HEAD_NOW" = "$MERGE" ] || fail "checkout at $HEAD_NOW, expected $MERGE"
+[ "$HEAD_NOW" = "$TARGET" ] || fail "checkout at $HEAD_NOW, expected $TARGET"
 git -C "$ROOT" merge-base --is-ancestor "$UPSTREAM" HEAD || fail "upstream $UPSTREAM is not in $HEAD_NOW"
+git -C "$ROOT" merge-base --is-ancestor "$MERGE" HEAD || fail "merge $MERGE is not in $HEAD_NOW"
 [ "$(git -C "$ROOT" rev-parse --abbrev-ref HEAD)" = "gfx906" ] || fail "branch is not gfx906"
-say "checkout: $HEAD_BEFORE -> $HEAD_NOW (upstream $UPSTREAM inside)"
+say "checkout: $HEAD_BEFORE -> $HEAD_NOW (upstream $UPSTREAM and merge $MERGE inside)"
 mkdir -p "$LOGD"
 git -C "$ROOT" log -1 --format='%H %s' > "$LOGD/checkout.txt"
 git -C "$ROOT" ls-files .github/workflows > "$LOGD/workflows.txt"
@@ -74,14 +78,14 @@ if grep -q . "$LOGD/workflows.txt"; then fail "the tree carries workflow files: 
 say "workflow files in the tree: $(wc -l < "$LOGD/workflows.txt")"
 
 say "=== 3. changed-path scope ==="
-git -C "$ROOT" diff --stat "$PREV" "$MERGE" > "$LOGD/sync-scope.txt"
-git -C "$ROOT" diff --name-only "$PREV" "$MERGE" > "$LOGD/sync-paths.txt"
+git -C "$ROOT" diff --stat "$PREV" "$HEAD_NOW" > "$LOGD/sync-scope.txt"
+git -C "$ROOT" diff --name-only "$PREV" "$HEAD_NOW" > "$LOGD/sync-paths.txt"
 say "$(cat "$LOGD/sync-scope.txt")"
 N=$(wc -l < "$LOGD/sync-paths.txt")
-say "paths changed by the merge: $N"
-ENG=$(git -C "$ROOT" diff --name-only "$PREV" "$MERGE" -- engine terminal serve tools/vision tools/hip | wc -l)
-[ "$ENG" = 0 ] || fail "$ENG engine or Terminal paths changed: a rebuild would be required"
-say "engine/Terminal/vision paths changed: 0 → no rebuild needed"
+say "paths changed since $PREV: $N"
+ENG=$(git -C "$ROOT" diff --name-only "$PREV" "$HEAD_NOW" -- engine terminal serve tools/vision tools/hip | wc -l)
+[ "$ENG" = 0 ] || fail "$ENG engine or Terminal paths changed since $PREV: a rebuild would be required"
+say "engine/Terminal/vision paths changed since $PREV: 0 → no rebuild needed"
 
 CHECK=$( [ -f "$ROOT/tools/check_vendored.py" ] && echo "$ROOT/tools/check_vendored.py" || echo "$ROOT/terminal/tools/check_vendored.py" )
 "$VENV" "$CHECK" > "$LOGD/vendored.txt" 2>&1 || fail "vendored pin check failed"

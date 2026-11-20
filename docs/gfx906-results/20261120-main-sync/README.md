@@ -1,13 +1,14 @@
 # T5810 sync of upstream `main` `58ee32277` — 2026-11-20 04:07 UTC
 
-One script ran on T5810: `tools/deploy-main-sync.sh` (`--dry-run` first, then the real run, exit 0).
-No build, no stop, no restart, no model request, no CTest run. The fork merge is `b3aaee7e4`
+One script ran on T5810: `tools/deploy-main-sync.sh` (`--dry-run` first, then the real run, exit 0). A
+second run with `--tip` repeated every check after the record commit was pushed. No build, no stop, no
+restart, no model request, no CTest run. The fork merge is `b3aaee7e4`
 (upstream `main` `58ee32277`, four commits after tag `v0.2.16` / `64524fb9f`).
 
 | Check | Result | File |
 |---|---|---|
-| Checkout | `3c28629c9` → `b3aaee7e441886a4d4e27028adfca3c35f223ac9`, branch `gfx906`, upstream `58ee32277` is an ancestor | `checkout.txt` |
-| Merge scope | 11 paths, +192 / −94: `README.md`, `SUPPORTERS.md`, 7 translations, `tools/docker/build.sh`, `docs/GFX906.md` | `sync-scope.txt`, `sync-paths.txt` |
+| Checkout | `3c28629c9` → `b3aaee7e4` (the merge), then `e2eb4c4191c9f7f08142d439d0b1cc6e39b31233` (the commit that carries this record), branch `gfx906`, upstream `58ee32277` and merge `b3aaee7e4` both ancestors | `checkout.txt` |
+| Round scope | 11 paths from the merge (+192 / −94): `README.md`, `SUPPORTERS.md`, 7 translations, `tools/docker/build.sh`, `docs/GFX906.md`; 23 paths since `3c28629c9` once this directory is in the tree | `sync-scope.txt`, `sync-paths.txt` |
 | Engine scope | 0 paths under `engine/`, `terminal/`, `serve/`, `tools/vision`, `tools/hip` → no rebuild needed | `sync-paths.txt` |
 | Workflow files | `git ls-files .github/workflows` prints nothing | `workflows.txt` (empty) |
 | Vendored pin | `check_vendored: ok`, pin `3cf03257f`; strata-ggml 62 files (2 edited), strata-gguf-py 116, strata-llama 918, stb 2 | `vendored.txt` |
@@ -32,8 +33,9 @@ remains compile-verified only. The restart path was not exercised.
 
 ## Machine records
 
-`/home/chris/dev/strata-gfx906/logs/main-sync-20261120T040711Z/` (the script's own log directory) and
-`/home/chris/dev/strata-gfx906/logs/main-sync-run.log`. The script lives at
+`/home/chris/dev/strata-gfx906/logs/main-sync-20261120T040711Z/` and
+`logs/main-sync-20261120T040925Z/`, plus `logs/main-sync-run.log` and `logs/main-sync-run-tip.log`
+(`sync-run.log` and `sync-run-tip.log` here are those two files). The script lives at
 `/home/chris/dev/strata-gfx906/tools/deploy-main-sync.sh` (untracked, like the earlier rounds' deploy
 scripts); `deploy-main-sync.sh` in this directory is that same file.
 

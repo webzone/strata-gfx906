@@ -1,0 +1,85 @@
+=== 1. machine state ===
+LISTEN 0      256                        0.0.0.0:8082       0.0.0.0:*    users:(("python",pid=2863631,fd=13))
+2863631 /home/chris/dev/strata-gfx906/.venv/bin/python /home/chris/dev/strata-gfx906/serve/server.py --engine strata --config /home/chris/dev/strata-gfx906/run-iq3-s.json --host 0.0.0.0 --port 8082
+2863645 /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision --mmproj /home/chris/dev/strata-gfx906/models/mmproj-Qwen3.8-Flash-Next-BF16.gguf --model /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf --gpu --threads 6 --max-tokens 1024
+2863677 /home/chris/dev/strata-gfx906/build-text-rocm10/strata --serve --pack /home/chris/dev/strata-gfx906/packs/iq3_s --native /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf --ple-gguf /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf --expert-profile /home/chris/dev/strata-gfx906/data/expert-profile.bin --expert-cache auto --max-context 262144 --kv int8 --kv-resident 32768 --pool-workers 6 --prefill 2048 --spec 4 --mtp /home/chris/dev/strata-gfx906/mtp/rt --mtp-window 32768 --spec-min-p 0.5 --suffix-draft 0 --prompt-cache 6 --adapt-every 0 --pcie-frac 0 --vram-reserve-mib 1024 --vram-reserve-later-mib 0 --batch-groups 2 --trim-stage-weights --vision --conversation-cache-mib 6144 --conversation-cache-slots 4 --conversation-cache-min-free-mib 4096 --conversation-cache-min-tokens 4096 --layer-split 24 --batch 4
+2863631  2-08:52:08
+2863645  2-08:52:07
+2863677  2-08:52:02
+MemAvailable: 6177 MiB · free disk: 42 GiB
+GPU[0]		: VRAM Total Used Memory (B): 31948894208
+GPU[1]		: VRAM Total Used Memory (B): 33610711040
+deployed text engine: strata 0.1.62
+=== 2. checkout ===
+Updating b3aaee7e4..e2eb4c419
+Fast-forward
+ README.md                                          |  13 ++-
+ docs/GFX906.md                                     |  32 ++++++
+ docs/gfx906-results/20261120-main-sync/README.md   |  43 ++++++++
+ .../gfx906-results/20261120-main-sync/checkout.txt |   1 +
+ .../20261120-main-sync/deploy-main-sync.sh         | 117 +++++++++++++++++++++
+ .../20261120-main-sync/engine-version.txt          |   1 +
+ docs/gfx906-results/20261120-main-sync/health.json |   1 +
+ docs/gfx906-results/20261120-main-sync/pids.txt    |   0
+ .../20261120-main-sync/strata-current.txt          |  30 ++++++
+ .../20261120-main-sync/sync-paths.txt              |  11 ++
+ .../gfx906-results/20261120-main-sync/sync-run.log |  44 ++++++++
+ .../20261120-main-sync/sync-scope.txt              |  12 +++
+ .../gfx906-results/20261120-main-sync/vendored.txt |   1 +
+ .../20261120-main-sync/workflows.txt               |   0
+ 14 files changed, 301 insertions(+), 5 deletions(-)
+ create mode 100644 docs/gfx906-results/20261120-main-sync/README.md
+ create mode 100644 docs/gfx906-results/20261120-main-sync/checkout.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/deploy-main-sync.sh
+ create mode 100644 docs/gfx906-results/20261120-main-sync/engine-version.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/health.json
+ create mode 100644 docs/gfx906-results/20261120-main-sync/pids.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/strata-current.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/sync-paths.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/sync-run.log
+ create mode 100644 docs/gfx906-results/20261120-main-sync/sync-scope.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/vendored.txt
+ create mode 100644 docs/gfx906-results/20261120-main-sync/workflows.txt
+checkout: b3aaee7e4 -> e2eb4c419 (upstream 58ee32277 and merge b3aaee7e4 inside)
+workflow files in the tree: 0
+=== 3. changed-path scope ===
+ README.md                                          |  23 ++--
+ SUPPORTERS.md                                      |  28 +++--
+ docs/GFX906.md                                     |  68 +++++++++++-
+ docs/gfx906-results/20261120-main-sync/README.md   |  43 ++++++++
+ .../gfx906-results/20261120-main-sync/checkout.txt |   1 +
+ .../20261120-main-sync/deploy-main-sync.sh         | 117 +++++++++++++++++++++
+ .../20261120-main-sync/engine-version.txt          |   1 +
+ docs/gfx906-results/20261120-main-sync/health.json |   1 +
+ docs/gfx906-results/20261120-main-sync/pids.txt    |   0
+ .../20261120-main-sync/strata-current.txt          |  30 ++++++
+ .../20261120-main-sync/sync-paths.txt              |  11 ++
+ .../gfx906-results/20261120-main-sync/sync-run.log |  44 ++++++++
+ .../20261120-main-sync/sync-scope.txt              |  12 +++
+ .../gfx906-results/20261120-main-sync/vendored.txt |   1 +
+ .../20261120-main-sync/workflows.txt               |   0
+ docs/lang/README.de.md                             |  30 ++++--
+ docs/lang/README.es.md                             |  30 ++++--
+ docs/lang/README.fr.md                             |  30 ++++--
+ docs/lang/README.ja.md                             |  30 ++++--
+ docs/lang/README.pl.md                             |  30 ++++--
+ docs/lang/README.pt-BR.md                          |  30 ++++--
+ docs/lang/README.zh-CN.md                          |  30 ++++--
+ tools/docker/build.sh                              |   4 +-
+ 23 files changed, 494 insertions(+), 100 deletions(-)
+paths changed since 3c28629c9: 23
+engine/Terminal/vision paths changed since 3c28629c9: 0 → no rebuild needed
+vendored pin: check_vendored: ok - engine/third_party/strata-ggml: 62 files (60 upstream, 2 edited, 0 added, 0 copy, 0 patched), pin 3cf03257f; engine/third_party/strata-gguf-py: 116 files (116 upstream, 0 edited, 0 added, 0 copy, 0 patched), pin 3cf03257f; engine/third_party/strata-llama: 918 files (918 upstream, 0 edited, 0 added, 0 copy, 0 patched), pin 3cf03257f; engine/third_party/stb: 2 files (1 upstream, 0 edited, 1 added, 0 copy, 0 patched), pin 3cf03257f
+=== 4. binaries and startup files unchanged ===
+text engine:  a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b (26960536 B) · reader: 943a54bd7a683446a63904ae37f39f2f40add0f79a10b8a33ef9e60582f02d7f (49529624 B)
+terminal/serve/server.py compiles with Python 3.14.4
+terminal/.venv -> ../.venv
+=== 5. service untouched (read-only) ===
+PIDs unchanged: 2863631 2863645 2863677 
+LISTEN 0      256                        0.0.0.0:8082       0.0.0.0:*    users:(("python",pid=2863631,fd=13))
+health: {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+running engine version: "engine": "0.1.61" (still the pre-restart binary)
+strata-current.sh exit: 1 (1 until the owner restarts 8082)
+=== PASS ===
+checkout e2eb4c419 · binaries a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b / 943a54bd7a683446a63904ae37f39f2f40add0f79a10b8a33ef9e60582f02d7f · no build, no restart, no test
+log dir: /home/chris/dev/strata-gfx906/logs/main-sync-20261120T040925Z

@@ -1,12 +1,24 @@
- README.md                 |  8 ++++----
- SUPPORTERS.md             | 28 ++++++++++++++++++----------
- docs/GFX906.md            | 36 ++++++++++++++++++++++++++++++++++--
- docs/lang/README.de.md    | 30 +++++++++++++++++++-----------
- docs/lang/README.es.md    | 30 +++++++++++++++++++-----------
- docs/lang/README.fr.md    | 30 +++++++++++++++++++-----------
- docs/lang/README.ja.md    | 30 +++++++++++++++++++-----------
- docs/lang/README.pl.md    | 30 +++++++++++++++++++-----------
- docs/lang/README.pt-BR.md | 30 +++++++++++++++++++-----------
- docs/lang/README.zh-CN.md | 30 +++++++++++++++++++-----------
- tools/docker/build.sh     |  4 +++-
- 11 files changed, 192 insertions(+), 94 deletions(-)
+ README.md                                          |  23 ++--
+ SUPPORTERS.md                                      |  28 +++--
+ docs/GFX906.md                                     |  68 +++++++++++-
+ docs/gfx906-results/20261120-main-sync/README.md   |  43 ++++++++
+ .../gfx906-results/20261120-main-sync/checkout.txt |   1 +
+ .../20261120-main-sync/deploy-main-sync.sh         | 117 +++++++++++++++++++++
+ .../20261120-main-sync/engine-version.txt          |   1 +
+ docs/gfx906-results/20261120-main-sync/health.json |   1 +
+ docs/gfx906-results/20261120-main-sync/pids.txt    |   0
+ .../20261120-main-sync/strata-current.txt          |  30 ++++++
+ .../20261120-main-sync/sync-paths.txt              |  11 ++
+ .../gfx906-results/20261120-main-sync/sync-run.log |  44 ++++++++
+ .../20261120-main-sync/sync-scope.txt              |  12 +++
+ .../gfx906-results/20261120-main-sync/vendored.txt |   1 +
+ .../20261120-main-sync/workflows.txt               |   0
+ docs/lang/README.de.md                             |  30 ++++--
+ docs/lang/README.es.md                             |  30 ++++--
+ docs/lang/README.fr.md                             |  30 ++++--
+ docs/lang/README.ja.md                             |  30 ++++--
+ docs/lang/README.pl.md                             |  30 ++++--
+ docs/lang/README.pt-BR.md                          |  30 ++++--
+ docs/lang/README.zh-CN.md                          |  30 ++++--
+ tools/docker/build.sh                              |   4 +-
+ 23 files changed, 494 insertions(+), 100 deletions(-)
