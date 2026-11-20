@@ -1,0 +1,30 @@
+== 配置所指(run-iq3-s.json)
+  text   : /home/chris/dev/strata-gfx906/build-text-rocm10/strata
+  vision : /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision
+  sha256 a9c9ac4a73470603... strata
+  sha256 943a54bd7a683446... strata-vision
+== 构建身份(logs/*/build-identity.json)
+  text: logs/v0216-build-20261120T025858Z/build-identity.json
+    upstream = 64524fb9f
+    merge = 3961026f0
+    engine_change = ?
+    llama_cpp = ?
+    编译位置: ?
+    开关(build-identity.json,仅文本工程): 无记录
+  NORECORD vision: 运行哈希 943a54bd7a683446 无构建身份记录
+违反规则: 运行产物缺构建身份记录(重编时未写 build-identity.json)
+== 正在跑的进程
+  server PID: 2863631
+  PID 2863677  /home/chris/dev/strata-gfx906/build-text-rocm10/strata (deleted)
+          runtime: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333-0000000
+          sha256: ...
+违反规则: 进程 2863677 跑的不是配置所指文件: /home/chris/dev/strata-gfx906/build-text-rocm10/strata (deleted)
+  PID 2863645  /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision
+          runtime: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333-0000000
+          sha256: 943a54bd7a683446...
+== ROCm 默认
+  /opt/rocm -> /opt/rocm-10.0
+  libamdhip64: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7
+== 健康
+  {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+结论: 不符合现役规则

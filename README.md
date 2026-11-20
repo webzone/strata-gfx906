@@ -5,11 +5,14 @@ that tag; merged into `gfx906` on 2026-11-20; engine version `0.1.62`, upstream'
 `(0, 1, 46)`, Terminal 0.2.16, Control 0.1.62, engine package 0.1.62 — none of them changed by this
 merge). The merge and installation records are in [docs/GFX906.md](docs/GFX906.md).
 
-**Installed without restart:** the T5810 text engine was built from fork commit `3961026f0` (upstream
-v0.2.16, engine `0.1.62`) and installed on 2026-11-20; the HIP picture reader was compiled as a check and
-left in place. The existing processes continue to run their previous binaries (engine `0.1.61`). No model
-tests, no CTest run and no performance measurements were made for this installation. See
-[docs/GFX906.md](docs/GFX906.md). Earlier deployment evidence remains in [docs/GFX906.md](docs/GFX906.md).
+**Installed without restart:** the T5810 checkout moved `3c28629c9` → `b3aaee7e4` on 2026-11-20 with
+`tools/deploy-main-sync.sh`. The merge changed no engine, Terminal or picture-reader source, so no rebuild
+was needed: the text engine stays `a9c9ac4a…` (26,960,536 B, `strata 0.1.62`) and the picture reader stays
+14350915… (49,529,624 B). The server, text engine and picture reader keep PIDs `2863631`,
+`2863677` and `2863645`, and `/metrics` still reports engine `0.1.61`, so the `0.1.62` binary takes effect
+when the owner restarts 8082. No build, no model test, no CTest run and no performance measurement was
+made for this round. See [docs/GFX906.md](docs/GFX906.md). Earlier deployment evidence, including the
+v0.2.16 engine build, remains in [docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.

@@ -1,0 +1,12 @@
+ README.md                 |  8 ++++----
+ SUPPORTERS.md             | 28 ++++++++++++++++++----------
+ docs/GFX906.md            | 36 ++++++++++++++++++++++++++++++++++--
+ docs/lang/README.de.md    | 30 +++++++++++++++++++-----------
+ docs/lang/README.es.md    | 30 +++++++++++++++++++-----------
+ docs/lang/README.fr.md    | 30 +++++++++++++++++++-----------
+ docs/lang/README.ja.md    | 30 +++++++++++++++++++-----------
+ docs/lang/README.pl.md    | 30 +++++++++++++++++++-----------
+ docs/lang/README.pt-BR.md | 30 +++++++++++++++++++-----------
+ docs/lang/README.zh-CN.md | 30 +++++++++++++++++++-----------
+ tools/docker/build.sh     |  4 +++-
+ 11 files changed, 192 insertions(+), 94 deletions(-)
