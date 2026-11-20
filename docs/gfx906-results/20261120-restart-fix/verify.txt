@@ -1,0 +1,50 @@
+=== Deployed artifact hashes ===
+Text binary   : a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b
+Vision binary : 943a54bd7a683446a63904ae37f39f2f40add0f79a10b8a33ef9e60582f02d7f
+Artifact hashes match expected.
+=== Running service ===
+{"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+Running engine version matches: 0.1.62
+=== ROCm runtime of the running processes ===
+PID 3950924: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333 
+PID 3950947: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333 
+=== One real greedy generation ===
+content: 'STRATA OK'
+usage: {'prompt_tokens': 19, 'completion_tokens': 4, 'total_tokens': 23, 'prompt_tokens_details': {'cached_tokens': 0}}
+=== Conversation cache admission ===
+conversation_cache: {"enabled": true, "budget_mib": 6144, "slots": 4, "parked": 0, "bytes": 0, "evictions": 0, "parks": 0, "restores": 0, "last_event": null, "last_tokens": null, "last_at": null, "refused": {"short": 1}, "refused_total": 1, "last_refused": "short", "requests": 9, "requests_reused": 7, "reused_tokens": 1031242, "prompt_tokens": 1179983, "last_reused": 154024, "last_prompt": 154071}
+=== strata-current.sh ===
+== 配置所指(run-iq3-s.json)
+  text   : /home/chris/dev/strata-gfx906/build-text-rocm10/strata
+  vision : /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision
+  sha256 a9c9ac4a73470603... strata
+  sha256 943a54bd7a683446... strata-vision
+== 构建身份(logs/*/build-identity.json)
+  text: logs/restart-20261120T082641Z/build-identity.json
+    upstream = 58ee32277
+    merge = b3aaee7e4
+    engine_change = none in 64524fb9f..58ee32277: docs, supp
+    llama_cpp = 3cf03257f219afbe7334045ff7c6a06ac68c627d
+    编译位置: /home/chris/dev/strata-gfx906/build-text-rocm10-v0216/strata
+    开关(build-text-rocm10-v0216/CMakeCache.txt): STRATA_HIP_GFX906=BOOL=ON STRATA_ENABLE_HIP=BOOL=OFF CMAKE_HIP_ARCHITECTURES=UNINITIALIZED=gfx906 CMAKE_HOME_DIRECTORY=INTERNAL=/home/chris/dev/strata-gfx906/engine
+  vision: logs/restart-20261120T082641Z/build-identity.json
+    upstream = 58ee32277
+    merge = b3aaee7e4
+    engine_change = none in 64524fb9f..58ee32277: docs, supp
+    llama_cpp = 3cf03257f219afbe7334045ff7c6a06ac68c627d
+    编译位置: /home/chris/dev/strata-gfx906/build-vision-rocm10-v0215/bin/strata-vision-hip
+    开关(build-vision-rocm10-v0215/CMakeCache.txt): STRATA_VISION_HIP=BOOL=ON STRATA_EXPERIMENTAL_GFX906=BOOL=OFF CMAKE_HIP_ARCHITECTURES=STRING=gfx906 CMAKE_PROJECT_NAME=STATIC=strata_vision CMAKE_HOME_DIRECTORY=INTERNAL=/home/chris/dev/strata-gfx906/tools/vision
+== 正在跑的进程
+  server PID: 3950911
+  PID 3950947  /home/chris/dev/strata-gfx906/build-text-rocm10/strata
+          runtime: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333-0000000
+          sha256: a9c9ac4a73470603...
+  PID 3950924  /home/chris/dev/strata-gfx906/build-vision-rocm10/bin/strata-vision
+          runtime: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7.15.26333-0000000
+          sha256: 943a54bd7a683446...
+== ROCm 默认
+  /opt/rocm -> /opt/rocm-10.0
+  libamdhip64: /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7
+== 健康
+  {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+结论: 符合现役规则(上游文本 + fork HIP 视觉,均 ROCm 10)

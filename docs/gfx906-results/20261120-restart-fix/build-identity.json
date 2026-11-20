@@ -1,0 +1,28 @@
+{
+ "upstream": "58ee32277",
+ "upstream_note": "upstream main after tag v0.2.16 / 64524fb9f; no new tag was published",
+ "merge": "b3aaee7e4",
+ "engine_change": "none in 64524fb9f..58ee32277: docs, supporters and the docker build context only",
+ "llama_cpp": "3cf03257f219afbe7334045ff7c6a06ac68c627d",
+ "engine_version": "0.1.62",
+ "min_engine": "(0, 1, 46)",
+ "text": {
+  "path": "/home/chris/dev/strata-gfx906/build-text-rocm10-v0216/strata",
+  "sha256": "a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b",
+  "bytes": 26960536,
+  "built_utc": "20261120T025858Z",
+  "deployed_as": "build-text-rocm10/strata"
+ },
+ "vision": {
+  "path": "/home/chris/dev/strata-gfx906/build-vision-rocm10-v0215/bin/strata-vision-hip",
+  "sha256": "943a54bd7a683446a63904ae37f39f2f40add0f79a10b8a33ef9e60582f02d7f",
+  "bytes": 49529624,
+  "built_utc": "20261117T111553Z",
+  "deployed_as": "build-vision-rocm10/bin/strata-vision",
+  "note": "the v0.2.16 round compiled a picture-reader check (51f830a4...) and left the deployed v0.2.15 artifact in place"
+ },
+ "round": "restart of 8082 after upstream's 0.2.16 layout move: data/expert-profile.bin restored from terminal/data/expert-profile.bin (both sha256 8f59b4aa8873209d..., 196,632 B)",
+ "restart": true,
+ "model_test": true,
+ "ctest": false
+}

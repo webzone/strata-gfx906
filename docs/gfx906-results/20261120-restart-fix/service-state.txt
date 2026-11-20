@@ -1,0 +1,17 @@
+UTC: 2026-11-20T08:27:44Z
+checkout: e907657eb (gfx906)
+listener: LISTEN 0      256                        0.0.0.0:8082       0.0.0.0:*    users:(("python",pid=3950911,fd=13))
+processes:
+  3950911 08:44
+  3950924 08:43
+  3950947 08:40
+health: {"status": "ok", "max_context": 262144, "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S", "images": true, "api_key": false, "image_generation": false, "loaded": true, "service": "strata"}
+engine: "version": "0.1.62"
+text sha256: a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b
+vision sha256: 943a54bd7a683446a63904ae37f39f2f40add0f79a10b8a33ef9e60582f02d7f
+config md5: e996f0f9e1e60b2dade05f188ee8c4e3
+profile copies:
+8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf  data/expert-profile.bin
+8f59b4aa8873209dff11c11e37bcda9529a1335b724a1afeea37bf6388975baf  terminal/data/expert-profile.bin
+  196632 data/expert-profile.bin
+  196632 terminal/data/expert-profile.bin

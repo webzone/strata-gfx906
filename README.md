@@ -5,15 +5,16 @@ that tag; merged into `gfx906` on 2026-11-20; engine version `0.1.62`, upstream'
 `(0, 1, 46)`, Terminal 0.2.16, Control 0.1.62, engine package 0.1.62 — none of them changed by this
 merge). The merge and installation records are in [docs/GFX906.md](docs/GFX906.md).
 
-**Installed without restart:** the T5810 checkout moved `3c28629c9` → `b3aaee7e4` on 2026-11-20 with
-`tools/deploy-main-sync.sh`, then to the commit that carries this note (same script, `--tip`, exit 0).
-The merge changed no engine, Terminal or picture-reader source, so no rebuild
-was needed: the text engine stays `a9c9ac4a…` (26,960,536 B, `strata 0.1.62`) and the picture reader stays
-14350915… (49,529,624 B). The server, text engine and picture reader keep PIDs `2863631`,
-`2863677` and `2863645`, and `/metrics` still reports engine `0.1.61`, so the `0.1.62` binary takes effect
-when the owner restarts 8082. No build, no model test, no CTest run and no performance measurement was
-made for this round. See [docs/GFX906.md](docs/GFX906.md). Earlier deployment evidence, including the
-v0.2.16 engine build, remains in [docs/GFX906.md](docs/GFX906.md).
+**Running on T5810:** 8082 now runs engine `0.1.62` (text `a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b`, 26,960,536 B; picture
+reader 14350915…, 49,529,624 B; server, reader and engine PIDs `3950911`, `3950924`, `3950947`).
+The first restart after the v0.2.16 merge failed: upstream's layout move `4058aa782` deleted the tracked
+`data/expert-profile.bin` that `run-iq3-s.json` names, so the engine died on `read_expert_profile` and the
+server died with it. The fork now keeps an untracked copy at that path, byte-identical to upstream's
+`terminal/data/expert-profile.bin` (both sha256 `8f59b4aa…`, 196,632 B), and the owner's config stays
+byte-unchanged. `tools/restart-8082.sh` restores, starts, waits for the model and verifies; `verify-v0216.sh`
+exits 0. No CTest run and no benchmark were made: engine `0.1.62` has no workload record yet. See
+[docs/GFX906.md](docs/GFX906.md). Earlier deployment evidence remains in
+[docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**
 - **Concurrent execution:** Multi-slot concurrent request batching and decoding across independent context sequences.

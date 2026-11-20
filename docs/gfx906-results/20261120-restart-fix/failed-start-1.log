@@ -1,0 +1,37 @@
+[strata] sampling defaults from the config: temperature=0.0
+loading the vision encoder ...
+loading the model (the first start takes a minute or two) ...
+[strata] layer split across GPUs [0, 1] (24)
+[strata] Drafting: none in parallel slots (one token per request and step); a single request still drafts
+[strata] starting the engine: reading the model's weights ...
+Traceback (most recent call last):
+  File "/home/chris/dev/strata-gfx906/terminal/serve/server.py", line 8770, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/chris/dev/strata-gfx906/terminal/serve/server.py", line 8122, in main
+    return _main(argv, lifecycle_event=lifecycle_event, interrupt_exit_code=interrupt_exit_code)
+  File "/home/chris/dev/strata-gfx906/terminal/serve/server.py", line 8460, in _main
+    engine = start_engine_or_fallback(cfg, exe, effort_end, env, lazy, tok, offline=a.offline, batch_telemetry=a.batch_telemetry)
+  File "/home/chris/dev/strata-gfx906/terminal/serve/server.py", line 7906, in start_engine_or_fallback
+    return StrataEngine(exe, engine_args(cfg, exe) + (effort_end or []), cwd=cfg.get("cwd"), log=cfg.get("log"), env=env, lazy=lazy,
+                        retry_args=mtp_retry_args(cfg, exe, effort_end), retry_vram_args=nodraft_retry_args(cfg, exe, effort_end))
+  File "/home/chris/dev/strata-gfx906/terminal/serve/server.py", line 909, in __init__
+    raise EngineDied(why + (f" (see {log})" if log else "") + note +
+                     start_failure_hint(log, log_start) + tail)
+serve.server_parts.engines.EngineDied: the engine exited before it was ready (see /home/chris/dev/strata-gfx906/logs/cachefix-rocm10-20261007/iq3-engine.log)
+the engine process ended: exit code 1
+the engine log's last lines:
+  [strata] 2026-11-20 08:15:23 engine started: /home/chris/dev/strata-gfx906/build-text-rocm10/strata --serve --pack /home/chris/dev/strata-gfx906/packs/iq3_s --native /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf --ple-gguf /home/chris/dev/strata-gfx906/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf --expert-profile /home/chris/dev/strata-gfx906/data/expert-profile.bin --expert-cache auto --max-context 262144 --kv int8 --kv-resident 32768 --pool-workers 6 --prefill 2048 --spec 4 --mtp /home/chris/dev/strata-gfx906/mtp/rt --mtp-window 32768 --spec-min-p 0.5 --suffix-draft 0 --prompt-cache 6 --adapt-every 0 --pcie-frac 0 --vram-reserve-mib 1024 --vram-reserve-later-mib 0 --batch-groups 2 --trim-stage-weights --vision --conversation-cache-mib 6144 --conversation-cache-slots 4 --conversation-cache-min-free-mib 4096 --conversation-cache-min-tokens 4096 --layer-split 24 --batch 4
+  strata generate: memory guard: limit 108.0 GiB (source: meminfo), current 3.1 GiB, reclaimable cache credited 0.0 GiB; available 104.8 GiB (MemAvailable 104.8 GiB), floor 4096 MiB
+  strata generate: layer split across 2 GPUs: CUDA0, then CUDA1 (split 24)
+  strata generate: CPU expert kernels: AVX-2
+  strata generate: native pack: /home/chris/dev/strata-gfx906/packs/iq3_s experts (largest blob 2.66 MB), token embedding IQ4_XS in mapped host memory (322 MiB, 0.2 s)
+  strata generate: layer split: CUDA0 loads the dense weights of layers 0-23 only
+  strata generate: 771 MiB of weights loaded from /home/chris/dev/strata-gfx906/packs/iq3_s in 0.2 s (686 canonical tensors skipped: served natively)
+  strata generate: 150 native projection matrices, 988.19 MiB of weights, in 0.3 s
+  strata: the PLE table (26.8 GiB) was not locked in RAM: this program may lock only 0.0 GiB (RLIMIT_MEMLOCK). It still works, with the table's pages faulted in but reclaimable; the lock was measured up to 6% faster in decode (#4671). In a systemd service set LimitMEMLOCK=infinity, elsewhere run `ulimit -l unlimited`
+  strata generate: --ple-io ram chosen by the residency policy (the table is 26.8 GiB, the expert arena still to fill 46.8 GiB and 104.4 GiB of RAM is available; STRATA_PLE_AUTO_RAM=0 keeps the direct reads, --ple-io direct forces them)
+  strata generate: PLE table loaded (not locked) (--ple-io ram chosen by the residency policy) in 0.2 s
+  strata generate: layer split: CUDA1 loads the dense weights of layers 24-47 only
+  strata generate: layer split: CUDA1 holds its weights; 29.94 GiB free (its session follows the split search)
+  strata generate: read_expert_profile: cannot open /home/chris/dev/strata-gfx906/data/expert-profile.bin
