@@ -1,9 +1,9 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: Strata v0.2.16 / `64524fb9f`** (the tag's own commit; merged into `gfx906` on
-2026-11-20; engine version `0.1.62`, upstream's `MIN_ENGINE` `(0, 1, 46)`, Terminal 0.2.16,
-Control 0.1.62, engine package 0.1.62). The merge and installation records are in
-[docs/GFX906.md](docs/GFX906.md).
+**Source version: upstream `main` `58ee32277`** (Strata v0.2.16 `64524fb9f` plus the four commits after
+that tag; merged into `gfx906` on 2026-11-20; engine version `0.1.62`, upstream's `MIN_ENGINE`
+`(0, 1, 46)`, Terminal 0.2.16, Control 0.1.62, engine package 0.1.62 — none of them changed by this
+merge). The merge and installation records are in [docs/GFX906.md](docs/GFX906.md).
 
 **Installed without restart:** the T5810 text engine was built from fork commit `3961026f0` (upstream
 v0.2.16, engine `0.1.62`) and installed on 2026-11-20; the HIP picture reader was compiled as a check and
