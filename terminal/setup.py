@@ -6460,8 +6460,8 @@ def update_installed_engine(url_base, toolkit=None, rebuild=False) -> None:
                 g = next((x for x in usable if x["arch"] in arch_names(meta.get("archs"))), usable[0] if usable else None)
                 if g is None:
                     raise RuntimeError("no supported AMD GPU found")
-                # Preserve every supported compiled architecture, including explicit gfx906.
-                supported = (*AMD_ARCHS, "gfx906") if experimental else AMD_ARCHS
+                # Preserve every supported compiled architecture; gfx906 only when the config says it was opt-in.
+                supported = (*AMD_ARCHS, "gfx906") if experimental else tuple(x for x in AMD_ARCHS if x != "gfx906")
                 archs = [x for x in arch_names(meta.get("archs")) if x in supported] or [g["arch"]]
                 build_engine_hip({**g, "archs": archs}, llama_override(), meta.get("vision") or "none",
                                  experimental_gfx906=experimental)
