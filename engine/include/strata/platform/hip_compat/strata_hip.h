@@ -15,6 +15,13 @@
 #ifndef HIP_DISABLE_WARP_SYNC_BUILTINS
 #define HIP_DISABLE_WARP_SYNC_BUILTINS 1
 #endif
+// A host-only translation unit (a test .cpp built by the host compiler in this lane) reaches the HIP headers
+// through this shim without the platform macro any target property would have given it.  hip_fp16.h and
+// hip_runtime.h #error without exactly one of the two, so pick AMD here when neither is set.
+#if !defined(__HIP_PLATFORM_AMD__) && !defined(__HIP_PLATFORM_NVIDIA__)
+#define __HIP_PLATFORM_AMD__ 1
+#endif
+
 #include <hip/hip_runtime.h>
 #include <hip/hip_fp16.h>
 
