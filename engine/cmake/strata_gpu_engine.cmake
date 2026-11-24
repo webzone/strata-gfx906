@@ -24,16 +24,18 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
   target_link_libraries(strata-device PRIVATE strata_core)
 
   add_executable(strata-load src/core/load_main.cpp)
-  target_link_libraries(strata-load PRIVATE strata_core strata_kernels)
+  # pinned.cu's STRATA_NUMA_ARENA placement (#6529) calls strata::kernels::cpu::expert_layout(), which lives in
+  # strata_kernels_cpu; without it these three programs and pinned_shared_test link with an undefined symbol.
+  target_link_libraries(strata-load PRIVATE strata_core strata_kernels strata_kernels_cpu)
 
   add_executable(strata-concurrent src/core/concurrent_main.cpp)
   target_include_directories(strata-concurrent PRIVATE ${_strata_gpu_include_directories})
-  target_link_libraries(strata-concurrent PRIVATE strata_core strata_kernels ${_strata_gpu_runtime_target})
+  target_link_libraries(strata-concurrent PRIVATE strata_core strata_kernels strata_kernels_cpu ${_strata_gpu_runtime_target})
 
   add_executable(strata-overlap src/core/overlap_main.cpp)
   # a .cpp that calls cudaMemcpyAsync itself needs the toolkit headers and cudart explicitly
   target_include_directories(strata-overlap PRIVATE ${_strata_gpu_include_directories})
-  target_link_libraries(strata-overlap PRIVATE strata_core strata_kernels ${_strata_gpu_runtime_target})
+  target_link_libraries(strata-overlap PRIVATE strata_core strata_kernels strata_kernels_cpu ${_strata_gpu_runtime_target})
 
   # The load test needs the 34 GB artifact, so it is registered ONLY where that artifact exists.  A test that
   # silently skips is a test that stops running; an absent registration is visible in the configure output.
@@ -1129,6 +1131,10 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
   add_test(NAME route_prior_parity COMMAND route_prior_parity)
   set_tests_properties(route_prior_parity PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
   # the gated combine (STRATA_LFUSE) rounds the shared expert row's product on its own, bitwise the scale-rows-then-add path (#5100; GPU, synthetic, no model)
+  # this fork: .cu is not a language here (cmake/backends/hip.cmake's strata_hip_gfx906_sources globs src, bench/micro and
+  # the vision tool only), so an unmarked test .cu links with no objects and `main` is undefined.  Marked HIP like
+  # tests/core/flag_order_test.cu above; on gfx906 it compares the two HIP kernels, which is the same bitwise question.
+  set_source_files_properties(tests/cuda/native_moe_gated_test.cu PROPERTIES LANGUAGE HIP)
   add_executable(native_moe_gated_test tests/cuda/native_moe_gated_test.cu)
   target_include_directories(native_moe_gated_test PRIVATE ${_strata_gpu_include_directories})
   target_link_libraries(native_moe_gated_test PRIVATE strata_kernels ${_strata_gpu_runtime_target})
@@ -1327,7 +1333,7 @@ if(STRATA_ENABLE_CUDA OR STRATA_ENABLE_HIP)
 
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(pinned_shared_test src/core/pinned_shared_test.cpp)
-    target_link_libraries(pinned_shared_test PRIVATE strata_core ${_strata_gpu_runtime_target})
+    target_link_libraries(pinned_shared_test PRIVATE strata_core strata_kernels_cpu ${_strata_gpu_runtime_target})
     add_test(NAME pinned_shared_test COMMAND pinned_shared_test)
   endif()
   if(WIN32)   # the replicas' shared expert arena as a named section (src/core/pinned.cu): two arenas, a child process, the last handle
