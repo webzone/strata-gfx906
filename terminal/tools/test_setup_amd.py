@@ -91,8 +91,17 @@ class KfdDetection(unittest.TestCase):
         self.assertEqual(setup.amd_gpus(str(self.root)), [])
 
     def test_rocm_index_per_family(self):
+        # gfx906 (Instinct MI50 / MI60 / Radeon VII) is the one supported arch without wheels: it runs from a source
+        # build on a system ROCm 6.x, not driven by setup (docs/AMD_HIP.md, the gfx906 section)
         for arch in setup.AMD_ARCHS:
+            if arch == "gfx906":
+                continue
             self.assertIn(arch, setup.ROCM_INDEXES)
+        self.assertNotIn("gfx906", setup.ROCM_INDEXES)
+        # this fork: gfx906 is opt-in, so a plain setup refuses it and --experimental-gfx906 accepts it (docs/GFX906.md)
+        self.assertIsNotNone(setup.amd_problem({"arch": "gfx906"}))
+        if not setup.WIN:
+            self.assertIsNone(setup.amd_problem({"arch": "gfx906"}, True))
         self.assertTrue(setup.ROCM_INDEXES["gfx1101"].endswith("/gfx110X-dgpu/"))
         self.assertTrue(setup.ROCM_INDEXES["gfx1200"].endswith("/gfx120X-all/"))
         self.assertEqual(setup.ROCM_INDEXES["gfx1101"], setup.ROCM_INDEXES["gfx1100"])

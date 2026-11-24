@@ -1,9 +1,9 @@
 # Strata for AMD Instinct MI50 / MI60
 
-**Source version: upstream `main` `58ee32277`** (Strata v0.2.16 `64524fb9f` plus the four commits after
-that tag; merged into `gfx906` on 2026-11-20; engine version `0.1.62`, upstream's `MIN_ENGINE`
-`(0, 1, 46)`, Terminal 0.2.16, Control 0.1.62, engine package 0.1.62 — none of them changed by this
-merge). The merge and installation records are in [docs/GFX906.md](docs/GFX906.md).
+**Source version: upstream `main` `6a6db7ff5`** (Strata v0.2.20 `a34979fc9` plus the sixteen commits after
+that tag; merged into `gfx906` on 2026-11-23; engine version `0.1.66`, upstream's `MIN_ENGINE`
+`(0, 1, 46)`, Terminal and app 0.2.20, Control 0.1.66, engine package 0.1.66). The merge and installation
+records are in [docs/GFX906.md](docs/GFX906.md).
 
 **Running on T5810:** 8082 now runs engine `0.1.62` (text `a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b`, 26,960,536 B; picture
 reader 14350915…, 49,529,624 B; server, reader and engine PIDs `3950911`, `3950924`, `3950947`).

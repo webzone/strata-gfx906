@@ -25,13 +25,15 @@ RDNA = dict(index=2, arch="gfx1201", name="RDNA4", vram_gb=48.0, vendor="amd")
 
 class UpstreamIntegration(unittest.TestCase):
     def test_version_and_acceptance_pins(self):
-        self.assertEqual(setup.source_version(), "0.1.62")   # engine string of upstream v0.2.16
+        self.assertEqual(setup.source_version(), "0.1.66")   # engine string of upstream v0.2.20
         self.assertEqual(setup.MIN_ENGINE, (0, 1, 46))
         self.assertEqual(setup.LLAMA_CPP_COMMIT, "3cf03257f219afbe7334045ff7c6a06ac68c627d")
         self.assertEqual(setup.HF_REVISIONS[gfx906_model.REPO], gfx906_model.REVISION)
         self.assertEqual(mtp_fetch.REVISION, "de4b8e4d43b917e7706784d8bb445c9af86a3540")
-        self.assertNotIn("gfx906", setup.AMD_ARCHS)
         self.assertNotIn("gfx906", setup.ROCM_INDEXES)
+        # upstream 0.2.20 lists gfx906 as a source-build card; this fork still requires --experimental-gfx906
+        self.assertIn("gfx906", setup.AMD_ARCHS)
+        self.assertIsNotNone(setup.amd_problem({"arch": "gfx906"}))
 
     def test_upstream_parser_preserves_gfx906_opt_in_and_order(self):
         self.assertEqual([g["index"] for g in setup.amd_parse_gpus("1,0", CARDS, True)], [1, 0])
