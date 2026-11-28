@@ -1,0 +1,13 @@
+Device: AMD Instinct MI60 / MI50 (gfx906:sramecc+:xnack-)
+  gemm M=256 N=12288 K=2304: 0 of 3145728 outputs differ from the old kernel ok
+    16x32 tile (old): 6.419 ms, 2.26 TFLOPs
+    64x64 tile (new): 1.027 ms, 14.11 TFLOPs
+  gemm M=256 N=2304 K=4096: 0 of 589824 outputs differ from the old kernel ok
+    16x32 tile (old): 2.965 ms, 1.63 TFLOPs
+    64x64 tile (new): 0.626 ms, 7.71 TFLOPs
+  gemm M=100 N=1000 K=2304: 0 of 100000 outputs differ from the old kernel ok
+  gemm M=33 N=65 K=64: 0 of 2145 outputs differ from the old kernel ok
+  gemm M=512 N=4096 K=2304: 0 of 2097152 outputs differ from the old kernel ok
+    16x32 tile (old): 4.361 ms, 2.22 TFLOPs
+    64x64 tile (new): 0.699 ms, 13.83 TFLOPs
+GEMM OK

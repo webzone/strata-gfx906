@@ -1,0 +1,13 @@
+[ink-hip-test] AMD Instinct MI60 / MI50 (gfx906:sramecc+:xnack-, CUs=60, UMA=0) carve=31.96/31.98 GiB eff=31.96/31.98 GiB max_chunk=8192 flush=48
+[sf4] M= 1 f16/default rel_l2=8.280e-08 max_abs=7.629e-06 PASS
+[sf4] M= 8 f16/default rel_l2=3.657e-03 max_abs=3.881e-01 PASS
+[sf4] M=64 f16/default rel_l2=3.594e-03 max_abs=4.595e-01 PASS
+[mx8] M= 1 rel_l2=1.034e-07 max_abs=3.906e-03 PASS
+[mx8] M= 8 rel_l2=5.643e-07 max_abs=4.297e-02 PASS
+[mx8] M=64 rel_l2=5.883e-07 max_abs=5.469e-02 PASS
+[k3-flash-swa] B=64 paged FP16 err(slot0)=2.512e-07 err(slot63)=1.977e-07 PASS
+[ink-hip-test] loop_ctrl_up3 SWA alias (D=4096, 400 reps): backend call 0 bad, old in-place call 400 bad (race shows when > 0): PASS
+[bench sf4 2304x2304] M= 1 wmma-f16 :   14.2 us (211.0 GB/s eff,  0.75 TFLOP/s)
+[bench sf4 2304x2304] M= 8 wmma-f16 :  217.4 us ( 13.7 GB/s eff,  0.39 TFLOP/s)
+[bench sf4 2304x2304] M=64 wmma-f16 :  299.5 us ( 10.0 GB/s eff,  2.27 TFLOP/s)
+[ink-hip-test] OVERALL: PASS

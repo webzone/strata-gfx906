@@ -1,0 +1,45 @@
+=== state
+no 80xx listener
+no strata process
+MemAvailable MiB 107747
+  84G
+e7709e767 AGENTS.md: subagents on Haiku 5.5 do the concrete tasks; no fleet, no agent-kit
+log: /home/chris/dev/strata-gfx906/logs/ink906-probe-20261128T033835Z.log
+exit 0 after 14 s
+errors: 0 warnings: 0
+--- -O3 object build
+=== state
+no 80xx listener
+no strata process
+MemAvailable MiB 107622
+  83G
+e7709e767 AGENTS.md: subagents on Haiku 5.5 do the concrete tasks; no fleet, no agent-kit
+log: /home/chris/dev/strata-gfx906/logs/ink906-objprobe-20261128T033903Z.log
+exit 0 after 49 s
+errors: 0 warnings: 0
+--- standalone tests and strata-inkling build
+logs: /home/chris/dev/strata-gfx906/logs/ink906-build-20261128T034724Z
+no strata process
+MemAvailable MiB 107732
+gguf_types_test: exit 0 (19 s), errors 0
+ink_hip_test: exit 0 (19 s), errors 0
+configure: exit 0 (6 s)
+  Strata EXPERIMENTAL gfx906 wave64: not upstream-supported; model-level
+-- Strata: HIP enabled, arch gfx906
+  STRATA_ENABLE_HIP on gfx906 is this fork's wave64 text backend.  It is
+  instead.  The gfx906 image encoder is a separate project
+-- Build files have been written to: /home/chris/dev/strata-gfx906-ink906probe/build-ink906
+build strata-inkling: exit 0 (77 s), errors 0
+binary: build-ink906/src/inkling2/strata-inkling
+-rwxr-xr-x 1 chris chris 4828200 Nov 28 03:49 build-ink906/src/inkling2/strata-inkling
+d396a2cd5637c3b2aabe290b8706411ab235dd0cd2b7cc74378c3c15e5611dea  build-ink906/src/inkling2/strata-inkling
+strata-inkling 0.1.70
+	libamdhip64.so.7 => /opt/rocm-10.0/core-10.0/lib/libamdhip64.so.7 (0x000074d1e0c00000)
+	librocm_kpack.so.0 => /opt/rocm-10.0/core-10.0/lib/librocm_kpack.so.0 (0x000074d1e0abf000)
+	librocprofiler-register.so.0 => /opt/rocm-10.0/core-10.0/lib/librocprofiler-register.so.0 (0x000074d1e0771000)
+	libamd_comgr.so.3 => /opt/rocm-10.0/core-10.0/lib/libamd_comgr.so.3 (0x000074d1df600000)
+total 1904
+drwxr-xr-x  2 chris chris    4096 Nov 28 03:48 .
+drwxr-xr-x 14 chris chris    4096 Nov 28 03:48 ..
+-rwxr-xr-x  1 chris chris  891008 Nov 28 03:47 ink_hip_gguf_types_test
+-rwxr-xr-x  1 chris chris 1047736 Nov 28 03:48 ink_hip_test

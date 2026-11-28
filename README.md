@@ -5,15 +5,10 @@ merged into `gfx906` on 2026-11-28; engine version `0.1.70`, upstream's `MIN_ENG
 `(0, 1, 46)`, Terminal and app 0.2.23, Control and `strata-inkling` 0.1.70). The merge and installation
 records are in [docs/GFX906.md](docs/GFX906.md).
 
-**Running on T5810:** 8082 now runs engine `0.1.62` (text `a9c9ac4a7347060393dc5a08fac33a976a268f73cc06e4797d398b4d389dea3b`, 26,960,536 B; picture
-reader 14350915…, 49,529,624 B; server, reader and engine PIDs `3950911`, `3950924`, `3950947`).
-The first restart after the v0.2.16 merge failed: upstream's layout move `4058aa782` deleted the tracked
-`data/expert-profile.bin` that `run-iq3-s.json` names, so the engine died on `read_expert_profile` and the
-server died with it. The fork now keeps an untracked copy at that path, byte-identical to upstream's
-`terminal/data/expert-profile.bin` (both sha256 `8f59b4aa…`, 196,632 B), and the owner's config stays
-byte-unchanged. `tools/restart-8082.sh` restores, starts, waits for the model and verifies; `verify-v0216.sh`
-exits 0. No CTest run and no benchmark were made: engine `0.1.62` has no workload record yet. See
-[docs/GFX906.md](docs/GFX906.md). Earlier deployment evidence remains in
+**Running on T5810:** from 2026-11-28 the owner runs Strata with upstream's `strata` command (Terminal 0.1.70)
+and the model Inkling-2-Mini GSQ-RCO IQ3_S. The fork's gfx906 build of `strata-inkling` 0.1.70 (HIP plug-in, ROCm 7.10,
+sha256 `ae47206c…`) is installed there as a local, pinned engine package. Its HIP kernel tests pass on one MI50.
+It has not been started yet, so no model output or speed is recorded. The old 8082 service is stopped. See
 [docs/GFX906.md](docs/GFX906.md).
 
 **Key features in this release:**

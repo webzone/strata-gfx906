@@ -1,0 +1,3 @@
+detected backend: ('hip', 'rocminfo') · hip archs here: ['gfx906', 'gfx906']
+component:strata-inkling -> /home/chris/.local/share/strata/components/shapes/inkling2/engine/0.1.70-linux-x86_64-hip-local/strata-inkling
+resolve OK: the saved launch starts the gfx906 build

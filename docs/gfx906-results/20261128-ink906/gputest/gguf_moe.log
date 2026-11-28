@@ -1,0 +1,10 @@
+Device: AMD Instinct MI60 / MI50 (gfx906:sramecc+:xnack-)
+  moe tiles vs per-row kernels, gate/up IQ3_S + down IQ4_NL, 100 tokens: w13 max diff 0 of rms 66.3, w2 max diff 0 of rms 4.48e+03 ok
+    per-row kernels: w13 + w2 of one expert with 100 tokens 3.947 ms
+    tiled kernels  : w13 + w2 of one expert with 100 tokens 3.883 ms
+  moe tiles vs per-row kernels, gate/up IQ2_XXS + down IQ4_NL, 100 tokens: w13 max diff 0 of rms 59.6, w2 max diff 0 of rms 4.03e+03 ok
+  moe tiles vs per-row kernels, gate/up IQ3_XXS + down Q2_0, 100 tokens: w13 max diff 0 of rms 66.4, w2 max diff 0 of rms 81.3 ok
+  moe tiles vs per-row kernels, gate/up IQ2_XS + down IQ4_NL, 100 tokens: w13 max diff 0 of rms 59.8, w2 max diff 0 of rms 4.03e+03 ok
+  moe tiles vs per-row kernels, gate/up IQ2_S + down IQ4_NL, 100 tokens: w13 max diff 0 of rms 59.8, w2 max diff 0 of rms 4.03e+03 ok
+  moe tiles vs per-row kernels, gate/up IQ1_S + down IQ4_NL, 100 tokens: w13 max diff 0 of rms 20.7, w2 max diff 0 of rms 1.4e+03 ok
+MOE OK

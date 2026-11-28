@@ -1,0 +1,49 @@
+{
+ "schema_version": 2,
+ "id": "strata-inkling",
+ "name": "strata-inkling",
+ "shape": "inkling2",
+ "version": "0.1.70",
+ "platform": "linux-x86_64",
+ "backend": "hip",
+ "archs": [
+  "gfx906"
+ ],
+ "min_driver": {},
+ "build_id": "local:strata-gfx906 e7709e7679ab rocm-7.10 gfx906",
+ "min_runtime": null,
+ "entrypoint": "strata-inkling",
+ "files": [
+  {
+   "path": "strata-inkling",
+   "sha256": "ae47206c2efa96eb8627ce8f643a58c243d83f968d1682a82608d2167e235f60",
+   "bytes": 4828200
+  },
+  {
+   "path": "BUILD.json",
+   "sha256": "9846d226de7b6f5ab4a373eaba2acd3421349439bcbf526454db19ef6f121b57",
+   "bytes": 414
+  }
+ ],
+ "signature": null,
+ "local": true,
+ "notes": "strata-gfx906 fork build for MI50/MI60 (gfx906, wave64), built on this computer; not signed by Strata"
+}
+{
+ "version": "0.1.70",
+ "backend": "hip",
+ "archs": [
+  "gfx906"
+ ],
+ "source": "strata-gfx906 e7709e7679ab8a2fab16b4d85db1c0ec7fc2f95a",
+ "shape": "inkling2",
+ "entrypoint": "strata-inkling",
+ "toolchain": "ROCm 7.10 (/opt/rocm-10.0/core-10.0)",
+ "flags": [
+  "STRATA_ENABLE_HIP=ON",
+  "STRATA_EXPERIMENTAL_GFX906=ON",
+  "CMAKE_HIP_ARCHITECTURES=gfx906",
+  "STRATA_BUILD_INKLING=ON",
+  "STRATA_PORTABLE=ON"
+ ]
+}
