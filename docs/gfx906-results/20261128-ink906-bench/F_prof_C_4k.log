@@ -1,0 +1,46 @@
+[ink-hip] SWA KV ring 1536 positions (window 1024, forward_batch span cap 512)
+[ink-hip] DFlash 2: needs a wave32 GPU (RDNA): no drafter
+[ink-hip] native lossless GGUF_RAW GPU kernels active for 3072/3072 experts (zero S_K transcode)
+[ink-hip] compact GGUF trunk: embedding in pinned host RAM, trunk in the card 1780 MiB
+[ink-hip] expert arena budget 28.43 GiB -> 28.21 GiB: only 30.02 GiB of the card is free now (other programs hold the rest)
+[HIP-PROF] B=512 sum=356.69ms unemb=0.00ms tot=356.69ms (1435.4 tok/s) | res_ctrl=34.74 qkvrg=77.16 sconv_kv=19.03 attn=178.78 wo_post=46.98 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=686.28ms unemb=0.00ms tot=686.28ms (746.1 tok/s) | res_ctrl=34.98 qkvrg=77.03 sconv_kv=30.13 attn=495.60 wo_post=48.53 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=858.84ms unemb=0.00ms tot=858.84ms (596.2 tok/s) | res_ctrl=34.92 qkvrg=77.04 sconv_kv=31.28 attn=667.25 wo_post=48.35 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=908.39ms unemb=0.00ms tot=908.39ms (563.6 tok/s) | res_ctrl=34.97 qkvrg=76.93 sconv_kv=31.22 attn=716.96 wo_post=48.32 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=958.16ms unemb=0.00ms tot=958.16ms (534.4 tok/s) | res_ctrl=34.82 qkvrg=76.94 sconv_kv=31.13 attn=766.79 wo_post=48.48 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=1009.09ms unemb=0.00ms tot=1009.09ms (507.4 tok/s) | res_ctrl=35.20 qkvrg=77.11 sconv_kv=31.16 attn=817.07 wo_post=48.55 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=1059.20ms unemb=0.00ms tot=1059.20ms (483.4 tok/s) | res_ctrl=35.20 qkvrg=77.02 sconv_kv=31.26 attn=867.26 wo_post=48.45 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=512 sum=1109.20ms unemb=3.44ms tot=1112.64ms (460.2 tok/s) | res_ctrl=34.99 qkvrg=76.94 sconv_kv=31.29 attn=917.57 wo_post=48.41 moe_prep=0.00 moe_w13=0.00 moe_w2_post=0.00
+[HIP-PROF] B=1 sum=34.10ms unemb=3.27ms tot=37.37ms (26.8 tok/s) | res_ctrl=1.72 qkvrg=3.45 sconv_kv=1.54 attn=6.01 wo_post=2.95 moe_prep=1.25 moe_w13=10.21 moe_w2_post=6.98
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.14ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=5.99 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.00 wo_post=2.91 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.89ms unemb=3.26ms tot=37.15ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.38 sconv_kv=1.51 attn=6.00 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.90ms unemb=3.26ms tot=37.15ms (26.9 tok/s) | res_ctrl=1.71 qkvrg=3.36 sconv_kv=1.52 attn=5.98 wo_post=2.93 moe_prep=1.26 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.13ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.37 sconv_kv=1.51 attn=5.96 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.98
+[HIP-PROF] B=1 sum=33.90ms unemb=3.26ms tot=37.16ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.37 sconv_kv=1.51 attn=5.99 wo_post=2.91 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.98
+[HIP-PROF] B=1 sum=33.89ms unemb=3.26ms tot=37.15ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.37 sconv_kv=1.52 attn=5.97 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.14ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.01 wo_post=2.91 moe_prep=1.25 moe_w13=10.19 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.87ms unemb=3.27ms tot=37.14ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.00 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.00 wo_post=2.92 moe_prep=1.25 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.88ms unemb=3.26ms tot=37.14ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.01 wo_post=2.92 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.00 wo_post=2.92 moe_prep=1.25 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.85ms unemb=3.26ms tot=37.11ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.36 sconv_kv=1.51 attn=5.97 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=5.99 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.83ms unemb=3.26ms tot=37.09ms (27.0 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=5.98 wo_post=2.91 moe_prep=1.24 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.14ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.35 sconv_kv=1.51 attn=6.01 wo_post=2.91 moe_prep=1.25 moe_w13=10.17 moe_w2_post=6.96
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.13ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.36 sconv_kv=1.51 attn=6.00 wo_post=2.92 moe_prep=1.25 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.68 qkvrg=3.36 sconv_kv=1.51 attn=6.01 wo_post=2.91 moe_prep=1.25 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.89ms unemb=3.26ms tot=37.15ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.50 attn=6.02 wo_post=2.92 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.13ms (26.9 tok/s) | res_ctrl=1.68 qkvrg=3.35 sconv_kv=1.51 attn=6.00 wo_post=2.91 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.83ms unemb=3.26ms tot=37.09ms (27.0 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.50 attn=5.97 wo_post=2.91 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.52 attn=5.99 wo_post=2.92 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.83ms unemb=3.26ms tot=37.09ms (27.0 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.50 attn=5.97 wo_post=2.91 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.96
+[HIP-PROF] B=1 sum=33.88ms unemb=3.26ms tot=37.15ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.35 sconv_kv=1.51 attn=6.01 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.50 attn=6.01 wo_post=2.91 moe_prep=1.25 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.13ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.01 wo_post=2.91 moe_prep=1.24 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.87ms unemb=3.26ms tot=37.13ms (26.9 tok/s) | res_ctrl=1.70 qkvrg=3.35 sconv_kv=1.51 attn=6.00 wo_post=2.92 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.50 attn=6.00 wo_post=2.91 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.83ms unemb=3.26ms tot=37.09ms (27.0 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.50 attn=5.97 wo_post=2.92 moe_prep=1.25 moe_w13=10.18 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.86ms unemb=3.26ms tot=37.12ms (26.9 tok/s) | res_ctrl=1.69 qkvrg=3.36 sconv_kv=1.51 attn=6.01 wo_post=2.91 moe_prep=1.24 moe_w13=10.17 moe_w2_post=6.97
+[HIP-PROF] B=1 sum=33.82ms unemb=3.26ms tot=37.09ms (27.0 tok/s) | res_ctrl=1.69 qkvrg=3.35 sconv_kv=1.51 attn=5.98 wo_post=2.91 moe_prep=1.24 moe_w13=10.18 moe_w2_post=6.96
+[bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp8 prompt=4096 gen=32 | prefill=260.7 ppts (15.71s) | decode=26.0 tps agg (26.0 tps/slot, 1.23s)

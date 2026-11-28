@@ -1,0 +1,20 @@
+bench 20261128T043012Z · sha256 ae47206c2efa96eb · model 11425259648 B
+=== stop the server
+stop exit 0: Stopped gsq-rco-iq3_s-256k. 
+idle: GPU[0]		: VRAM Total Used Memory (B): 10866688 GPU[1]		: VRAM Total Used Memory (B): 10866688 
+A_dual_fp8 exit 0 (207 s): [bench] backend=hip-ep2 format=gguf parallel=1 gpus=2 kv=fp8 prompt=16384 gen=256 | prefill=87.2 ppts (187.91s) | decode=26.7 tps agg (26.7 tps/slot, 9.59s)
+    [ink-hip] Dual-GPU EP2 active: GPU1 (AMD Instinct MI60 / MI50, 1509 exp, 4.37 GiB) + GPU0 (AMD Instinct MI60 / MI50, 1563 exp, 4.50 GiB), RAM=0 | split=0.50 p2p=on
+B_one_fp8 exit 0 (304 s): [bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp8 prompt=16384 gen=256 | prefill=57.9 ppts (282.92s) | decode=23.9 tps agg (23.9 tps/slot, 10.70s)
+C_one_fp8_tiles exit 0 (107 s): [bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp8 prompt=16384 gen=256 | prefill=192.9 ppts (84.94s) | decode=24.0 tps agg (24.0 tps/slot, 10.67s)
+D_C_chunk2048 exit 0 (90 s): [bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp8 prompt=16384 gen=256 | prefill=237.9 ppts (68.88s) | decode=24.0 tps agg (24.0 tps/slot, 10.67s)
+E_C_fp16 exit 0 (79 s): [bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp16 prompt=16384 gen=256 | prefill=277.7 ppts (59.00s) | decode=27.6 tps agg (27.6 tps/slot, 9.26s)
+F_prof_C_4k exit 0 (27 s): [bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp8 prompt=4096 gen=32 | prefill=260.7 ppts (15.71s) | decode=26.0 tps agg (26.0 tps/slot, 1.23s)
+=== restart the server
+restart exit 0
+  Anthropic apps http://127.0.0.1:8080   (Claude Code: ANTHROPIC_BASE_URL, no /v1 at the end)
+  Engine log     /home/chris/.local/state/strata/launch/gsq-rco-iq3_s-256k.engine.log   (follow it: strata logs --follow)
+[!] Drafting off: a 128-token probe on this card measured 1.00x with drafting (code 1.00x, chat 1.00x) (plain decoding 40 tok/s); it needs 1.10x.
+  Watch it:    strata monitor --url http://127.0.0.1:8080
+  Connect an app:  strata connect opencode      Stop:  strata launch --stop --preset "GSQ-RCO-IQ3_S 256K"
+8080 listening
+=== DONE

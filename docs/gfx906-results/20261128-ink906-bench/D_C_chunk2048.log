@@ -1,0 +1,6 @@
+[ink-hip] SWA KV ring 3072 positions (window 1024, forward_batch span cap 2048)
+[ink-hip] DFlash 2: needs a wave32 GPU (RDNA): no drafter
+[ink-hip] native lossless GGUF_RAW GPU kernels active for 3072/3072 experts (zero S_K transcode)
+[ink-hip] compact GGUF trunk: embedding in pinned host RAM, trunk in the card 1780 MiB
+[ink-hip] expert arena budget 28.32 GiB -> 28.09 GiB: only 30.02 GiB of the card is free now (other programs hold the rest)
+[bench] backend=hip format=gguf parallel=1 gpus=1 kv=fp8 prompt=16384 gen=256 | prefill=237.9 ppts (68.88s) | decode=24.0 tps agg (24.0 tps/slot, 10.67s)

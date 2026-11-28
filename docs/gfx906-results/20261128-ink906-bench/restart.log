@@ -1,0 +1,23 @@
+[!] No API key: anyone who can reach this port can use the model and its tools (they can read and change files on this computer). Leave --no-api-key out to get a key.
+Main: GPU 2 (--gpu 1) Radeon Instinct MI50 16GB. Helper: GPU 1 (--gpu 0) Radeon Instinct MI50 16GB.
+    Checking the engine for Inkling-2-Mini…
+    Engine for Inkling-2-Mini 0.1.70 (hip) is installed.
+    inkling-2-mini GSQ-RCO-IQ3_S is already installed with these choices.
+    Writing this launch's settings…
+    Settings are saved.
+    Measuring whether drafting makes this model faster on this computer (two short runs; once for this setup)…
+    Starting the engine and loading the model. The first start can take a few minutes.
+    Loading the model… 15 s
+    The model is loaded and answering.
+    Drafting off: a 128-token probe on this card measured 1.00x with drafting (code 1.00x, chat 1.00x) (plain decoding 40 tok/s); it needs 1.10x.
+    Ready: http://127.0.0.1:8080, http://192.168.2.8:8080
+    Strata is serving.
+
+Strata is serving.
+  This computer  http://127.0.0.1:8080/v1
+  Network        http://192.168.2.8:8080/v1
+  Anthropic apps http://127.0.0.1:8080   (Claude Code: ANTHROPIC_BASE_URL, no /v1 at the end)
+  Engine log     /home/chris/.local/state/strata/launch/gsq-rco-iq3_s-256k.engine.log   (follow it: strata logs --follow)
+[!] Drafting off: a 128-token probe on this card measured 1.00x with drafting (code 1.00x, chat 1.00x) (plain decoding 40 tok/s); it needs 1.10x.
+  Watch it:    strata monitor --url http://127.0.0.1:8080
+  Connect an app:  strata connect opencode      Stop:  strata launch --stop --preset "GSQ-RCO-IQ3_S 256K"
