@@ -4,7 +4,6 @@
 set -euo pipefail
 [ $# -eq 2 ] || { echo "usage: prepare.sh <repo> <env_dir>" >&2; exit 2; }
 env_dir=$2
-# A venv made before python3-venv was installed has no pip: make it again.
-"$env_dir/bin/python" -m pip --version >/dev/null 2>&1 || python3 -m venv --clear "$env_dir"
+[ -x "$env_dir/bin/python" ] || python3 -m venv "$env_dir"
 "$env_dir/bin/python" -m pip install -q --disable-pip-version-check jinja2 regex
 "$env_dir/bin/python" -c "import jinja2, regex; print('strata-gfx906 toolchain ok')"
