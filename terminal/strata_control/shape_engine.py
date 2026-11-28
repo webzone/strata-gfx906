@@ -449,6 +449,12 @@ def ensure(shape: str, source: str, *, components: Path | None = None, hardware:
         emit(str(exc) if getattr(exc, "refused_why", None) else WORDS["fetch_failed"].format(model=name, why=str(exc).rstrip(".")))
         return None
     if result["status"] == "none-for-this-pc":
+        # a local build for a card the feed does not carry (e.g. gfx906): the installed engine runs, the feed's note is not shown
+        if have:
+            try:
+                return find(shape, components, full=False, title=title).exe
+            except ec.EngineMissing:
+                pass
         emit(result["note"])
         return None
     if result.get("changed") or not quiet_when_current:

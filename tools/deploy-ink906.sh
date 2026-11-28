@@ -17,6 +17,8 @@ SHAPE=$COMP/shapes/inkling2
 PKG_NAME=0.1.70-linux-x86_64-hip-local
 PKG=$SHAPE/engine/$PKG_NAME
 ENGINE=0.1.70
+SE_REL=strata_control/shape_engine.py
+SE_ORIG=30f80455ead391c349242d25ced50733d935e3b3befcb6b5dd8eae6e089659fd   # upstream Terminal 0.1.70 shape_engine.py
 MIN_FREE_GIB=4
 DRY=0; COMMIT=""
 while [ $# -gt 0 ]; do case "$1" in --dry-run) DRY=1; shift;; --commit) COMMIT=$2; shift 2;; *) echo "unknown argument: $1"; exit 2;; esac; done
@@ -99,6 +101,16 @@ tmp = state.with_suffix(".tmp"); tmp.write_text(json.dumps(data, indent=1) + "\n
 print(f"pinned {name} in {state}")
 PY
 
+say "=== 4b. Terminal fix: a local shape engine runs when the feed has none for this PC"
+SE_DST=$TERM_DIR/$SE_REL; SE_SRC=$WT/terminal/$SE_REL
+SE_NEW=$(sha256sum "$SE_SRC" | cut -d' ' -f1); SE_HAVE=$(sha256sum "$SE_DST" | cut -d' ' -f1)
+if [ "$SE_HAVE" = "$SE_NEW" ]; then say "installed $SE_REL already has the fix"
+elif [ "$SE_HAVE" = "$SE_ORIG" ]; then
+  cp -p "$SE_DST" "$SE_DST.orig-$TS"; cp "$SE_SRC" "$SE_DST.tmp-$TS"; mv "$SE_DST.tmp-$TS" "$SE_DST"
+  [ "$(sha256sum "$SE_DST" | cut -d' ' -f1)" = "$SE_NEW" ] || fail "patched $SE_REL hash differs"
+  say "patched $SE_REL (backup $SE_REL.orig-$TS)"
+else fail "installed $SE_REL is neither upstream 0.1.70 nor the fork's file (sha256 $SE_HAVE): not patched"; fi
+
 say "=== 5. verify with the installed strata Terminal (no start)"
 cd "$TERM_DIR"
 "$TPY" - "$PKG" "$SHA" <<'PY' | tee "$LOGD/resolve.txt"
@@ -114,6 +126,14 @@ print("component:strata-inkling ->", exe)
 assert Path(exe).resolve() == (pkg / "strata-inkling").resolve(), "the start path does not resolve to the gfx906 package"
 import hashlib; assert hashlib.sha256(Path(exe).read_bytes()).hexdigest() == sha, "resolved engine hash differs"
 print("resolve OK: the saved launch starts the gfx906 build")
+import argparse
+from strata_cli import update_cmd
+from strata_control import shape_engine
+said = []
+got = shape_engine.ensure("inkling2", update_cmd._feed_source(argparse.Namespace(feed=None), ec.components_dir()), emit=said.append, title="Inkling-2-Mini", automatic=True)
+print("launch engine step (reads the feed) ->", got, "· said:", said)
+assert got and Path(got).resolve() == (pkg / "strata-inkling").resolve(), "strata launch's engine step does not return the gfx906 build"
+print("launch engine step OK")
 PY
 say "doctor: $(~/.local/bin/strata doctor 2>&1 | grep -iE 'inkling|shape|local' | head -4 | tr '\n' ' ')"
 if pgrep -af 'strata|server\.py' | grep -v -E 'pgrep|deploy-ink906' >/dev/null; then fail "a Strata process appeared"; fi
