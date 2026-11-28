@@ -65,11 +65,13 @@ All project documentation and maintenance notes must be written in English. Pres
 
 ## Upstream navigation
 
-When invoking `omp`, use the `herdr` skill from a Herdr-managed pane, as requested by the owner.
-The primary agent/thread owns only architecture, organization, review, and integration closeout;
-concrete tasks are delegated through `herdr` to fresh omp instances, at most four concurrent, each
-with a disjoint file scope (worktrees allowed as needed). When a task ends, the primary closes that
-round's omp instances and removes only that round's worktrees/branches, never another round's leftovers.
+The primary agent/thread owns architecture, organization, review, and integration closeout. Concrete tasks
+go to Claude Code subagents on the Haiku 5.5 model, each with a disjoint file scope (owner decision
+2026-11-28; it replaces the earlier omp-through-herdr rule). This project uses neither the agent-fleet skill
+nor agent-kit. GPU tests on the T5810 need the owner's approval before each run. The T5810 toolchain at
+`/opt/rocm-10.0/core-10.0` is ROCm 7.10 (its version file says 10.0.0; older records call it "ROCm 10").
+Never download a model to the owner's Mac: run host tests there with HTTP blocked
+(`HTTPS_PROXY=http://127.0.0.1:9`).
 
 Upstream's general user workflow is in `docs/AI_SETUP.md` and `docs/MCP_SERVER.md`; for this fork's
 MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upstream's RDNA/prebuilt defaults.
