@@ -11,6 +11,8 @@
 #pragma once
 
 #include "ink_hip_common.hip.h"
+#include "ink_hip_iq_codecs.hip.h"
+#include "ink_hip_rdna2_gemm.hip.h"
 
 namespace strata::inkling2::hip {
 
@@ -45,6 +47,7 @@ __host__ __device__ inline bool gguf_type_has_hip_kernel(uint32_t t) noexcept {
         case 0: case 1: case 2: case 8:
         case 10: case 11: case 12: case 13: case 14:
         case 18: case 20: case 23: case 30: case 39:
+        case 16: case 17: case 19: case 21: case 22: case 42:   // GSQ-RCO types (ink_hip_iq_codecs.hip.h)
             return true;
         default:
             return false;
@@ -67,6 +70,7 @@ __host__ __device__ inline size_t hip_gguf_row_bytes(uint32_t t, int K) noexcept
         case 1:
         case 30: return static_cast<size_t>(K) * 2u;
         case 0:  return static_cast<size_t>(K) * 4u;
+        case 16: case 17: case 19: case 21: case 22: case 42: return hip_iq_row_bytes(t, K);
         default: return 0u;
     }
 }
@@ -313,8 +317,10 @@ __device__ __forceinline__ uint4 hip_gguf_decode_8_f16(uint32_t t, const uint8_t
         const float* wp = reinterpret_cast<const float*>(row + static_cast<size_t>(col) * 4u);
 #pragma unroll
         for (int k = 0; k < 8; ++k) w[k] = wp[k] * ext_scale;
+    } else {
+        (void)hip_iq_decode_8(t, row, col, ext_scale, w);   // IQ3_S / IQ2_XXS / IQ2_XS / IQ2_S / IQ1_S / Q2_0
     }
-    return make_uint4(h2_pack(w[0], w[1]), h2_pack(w[2], w[3]), h2_pack(w[4], w[5]), h2_pack(w[6], w[7]));
+    return make_uint4(h2_pack(w[0], w[1]),h2_pack(w[2], w[3]), h2_pack(w[4], w[5]), h2_pack(w[6], w[7]));
 }
 
 // Fast GGUF_RAW -> FP16 unpack kernel (for hipBLASLt L3-resident expert GEMM)
@@ -1855,6 +1861,9 @@ __global__ void __launch_bounds__(256) k_bf16_gemv1_wo_sconv(
     float* __restrict__ cur,               // [D] FP32 (updated in-place!)
     float* __restrict__ blk_save,          // nullptr (non-boundary: cur += y) or [D] (boundary: blk_save=cur, cur=y)
     int D, int K) {
+    // #6671: no FMA contraction here, so the fused and the separate forms of this step round alike (a verify window
+    // runs the separate form row by row; the one-token step runs the fused one)
+#pragma clang fp contract(off)
     const int tid = threadIdx.x;
     const int wave = tid >> 5;
     const int lane = tid & 31;
@@ -2075,6 +2084,72 @@ __global__ void __launch_bounds__(256) k_bf16_gemv_lds_fdot2(
             const float sum = wave32_sum(acc[m]) + bv;
             if (lane == 0 && m < M) Y[static_cast<size_t>(m) * N + row] = sum;
         }
+    }
+}
+
+// #6671: the M = 1 GEMV (k_bf16_gemv1_lds, K <= 4096, K % 8 == 0) for MT rows at once, row for row the same arithmetic: the
+// same two accumulators over the same K order, the same wave32 sum, then the bias.  X is read from global memory (it is L2
+// resident) instead of LDS, which changes no bit.  The verify windows of a drafter use it so that row m of an M-row call is
+// the value the single-token step would have produced (k_bf16_gemv_lds_fdot2 rounds X and W to FP16 and so is not).
+template <int MT>
+__global__ void __launch_bounds__(256) k_bf16_gemv1_mr(
+    const uint16_t* __restrict__ W,
+    const float* __restrict__ X,
+    const float* __restrict__ bias,
+    float* __restrict__ Y,
+    int M, int N, int K) {
+    const int tid = threadIdx.x;
+    const int wave = tid >> 5;
+    const int lane = tid & 31;
+    const int row = blockIdx.x * 8 + wave;
+    if (row >= N) return;
+    const uint16_t* wr = W + static_cast<size_t>(row) * K;
+    float acc0[MT], acc1[MT];
+#pragma unroll
+    for (int m = 0; m < MT; ++m) { acc0[m] = 0.0f; acc1[m] = 0.0f; }
+    int k = lane * 8;
+    for (; k + 256 < K; k += 512) {
+        const uint4 wa = *reinterpret_cast<const uint4*>(wr + k);
+        const uint4 wb = *reinterpret_cast<const uint4*>(wr + k + 256);
+#pragma unroll
+        for (int m = 0; m < MT; ++m) {
+            if (m < M) {
+                const float* xp = X + static_cast<size_t>(m) * K;
+                const float4 xa0 = *reinterpret_cast<const float4*>(xp + k);
+                const float4 xa1 = *reinterpret_cast<const float4*>(xp + k + 4);
+                const float4 xb0 = *reinterpret_cast<const float4*>(xp + k + 256);
+                const float4 xb1 = *reinterpret_cast<const float4*>(xp + k + 260);
+                acc0[m] = fmaf(bf16_to_f32(wa.x & 0xFFFFu), xa0.x, fmaf(bf16_to_f32(wa.x >> 16), xa0.y,
+                          fmaf(bf16_to_f32(wa.y & 0xFFFFu), xa0.z, fmaf(bf16_to_f32(wa.y >> 16), xa0.w, acc0[m]))));
+                acc0[m] = fmaf(bf16_to_f32(wa.z & 0xFFFFu), xa1.x, fmaf(bf16_to_f32(wa.z >> 16), xa1.y,
+                          fmaf(bf16_to_f32(wa.w & 0xFFFFu), xa1.z, fmaf(bf16_to_f32(wa.w >> 16), xa1.w, acc0[m]))));
+                acc1[m] = fmaf(bf16_to_f32(wb.x & 0xFFFFu), xb0.x, fmaf(bf16_to_f32(wb.x >> 16), xb0.y,
+                          fmaf(bf16_to_f32(wb.y & 0xFFFFu), xb0.z, fmaf(bf16_to_f32(wb.y >> 16), xb0.w, acc1[m]))));
+                acc1[m] = fmaf(bf16_to_f32(wb.z & 0xFFFFu), xb1.x, fmaf(bf16_to_f32(wb.z >> 16), xb1.y,
+                          fmaf(bf16_to_f32(wb.w & 0xFFFFu), xb1.z, fmaf(bf16_to_f32(wb.w >> 16), xb1.w, acc1[m]))));
+            }
+        }
+    }
+    if (k < K) {
+        const uint4 wa = *reinterpret_cast<const uint4*>(wr + k);
+#pragma unroll
+        for (int m = 0; m < MT; ++m) {
+            if (m < M) {
+                const float* xp = X + static_cast<size_t>(m) * K;
+                const float4 xa0 = *reinterpret_cast<const float4*>(xp + k);
+                const float4 xa1 = *reinterpret_cast<const float4*>(xp + k + 4);
+                acc0[m] = fmaf(bf16_to_f32(wa.x & 0xFFFFu), xa0.x, fmaf(bf16_to_f32(wa.x >> 16), xa0.y,
+                          fmaf(bf16_to_f32(wa.y & 0xFFFFu), xa0.z, fmaf(bf16_to_f32(wa.y >> 16), xa0.w, acc0[m]))));
+                acc0[m] = fmaf(bf16_to_f32(wa.z & 0xFFFFu), xa1.x, fmaf(bf16_to_f32(wa.z >> 16), xa1.y,
+                          fmaf(bf16_to_f32(wa.w & 0xFFFFu), xa1.z, fmaf(bf16_to_f32(wa.w >> 16), xa1.w, acc0[m]))));
+            }
+        }
+    }
+    const float bv = bias ? bias[row] : 0.0f;
+#pragma unroll
+    for (int m = 0; m < MT; ++m) {
+        const float sum = wave32_sum(acc0[m] + acc1[m]) + bv;
+        if (lane == 0 && m < M) Y[static_cast<size_t>(m) * N + row] = sum;
     }
 }
 
@@ -2841,6 +2916,7 @@ __global__ void __launch_bounds__(256) k_moe_direct_w13_situ(
     if (slot_k >= B * top_k) return;
     const int b = slot_k / top_k;
     const int eid = topk_ids[slot_k];
+    if (eid < 0) return;   // a slot dropped by the opt-in tail skip: no weight is read
     const GpuExpertDesc desc = exps[eid];
     if (!desc.body) return;
 
@@ -3020,11 +3096,15 @@ __global__ void __launch_bounds__(256) k_moe_direct_w2_par(
     const int slot_k = blockIdx.y;
     if (slot_k >= B * top_k) return;
     const int eid = topk_ids[slot_k];
-    const GpuExpertDesc desc = exps[eid];
     const int tid = threadIdx.x;
     const int wave = tid >> 5;
     const int lane = tid & 31;
     const int row = blockIdx.x * 8 + wave;
+    if (eid < 0) {   // a slot dropped by the opt-in tail skip: its partial output is zero, no weight is read
+        if (lane == 0 && row < D) y_part[static_cast<size_t>(slot_k) * D + row] = 0.0f;
+        return;
+    }
+    const GpuExpertDesc desc = exps[eid];
     if (!desc.body) {
         if (lane == 0 && row < D) y_part[static_cast<size_t>(slot_k) * D + row] = 0.0f;
         return;
@@ -3226,6 +3306,9 @@ __global__ void __launch_bounds__(256) k_moe_reduce_sconv_add(
     uint16_t* __restrict__ hist_pool,       // [max_slots, 3, D]
     float* __restrict__ cur,                // [B, D] (updated in-place!)
     int B, int top_k, int D) {
+    // #6671: no FMA contraction here, so the fused and the separate forms of this step round alike (a verify window
+    // runs the separate form row by row; the one-token step runs the fused one)
+#pragma clang fp contract(off)
     const int d = blockIdx.x * blockDim.x + threadIdx.x;
     const int b = blockIdx.y;
     if (b >= B || d >= D) return;
@@ -4243,7 +4326,6 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w13_situ_wmma(
     const half_t* __restrict__ X_f16,        // [B, D]
     half_t* __restrict__ bucket_act,         // [B * top_k, inter]
     int D, int inter, float beta, float lb) {
-#if INK_HAS_WMMA
     const int eid = blockIdx.y;
     const int beg = exp_off[eid];
     const int end = exp_off[eid + 1];
@@ -4289,11 +4371,19 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w13_situ_wmma(
 
     for (int t0 = blockIdx.z * BM; t0 < m_e; t0 += t_stride) {
         const int tm = (m_e - t0 < BM) ? (m_e - t0) : BM;
+#if INK_HAS_WMMA
         fv8 acc[2][2];
 #pragma unroll
         for (int mi = 0; mi < 2; ++mi)
 #pragma unroll
             for (int ni = 0; ni < 2; ++ni) acc[mi][ni] = fv8_zero();
+#else
+        float acc[4][8];   // RDNA2: 4 tokens x 8 weight rows per thread (fdot2)
+#pragma unroll
+        for (int i = 0; i < 4; ++i)
+#pragma unroll
+            for (int j = 0; j < 8; ++j) acc[i][j] = 0.0f;
+#endif
 
         for (int k0 = 0; k0 < D; k0 += BK) {
             const int x_iters = ((tm + 15) & ~15) * 8;
@@ -4399,6 +4489,7 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w13_situ_wmma(
             }
             sync_lds();
 
+#if INK_HAS_WMMA
             if (wm * 32 < tm) {
                 const bool do_m1 = (wm * 32 + 16 < tm);
 #pragma unroll
@@ -4415,9 +4506,34 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w13_situ_wmma(
                     }
                 }
             }
+#else
+            {
+                const int fx = tid & 15, fy = tid >> 4;
+#pragma unroll
+                for (int q = 0; q < BK / 8; ++q) {
+                    uint4 xa[4], wa[8];
+#pragma unroll
+                    for (int i = 0; i < 4; ++i) xa[i] = *reinterpret_cast<const uint4*>(&sX[(fy + 16 * i) * LD + q * 8]);
+#pragma unroll
+                    for (int j = 0; j < 8; ++j) wa[j] = *reinterpret_cast<const uint4*>(&sW[(fx * 2 + 32 * (j >> 1) + (j & 1)) * LD + q * 8]);
+#pragma unroll
+                    for (int i = 0; i < 4; ++i)
+#pragma unroll
+                        for (int j = 0; j < 8; ++j) {
+                            float d = acc[i][j];
+                            d = fdot2_f32(xa[i].x, wa[j].x, d);
+                            d = fdot2_f32(xa[i].y, wa[j].y, d);
+                            d = fdot2_f32(xa[i].z, wa[j].z, d);
+                            d = fdot2_f32(xa[i].w, wa[j].w, d);
+                            acc[i][j] = d;
+                        }
+                }
+            }
+#endif
             sync_lds();
         }
 
+#if INK_HAS_WMMA
         // Direct Wave32 register-shuffle SITU epilogue: even lane=gate, odd lane=up -> ZERO s_out LDS, ZERO barrier!
         if (wm * 32 < tm) {
             const bool is_even = ((lane & 1) == 0);
@@ -4442,10 +4558,26 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w13_situ_wmma(
                 }
             }
         }
-    }
 #else
-    (void)exps; (void)exp_off; (void)bucket_tok; (void)X_f16; (void)bucket_act; (void)D; (void)inter; (void)beta; (void)lb;
+        {
+            const int fx = tid & 15, fy = tid >> 4;
+#pragma unroll
+            for (int i = 0; i < 4; ++i) {
+                const int lm = fy + 16 * i;
+                if (lm >= tm) continue;
+#pragma unroll
+                for (int jp = 0; jp < 4; ++jp) {
+                    const int gj = (n_blk >> 1) + fx + 16 * jp;
+                    if (gj >= inter) continue;
+                    const float inv_sq = need_sq ? (1.0f / static_cast<float>(sq_xd[gj])) : 1.0f;
+                    const float g_val = acc[i][2 * jp] * out_scale;
+                    const float u_val = acc[i][2 * jp + 1] * out_scale;
+                    bucket_act[static_cast<size_t>(beg + t0 + lm) * inter + gj] = static_cast<half_t>(situ_f32(g_val, u_val, beta, lb) * inv_sq);
+                }
+            }
+        }
 #endif
+    }
 }
 
 // Wave32 WMMA BM=64, BN=128 Fused Grouped-MoE Stage 2 (w2 for SF4 + MX8 + paired-2-row S_K!) for B >= 5!
@@ -4456,7 +4588,6 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w2_wmma(
     const half_t* __restrict__ bucket_act,   // [B * top_k, inter]
     float* __restrict__ bucket_y,            // [B * top_k, D]
     int D, int inter) {
-#if INK_HAS_WMMA
     const int eid = blockIdx.y;
     const int beg = exp_off[eid];
     const int end = exp_off[eid + 1];
@@ -4500,11 +4631,19 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w2_wmma(
 
     for (int t0 = blockIdx.z * BM; t0 < m_e; t0 += t_stride) {
         const int tm = (m_e - t0 < BM) ? (m_e - t0) : BM;
+#if INK_HAS_WMMA
         fv8 acc[2][2];
 #pragma unroll
         for (int mi = 0; mi < 2; ++mi)
 #pragma unroll
             for (int ni = 0; ni < 2; ++ni) acc[mi][ni] = fv8_zero();
+#else
+        float acc[4][8];   // RDNA2: 4 tokens x 8 weight rows per thread (fdot2)
+#pragma unroll
+        for (int i = 0; i < 4; ++i)
+#pragma unroll
+            for (int j = 0; j < 8; ++j) acc[i][j] = 0.0f;
+#endif
 
         for (int k0 = 0; k0 < inter; k0 += BK) {
             const int x_iters = ((tm + 15) & ~15) * 8;
@@ -4610,6 +4749,7 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w2_wmma(
             }
             sync_lds();
 
+#if INK_HAS_WMMA
             if (wm * 32 < tm) {
                 const bool do_m1 = (wm * 32 + 16 < tm);
 #pragma unroll
@@ -4626,9 +4766,34 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w2_wmma(
                     }
                 }
             }
+#else
+            {
+                const int fx = tid & 15, fy = tid >> 4;
+#pragma unroll
+                for (int q = 0; q < BK / 8; ++q) {
+                    uint4 xa[4], wa[8];
+#pragma unroll
+                    for (int i = 0; i < 4; ++i) xa[i] = *reinterpret_cast<const uint4*>(&sX[(fy + 16 * i) * LD + q * 8]);
+#pragma unroll
+                    for (int j = 0; j < 8; ++j) wa[j] = *reinterpret_cast<const uint4*>(&sW[(fx + 16 * j) * LD + q * 8]);
+#pragma unroll
+                    for (int i = 0; i < 4; ++i)
+#pragma unroll
+                        for (int j = 0; j < 8; ++j) {
+                            float d = acc[i][j];
+                            d = fdot2_f32(xa[i].x, wa[j].x, d);
+                            d = fdot2_f32(xa[i].y, wa[j].y, d);
+                            d = fdot2_f32(xa[i].z, wa[j].z, d);
+                            d = fdot2_f32(xa[i].w, wa[j].w, d);
+                            acc[i][j] = d;
+                        }
+                }
+            }
+#endif
             sync_lds();
         }
 
+#if INK_HAS_WMMA
         if (wm * 32 < tm) {
 #pragma unroll
             for (int mi = 0; mi < 2; ++mi) {
@@ -4646,10 +4811,22 @@ __global__ void __launch_bounds__(256) k_moe_grouped_w2_wmma(
                 }
             }
         }
-    }
 #else
-    (void)exps; (void)exp_off; (void)bucket_act; (void)bucket_y; (void)D; (void)inter;
+        {
+            const int fx = tid & 15, fy = tid >> 4;
+#pragma unroll
+            for (int i = 0; i < 4; ++i) {
+                const int lm = fy + 16 * i;
+                if (lm >= tm) continue;
+#pragma unroll
+                for (int j = 0; j < 8; ++j) {
+                    const int gn = n_blk + fx + 16 * j;
+                    if (gn < D) bucket_y[static_cast<size_t>(beg + t0 + lm) * D + gn] = acc[i][j] * out_scale;
+                }
+            }
+        }
 #endif
+    }
 }
 
 // =================================================================================================
@@ -7113,6 +7290,13 @@ inline void launch_bf16_linear(
         return;
     }
     if (gen == strata::hip_uma::AmdGen::Rdna2 || gen == strata::hip_uma::AmdGen::Unknown) {
+        // 64 x 64 tiles (same sums, bit-identical to the small-tile kernel); STRATA_HIP_RDNA2_GEMM=0 keeps the old kernel
+        static const bool big_tile_off = (std::getenv("STRATA_HIP_RDNA2_GEMM") != nullptr && std::getenv("STRATA_HIP_RDNA2_GEMM")[0] == '0');
+        if (!big_tile_off && M >= 32 && N >= 64 && (K & 31) == 0 && ((reinterpret_cast<uintptr_t>(W) | reinterpret_cast<uintptr_t>(X)) & 15u) == 0) {
+            const dim3 grid((N + 63) / 64, (M + 63) / 64);
+            k_bf16_fdot2_tiled64<<<grid, 256, 0, st>>>(W, X, bias, Y, M, N, K);
+            return;
+        }
         const dim3 grid((N + 31) / 32, (M + 15) / 16);
         k_bf16_fdot2_tiled<16, 32><<<grid, 128, 0, st>>>(W, X, bias, Y, M, N, K);
         return;
@@ -7132,6 +7316,106 @@ inline void launch_bf16_linear(
     } else {
         const dim3 grid((N + 63) / 64, (M + 63) / 64);
         k_bf16_wmma_f16<64, 64><<<grid, 128, 0, st>>>(W, X, bias, Y, M, N, K);
+    }
+}
+
+// Grouped MoE launches for the cards without WMMA (RDNA2). OPT-IN (STRATA_HIP_RDNA2_MOE=1), default off: with B >= 96 tokens in the step (about 6 or more per expert) the experts go through the
+// tiled fdot2 form of k_moe_grouped_w13_situ_wmma / k_moe_grouped_w2_wmma (weights decoded once per 64-token tile into LDS, 4 x 8 outputs per thread). Its sums are not in the order of the
+// per-row kernels: teacher-forced KL against them on the RX 6700 XT, SQ-10: 0.0006 (2047 tokens, floor 0.0002), 0.0004 and 0.0022 (327 and 263 tokens), for +3% prefill at 4K (rel0223/amd-rdna32/RESULTS.md);
+// so by default, and below B = 96, the per-row kernels that stream the weights once per 8 tokens run.
+inline bool rdna2_moe_tiles(int B) {
+    static const bool on = (std::getenv("STRATA_HIP_RDNA2_MOE") != nullptr && std::getenv("STRATA_HIP_RDNA2_MOE")[0] == '1');
+    return on && B >= 96;
+}
+inline void launch_moe_w13_rdna2(const GpuExpertDesc* exps, const int32_t* off, const int32_t* btk, const half_t* x, half_t* act,
+                                 int B, int D, int inter, int n_experts, float beta, float lb, hipStream_t st) {
+    if (rdna2_moe_tiles(B)) {
+        const dim3 g13((2 * inter + 127) / 128, n_experts, B >= 1024 ? 2 : 1);
+        k_moe_grouped_w13_situ_wmma<<<g13, 256, 0, st>>>(exps, off, btk, x, act, D, inter, beta, lb);
+    } else {
+        k_moe_grouped_w13_situ<<<dim3((inter + 3) / 4, n_experts), 256, 0, st>>>(exps, off, btk, x, act, D, inter, beta, lb);
+    }
+}
+inline void launch_moe_w2_rdna2(const GpuExpertDesc* exps, const int32_t* off, const half_t* act, float* by,
+                                int B, int D, int inter, int n_experts, hipStream_t st) {
+    if (rdna2_moe_tiles(B)) {
+        const dim3 g2((D + 127) / 128, n_experts, B >= 1024 ? 2 : 1);
+        k_moe_grouped_w2_wmma<<<g2, 256, 0, st>>>(exps, off, act, by, D, inter);
+    } else {
+        k_moe_grouped_w2<<<dim3((D + 7) / 8, n_experts), 256, 0, st>>>(exps, off, act, by, D, inter);
+    }
+}
+
+// #6671: M >= 2 rows with row for row the arithmetic launch_bf16_linear uses for M == 1 (same kernel family, same K order,
+// same sums), in chunks of at most 8 rows.  For the verify windows of a drafter: each row is the value the single-token
+// step gives.  The M-dependent paths of launch_bf16_linear (FP16 fdot2, WMMA, hipBLASLt) are not row invariant.
+inline void launch_bf16_rows_exact(
+    const uint16_t* W, const float* X, const float* bias, float* Y,
+    int M, int N, int K, strata::hip_uma::AmdGen gen, hipStream_t st) {
+    for (int m0 = 0; m0 < M; m0 += 8) {
+        const int mc = (M - m0) < 8 ? (M - m0) : 8;
+        const float* xs = X + static_cast<size_t>(m0) * K;
+        float* ys = Y + static_cast<size_t>(m0) * N;
+        if (mc == 1) {
+            launch_bf16_linear(W, xs, bias, ys, 1, N, K, gen, st);
+            continue;
+        }
+        const dim3 grid((N + 7) / 8);
+        if (K <= 4096 && (K & 7) == 0) {
+            if (mc <= 2)      k_bf16_gemv1_mr<2><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+            else if (mc <= 4) k_bf16_gemv1_mr<4><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+            else if (mc <= 6) k_bf16_gemv1_mr<6><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+            else              k_bf16_gemv1_mr<8><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+        } else {
+            if (mc <= 2)      k_bf16_gemv<2><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+            else if (mc <= 4) k_bf16_gemv<4><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+            else if (mc <= 6) k_bf16_gemv<6><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+            else              k_bf16_gemv<8><<<grid, 256, 0, st>>>(W, xs, bias, ys, mc, N, K);
+        }
+    }
+}
+
+// #6671: the attention sink projection of k_bf16_gemv1_qkvrg (M = 1: one wave per row of an FP32 weight, lane i adds float4 groups
+// i, i + 32, ... in turn, then the wave32 sum) for MT rows at once, row for row the same bits.
+template <int MT>
+__global__ void __launch_bounds__(256) k_f32_gemv1_sink_mr(
+    const float* __restrict__ W, const float* __restrict__ X, float* __restrict__ Y, int M, int N, int K) {
+    const int wave = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+    const int row = blockIdx.x * 8 + wave;
+    if (row >= N) return;
+    const float4* w4 = reinterpret_cast<const float4*>(W + static_cast<size_t>(row) * K);
+    const int k4 = K >> 2;
+    float acc[MT];
+#pragma unroll
+    for (int m = 0; m < MT; ++m) acc[m] = 0.0f;
+    for (int i = lane; i < k4; i += 32) {
+        const float4 wv = w4[i];
+#pragma unroll
+        for (int m = 0; m < MT; ++m) {
+            if (m < M) {
+                const float4 xv = reinterpret_cast<const float4*>(X + static_cast<size_t>(m) * K)[i];
+                acc[m] = fmaf(wv.x, xv.x, fmaf(wv.y, xv.y, fmaf(wv.z, xv.z, fmaf(wv.w, xv.w, acc[m]))));
+            }
+        }
+    }
+#pragma unroll
+    for (int m = 0; m < MT; ++m) {
+        const float sum = wave32_sum(acc[m]);
+        if (lane == 0 && m < M) Y[static_cast<size_t>(m) * N + row] = sum;
+    }
+}
+
+inline void launch_f32_sink_rows_exact(const float* W, const float* X, float* Y, int M, int N, int K, hipStream_t st) {
+    for (int m0 = 0; m0 < M; m0 += 8) {
+        const int mc = (M - m0) < 8 ? (M - m0) : 8;
+        const dim3 grid((N + 7) / 8);
+        const float* xs = X + static_cast<size_t>(m0) * K;
+        float* ys = Y + static_cast<size_t>(m0) * N;
+        if (mc <= 2)      k_f32_gemv1_sink_mr<2><<<grid, 256, 0, st>>>(W, xs, ys, mc, N, K);
+        else if (mc <= 4) k_f32_gemv1_sink_mr<4><<<grid, 256, 0, st>>>(W, xs, ys, mc, N, K);
+        else if (mc <= 6) k_f32_gemv1_sink_mr<6><<<grid, 256, 0, st>>>(W, xs, ys, mc, N, K);
+        else              k_f32_gemv1_sink_mr<8><<<grid, 256, 0, st>>>(W, xs, ys, mc, N, K);
     }
 }
 

@@ -54,6 +54,7 @@ import { getSlashCommands } from '../lib/commands';
 import { useLocation } from '../lib/router';
 import { composerSends } from '../lib/shortcut-bindings';
 import type { ChatMessage, Session, ToolCall } from '../lib/types';
+import { shownToolCard } from '../lib/tool-cards';
 // The Time-skip panel and its progress card are only drawn in a chat that has a Time-skip run: their code loads then (and a few seconds after start, see main.tsx).
 const TimeSkipPanel = lazyScreen(() => import('../components/TimeSkipPanel'), (m) => m.TimeSkipPanel);
 const TimeSkipWorking = lazyScreen(() => import('../components/TimeSkipWorking'), (m) => m.TimeSkipWorking);
@@ -460,6 +461,7 @@ export function ChatScreen() {
         }
         const text = draft.trim();
         if (text === '/pause-for-update') { updateDraft(''); void pauseForUpdate(); return; }
+        if (text === '/resume-agents') { updateDraft(''); void resumeAfterUpdate(); return; }
         if (!text && !queuedPhotos.length)
             return;
         if (streaming) {
@@ -507,7 +509,7 @@ export function ChatScreen() {
     function onComposerKey(_e: React.KeyboardEvent) { }
     if (!session) {
         return (<>
-        <ChatToolbar onPauseForUpdate={pauseForUpdate} previewWidth={paneWidth} extraTabs={extraTabs} session={session} items={previews} onCloseTab={closeTab} selected={setupVisible ? null : selectedPreview} onSelect={selectPreview} onClose={() => { setSelectedPreview(null); setExpanded(false); closePreviewPanel(); }} inline={inlinePreview} expanded={expanded} onExpand={() => setExpanded(v => !v)}/>
+        <ChatToolbar onPauseForUpdate={pauseForUpdate} onResumeAfterUpdate={resumeAfterUpdate} previewWidth={paneWidth} extraTabs={extraTabs} session={session} items={previews} onCloseTab={closeTab} selected={setupVisible ? null : selectedPreview} onSelect={selectPreview} onClose={() => { setSelectedPreview(null); setExpanded(false); closePreviewPanel(); }} inline={inlinePreview} expanded={expanded} onExpand={() => setExpanded(v => !v)}/>
         <div className="chatsplit" style={splitStyle} data-timeskip={!!selectedRun || undefined} ref={splitRef} data-preview={!!selectedPreview && inlinePreview || undefined} data-expanded={expanded && !!selectedPreview && inlinePreview || undefined}>
          <DropZone className="chatcol">
           <div className="main__body chat" ref={scroller}>
@@ -526,7 +528,7 @@ export function ChatScreen() {
     }
     return (<>
       {tr(selection && session ? <button type="button" className="quote-selection" style={{ left: selection.x, top: selection.y }} onMouseDown={e => e.preventDefault()} onClick={() => { addQuote(session.id, selection.text, selection.messageId, selection.role); window.getSelection()?.removeAllRanges(); setSelection(null); }}>{tr("Quote")}</button> : null)}
-      <ChatToolbar onPauseForUpdate={pauseForUpdate} previewWidth={paneWidth} extraTabs={extraTabs} session={session} items={previews} onCloseTab={closeTab} selected={setupVisible ? null : selectedPreview} onSelect={selectPreview} onClose={() => { setSelectedPreview(null); setExpanded(false); closePreviewPanel(); }} inline={inlinePreview} expanded={expanded} onExpand={() => setExpanded(v => !v)}/>
+      <ChatToolbar onPauseForUpdate={pauseForUpdate} onResumeAfterUpdate={resumeAfterUpdate} previewWidth={paneWidth} extraTabs={extraTabs} session={session} items={previews} onCloseTab={closeTab} selected={setupVisible ? null : selectedPreview} onSelect={selectPreview} onClose={() => { setSelectedPreview(null); setExpanded(false); closePreviewPanel(); }} inline={inlinePreview} expanded={expanded} onExpand={() => setExpanded(v => !v)}/>
 
       {/* The composer belongs to the conversation column, not the window: with
                 the context panel open, a full-width composer sat underneath the panel
@@ -578,14 +580,38 @@ interface SlashCommand {
     icon: IconName;
     run: () => void;
 }
+/** Tell the toolbar button which of "Pause for update" and "Resume agents" it is now. */
+function announcePaused(paused: boolean) { window.dispatchEvent(new CustomEvent('strata:agents-paused', { detail: paused })); }
+/** Whether the host still holds the pause; true when it cannot be asked, so the person is never left without a Resume. */
+async function hostIsPaused() {
+    try { return (await api.get<{ paused?: boolean }>('/api/agent/status')).paused === true; } catch { return true; }
+}
+/** Resolves true when the host is paused afterwards (also after a failed preparation: the host stays paused until it is resumed). */
 async function pauseForUpdate() {
     pushToast('info', 'Saving agent work and preparing the update…');
     try {
         const result = await api.post<{ checkpoint: string; receipts: { chatId: string; helperId?: string }[] }>('/api/chat/pause-for-update', {});
         const agents = result.receipts.map(row => (row.helperId ?? row.chatId) + ' ✓');
         pushToast('info', 'Agent work saved. Ready for update.', [...agents, result.checkpoint].join('\n'));
+        announcePaused(true);
+        return true;
     } catch (error) {
         pushToast('error', 'Update preparation failed', error instanceof Error ? error.message : String(error));
+        const paused = await hostIsPaused();
+        announcePaused(paused);
+        return paused;
+    }
+}
+/** Lift the pause (#7099): for a pause the person started and no update followed. Resolves true when the agents work again. */
+async function resumeAfterUpdate() {
+    try {
+        await api.post('/api/chat/resume-after-update', {});
+        pushToast('info', 'Agent work resumed.');
+        announcePaused(false);
+        return true;
+    } catch (error) {
+        pushToast('error', 'Could not resume agent work', error instanceof Error ? error.message : String(error));
+        return false;
     }
 }
 function useSlashCommands(clear: () => void, setDraft: (value: string) => void): SlashCommand[] {
@@ -600,6 +626,7 @@ function useSlashCommands(clear: () => void, setDraft: (value: string) => void):
         { id: 'website', label: '/website', hint: 'Open a website in the preview sidebar', icon: 'link', run: () => { clear(); window.dispatchEvent(new Event('strata:open-website')); } },
         { id: 'preview', label: '/preview', hint: 'Open a local file in the preview sidebar', icon: 'file', run: () => { clear(); window.dispatchEvent(new Event('strata:open-preview')); } },
         { id: 'pause-for-update', label: '/pause-for-update', hint: 'Save progress and pause all agents for an update', icon: 'stop', run: () => { clear(); void pauseForUpdate(); } },
+        { id: 'resume-agents', label: '/resume-agents', hint: 'Let the paused agents work again', icon: 'refresh', run: () => { clear(); void resumeAfterUpdate(); } },
         ...(demo ? [{ id: 'subagents', label: '/subagents', hint: 'Preview subagent statistics', icon: 'experts' as const, run: () => { clear(); createSubagentExample(); } }] : []),
         ...getSlashCommands().map(command => ({ ...command, run: () => { clear(); command.run(); } }))
     ];
@@ -785,6 +812,7 @@ function MessageView({ message: m, isLast, onEditPrompt, onPreview, onClosePrevi
     const streaming = useStore(s => s.streaming);
     const activeSession = useStore(s => s.activeSession);
     const hostLive = useStore(s => s.connection !== 'offline');
+    const hideFailedTools = useStore(s => s.hideFailedTools);   // #7184: Settings > General; its default is features.ts HIDE_FAILED_TOOLS_BY_DEFAULT
     const liveStatus = useLiveStatus(m.role === 'assistant' && m.streaming ? activeSession : null);
     // A reply that proposed a plan shows the plan card in place of its closing text (which is the plan in prose).
     const storedPlan = usePlanQuiet(m.planId ? activeSession : null);
@@ -819,7 +847,7 @@ function MessageView({ message: m, isLast, onEditPrompt, onPreview, onClosePrevi
 
       {/* In a reply with activity lines the line is the one live cue for a running or finished tool (and the status line below says what it is doing now); the
           card stays only for what needs the person: a question waiting, a denied or failed call. A card that came and went above the text moved the whole reply. */}
-      {tr((m.tools ?? []).filter(t => !grouped || t.state === 'proposed' || t.state === 'denied' || t.state === 'error').map((t) => (<ToolCard key={t.id} tool={t}/>)))}
+      {tr((m.tools ?? []).filter(t => shownToolCard(t, grouped, hideFailedTools)).map((t) => (<ToolCard key={t.id} tool={t}/>)))}
 
       {tr(!(m.timeSkipId && timeSkipReal && !timeSkipDone) && (m.content || m.error || m.activity?.length || !m.streaming || !liveStatus || !!m.drafts?.length) ? <div className="st-bubble">
         {tr(planCard ? <PlanCard chatId={activeSession} planId={m.planId!}/> : null)}

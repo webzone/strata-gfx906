@@ -794,8 +794,8 @@ def own_path_context_warning(cfg: dict, args: list, vram_mib: float | None) -> s
     """The sentence for a Qwen3.6 start whose --max-context does not fit its one card (strata_control/own_path_fit.py, the rule setup's menu
     uses); None for any other model, a context that fits, or a card that is not known.  Nothing about the start changes."""
     try:
-        from strata_control import own_path_fit
-        fit = own_path_fit.from_model_name(cfg.get("model_name"))
+        from strata_control import custom_models, own_path_fit
+        fit = custom_models.own_path_inputs(cfg) or own_path_fit.from_model_name(cfg.get("model_name"))      # a custom build: the closest published size's rule
         if not fit or not vram_mib or "--max-context" not in args:
             return None
         ctx = int(args[args.index("--max-context") + 1])
@@ -1018,7 +1018,7 @@ def igpu_cards(indices: list[int], archs: dict[int, str] | None) -> set[int]:
 
 
 #: AMD chips that share the system memory (an iGPU): never preferred over a card that has memory of its own.
-HIP_IGPU_ARCHS = ("gfx1035", "gfx1036", "gfx1037", "gfx1103", "gfx1150", "gfx1151", "gfx1152", "gfx90c")
+HIP_IGPU_ARCHS = engine_component.HIP_IGPU_ARCHS      # one list, also what the package choice counts (#6650)
 
 
 def parse_hip_devices(text: str) -> list[dict]:

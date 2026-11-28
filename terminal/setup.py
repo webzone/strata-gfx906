@@ -120,6 +120,7 @@ HF_REVISIONS = {
     "unsloth/Qwen3.8-Flash-Next-GGUF": "38bb39ee97821de2c9009abb7e93950eec396e66",                   # 2026-09-30
     "unsloth/Qwen3.6-35B-A3B-MTP-GGUF": "5bc3e238d916f48a861bac2f8a1990a0e9b7e98d",                  # 2026-10-12
     "agentionai/Qwen3.8-Flash-Next-Gyro-GGUF": "1ada08422e404aca51ab9df665f089f34c419c6b",           # 2026-10-13
+    "ornith-ai/Ornith-1.5-35B-A3B-GGUF": "12393612fd4f730ff5aadc23e9b8f9648aa49ceb",                 # 2026-08-24
 }
 
 
@@ -772,6 +773,16 @@ QWEN36_FILES = {
     "Qwen3.6-35B-A3B-Q8_0.gguf": (37801097504, "c1283d8b80c3e38b2735ddbc9766d3b3126f44d6c484be419d4e101d09a76131"),
     "mmproj-F16.gguf": (899283584, "71f3cbc1f7cc0f30d09d41cfa924c0060827ebc33bf15ace7e86661e856f0160"),
 }
+# Ornith-1.5-35B-A3B, Ornith AI's GGUFs with the MTP block: the same architecture (qwen35moe), tensor layout, tokenizer and MTP block as
+# Qwen3.6-35B-A3B, so the engine path, the flags and the tuning rules above are used as they are (strata_control/ornith_types.py).  The BF16
+# GGUF is not offered: this engine path has no BF16 row.
+ORNITH_FILES = {
+    "Ornith-1.5-35B-Q4_K_M.gguf": (21713463040, "42739874cc2ccfdb8523b23fbe52e29b2a7555c8176737ca9ca0b5d59859d41f"),
+    "Ornith-1.5-35B-Q5_K_M.gguf": (25347532544, "91df97de5845100e850b4b5ec5ff35695382020b880fad6f7f51787b3a953bd0"),
+    "Ornith-1.5-35B-Q6_K.gguf": (29208731392, "15d4658bbfc9c6034621729c15bbb50662c82b32a7ddd9624a1e545a74bdbb4b"),
+    "Ornith-1.5-35B-Q8_0.gguf": (37802149280, "de46c4baf4b4dd85ea438bb0f757f21c38841a353506579979bba114311658c3"),
+    "mmproj-Ornith-1.5-35B-BF16.gguf": (902822240, "1921a36a85aee56cd2abd27f46701802c9d85a33474792e600df6c3b282a135d"),
+}
 OWN_PATH_FAMILIES = {
     "qwen36": {"title": "Qwen3.6-35B-A3B", "by": "Qwen; GGUFs with the MTP layer by Unsloth", "arch": "qwen35moe",
                "about": "35B mixture of experts with 3B active (256 experts, top-8): a smaller cousin of "
@@ -793,6 +804,27 @@ OWN_PATH_FAMILIES = {
                # pictures: Unsloth's mmproj (the same projector family as Flash-Next's: qwen3vl_merger) through
                # strata-vision; a parallel slot's session: its KV cache (kv_bytes_per_token) and the recurrent state of
                # the 30 GDN layers (state_gb)
+               "vision": True, "state_gb": 0.07},
+    # Ornith-1.5-35B-A3B: the same engine path as qwen36 above (identical architecture, tensor layout, tokenizer and MTP
+    # block), so the KV, MTP and picture figures are the same; only the files, the names and the RAM figures are its own.
+    "ornith": {"title": "Ornith-1.5-35B-A3B", "by": "Ornith AI; GGUFs with the MTP layer", "arch": "qwen35moe",
+               "about": "35B mixture of experts with 3B active (256 experts, top-8): the same architecture and tokenizer "
+                        "as Qwen3.6-35B-A3B",
+               "hf": hf("ornith-ai/Ornith-1.5-35B-A3B-GGUF"), "file": "Ornith-1.5-35B-{q}.gguf", "tag": "ornith-1.5-35b-a3b-",
+               "mmproj_hf": hf("ornith-ai/Ornith-1.5-35B-A3B-GGUF"), "mmproj": "mmproj-Ornith-1.5-35B-BF16.gguf",
+               "name": "ornith-1.5-35b-a3b",
+               "license": "MIT: https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B/blob/main/LICENSE",
+               # RAM: the same hybrid rule as qwen36 (a copy of every expert stays in RAM when they do not all fit in
+               # VRAM), so the figure is the file's download size
+               "models": {"Q4_K_M": {"about": "4-bit, the smallest", "ram_gb": 21.7},
+                          "Q5_K_M": {"about": "5-bit", "ram_gb": 25.3},
+                          "Q6_K": {"about": "6-bit, closer to the full model", "ram_gb": 29.2},
+                          "Q8_0": {"about": "8-bit, the closest to the full model", "ram_gb": 37.8}},
+               "sha256": ORNITH_FILES,
+               # the engine's KV cache per context token: the same 10 attention layers + the MTP block, 2 KV heads x 256,
+               # K and V in fp32 (strata-q36)
+               "kv_bytes_per_token": 11 * 2 * 256 * 2 * 4,
+               "mtp": 2,                     # drafts per step: the same MTP block as qwen36
                "vision": True, "state_gb": 0.07}
 }
 PREVIEW_FAMILIES = OWN_PATH_FAMILIES             # the earlier name (tools and tests that import it)
@@ -800,7 +832,7 @@ PREVIEW_FAMILIES = OWN_PATH_FAMILIES             # the earlier name (tools and t
 # Tencent Hy4-Flash (220B-A12B), Strata's own `.strata` v1.0 builds: a family with its own engine program (strata-hy4, a component like a model shape's engine), its own files
 # (one build + the Engram shard every build shares + an optional Vision shard) and its own installer, install_hy4_flash.  Not in OWN_PATH_FAMILIES: that table's installer is
 # the single-GGUF one (mmproj, MTP, GGUF tokenizer) and its membership is pinned by tests.  The files, sizes and rules are strata_control/hy4_family.py and hy4_fit.py.
-from strata_control import hy4_family, hy4_fit, inkling_family, inkling_fit  # noqa: E402
+from strata_control import custom_models, hy4_family, hy4_fit, inkling_family, inkling_fit  # noqa: E402
 HY4_FAMILIES = {
     hy4_family.FAMILY: {
         "title": hy4_family.TITLE, "by": hy4_family.BY, "tag": hy4_family.TAG, "name": hy4_family.FAMILY, "arch": hy4_family.ARCH, "hy4": True, "vision": hy4_family.DEFAULT_VISION,
@@ -812,11 +844,20 @@ HY4_FAMILIES = {
 INKLING_FAMILIES = {
     inkling_family.FAMILY: {
         "title": inkling_family.TITLE, "by": inkling_family.BY, "tag": inkling_family.TAG, "name": inkling_family.FAMILY, "arch": inkling_family.ARCH, "inkling": True, "vision": inkling_family.DEFAULT_VISION,
-        "about": "a fast 26.4B-A3.4B (5.4B looped-active) multimodal reasoning & agentic MoE with embedded DSpark drafter and 1..64 concurrent slots",
+        "about": "a fast 26.4B-A3.4B (5.4B looped-active) multimodal reasoning & agentic MoE with the DFlash 2 drafter and 1..64 concurrent slots",
         "license": "Thinking Machines Inkling-2-Mini: https://huggingface.co/thinkingmachines/Inkling-2-Mini",
-        "models": {b: {"about": inkling_family.BUILD_ABOUT[b], "ram_gb": int(-(-inkling_fit.BUILDS[b]["footprint_gb"] // 1)), "format": inkling_fit.BUILDS[b].get("format", "strata")} for b in inkling_fit.ORDER},
+        # what is OFFERED, in display order (inkling_fit.ORDER): the Strata packs, then GSQ-RCO IQ3_S, then Unsloth's UD-Q4_K_XL
+        "models": {b: {"about": inkling_family.BUILD_ABOUT[b], "ram_gb": int(-(-inkling_fit.BUILDS[b]["footprint_gb"] // 1)), "format": inkling_fit.BUILDS[b].get("format", "strata"),
+                      "credit": inkling_family.BUILD_CREDIT.get(b)} for b in inkling_fit.ORDER},
+        # the Unsloth quants 0.2.22 offered: never listed for download, kept working for an install that has one (shown as installed, "no longer offered")
+        "legacy_models": {b: {"about": inkling_family.LEGACY_BUILD_ABOUT[b], "ram_gb": int(-(-inkling_fit.BUILDS[b]["footprint_gb"] // 1)), "format": "gguf"} for b in inkling_fit.LEGACY_ORDER},
     }
 }
+
+def sizes_of_family(d: dict) -> dict:
+    """Every size name a family table knows: the offered ones, then (Inkling-2-Mini) the quants that are no longer offered but still run when an install has them."""
+    return {**d["models"], **d.get("legacy_models", {})}
+
 
 # Inkling-2-Mini custom/community local-file & Hugging Face import sources (official HF safetensors + Unsloth GGUFs).
 # Native `.strata` v1.1 (SQ-20, SQ-15, SQ-10 + Vision) remains the flagship recommended default; `strata-inkling` also
@@ -828,29 +869,36 @@ INKLING_COMMUNITY_SOURCES = {
         "format": "safetensors",
         "files": ("model-00001-of-00001.safetensors", "model.safetensors.index.json", "config.json",
                   "tokenizer.json", "chat_template.jinja"),
-        "dspark": "mtp.safetensors",
         "arch": "inkling2_loop",
         "exe": "component:strata-inkling",
         "recommended_default": False,
     },
-    "gguf": {
-        "title": "Inkling-2-Mini (Community / Unsloth GGUF)",
-        "repo": "unsloth/Inkling-2-Mini-GGUF",
+    "gsq": {
+        "title": "Inkling-2-Mini (GSQ-RCO IQ3_S GGUF, ISTA-DASLab)",
+        "repo": inkling_family.GSQ_REPO,
         "format": "gguf",
         "arch": "inkling2_loop",
         "exe": "component:strata-inkling",
         "recommended_default": False,
-        "models": {
-            b: {
-                "file": inkling_fit.BUILDS[b]["file"],
-                "ram_gb": int(-(-inkling_fit.BUILDS[b]["footprint_gb"] // 1)),
-                "about": inkling_family.BUILD_ABOUT[b],
-            }
-            for b in inkling_fit.GGUF_ORDER
-        },
-        "sha256": dict(inkling_family.UNSLOTH_GGUF_FILES),
-        "dspark": inkling_family.DSPARK_GGUF_FILE,
-        "mmproj": inkling_family.MMPROJ_BF16_FILE,
+        "credit": inkling_family.BUILD_CREDIT["GSQ-RCO-IQ3_S"],
+        "models": {"GSQ-RCO-IQ3_S": {"file": inkling_fit.BUILDS["GSQ-RCO-IQ3_S"]["file"], "ram_gb": int(-(-inkling_fit.BUILDS["GSQ-RCO-IQ3_S"]["footprint_gb"] // 1)),
+                                      "about": inkling_family.BUILD_ABOUT["GSQ-RCO-IQ3_S"]}},
+        "sha256": {inkling_family.GSQ_IQ3S_FILE: inkling_family.GSQ_IQ3S_PIN},
+        "dflash2": inkling_family.DFLASH2_FILE,                 # the one drafter: fetched beside the model (no DSpark file, no mtp.safetensors)
+    },
+    "gguf": {
+        "title": "Inkling-2-Mini (Unsloth UD-Q4_K_XL GGUF)",
+        "repo": inkling_family.UNSLOTH_REPO,
+        "format": "gguf",
+        "arch": "inkling2_loop",
+        "exe": "component:strata-inkling",
+        "recommended_default": False,
+        "credit": inkling_family.BUILD_CREDIT["UD-Q4_K_XL"],
+        # only UD-Q4_K_XL is offered; the other Unsloth quants are recognised when an install already has one (inkling_family.UNSLOTH_GGUF_FILES), never fetched
+        "models": {"UD-Q4_K_XL": {"file": inkling_fit.BUILDS["UD-Q4_K_XL"]["file"], "ram_gb": int(-(-inkling_fit.BUILDS["UD-Q4_K_XL"]["footprint_gb"] // 1)),
+                                  "about": inkling_family.BUILD_ABOUT["UD-Q4_K_XL"]}},
+        "sha256": {inkling_family.UNSLOTH_OFFERED_FILE: inkling_family.UNSLOTH_OFFERED_PIN},
+        "dflash2": inkling_family.DFLASH2_FILE,
     },
 }
 
@@ -924,6 +972,7 @@ REPO_PINS = {
     "ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-Coder-GGUF": CODER_FILES,
     UNSLOTH_REPO: {**UNSLOTH_V31_SHARDS, **UNSLOTH_SHARDS, **UNSLOTH_IQ4_XS_SHARDS, **UNSLOTH_BIG_SHARDS},
     "unsloth/Qwen3.6-35B-A3B-MTP-GGUF": QWEN36_FILES,
+    "ornith-ai/Ornith-1.5-35B-A3B-GGUF": ORNITH_FILES,
     "agentionai/Qwen3.8-Flash-Next-Gyro-GGUF": GYRO_FILES,
 }
 # the files of a repository at a commit other than HF_REVISIONS' (UNSLOTH_V31_REVISION): (repository, commit) -> name -> (bytes, sha256); file_pin looks here first
@@ -1346,6 +1395,48 @@ def ram_gb():
     return total
 
 
+def ram_free_gb():
+    """RAM the PC can give a program right now, in GiB (Windows: GlobalMemoryStatusEx available physical; Linux: MemAvailable, and
+    in a container the limit minus what the cgroup uses; macOS: free + inactive pages); None when it cannot be read.  The Inkling planner
+    keeps the experts held in RAM inside this (#6662)."""
+    try:
+        if WIN:
+            return _memory_status().ullAvailPhys / 2**30
+        if sys.platform == "darwin":
+            text = subprocess.run(["vm_stat"], capture_output=True, text=True, errors="replace", timeout=3, check=True).stdout
+            page = 4096
+            m = re.search(r"page size of (\d+) bytes", text)
+            if m:
+                page = int(m.group(1))
+            pages = 0
+            for line in text.splitlines():
+                if line.startswith(("Pages free", "Pages inactive", "Pages speculative")):
+                    pages += int(re.sub(r"[^0-9]", "", line.split(":")[1]) or 0)
+            return pages * page / 2**30
+        with open("/proc/meminfo") as stream:
+            for line in stream:
+                if line.startswith("MemAvailable"):
+                    free = int(line.split()[1]) * 1024 / 2**30
+                    break
+            else:
+                return None
+        limit = _cgroup_memory_limit()
+        if limit is not None:
+            used = None
+            for name in ("/sys/fs/cgroup/memory.current", "/sys/fs/cgroup/memory/memory.usage_in_bytes"):
+                try:
+                    with open(name) as stream:
+                        used = int(stream.read().strip())
+                    break
+                except (OSError, ValueError):
+                    continue
+            if used is not None:
+                free = min(free, max(0.0, (limit - used) / 2**30))
+        return free
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
 def _cgroup_memory_limit(self_cgroup="/proc/self/cgroup", root="/sys/fs/cgroup"):
     """The smallest memory limit (bytes) on this process's cgroup and its ancestors, as the engine's memory guard reads
     it (strata_control/cgroup_memory.py). None when no level sets a limit or the files cannot be read."""
@@ -1700,6 +1791,17 @@ def vision_threads(logical: int | None = None) -> int:
     return max(1, min((logical if logical is not None else (os.cpu_count() or 8)) // 2, VISION_THREADS_CAP))
 
 
+def _win_cpu_name_registry() -> str:
+    """Windows: the first CPU's name from HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0 ("ProcessorNameString", the string
+    Win32_Processor.Name returns), "" when it cannot be read.  No process is started (#7183: PowerShell took 1 to 2 s here)."""
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as key:
+            return " ".join(str(winreg.QueryValueEx(key, "ProcessorNameString")[0] or "").split())
+    except (ImportError, OSError, ValueError):
+        return ""
+
+
 def cpu_info():
     """(name, avx2, avx512): avx512 means everything Strata's fast AVX-512 kernels use (F, BW, VL, VNNI, VBMI),
     the same test the engine makes (cpu_avx512_ok), not just AVX-512F."""
@@ -1707,7 +1809,9 @@ def cpu_info():
     if WIN:
         pf = ctypes.windll.kernel32.IsProcessorFeaturePresent
         avx2 = bool(pf(40)) or _cpuid_avx2()      # PF_AVX2_INSTRUCTIONS_AVAILABLE, else the CPU itself (#159)
-        n = out(["powershell", "-NoProfile", "-Command", "(Get-CimInstance Win32_Processor).Name"]).strip()
+        n = _win_cpu_name_registry()          # #7183: the registry (0 ms), not a PowerShell start (about 1 to 2 s)
+        if not n:
+            n = (out(["powershell", "-NoProfile", "-Command", "(Get-CimInstance Win32_Processor).Name"]) or "").strip()
         name = n or name
         avx512 = bool(pf(41)) and _cpuid_avx512_full()
     else:
@@ -3607,7 +3711,9 @@ def gguf_dir_shards(folder: Path, fam: dict, model: str) -> list[Path]:
     the size in it (an upload split or named differently: -00001-of-00003, Unsloth's ...-00001-of-00004.gguf).  A
     missing shard is check_shards' error later, as before."""
     first = folder / model_file(fam, model, 1)
-    if not first.exists():
+    if _OWN_FIRST is not None and _OWN_FIRST.parent == folder and _OWN_FIRST.is_file():
+        first = _OWN_FIRST                             # a custom build: the file the person picked, even when the published file is in the same folder
+    elif not first.exists():
         found = sorted(p for p in folder.glob("*-00001-of-*.gguf") if SHARD_NAME.search(p.name))
         # (not the files of a catalog choice with the same quant name but another layout: the v3.1 UD-IQ4_XS (four shards) is not the pinned UD-IQ4_XS (three))
         other = lambda p: (c := gguf_choice(p.name)) is not None and c[1] != model and model_quant(c[1]).lower() == model_quant(model).lower()   # noqa: E731
@@ -3671,7 +3777,7 @@ def gguf_dir_problem(folder: Path, first: Path, fam: dict, model: str) -> tuple 
     Strata cannot run (Unsloth's UD-IQ3_XXS taken for IQ3_XXS by its name), or it is missing and the folder holds
     other GGUFs - then the hint names the --family/--model of the usable ones.  None otherwise (a missing shard in a
     folder without GGUFs stays check_shards' "missing")."""
-    bad = gguf_unsupported(first.name) if first.exists() else None
+    bad = gguf_unsupported(first.name) if first.exists() and not _CUSTOM else None     # a custom build's file was checked by what is in it (its tensor types), not by what its name says
     if bad:
         why = UNSUPPORTED_WHY.get(bad.upper())
         return f"{first.name} is {bad}, a GGUF Strata cannot run", SUPPORTED_GGUFS + (".\n       " + why if why else "")
@@ -5068,20 +5174,52 @@ _WIN_AMD_NAME = ((re.compile(r"\b80[456]0S\b", re.I), "gfx1151"),               
 _DISPLAY_CLASS = r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
 
 
-def _win_display_adapters() -> list[dict]:
-    """The display adapters present ({"name", "pnp"}), from Win32_VideoController."""
+_VIDEO_SCOPE = threading.local()
+
+
+class win_video_scope:
+    """`with win_video_scope():` makes every win_video_rows() call inside it (this thread) share ONE Win32_VideoController read.  The Windows
+    hardware read asked for it four times, each a fresh PowerShell start of about a second (#7183).  Outside a scope nothing is remembered,
+    so a caller that wants a new answer (and a test that changes its mock) always gets one."""
+
+    def __enter__(self):
+        self._outer = getattr(_VIDEO_SCOPE, "rows", None)
+        if self._outer is None:
+            _VIDEO_SCOPE.rows = {}
+        return self
+
+    def __exit__(self, *exc):
+        if self._outer is None:
+            _VIDEO_SCOPE.rows = None
+        return False
+
+
+def win_video_rows() -> list[dict]:
+    """Every Windows display adapter, one dict each: name, pnp (PNPDeviceID), ram (AdapterRAM bytes, 0 = unknown), driver (DriverVersion) and
+    res (CurrentHorizontalResolution, 0 = no monitor on it).  One PowerShell start; inside a win_video_scope the answer is read once."""
+    scope = getattr(_VIDEO_SCOPE, "rows", None)
+    if scope is not None and "rows" in scope:
+        return [dict(r) for r in scope["rows"]]
     ps = ("[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; "      # the pipe is read as UTF-8 (#4675)
           "Get-CimInstance Win32_VideoController | ForEach-Object { $_.Name + '|' + $_.PNPDeviceID + '|' + "
-          "$_.AdapterRAM }")
+          "$_.AdapterRAM + '|' + $_.DriverVersion + '|' + $_.CurrentHorizontalResolution }")
     text = out(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps])
-    found = []
+    rows = []
     for line in (text or "").splitlines():
-        parts = line.strip().split("|")
-        if len(parts) >= 2 and parts[1]:
-            ram = parts[2] if len(parts) > 2 else ""
-            found.append({"name": parts[0].strip(), "pnp": parts[1].strip(),
-                          "ram": int(ram) if ram.strip().isdigit() else 0})
-    return found
+        parts = [p.strip() for p in line.strip().split("|")]
+        if len(parts) < 2 or not (parts[0] or parts[1]):
+            continue
+        num = lambda k: int(parts[k]) if len(parts) > k and parts[k].isdigit() else 0           # noqa: E731
+        rows.append({"name": parts[0], "pnp": parts[1], "ram": num(2),
+                     "driver": parts[3] if len(parts) > 3 else "", "res": num(4)})
+    if scope is not None:
+        scope["rows"] = rows
+    return [dict(r) for r in rows]
+
+
+def _win_display_adapters() -> list[dict]:
+    """The display adapters present ({"name", "pnp"}), from Win32_VideoController."""
+    return [{"name": r["name"], "pnp": r["pnp"], "ram": r["ram"], "driver": r["driver"]} for r in win_video_rows() if r["pnp"]]
 
 
 def _win_display_registry() -> list[dict]:
@@ -5144,19 +5282,24 @@ def amd_gpus_windows(adapters=None, registry=None) -> list[dict]:
         if did is None:
             continue                                   # not an AMD (VEN_1002) PCI device
         vram, driver = 0.0, ""
-        for k, r in enumerate(registry):               # the same card's driver instance: its 64-bit VRAM size
+        cands = []
+        for k, r in enumerate(registry):               # the same card's driver instances (a driver upgrade leaves the older ones, #6801)
             if k in used or _pci_device_id(r.get("MatchingDeviceId")) != did:
                 continue
             if (r.get("DriverDesc") and ad.get("name") and "\ufffd" not in ad["name"]
                     and r["DriverDesc"].strip() != ad["name"].strip()):
                 continue
-            used.add(k)
             mem = r.get("HardwareInformation.qwMemorySize")
             if isinstance(mem, bytes):
                 mem = int.from_bytes(mem[:8], "little")
-            vram = int(mem) / 2 ** 30 if isinstance(mem, int) and mem > 0 else 0.0
+            mem = int(mem) if isinstance(mem, int) and mem > 0 else 0
+            live = bool(ad.get("driver")) and str(r.get("DriverVersion") or "") == str(ad["driver"])
+            cands.append((mem > 0, live, k, mem, r))
+        if cands:                                      # one with a size first, then the installed driver's, then the first
+            _has, _live, k, mem, r = max(cands, key=lambda c: (c[0], c[1], -c[2]))
+            used.add(k)
+            vram = mem / 2 ** 30
             driver = str(r.get("DriverVersion") or "")
-            break
         if vram == 0.0 and ad.get("ram", 0) > 0:
             vram = ad["ram"] / 2 ** 30                 # WMI's 32-bit figure (at most 4 GB)
         arch = win_amd_arch(did, ad.get("name", ""))
@@ -5487,10 +5630,39 @@ def rocm_dev_missing(sysroot: Path) -> list:
     return [name for name, paths in need.items() if not any(p.is_file() for p in paths)]
 
 
+ROCM_LIB_SUBDIRS = ("lib", "lib64", "lib/x86_64-linux-gnu", "lib/x86_64-unknown-linux-gnu",
+                    "lib/aarch64-linux-gnu")
+
+
+def rocm_hipblas_dirs(root: Path) -> list[Path]:
+    """#6376: the folders under `root` that hold libhipblas.so*: AMD's /opt/rocm keeps them in lib/, Fedora's and
+    Arch's packages in lib64/, Debian's in a multiarch folder - each with hipcc in <root>/bin."""
+    return [root / d for d in ROCM_LIB_SUBDIRS if list((root / d).glob("libhipblas.so*"))]
+
+
+def rocm_prefixes(named: Path) -> list[Path]:
+    """#6376: the folders to try as a system ROCm's prefix, in order: the one named (ROCM_PATH, else /opt/rocm),
+    the folders above it (Fedora's ROCM_PATH=/usr/lib64/rocm names a folder that holds neither hipcc nor the
+    libraries, while /usr holds both), and last the prefix of the hipcc on PATH (a distro package install with no
+    ROCM_PATH at all, or one naming a folder that is not the ROCm prefix)."""
+    out = [named]
+    for up in (named.parent, named.parent.parent):
+        if up != up.parent and up not in out:
+            out.append(up)
+    exe = shutil.which("hipcc")
+    if exe:
+        prefix = Path(exe).resolve().parent.parent
+        if prefix not in out:
+            out.append(prefix)
+    return out
+
+
 def rocm_clang(root: Path) -> Path:
-    """#6071: ROCm's HIP compiler.  ROCm 7 and TheRock's wheels have <root>/llvm/bin/clang++; rocm-core 10.1 (Arch Linux)
-    has only <root>/lib/llvm/bin/clang++.  The first that exists; when neither does, the old place (callers name it)."""
-    for d in (root / "llvm" / "bin", root / "lib" / "llvm" / "bin"):
+    """#6071: ROCm's HIP compiler.  ROCm 7 and TheRock's wheels have <root>/llvm/bin/clang++; rocm-core 10.1 (Arch
+    Linux) has only <root>/lib/llvm/bin/clang++; Fedora's packages keep it in <root>/lib64/rocm/llvm/bin (#6376).
+    The first that exists; when none does, the old place (callers name it)."""
+    for d in (root / "llvm" / "bin", root / "lib" / "llvm" / "bin", root / "lib64" / "llvm" / "bin",
+              root / "lib64" / "rocm" / "llvm" / "bin"):
         if (d / "clang++").exists():
             return d / "clang++"
     return root / "llvm" / "bin" / "clang++"
@@ -5502,17 +5674,24 @@ def rocm_root(archs):
     TheRock wheels (rocm_wanted: a version per card family, from the family's index) installed into .venv."""
     archs = [archs] if isinstance(archs, str) else list(archs)
     sysroot = Path(os.environ.get("ROCM_PATH") or "/opt/rocm")
-    if (sysroot / "bin" / "hipcc").exists() and list((sysroot / "lib").glob("libhipblas.so*")):
-        ver = rocm_version(sysroot)
-        missing = rocm_dev_missing(sysroot)
+    for prefix in rocm_prefixes(sysroot):              # #6376: a distro splits hipcc, libraries and headers
+        libs = rocm_hipblas_dirs(prefix)
+        if not ((prefix / "bin" / "hipcc").exists() and libs):
+            continue
+        ver = rocm_version(prefix)
+        missing = rocm_dev_missing(prefix)
         if (ver is None or ver >= ROCM_SYSTEM_MIN) and not missing:
-            return sysroot, [str(sysroot / "lib")]
+            if prefix != sysroot:                      # say which folder was used: ROCM_PATH named another one
+                say(f"  System ROCm: {prefix} (this distribution keeps hipcc, the libraries and the development "
+                    "files in separate folders)")
+            return prefix, [str(p) for p in libs]
         if ver is not None and ver < ROCM_SYSTEM_MIN:
-            warn(f"the ROCm in {sysroot} is {ver[0]}.{ver[1]}; Strata needs {ROCM_SYSTEM_MIN[0]}.{ROCM_SYSTEM_MIN[1]} "
+            warn(f"the ROCm in {prefix} is {ver[0]}.{ver[1]}; Strata needs {ROCM_SYSTEM_MIN[0]}.{ROCM_SYSTEM_MIN[1]} "
                  "or newer: using AMD's wheels in .venv instead")
         else:                                          # #446: a runtime-only ROCm (no -dev packages): cmake would fail
-            warn(f"the ROCm in {sysroot} has no HIP development files ({', '.join(missing)}): using AMD's wheels in "
+            warn(f"the ROCm in {prefix} has no HIP development files ({', '.join(missing)}): using AMD's wheels in "
                  ".venv instead (or install them, e.g. AMD's amdrocm-core-dev package for your ROCm and card)")
+        break                                          # a ROCm that is there but unusable: the wheels path follows
     missing_wheels = [a for a in archs if a not in ROCM_INDEXES]
     if missing_wheels:                                 # gfx906: no TheRock wheels (7.x families only)
         if "gfx906" in missing_wheels:                 # this fork: there is no gfx906 wheel index at all
@@ -7496,7 +7675,11 @@ def data_folder_in_place() -> tuple:
 
 def write_config(path: Path, cfg: dict):
     """A run config, written whole or not at all (#459): to a temporary file first, then moved over the old one, so
-    a setup stopped half-way (a closed window, a full disk) never leaves an empty strata-*.json behind."""
+    a setup stopped half-way (a closed window, a full disk) never leaves an empty strata-*.json behind.
+    #7012: the folder is made first.  The Terminal's install folder (<data home>/strata/install) is not made by anything
+    before the first run config is written (the data folder beside it is), so the very first write failed there."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
     tmp.write_text(json.dumps(cfg, indent=1), encoding="utf-8")
     atomic.replace(tmp, path)
@@ -7678,6 +7861,88 @@ def engine_exe(eng: Path) -> str:
     return "component:strata-engine" if CONTROL else str(eng / EXE)
 
 
+_CUSTOM: dict = {}                                     # --custom-label: what run_tag decided for this run's custom build (read by write_setup_config)
+_OWN_FIRST: Path | None = None                         # --gguf-dir FILE with --custom-label: the file the person picked (the first shard of a split set)
+
+
+def custom_requested(a) -> bool:
+    """A custom build: the person's own model files (--gguf-dir) with a name of their own (--custom-label). Never for a download."""
+    label, folder = getattr(a, "custom_label", None), getattr(a, "gguf_dir", None)
+    return isinstance(label, str) and bool(label.strip()) and isinstance(folder, (str, os.PathLike)) and bool(str(folder))
+
+
+def custom_tags_in_use() -> dict:
+    """{tag: weights path} of the custom run configs already written here (strata-<tag>.json with "custom": true), so the same files keep their
+    tag and other files with the same name get another one."""
+    found: dict = {}
+    try:
+        for p in home().glob("strata-*custom-*.json"):
+            try:
+                c = json.loads(p.read_text(encoding="utf-8-sig"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(c, dict) and c.get("custom") is True:
+                found[p.stem[len("strata-"):].lower()] = c.get("custom_source")
+    except OSError:
+        pass
+    return found
+
+
+def run_tag(a, family: str, fam: dict, model: str) -> str:
+    """The tag that names the pack, the run config and the start script: the family's own (<tag><size>) for a download or an official file, and for a
+    custom build <tag>custom-<name> (strata_control/custom_models.py), so a custom build never replaces the official install of the same size."""
+    official = fam["tag"] + model
+    if not custom_requested(a):
+        return official
+    label = custom_models.clean_label(a.custom_label)
+    source = os.path.abspath(os.path.expanduser(str(getattr(a, "custom_source", None) or a.gguf_dir)))
+    try:
+        tag = custom_models.run_tag(family, label, source, custom_tags_in_use())
+    except ValueError:                                 # a family Strata's engines do not run a custom build of
+        fail(f"{family} cannot be set up from your own files with --custom-label", "use one of: " + ", ".join(sorted(custom_models.SUPPORTED_FAMILIES)))
+    _CUSTOM.clear()
+    _CUSTOM.update(label=label, family=family, model=model, source=source)
+    ok(f"custom build: {label} (run as {family} {model}; its own settings file, {official} is not touched)")
+    return tag
+
+
+def custom_weight_bytes(native: Path) -> int:
+    """The size of the person's model files: the one file, or every shard of a split GGUF set. 0 when it cannot be read."""
+    try:
+        m = re.match(r"^(.+)-(\d{5})-of-(\d{5})\.gguf$", native.name, re.I)
+        if m:
+            total = int(m.group(3))
+            return sum((native.with_name(f"{m.group(1)}-{i:05d}-of-{total:05d}.gguf").stat().st_size
+                        if native.with_name(f"{m.group(1)}-{i:05d}-of-{total:05d}.gguf").is_file() else 0) for i in range(1, total + 1))
+        return native.stat().st_size
+    except OSError:
+        return 0
+
+
+def custom_build(fit_module, model: str, a):
+    """`with custom_build(hy4_fit, model, a) as key:` the fit functions' build name: `model` for a download or an official file, and for a custom build the closest published build
+    moved to the real size of the person's files (custom_models.temporary_build)."""
+    import contextlib
+    if not custom_requested(a):
+        return contextlib.nullcontext(model)
+    src = Path(os.path.expanduser(str(getattr(a, "custom_source", None) or a.gguf_dir)))
+    return custom_models.temporary_build(fit_module, model, custom_weight_bytes(src) if src.is_file() else 0)
+
+
+def add_custom_fields(cfg: dict) -> None:
+    """A custom build's run config says so: custom, display_name, base_family, base_model, custom_bytes, custom_source; its model name is its own."""
+    if not _CUSTOM:
+        return
+    args = [str(x) for x in cfg.get("args", [])]
+    native = Path(args[args.index("--native") + 1]) if "--native" in args and args.index("--native") + 1 < len(args) else Path(_CUSTOM["source"])
+    if native.is_dir():                                # a folder of safetensors: no single file size
+        native = Path(_CUSTOM["source"])
+    cfg.update(custom_models.run_fields(_CUSTOM["label"], _CUSTOM["family"], _CUSTOM["model"], custom_weight_bytes(native), _CUSTOM["source"]))
+    cfg["model_name"] = custom_models.model_alias(_CUSTOM["family"], _CUSTOM["label"])
+    if _CUSTOM["family"] == "hy4-flash" and cfg.get("drafting") != "off":
+        cfg["drafting"] = "auto"                       # the drafter is used while it helps and left off when it does not (hy4_kind: auto means the family's default)
+
+
 def write_setup_config(cfg_path: Path, cfg: dict, source: Path | None = None, explicit: list[str] | None = None, after_carry=None) -> None:
     """#629: setup's run config, written over an earlier one for the same model without losing what the user added
     to it: the keys setup does not write are carried over (carry_over), and the earlier file is kept as
@@ -7694,6 +7959,7 @@ def write_setup_config(cfg_path: Path, cfg: dict, source: Path | None = None, ex
             pass
         if not isinstance(old, dict):
             old = None
+    add_custom_fields(cfg)                             # a custom build: its marks and its own model name (never on an official config)
     kept = carry_over(old, cfg, explicit) if old is not None else []
     if old is None:
         carry_user_args({}, cfg, explicit)              # a first install: only what this run's command line sets (nothing to report as kept)
@@ -7742,6 +8008,15 @@ def model_config_files(folder: Path) -> list:
     return [p for p in folder.glob("strata-*.json") if not p.name.endswith(".shared-settings.json")]
 
 
+def config_is_custom(path: Path) -> bool:
+    """Is this run config a custom build (the person's own model files, "custom": true)? An unreadable file is not."""
+    try:
+        c = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        return False
+    return custom_models.is_custom_cfg(c)
+
+
 def previous_config(elsewhere_first: list, settings: dict):
     """The most recently used model config of another Strata folder on this PC, for a folder that has none yet.  One
     that does not parse (an empty or cut-off file, #459) is skipped with a warning: the newest readable one is used,
@@ -7750,7 +8025,7 @@ def previous_config(elsewhere_first: list, settings: dict):
     for folder in [*elsewhere_first, *other_installs(settings)]:
         cands += model_config_files(folder)
     from strata_control import retired
-    cands = [c for c in dict.fromkeys(cands) if c.is_file() and not retired.config_file_reason(c)]   # never set up like a DeepSeek model
+    cands = [c for c in dict.fromkeys(cands) if c.is_file() and not retired.config_file_reason(c) and not config_is_custom(c)]   # never set up like a DeepSeek model, nor like a custom build (its files are the person's own)
     return next((c for c in sorted(cands, key=lambda p: p.stat().st_mtime, reverse=True) if readable_config(c)), None)
 
 
@@ -7763,11 +8038,13 @@ def choices_from_config(cfg_path: Path) -> dict:
     """The setup answers a config was written with (family, size, context, KV, images, projection, network)."""
     cfg = json.loads(cfg_path.read_text(encoding="utf-8-sig"))
     tag = cfg_path.stem[len("strata-"):]
+    if custom_models.is_custom_cfg(cfg):               # a custom build is read as the published size it is run as (base_family, base_model), whatever its own tag says
+        tag = custom_models.FAMILY_TAGS.get(cfg["base_family"], "") + str(cfg.get("base_model") or "")
     special_fams = {**OWN_PATH_FAMILIES, **HY4_FAMILIES, **INKLING_FAMILIES}
     own = next((f for f, d in special_fams.items() if tag.startswith(d["tag"])), None)
     if own is not None:                                # Qwen3.6 / Hy4-Flash / Inkling-2-Mini: own sizes; no Flash-Next KV / projection settings
         d = special_fams[own]
-        size = next((m for m in d["models"] if m.lower() == tag[len(d["tag"]):].lower()), None)
+        size = next((m for m in sizes_of_family(d) if m.lower() == tag[len(d["tag"]):].lower()), None)
         a = cfg.get("args", [])
         ctx = a[a.index("--max-context") + 1] if "--max-context" in a and a.index("--max-context") + 1 < len(a) else None
         vis = cfg.get("vision")
@@ -7801,6 +8078,7 @@ def choices_from_config(cfg_path: Path) -> dict:
 def calibration_targets(have: list, model: str | None, family: str | None) -> list:
     """#2036: the installed configs `--calibrate --model X` (and/or --family) means; every config with neither."""
     skip = set(OWN_PATH_FAMILIES) | set(HY4_FAMILIES) | set(INKLING_FAMILIES)
+    have = [c for c in have if not config_is_custom(c)]      # a custom build is the person's own files: calibration would rewrite the settings of the official size it is run as
     if not (model or family):
         return [c for c in have if choices_from_config(c)["family"] not in skip]
     out = []
@@ -8481,6 +8759,7 @@ def update_install(have: list, a) -> int:
             refresh_shared_draft_vocab(cfg, mtp_done)
         if cfg.get("backend") == "hip" and WIN:
             hip_runtime_beside_exe(Path(cfg["exe"]).parent)   # #468 #461
+        inkling_dflash2_for_config(a, cfg)                  # the DFlash 2 drafter beside an Inkling .strata model (an update brings it to an install that predates it)
         ok(f"{cfg.get('model_name', cfg_path.stem)}: up to date")
     ver = config_engine_version(json.loads(have[0].read_text(encoding="utf-8-sig")))
     say()
@@ -9016,19 +9295,20 @@ def mtp_corrupt(mtp: Path, env=None) -> bool:
     return r.returncode == 3
 
 
-def auto_drafter(a, family: str, fam: dict, model: str, hip: bool, gpu: dict, mtp_here: bool) -> str | None:
+def auto_drafter(a, family: str, fam: dict, model: str, hip: bool, gpu: dict, mtp_here: bool, canonical: bool = False) -> str | None:
     """P14 (0.2.16): the drafter a fresh setup uses when the person named none (no --drafter, no --mtp): the Terminal's Auto rule
     (strata_control/drafting.py choice_of, the one `strata launch` and the app use), not a copy of it. "dflash2" when Auto means DFlash2 on this
     computer and the MTP layer is not on disk yet, so the ~5 GB MTP download is skipped and the 1.2 GB DFlash2 drafter is fetched instead (a P100 got the
     5 GB layer from setup while the Terminal's Auto picks DFlash2 there). None in every other case: the MTP layer is already here (nothing to save), a
-    drafter was named, or Auto means the MTP; setup then goes on as before. Never raises."""
+    drafter was named, or Auto means the MTP; setup then goes on as before. ``canonical``: step 6 builds the canonical pack (Q2_0 on a CPU with AVX-512), which
+    the engine's DFlash2 refuses ("it needs a native pack", #7090): Auto is the MTP then, and the layer is fetched. Never raises."""
     if getattr(a, "drafter", None) or a.mtp is not None or mtp_here:
         return None
     try:
         from strata_control import drafting
         backend, archs = drafting.hardware_for("hip" if hip else "cuda")
         pick = drafting.choice_of("auto", model_name=f"{fam['name']}-{model.lower()}", family=family, backend=backend, archs=archs,
-                                  vram_mib=float(gpu.get("vram_gb") or 0) * 1024 or None)
+                                  vram_mib=float(gpu.get("vram_gb") or 0) * 1024 or None, canonical=canonical)
         return "dflash2" if pick == "dflash2" else None
     except Exception:                                  # noqa: BLE001 - a rule that cannot be read leaves setup as it was
         return None
@@ -9206,6 +9486,7 @@ def write_run_script(model, cfg_path, port, open_browser=True):
     """run-<model>.bat / .sh: the server with this config; `open_browser` False (#609: --no-browser) leaves --open out."""
     serve = [sys.executable, str(ROOT / "serve" / "server.py"), "--engine", "strata", "--config", str(cfg_path),
              "--port", str(port)] + (["--open"] if open_browser else [])
+    home().mkdir(parents=True, exist_ok=True)           # #7012: the Terminal's install folder may not exist yet
     if WIN:
         script = home() / f"run-{model.lower()}.bat"
         script.write_bytes(("@echo off\r\ntitle Strata " + model + "\r\ncd /d \"" + str(ROOT) + "\"\r\n" +
@@ -9353,7 +9634,7 @@ def intel_control_setup(a) -> int:
     if not model:
         fail("an Intel Arc setup needs --model, e.g. --model Q2_0")
     data, _elsewhere = data_folder_for(a)
-    tag = fam["tag"] + model
+    tag = run_tag(a, family, fam, model)
     if a.gguf_dir:
         model_dir = Path(a.gguf_dir)
     else:
@@ -9470,12 +9751,28 @@ def shape_engine_fetch(a):
     name = shape_engine.shown(shape, title)                          # what a person reads: the model's title (shape_engine.USE_TITLE)
     from strata_cli import update_cmd
     source = update_cmd._feed_source(argparse.Namespace(feed=getattr(a, "feed", None)), EC.components_dir())
-    exe = shape_engine.ensure(shape, source, emit=lambda m: say("  " + m), title=title)
+    lines: list[str] = []                                            # #7119: what ensure said; the last one is why it stopped
+
+    def emit(m):
+        lines.append(str(m))
+        say("  " + m)
+
+    exe = shape_engine.ensure(shape, source, emit=emit, title=title)
     if exe is None:
         if os.environ.get("STRATA_ALLOW_NO_ENGINE") == "1":
             warn(shape_engine.WORDS["setup_skip"].format(model=name))
             return None
-        fail(shape_engine.WORDS["setup_failed"].format(model=name), shape_engine.WORDS["setup_failed_hint"])
+        why = (lines[-1].strip() if lines else "").rstrip()
+        try:
+            hand = shape_engine.hand_install_note(shape)
+        except Exception:                                            # noqa: BLE001 - a note about folders never hides the failure itself
+            hand = ""
+        if why and not why.endswith((".", "!", "?")):
+            why += "."
+        if hand:
+            why = f"{why} {hand}".strip()
+        fail(shape_engine.WORDS["setup_failed"].format(model=name),
+             shape_engine.WORDS["setup_failed_why"].format(why=why) if why else shape_engine.WORDS["setup_failed_hint"])
     found = shape_engine.find(shape, full=False, title=title)
     ok(shape_engine.WORDS["setup_ok"].format(model=name, version=found.version, folder=found.root))
     return found
@@ -9817,8 +10114,14 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
     ok(f"model: {fam['title']}")
     if fam.get("license"):
         say(f"  Its license: {fam['license']}")
-    if multi:
-        warn(f"{fam['title']} runs on one GPU so far: using GPU {gpu.get('index', 0)} ({gpu_name(gpu)}) only")
+    peer_gpu = None
+    if multi and len(multi) == 2 and not hip:        # the second-card expert tier (--peer-device): CUDA, two cards only so far
+        peer_gpu = next(i for i in multi if i != gpu.get("index", 0))
+        ok(f"{fam['title']}: GPU {gpu.get('index', 0)} ({gpu_name(gpu)}) main, GPU {peer_gpu} as a second-card expert "
+           "tier (--peer-device)")
+    elif multi:
+        warn(f"{fam['title']} runs on one GPU, or two together with --peer-device (not {len(multi)}): using GPU "
+             f"{gpu.get('index', 0)} ({gpu_name(gpu)}) only")
     names = list(fam["models"])
     if a.model and a.model not in names:
         fail(f"{fam['title']} has no {a.model} model file", "choose one of: " + ", ".join(names))
@@ -9841,7 +10144,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
                      f"choose a smaller size, or --model {model} --yes to install it anyway", "  Install it anyway?")
         warn(f"installing {model} with {ram:.0f} GB of RAM, as you chose")
     ok(f"size: {model}")
-    tag = fam["tag"] + model
+    tag = run_tag(a, family, fam, model)
     rec_ctx = own_path_context(fam, gpu.get("vram_gb", 0.0), model)
     if a.context:
         ctx = a.context
@@ -9875,13 +10178,18 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
             n = int(ask("How many requests at once (1 = one at a time)?", [str(i) for i in range(1, PARALLEL_MAX + 1)],
                         "1", a.yes))
             par = n if n > 1 else None
-    if a.rope_scaling or a.rope_scale or a.kv or a.resident_budget_gib is not None or a.low_ram not in (None, "auto"):
-        warn(f"--rope-scaling / --kv / --resident-budget-gib / --low-ram are Flash-Next settings: {fam['title']} "
+    if a.rope_scaling or a.rope_scale or a.resident_budget_gib is not None or a.low_ram not in (None, "auto"):
+        warn(f"--rope-scaling / --resident-budget-gib / --low-ram are Flash-Next settings: {fam['title']} "
              "does not use them")
+    kv = a.kv if a.kv in ("fp32", "fp16", "fp8", "fp4") else None   # q36's own --kv widths; Flash-Next's int8/q4_0/k8v4 do not apply here
+    if a.kv and kv is None:
+        warn(f"--kv {a.kv} is a Flash-Next memory format: {fam['title']} takes fp32, fp16, fp8 or fp4 - kept at its default (fp32)")
     folder = Path(a.gguf_dir) if a.gguf_dir else Path(a.models_dir) / tag
     published = fam["file"].format(q=model)           # the published file's name: its pinned size and SHA-256
     gguf = folder / published
-    if a.gguf_dir and not gguf.exists():
+    if _OWN_FIRST is not None and _OWN_FIRST.parent == folder and _OWN_FIRST.is_file():
+        gguf = _OWN_FIRST                              # a custom build: the file the person picked, though the published one may be in the same folder
+    elif a.gguf_dir and not gguf.exists():
         gguf = own_path_gguf_in(folder) or gguf        # #5869: the person's own file under another name (the importer checked its types)
     size = fam["sha256"][published][0]
     part = gguf.with_name(gguf.name + ".part")
@@ -9927,6 +10235,17 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
     ok(f"model file: {gguf}")
     if vision != "none" and fam.get("mmproj"):         # the image encoder: Unsloth's mmproj, pinned, size + SHA-256 checked
         mmproj = folder / fam["mmproj"]
+        mmproj_own = bool(a.gguf_dir)
+        if _CUSTOM and not have(mmproj):               # a custom build: the family's picture reader that an official install already has, else Strata's own download of it (checked as any download)
+            beside = next((p for p in sorted(Path(a.models_dir).glob("*/" + fam["mmproj"])) if p.is_file() and done(p)), None)
+            if beside is not None:
+                mmproj, mmproj_own = beside, False
+                ok(f"picture reader: the one an installed {fam['title']} already has ({beside})")
+            else:
+                mmproj, mmproj_own = Path(a.models_dir) / (fam["tag"] + "vision") / fam["mmproj"], False
+                mmproj.parent.mkdir(parents=True, exist_ok=True)
+                if not have(mmproj):
+                    download(fam["mmproj_hf"] + mmproj.name, mmproj, "vision encoder")
         if not a.gguf_dir and not have(mmproj) and not mmproj.with_name(mmproj.name + ".part").exists():
             # another size of this model has it already (the same file, kept beside each size): linked here, not fetched again
             if share_sibling_file(mmproj, Path(a.models_dir), mmproj.name, fam["sha256"][mmproj.name][0]):
@@ -9937,7 +10256,7 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
             if a.gguf_dir:
                 fail(f"{mmproj} is missing", f"put {mmproj.name} in {folder}, or drop --gguf-dir to download it")
             download(fam["mmproj_hf"] + mmproj.name, mmproj, "vision encoder")
-        verify_sha256(mmproj, *fam["sha256"][mmproj.name], own=bool(a.gguf_dir))
+        verify_sha256(mmproj, *fam["sha256"][mmproj.name], own=mmproj_own)
         ok(f"vision encoder: {mmproj}")
 
     step(6, "preparing the model for Strata")
@@ -9950,6 +10269,14 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
 
     step(7, "writing the start script")
     args = ["--native", str(gguf), "--max-context", str(ctx), "--prefill", "auto", "--mtp", str(fam["mtp"])]
+    if kv:
+        args += ["--kv", kv]
+        ok(f"KV cache: --kv {kv}")
+    if peer_gpu is not None:
+        args += ["--peer-device", "1"]                         # the engine numbers --gpu's cards 0, 1: the config below lists [main, peer], whatever order the cards were chosen in
+        if getattr(a, "peer_reserve_mib", None) is not None:
+            args += ["--peer-reserve-mib", str(a.peer_reserve_mib)]
+        ok(f"second-card expert tier: --peer-device 1 (GPU {peer_gpu})")
     if a.vram_reserve_mib is not None:             # VRAM left free for other programs: the experts take that much less
         vram = gpu.get("vram_gb", 0.0)
         if vram > 0:
@@ -9962,7 +10289,10 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         cfg["cuda"] = 12
     if hip:
         cfg["backend"] = "hip"
-    if gpu.get("count", 1) > 1 or a.gpu is not None:
+    if peer_gpu is not None:
+        cfg["gpu"] = [gpu.get("index", 0), peer_gpu]    # both cards visible (CUDA_VISIBLE_DEVICES), the main card first: --peer-device 1 is the second
+        cfg["gpus_asked"] = True
+    elif gpu.get("count", 1) > 1 or a.gpu is not None:
         cfg["gpu"] = gpu["index"]
         cfg["gpus_asked"] = True
     if a.host:
@@ -10018,8 +10348,49 @@ def install_own_path(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
 def hy4_folder(a) -> Path:
     """Where the Hy4-Flash files live: --gguf-dir (the person's own folder with the files), else <models>/hy4-flash (every build and the Engram shard they share are in it)."""
     if getattr(a, "gguf_dir", None):
-        return Path(a.gguf_dir)
+        p = Path(a.gguf_dir)
+        return p.parent if p.is_file() else p
     return Path(getattr(a, "models_dir", None) or (home() / "models")) / hy4_family.FAMILY
+
+
+def hy4_local_native(a, model: str) -> Path | None:
+    """The person's own HY-4 Flash .strata file (--gguf-dir FILE, or a folder whose one model .strata is not a published build's name), None when the files are Strata's published ones."""
+    raw = Path(a.gguf_dir) if getattr(a, "gguf_dir", None) else None
+    if raw is None:
+        return None
+    if raw.is_file():
+        return raw if raw.suffix.lower() == ".strata" and raw.name not in hy4_family.FILES else None
+    if not raw.is_dir() or (raw / hy4_family.build_file(model)).is_file():
+        return None
+    own = [p for p in sorted(raw.glob("*.strata")) if p.is_file() and p.name not in hy4_family.FILES and "vision" not in p.name.lower() and "engram" not in p.name.lower()]
+    return own[0] if len(own) == 1 else None
+
+
+def own_strata_check(path: Path) -> None:
+    """A .strata file the person chose is used as it is: Strata checks that it is a whole .strata (its magic, its header's section table inside the file), never its SHA-256 or
+    byte size (it is a fine-tune or another build, not a download), and never deletes or renames it."""
+    from strata_control import strata_manifest
+    try:
+        head = strata_manifest.read_header(path)
+    except (ValueError, OSError) as e:
+        fail(f"{path.name} is not a usable .strata file: {e}", "your file was left as it is; it may be cut short (a copy that did not finish) or not a .strata model")
+    if path.name not in hy4_family.FILES and path.name not in inkling_family.ALL_FILES:
+        warn(f"{path.name} ({head['size']:,} bytes) is not one of the files Strata publishes; it is used as it is. It may be a fine-tune or another build: check a few answers before you rely on it")
+
+
+def hy4_companion(a, name: str, folder: Path, data: Path) -> Path:
+    """The Engram or Vision file a custom HY-4 build needs: beside the person's file, else the one an official install keeps in the data folder, else Strata's own download of it into
+    the data folder (the published file: its size and SHA-256 are checked strictly, as for any download)."""
+    for d in (folder, data / "models" / hy4_family.FAMILY):
+        if (d / name).is_file():
+            return d / name
+    dest = data / "models" / hy4_family.FAMILY
+    dest.mkdir(parents=True, exist_ok=True)
+    saved, a.gguf_dir = a.gguf_dir, None               # this one is a download, not the person's file: the strict checks apply
+    try:
+        return hy4_fetch(a, name, dest, False)
+    finally:
+        a.gguf_dir = saved
 
 
 def hy4_offered(a=None) -> bool:
@@ -10201,8 +10572,9 @@ def hy4_tokenizer_dir(model: Path, out: Path, engine: Path | None, a=None, folde
         except (SystemExit, OSError, ValueError):
             pass
     # Public HF / configured source fallback so `packs/hy4-flash-*/tokenizer/vocab.json` is ALWAYS populated even without zstd or unpacked engine
-    if not own and a is not None:
-        fetch_dir = Path(folder) if folder is not None else model.parent
+    if a is not None and (not own or data is not None):
+        # a download goes into Strata's own folders: the person's folder is never written to (the shared family folder of the data folder, <data>/models/hy4-flash, serves every build)
+        fetch_dir = (Path(data) / "models" / hy4_family.FAMILY) if own else (Path(folder) if folder is not None else model.parent)
         fetch_dir.mkdir(parents=True, exist_ok=True)
         tok_json = fetch_dir / hy4_family.TOKENIZER_FILE
         tmpl_file = fetch_dir / hy4_family.CHAT_TEMPLATE_FILE
@@ -10265,7 +10637,7 @@ def install_hy4_flash(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopt
         say(f"  Every build also needs the Engram file ({hy4_fit.ENGRAM_GB:.0f} GB, read from the SSD while it answers, shared by all builds, downloaded once).")
     model = a.model or order[int(ask("Which size?", [str(i) for i in range(1, len(order) + 1)], str(order.index(rec["build"]) + 1), a.yes)) - 1]
     ok(f"size: {model}")
-    tag = fam["tag"] + model
+    tag = run_tag(a, family, fam, model)
     ctx = a.context or hy4_family.DEFAULT_CONTEXT       # 128K on every card (owner, 2026-11-19: "people can change whenever they want themselves"); no card-size special case
     if not a.context:
         ctxs = hy4_family.CONTEXTS
@@ -10274,7 +10646,8 @@ def install_hy4_flash(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopt
         for i, c in enumerate(ctxs, 1):
             say(f"  {i}) {c // 1024}K tokens" + ("   (recommended)" if c == hy4_family.DEFAULT_CONTEXT else ""))
         ctx = ctxs[int(ask("Context?", [str(i) for i in range(1, len(ctxs) + 1)], str(ctxs.index(hy4_family.DEFAULT_CONTEXT) + 1), a.yes)) - 1]
-    placed = hy4_fit.place(model, vram_gib, ram_gib, unified, ctx, vision, extra_vram_gib=extra_vram_gib)
+    with custom_build(hy4_fit, model, a) as fit_build:       # a custom build: the closest published build moved to the real file size
+        placed = hy4_fit.place(fit_build, vram_gib, ram_gib, unified, ctx, vision, extra_vram_gib=extra_vram_gib)
     mode = hy4_fit.mode(placed["ssd_gb"])
     if mode == "cross_tier_ssd":
         warn(f"{model} does not fit this PC's memory: about {placed['ssd_gb']:.0f} GB of its experts are read from the SSD while it answers, so it is much slower "
@@ -10285,9 +10658,16 @@ def install_hy4_flash(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopt
         warn(f"--rope-scaling / --kv / --resident-budget-gib / --low-ram are Flash-Next settings: {fam['title']} does not use them")
     folder = hy4_folder(a)
     own = bool(getattr(a, "gguf_dir", None))
+    local_native = hy4_local_native(a, model) if own else None      # the person's own .strata (a fine-tune or another build): used as it is, never hash-checked
     files = hy4_family.files_of(model, vision)
+    if local_native is not None:
+        own_strata_check(local_native)
+        files = [local_native.name] + [n for n in files if n != hy4_family.build_file(model)]
     left = 0.0
+    data_have, _ = data_folder_for(a) if local_native is not None else (None, None)
     for n in files:
+        if local_native is not None and (n == local_native.name or any((d / n).is_file() for d in (folder, data_have / "models" / hy4_family.FAMILY))):
+            continue                                   # the person's file, or a companion already beside it or in the data folder: nothing to fetch
         p = folder / n
         if not hy4_have(a, p):
             part = p.with_name(p.name + ".part")
@@ -10312,7 +10692,11 @@ def install_hy4_flash(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopt
         ok(f"engine: {engine_program}")
 
     step(5, f"downloading {fam['title']} {model}")
-    paths = {n: hy4_fetch(a, n, folder, own) for n in files}
+    if local_native is not None:
+        data0, _ = data_folder_for(a)
+        paths = {local_native.name: local_native, **{n: hy4_companion(a, n, folder, data0) for n in files[1:]}}
+    else:
+        paths = {n: hy4_fetch(a, n, folder, own) for n in files}
     ok(f"model file: {paths[files[0]]}")
     engram = paths[hy4_family.ENGRAM_FILE] if hy4_family.ENGRAM_FILE in paths else folder / hy4_family.ENGRAM_FILE
     ok(f"Engram file: {engram}")
@@ -10404,8 +10788,8 @@ def inkling_local_source(a, model: str | None = None) -> tuple[Path, Path, bool]
     if not raw.is_dir():
         return None
     if model and model in inkling_fit.BUILDS:
-        pinned = raw / inkling_family.build_file(model)
-        if pinned.is_file():
+        pinned = inkling_family.model_file_in(raw, model)           # the current name, else the one an older Strata wrote (SQ-20 of 0.2.22)
+        if pinned is not None:
             return pinned, raw, pinned.suffix.lower() == ".gguf"
     if (raw / "config.json").is_file() and any(
             p.is_file() and p.name.lower() != "mtp.safetensors" for p in raw.glob("*.safetensors")):
@@ -10422,33 +10806,30 @@ def inkling_local_source(a, model: str | None = None) -> tuple[Path, Path, bool]
 
 
 def inkling_find_local_vision(folder: Path, data: Path, is_gguf: bool) -> Path | None:
-    """Find a local Inkling-2-Mini Vision shard (.strata) or companion mmproj*.gguf beside a local model."""
-    for cand in (folder / inkling_family.VISION_FILE, data / "models" / inkling_family.FAMILY / inkling_family.VISION_FILE):
-        if cand.is_file():
-            return cand
-    if is_gguf:
-        mmprojs = sorted(p for p in folder.glob("mmproj*.gguf") if p.is_file())
-        if mmprojs:
-            for pref in ("bf16", "f16", "q8_0"):
-                hit = next((p for p in mmprojs if pref in p.name.lower()), None)
-                if hit:
-                    return hit
-            return mmprojs[0]
-    return None
+    """Find a local Inkling-2-Mini picture reader beside a local model: the Vision shard (.strata). An `mmproj*.gguf` beside an Unsloth GGUF is NOT one: it is
+    llama.cpp's projector (architecture "clip"), which strata-inkling cannot read (`--info mmproj-BF16.gguf` says "GGUF architecture is 'clip', expected
+    'inkling2'"); handing it over as --vision left the engine without a reader and images failed with "does not read images yet" (0221 APPTUI, GRID report)."""
+    return inkling_family.vision_in(folder, data / "models" / inkling_family.FAMILY)
 
 
-def inkling_find_local_dspark(folder: Path) -> Path | None:
-    """Find an optional local DSpark drafter file (dspark*.gguf or mtp.safetensors) beside an Inkling GGUF."""
-    for base in (folder, folder / "dspark"):
-        if not base.is_dir():
-            continue
-        ggufs = sorted(p for p in base.glob("dspark*.gguf") if p.is_file())
-        if ggufs:
-            return ggufs[0]
-        mtp = base / "mtp.safetensors"
-        if mtp.is_file():
-            return mtp
-    return None
+def inkling_fetch_local_vision(a, folder: Path, data: Path) -> Path | None:
+    """The person's own model files have no picture reader beside them and pictures are on: download Inkling-2-Mini-Vision.strata (0.64 GB, checked by size and
+    SHA-256) into the data folder's models/inkling-2-mini, where the next start finds it too. None, and one plain sentence, when it cannot be had: the model then
+    starts without pictures and the sentence says how to add the file."""
+    dest = data / "models" / inkling_family.FAMILY
+    beside = sorted(p.name for p in folder.glob("mmproj*.gguf") if p.is_file())
+    why = (f"the {beside[0]} beside the model is llama.cpp's picture projector, which Strata's engine does not read" if beside
+           else "there is no picture reader beside the model")
+    say(f"  {why}; downloading {inkling_family.VISION_FILE} (0.64 GB, once) into {dest}")
+    try:
+        dest.mkdir(parents=True, exist_ok=True)
+        got = inkling_fetch(a, inkling_family.VISION_FILE, dest, False)
+    except (SystemExit, OSError):
+        warn(f"images will not work: {inkling_family.VISION_FILE} could not be downloaded. The model starts without a picture reader. "
+             f"To add it later: put {inkling_family.VISION_FILE} in {dest} (or next to the model) and run this again")
+        return None
+    ok(f"images: on ({got.name})")
+    return got
 
 
 def inkling_offered(a=None) -> bool:
@@ -10476,8 +10857,93 @@ def inkling_pc(gpu, ram) -> tuple:
     return effective_vram_gb(g), float(ram), False, False, arch
 
 
-def inkling_menu_lines(vram_gib, ram_gib, unified, ctx=None, vision=inkling_family.DEFAULT_VISION, *, igpu=False, arch=None) -> list:
-    rec = inkling_fit.recommend(vram_gib, ram_gib, unified, ctx, vision, igpu=igpu, arch=arch)["build"]
+def inkling_picture_reader(asked, gpu, backend, ink_gpus=None) -> str | None:
+    """The picture reader an Inkling-2-Mini install gets: "gpu", "cpu", or None when the card cannot be told (the engine's own rule then decides at start).
+    Owner 2026-11-26: the Qwen rule everywhere (strata_control/vision_reader.py inkling_reader): the CPU reader under 24 GB of VRAM (NVIDIA and AMD), the
+    GPU from 24 GB, the Mac's GPU whatever the memory, an Intel Arc on the CPU unless asked; --vision gpu / cpu are kept as asked, with a note on a small card.
+    The card is the first one the model runs on (the engine applies the same rule to its main card) and its total memory, as the Qwen path reads it; on a
+    machine whose GPU shares the RAM (Strix Halo, DGX Spark) that is the shared pool, so those read on the GPU.  Prints the plain-words lines."""
+    from strata_control import vision_reader as VR
+    main = (ink_gpus[0] if ink_gpus else gpu) or {}
+    mac = backend == "metal" or sys.platform == "darwin"
+    make = "intel" if backend == "sycl" else ""
+    vram = float(main.get("vram_gb") or 0.0) or float(main.get("unified_gb") or 0.0)
+    mode = VR.inkling_reader(asked, vram, make, mac=mac)
+    for is_warn, text in VR.inkling_lines(asked, mode, vram, make, mac=mac, backend=backend):
+        (warn if is_warn else ok)(text)
+    return mode if mode in ("gpu", "cpu") else None
+
+
+# A plan that fills the card and the RAM with every expert and leaves nothing for the SSD has its two caps equal to the plan.  The engine counts its experts a
+# little differently (each one's real bytes, and the 65-slot bounce ring the SSD-streaming mode takes out of the RAM cap), so a few percent of them do not fit
+# under caps with no room, the engine switches to GPU+SSD streaming and reads them from the SSD on every use: SQ-20 on an RX 7900 XT (20 GiB, 32K context) wrote
+# 12.53 + 2.08 GiB = exactly its 15.68 GB, the engine kept 47 experts on the SSD and decode / prefill fell 7% / 19% below 0.2.20, which (before the GiB fix #6792) wrote
+# caps 7.4% above its plan.  So the RAM cap of such a plan gets this much room: the larger of RAM_TIER_SLACK_GIB and RAM_TIER_SLACK_FRAC of the experts, bounded
+# by the free RAM the planner was given.  HIP only: that is where it was measured (boxia, RX 7900 XT); the other backends write the caps they always wrote.
+RAM_TIER_SLACK_GIB = 0.75
+RAM_TIER_SLACK_FRAC = 0.05
+
+
+def inkling_expert_flags(placed, ram_free_gib=None, backend=None) -> list:
+    """--vram-experts-gb / --ram-experts-gb for a planner placement.  The planner counts GB (10^9 bytes); strata-inkling reads the two
+    flags as GiB (2^30 bytes): written as they were, the engine's cap sat 7.4% above the plan (#6792)."""
+    # Rounded UP to the 0.01 GiB the flag carries: an exact figure rounded down cuts the last expert off (UD-Q4_K_XL: 15.48 GB written as 14.42 GiB left
+    # 38 of 3072 experts on the host, the hybrid path, 6% slower), and a plan that holds every expert in the card gets 0.05 GiB (about 11 experts) of slack.
+    slack = 0.05 if placed.get("full_vram") else 0.0
+    up = lambda gb, extra=0.0: math.ceil((gb / inkling_fit.GIB_TO_GB + extra) * 100 - 1e-6) / 100          # noqa: E731
+    flags = ["--vram-experts-gb", f"{up(placed['vram_gb'], slack):.2f}"]
+    # strata-inkling reads --ram-experts-gb 0 as "no RAM tier, GPU + SSD only": a plan with every expert on the card leaves it
+    # out, so experts that do not fit after all (a bigger context, a --vram-experts-gb cap) go to RAM, not the SSD (#6752)
+    if placed["ram_gb"] > 0.05 or placed.get("ssd_gb", 0.0) > 0.05:
+        ram_slack = 0.0
+        if backend == "hip" and placed["ram_gb"] > 0.05 and placed.get("ssd_gb", 0.0) <= 0.05 and not placed.get("full_vram"):
+            # card + RAM, no SSD tier, no room: give the RAM cap room (see RAM_TIER_SLACK_GIB), never more than the free RAM allows
+            total_gib = (placed["vram_gb"] + placed["ram_gb"]) / inkling_fit.GIB_TO_GB
+            ram_slack = max(RAM_TIER_SLACK_GIB, RAM_TIER_SLACK_FRAC * total_gib)
+            if ram_free_gib is not None:
+                room = float(ram_free_gib) - placed["ram_gb"] / inkling_fit.GIB_TO_GB - inkling_fit.FREE_RAM_MARGIN_GB / inkling_fit.GIB_TO_GB
+                ram_slack = max(0.0, min(ram_slack, room))
+        flags += ["--ram-experts-gb", f"{up(placed['ram_gb'], ram_slack):.2f}"]
+    return flags
+
+
+def inkling_plan_extra(gpu) -> dict:
+    """What the Inkling planner is told beside the card's free memory (#6662 #6739): the free RAM, and that the card drives a display
+    (the desktop keeps a larger reserve).  Missing keys mean not known."""
+    out = {}
+    free = ram_free_gb()
+    if free is not None:
+        out["ram_free_gib"] = free
+    g = gpu or {}
+    try:
+        if g.get("index") is not None and not g.get("uma") and not g.get("unified") and gpu_drives_display(g):
+            out["desktop"] = True
+    except Exception:                                  # noqa: BLE001
+        pass
+    try:                                                # the card's compute capability ("86" -> 86): a GGUF's dense share depends on it
+        if str(g.get("arch", "")).isdigit():
+            out["sm"] = int(g["arch"])
+    except Exception:                                  # noqa: BLE001
+        pass
+    return out
+
+
+def inkling_plan_kv(a, backend) -> dict:
+    """The K/V type the person chose, for the HIP plan only (#7022): fp8 or fp16 is planned as asked (the plan assumed FP16 on a card of more than 13 GiB, twice the K/V of an
+    --kv fp8 start); no choice, or another backend, leaves the planner's own rule (the other backends' plans are the ones they always were)."""
+    if backend != "hip":
+        return {}
+    asked = str(getattr(a, "kv", None) or "").strip().lower()
+    if asked in ("fp8", "k8v8", "k8v4"):                  # setup turns k8v8 / k8v4 into fp8 on HIP (below)
+        return {"fp8_kv": True}
+    if asked == "fp16":
+        return {"fp8_kv": False}
+    return {}
+
+
+def inkling_menu_lines(vram_gib, ram_gib, unified, ctx=None, vision=inkling_family.DEFAULT_VISION, *, igpu=False, arch=None, extra=None) -> list:
+    extra = extra or {}
+    rec = inkling_fit.recommend(vram_gib, ram_gib, unified, ctx, vision, igpu=igpu, arch=arch, **extra)["build"]
     words = {
         "full_vram": "100% GPU/UMA resident",
         "ram_vram_zero_ssd": "fits in VRAM + RAM (zero SSD spill)",
@@ -10485,7 +10951,7 @@ def inkling_menu_lines(vram_gib, ram_gib, unified, ctx=None, vision=inkling_fami
         "cross_tier_ssd": "streams experts from SSD: slower",
     }
     out = []
-    for r in inkling_fit.rows(vram_gib, ram_gib, unified, ctx, vision):
+    for r in inkling_fit.rows(vram_gib, ram_gib, unified, ctx, vision, **extra):
         out.append((r["build"], f"{r['build']:7s} {inkling_family.BUILD_ABOUT[r['build']]}; download {r['download_gb']:.1f} GB   <- {words[r['mode']]}"
                     + ("   (recommended)" if r["build"] == rec else "")))
     return out
@@ -10496,14 +10962,16 @@ def inkling_have(a, dst: Path) -> bool:
         return False
     if done(dst) or bool(getattr(a, "gguf_dir", None)):
         return True
-    pin = inkling_family.FILES.get(dst.name) or inkling_family.TOKENIZER_FILES.get(dst.name)
-    return bool(pin and dst.stat().st_size == pin[0] and not dst.with_name(dst.name + ".part").exists())
+    pins = inkling_family.pins_for(dst.name)
+    return bool(pins and any(dst.stat().st_size == p[0] for p in pins) and not dst.with_name(dst.name + ".part").exists())
 
 
 def inkling_verify(dst: Path, name: str, own: bool) -> None:
-    pin = inkling_family.FILES.get(name) or inkling_family.TOKENIZER_FILES.get(name)
-    if not pin:
+    pins = inkling_family.pins_for(name)
+    if not pins:
         return
+    have = dst.stat().st_size if dst.exists() else -1
+    pin = next((p for p in pins if p[0] == have), pins[0])       # a file in the re-uploaded layout is checked against its own size and sha
     size, sha = pin
     if sha:
         verify_sha256(dst, size, sha, own=own)
@@ -10543,6 +11011,62 @@ def inkling_fetch(a, name: str, folder: Path, own: bool) -> Path:
     if last is not None:
         raise last
     fail(f"no source lists {name}")
+
+
+def inkling_fetch_dflash2(a, folder: Path, own: bool) -> Path | None:
+    """The DFlash 2 drafter's weights (dflash2.safetensors) beside an Inkling model (a .strata pack or a GGUF): DFlash 2 is the only drafter of every Inkling build, and without
+    this file the model runs with no drafter. A file that is there and checks out is kept. A folder the person owns (--gguf-dir) is never written to. A download that fails or does
+    not check out (size, SHA-256) leaves no file behind and returns None: the model runs without a drafter, and the next setup / update tries again. The size is shown before the download."""
+    name = inkling_family.DFLASH2_FILE
+    dst = folder / name
+    if inkling_have(a, dst):
+        try:
+            inkling_verify(dst, name, own)
+        except SystemExit:
+            warn(f"{name} does not check out; the model runs without a drafter")
+            return None
+        ok(f"drafter: DFlash 2 ({name}) already downloaded")
+        return dst
+    if own:
+        return None
+    say(f"  drafter: DFlash 2 ({name}, {inkling_family.size_of(name) / 1e6:.0f} MB): the one drafter of every Inkling-2-Mini build; without it the model runs with no drafter")
+    global fail
+    real_fail = fail
+
+    def soft_fail(msg, hint=None, **detail):                  # a failed download is not the end of setup: no "Setup stopped", no error event
+        warn(f"{msg}" + (f" ({hint})" if hint else ""))
+        sys.exit(1)
+    fail = soft_fail
+    try:
+        return inkling_fetch(a, name, folder, own)
+    except SystemExit:
+        warn(f"{name} could not be fetched; the model runs without a drafter (setup and update try again)")
+        for junk in (dst, dst.with_name(dst.name + ".part")):
+            try:
+                junk.unlink()
+            except OSError:
+                pass
+        return None
+    finally:
+        fail = real_fail
+
+
+def inkling_dflash2_for_config(a, cfg: dict) -> Path | None:
+    """update_install: the DFlash 2 sidecar for one installed Inkling model, a .strata pack or a GGUF (one that Strata downloaded: its folder is the models folder). A quant that
+    is no longer offered gets it too: it is the one drafter of every Inkling build."""
+    if cfg.get("arch") != inkling_family.ARCH:
+        return None
+    args = [str(x) for x in cfg.get("args") or []]
+    if "--native" not in args[:-1]:
+        return None
+    model = Path(args[args.index("--native") + 1])
+    if model.suffix.lower() not in (".strata", ".gguf") or not model.parent.is_dir():
+        return None
+    try:
+        own = model.parent.resolve() != inkling_folder(a).resolve()
+    except OSError:
+        own = True
+    return inkling_fetch_dflash2(a, model.parent, own)
 
 
 def inkling_tokenizer_dir(a, model: Path, folder: Path, out: Path, engine: Path | None, own: bool, *, data: Path | None = None) -> Path | None:
@@ -10617,7 +11141,7 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
     ok(f"model: {fam['title']}")
     say(f"  Its license: {fam['license']}")
     names = list(fam["models"])
-    if a.model and a.model not in names:
+    if a.model and a.model not in names and a.model not in fam.get("legacy_models", {}):
         fail(f"{fam['title']} has no {a.model} model file", "choose one of: " + ", ".join(names))
     vram_gib, ram_gib, unified, igpu, arch = inkling_pc(gpu, ram)
     multi_cards = _multi_gpu_cards(multi, gpu, hip, amd) if not unified else []
@@ -10626,20 +11150,25 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
     mgpu_flags = inkling_fit.multi_gpu_flags(ink_gpus, windows=WIN) if (is_cuda_ink and len(ink_gpus) >= 2) else (["--gpus", "2"] if len(ink_gpus) >= 2 else [])
     use_ink_ls = "--layer-split" in mgpu_flags
     if len(ink_gpus) >= 2:
-        vram_gib = sum(float(g.get("vram_gb") or 0.0) for g in ink_gpus)
+        vram_gib = sum(effective_vram_gb(g) for g in ink_gpus)
         mode_desc = "pipeline layer-split" if use_ink_ls else "dual-GPU expert parallelism"
         ok("GPUs: " + " + ".join(gpu_name(c) for c in ink_gpus) + f" ({mode_desc})")
+        if use_ink_ls and is_cuda_ink and str(getattr(a, "drafter", None) or "").strip().lower() != "off":
+            warn("Drafting does not run yet when the layers are split across several NVIDIA cards, so it decodes without it (#6741). "
+                 "On one card with the rest of the experts in RAM it does: add --gpu N to use one card")
     vision = a.vision not in ("no", "none")
     want_ctx = a.context or inkling_family.DEFAULT_CONTEXT
-    lines = inkling_menu_lines(vram_gib, ram_gib, unified, want_ctx, vision, igpu=igpu, arch=arch)
-    rec = inkling_fit.recommend(vram_gib, ram_gib, unified, want_ctx, vision, igpu=igpu, arch=arch)
+    plan_extra = inkling_plan_extra(gpu) if not unified else {}
+    plan_extra["backend"] = "hip" if hip else ("sycl" if getattr(a, "backend", None) == "sycl" else ("metal" if sys.platform == "darwin" else "cuda"))
+    lines = inkling_menu_lines(vram_gib, ram_gib, unified, want_ctx, vision, igpu=igpu, arch=arch, extra=plan_extra)
+    rec = inkling_fit.recommend(vram_gib, ram_gib, unified, want_ctx, vision, igpu=igpu, arch=arch, **plan_extra)
     say()
     order = [b for b, _ in lines]
     for i, (b, text) in enumerate(lines, 1):
         say(f"  {i}) {text}")
     model = a.model or order[int(ask("Which size?", [str(i) for i in range(1, len(order) + 1)], str(order.index(rec["build"]) + 1), a.yes)) - 1]
     ok(f"size: {model}")
-    tag = fam["tag"] + model
+    tag = run_tag(a, family, fam, model)
     ctx = a.context or inkling_family.DEFAULT_CONTEXT
     if not a.context:
         ctxs = inkling_family.CONTEXTS
@@ -10648,7 +11177,9 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         for i, c in enumerate(ctxs, 1):
             say(f"  {i}) {c // 1024}K tokens" + ("   (recommended)" if c == inkling_family.DEFAULT_CONTEXT else ""))
         ctx = ctxs[int(ask("Context?", [str(i) for i in range(1, len(ctxs) + 1)], str(ctxs.index(inkling_family.DEFAULT_CONTEXT) + 1), a.yes)) - 1]
-    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, vision)
+    par = max(1, min(inkling_family.MAX_PARALLEL, int(getattr(a, "parallel", None) or 1)))     # --parallel N: the slots the planner makes room for (0221 APPTUI: it planned for one)
+    with custom_build(inkling_fit, model, a) as fit_build:   # a custom build: the closest published build moved to the real file size
+        placed = inkling_fit.place(fit_build, vram_gib, ram_gib, unified, ctx, vision, parallel=par, **plan_extra, **inkling_plan_kv(a, plan_extra.get("backend")))
     mode = inkling_fit.mode(placed)
     if mode == "cross_tier_ssd":
         warn(f"{model} exceeds this PC's memory: about {placed['ssd_gb']:.1f} GB stream from SSD ({rec['build']} fits better)")
@@ -10661,32 +11192,32 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         folder = local_src[1]
     data, _ = data_folder_for(a)
     vision_path: Path | None = None
-    dspark_path: Path | None = None
+    fetch_vision = False
+    sidecar: Path | None = None
     drafter_asked = str(getattr(a, "drafter", None) or "").strip().lower()
-    want_dspark = drafter_asked != "off"
+    want_drafter = drafter_asked != "off"                          # DFlash 2 is the only drafter (--drafter dflash2 / dspark / none of them all mean "on")
+    if model in fam.get("legacy_models", {}) and not (own and local_src) and inkling_family.model_file_in(folder, model) is None:
+        fail(f"{model} is no longer offered for download",
+             "choose one of: " + ", ".join(names) + f" (a {model} file that is already in {folder} still works)")
     if local_src:
         if vision:
             vision_path = inkling_find_local_vision(folder, data, is_gguf)
             if vision_path is not None:
                 ok(f"images: on ({vision_path.name})")
             else:
-                vision = False
-                warn("no local Inkling-2-Mini Vision shard or mmproj found beside the model; starting text-only")
+                fetch_vision = True                          # step 5 downloads it (the engine comes first, as for any download)
         else:
             ok("images: off")
-        if is_gguf and want_dspark:
-            dspark_path = inkling_find_local_dspark(folder)
-            if dspark_path is not None:
-                ok(f"drafter: DSpark ({dspark_path.name})")
     else:
-        ok("images: " + ("on (Inkling-2-Mini-Vision.strata, 0.64 GB lossless BF16)" if vision else "off"))
-        files = inkling_family.files_of(model, vision, dspark=want_dspark)
+        ok("images: " + (f"on ({inkling_family.VISION_FILE}, 0.64 GB lossless BF16)" if vision else "off"))
+        files = inkling_family.files_of(model, vision)
         left = 0.0
-        for n in files:
+        drafter = [inkling_family.DFLASH2_FILE] if want_drafter else []      # the DFlash 2 sidecar of every build (setup fetches it after the model; a failed fetch is not an error)
+        for n in files + drafter:
             p = folder / n
             if not inkling_have(a, p):
                 part = p.with_name(p.name + ".part")
-                left += (inkling_family.FILES[n][0] - (part.stat().st_size if part.is_file() else 0)) / 1e9
+                left += (inkling_family.size_of(n) - (part.stat().st_size if part.is_file() else 0)) / 1e9
         if left and free_gb(folder) < left:
             fail(f"not enough free disk space in {folder}: need ~{left:.1f} GB, {free_gb(folder):.1f} GB free",
                  ("use --data-dir on a bigger drive (strata launch --data-dir)" if CONTROL else "use --models-dir on a bigger drive"))
@@ -10707,15 +11238,22 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         step(5, f"using local {fam['title']} files")
         model_file = local_src[0]
         ok(f"model file: {model_file}")
+        if fetch_vision:
+            vision_path = inkling_fetch_local_vision(a, folder, data)
+            if vision_path is None:
+                vision = False
+        if want_drafter:                                # the person's own folder is never written to: a DFlash 2 file they put there is used
+            sidecar = inkling_fetch_dflash2(a, folder, own)
+            if sidecar is None:
+                warn(f"no {inkling_family.DFLASH2_FILE} beside the model: it runs without a drafter. Put the file ({inkling_family.size_of(inkling_family.DFLASH2_FILE):,} bytes) next to the model to turn drafting on")
     else:
         step(5, f"downloading {fam['title']} {model}")
-        files = inkling_family.files_of(model, vision, dspark=want_dspark)
+        files = inkling_family.files_of(model, vision)
         paths = {n: inkling_fetch(a, n, folder, own) for n in files}
         model_file = paths[files[0]]
         vision_path = paths.get(inkling_family.VISION_FILE) if vision else None
-        dspark_path = paths.get(inkling_family.DSPARK_GGUF_FILE) if (is_gguf and want_dspark) else None
-        if dspark_path is not None:
-            ok(f"drafter: DSpark ({dspark_path.name})")
+        if want_drafter:
+            sidecar = inkling_fetch_dflash2(a, folder, own)
         ok(f"model file: {model_file}")
 
     step(6, "preparing the model for Strata")
@@ -10727,9 +11265,13 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         ok(f"tokenizer: {tokdir}")
 
     step(7, "writing the start script")
-    drafting_mode = "off" if (not want_dspark or (is_gguf and dspark_path is None)) else inkling_family.DEFAULT_DRAFTER
     ink_backend = "hip" if hip else ("metal" if sys.platform == "darwin" else ("sycl" if getattr(a, "backend", None) == "sycl" else "cuda"))
-    placed = inkling_fit.place(model, vram_gib, ram_gib, unified, ctx, bool(vision and vision_path is not None), dspark=(drafting_mode != "off"), backend=ink_backend)
+    # Drafting is DFlash 2 and nothing else, and needs its file beside the model (no file = no drafter). It follows a measured probe at the first start of this placement
+    # ("auto", inkling_probe.py) unless the person asked (--drafter dflash2 / off). A slightly different answer is accepted, a loss in speed is not (owner, 11-23).
+    drafting_mode = "off" if (not want_drafter or sidecar is None) else (
+        inkling_family.DEFAULT_DRAFTER if drafter_asked in ("dflash2", "dspark") else inkling_family.default_drafting(ink_backend))
+    with custom_build(inkling_fit, model, a) as fit_build:
+        placed = inkling_fit.place(fit_build, vram_gib, ram_gib, unified, ctx, bool(vision and vision_path is not None), parallel=par, dspark=(drafting_mode != "off"), **{**plan_extra, "backend": ink_backend, **inkling_plan_kv(a, ink_backend)})
     args = ["--native", str(model_file), "--max-context", str(ctx)]
     kv_asked = str(getattr(a, "kv", None) or "").strip().lower()
     if kv_asked in ("fp16", "fp8", "k8v8", "k8v4"):
@@ -10741,12 +11283,13 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         args += ["--draft", "off"]
     if vision and vision_path is not None:
         args += ["--vision", str(vision_path)]
-    if dspark_path is not None and drafting_mode != "off":
-        args += ["--dspark", str(dspark_path)]
+        reader = inkling_picture_reader(a.vision, gpu, ink_backend, ink_gpus)        # the Qwen rule for the reader; the engine takes --vision-reader (strata-inkling --info: vision_reader=1)
+        if reader:
+            args += ["--vision-reader", reader]
     if mgpu_flags:
         args += mgpu_flags
     if not unified and len(ink_gpus) < 2:
-        args += ["--vram-experts-gb", f"{placed['vram_gb']:.2f}", "--ram-experts-gb", f"{placed['ram_gb']:.2f}"]
+        args += inkling_expert_flags(placed, ram_free_gib=plan_extra.get("ram_free_gib"), backend=ink_backend)
         if placed.get("ssd_gb", 0.0) > 0.05:
             args += ["--ssd-experts"]
     cfg = {
@@ -10760,7 +11303,7 @@ def install_inkling2(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopte
         "lib_dirs": lib_dirs,
         "port": port,
         "drafting": drafting_mode,
-        "parallel": inkling_family.DEFAULT_PARALLEL,
+        "parallel": par if par > 1 else inkling_family.DEFAULT_PARALLEL,
     }
     if use_ink_ls:
         cfg["layer_split"] = "auto"
@@ -11042,7 +11585,7 @@ def mac_control_setup(a) -> int:
     SHAPE_ENGINE.clear()
     if fam.get("shape"):                               # a feed model of its own shape: its own Metal engine component (strata_control/shape_engine.py)
         SHAPE_ENGINE["shape"], SHAPE_ENGINE["title"] = fam["shape"], fam.get("title")
-    tag = fam["tag"] + model
+    tag = run_tag(a, family, fam, model)
     stream = MF.streams(model, ram)
 
     step(4, "the Strata engine (Metal)")
@@ -11275,23 +11818,23 @@ def main() -> int:
         return 2
     # Keep the retired names message above and allow the gfx906 --check path on the Mac development host.
     _hy4_ask = _peek("--family") in HY4_FAMILIES or bool(_peek("--model") and model_alias(_peek("--model")) in HY4_FAMILIES["hy4-flash"]["models"])
-    _ink_ask = _peek("--family") in INKLING_FAMILIES or bool(_peek("--model") and model_alias(_peek("--model")) in INKLING_FAMILIES["inkling-2-mini"]["models"])
+    _ink_ask = _peek("--family") in INKLING_FAMILIES or bool(_peek("--model") and model_alias(_peek("--model")) in sizes_of_family(INKLING_FAMILIES["inkling-2-mini"]))
     if sys.platform == "darwin" and not CONTROL and not _hy4_ask and not _ink_ask and "--experimental-gfx906" not in sys.argv[1:]:   # a Mac: metal/setup_mac.py (the Metal engine); the app (Control mode), Hy4-Flash and Inkling-2-Mini go on below.
         return mac_setup(sys.argv[1:])                 # (after the retired names above, so a Mac gets the same sentence and exit 2, M1 11-16)
     if (_peek("--family") and _peek("--family") not in {**FAMILIES, **OWN_PATH_FAMILIES, **HY4_FAMILIES, **INKLING_FAMILIES}) \
             or (_peek("--model") and not _peek("--family") and model_alias(_peek("--model")) not in MODELS
-                and not any(model_alias(_peek("--model")) in f["models"] for f in {**OWN_PATH_FAMILIES, **HY4_FAMILIES, **INKLING_FAMILIES}.values())):
+                and not any(model_alias(_peek("--model")) in sizes_of_family(f) for f in {**OWN_PATH_FAMILIES, **HY4_FAMILIES, **INKLING_FAMILIES}.values())):
         feed_models_setup(_peek("--feed"))             # a name the built-in tables do not know may be a model of the signed feed
         if _peek("--family") in FEED_UNAVAILABLE:
             fail(f"{FEED_UNAVAILABLE[_peek('--family')]['title']} is {FEED_UNAVAILABLE[_peek('--family')]['reason']}")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--family", choices=list(FAMILIES) + list(PREVIEW_FAMILIES) + list(HY4_FAMILIES) + list(INKLING_FAMILIES),
                     help="qwen = Qwen3.8-Flash-Next, swift = Swift 1.5, qwen36 = Qwen3.6-35B-A3B (pictures with --vision, "
-                         "several requests at once with --parallel; docs/QWEN36.md), hy4-flash = Tencent Hy4-Flash (SQ-64 / SQ-96 / SQ-128), "
-                         "inkling-2-mini = Thinking Machines Inkling-2-Mini (SQ-20 / SQ-15 / SQ-10)")
+                         "several requests at once with --parallel; docs/QWEN36.md), ornith = Ornith-1.5-35B-A3B (the same engine path; Q4_K_M / Q5_K_M / Q6_K / Q8_0), hy4-flash = Tencent Hy4-Flash (SQ-64 / SQ-96 / SQ-128), "
+                         "inkling-2-mini = Thinking Machines Inkling-2-Mini (SQ-20 / SQ-15 / SQ-10 / GSQ-RCO-IQ3_S / UD-Q4_K_XL)")
     ap.add_argument("--model", type=model_alias, choices=list(dict.fromkeys([*MODELS, *(m for f in PREVIEW_FAMILIES.values()
                                                                        for m in f["models"]), *(m for f in HY4_FAMILIES.values() for m in f["models"]),
-                                                                       *(m for f in INKLING_FAMILIES.values() for m in f["models"])])))
+                                                                       *(m for f in INKLING_FAMILIES.values() for m in sizes_of_family(f))])))
     ap.add_argument("--context", type=int)
     ap.add_argument("--rope-scaling", choices=["none", "linear", "yarn"],
                     help="the RoPE extension for a context past the model's trained 262144: linear (position "
@@ -11364,6 +11907,9 @@ def main() -> int:
                          "or the release's (as `strata update --feed`; a folder is a local test feed)")
     ap.add_argument("--gguf-dir", help="use GGUF files you already have (a folder with every shard: "
                                        "<name>-00001-of-0000N.gguf ... -0000N-of-0000N.gguf)")
+    ap.add_argument("--custom-label", metavar="NAME", help="with --gguf-dir: your own model files (a fine-tune, a merge, another maker's "
+                                                          "quantization) of a model Strata runs, under a name of your choice: they get their own settings "
+                                                          "file and the official install of that model is left alone")
     ap.add_argument("--yes", action="store_true", help="accept the recommended answers")
     ap.add_argument("--setup", action="store_true", help="install another model or change settings")
     ap.add_argument("--no-start", action="store_true", help="install only, do not start the model")
@@ -11415,6 +11961,9 @@ def main() -> int:
     ap.add_argument("--vram-reserve-mib", type=int, metavar="N",
                     help="VRAM in MiB the engine leaves free for other programs (a game, another model; the engine's "
                          "default: 700); the expert cache takes that much less")
+    ap.add_argument("--peer-reserve-mib", type=int, metavar="N",
+                    help="Qwen3.6-35B-A3B on two GPUs (--gpus): VRAM in MiB the second-card expert tier (--peer-device) "
+                         "leaves free there (the engine's default: 600)")
     ap.add_argument("--mtp", choices=["on", "off"],
                     help="the draft layer (MTP): off starts the model without it, which frees about 1 GB of graphics memory "
                          "for the expert cache and takes less RAM, at the price of speed; it is kept in the run config "
@@ -11453,6 +12002,22 @@ def main() -> int:
         pulled = update_pull(sys.argv[1:])
         if pulled is not None:
             return pulled
+    if getattr(a, "custom_label", None):
+        if not getattr(a, "gguf_dir", None):
+            ap.error("--custom-label names your own model files: use it with --gguf-dir FILE_OR_FOLDER")
+        if not (a.family and a.model):
+            ap.error("--custom-label needs --family and --model: the model Strata runs your files as (the closest published size)")
+        if a.family not in custom_models.SUPPORTED_FAMILIES:
+            ap.error(f"--custom-label is for the model families Strata's engines run, not {a.family}: " + ", ".join(sorted(custom_models.SUPPORTED_FAMILIES)))
+        a.custom_label = custom_models.clean_label(a.custom_label)
+        a.custom_source = os.path.abspath(os.path.expanduser(str(a.gguf_dir)))
+        if Path(a.gguf_dir).is_file() and Path(a.gguf_dir).suffix.lower() == ".gguf" and a.family not in INKLING_FAMILIES:
+            global _OWN_FIRST                          # the picked GGUF file itself (its first shard): the file set is this one, not the one under a published name
+            _OWN_FIRST = Path(a.custom_source)
+            _shard = re.match(r"^(.+)-\d{5}-of-(\d{5})\.gguf$", _OWN_FIRST.name, re.I)
+            if _shard and (_OWN_FIRST.with_name(f"{_shard.group(1)}-00001-of-{_shard.group(2)}.gguf")).is_file():
+                _OWN_FIRST = _OWN_FIRST.with_name(f"{_shard.group(1)}-00001-of-{_shard.group(2)}.gguf")
+            a.gguf_dir = str(_OWN_FIRST.parent)
     if getattr(a, "gguf_dir", None):                   # the person's own files: their finish marks go to Strata's marks/, never beside them
         own_files_in(a.gguf_dir)
     if getattr(a, "dsv41_package", None):              # DeepSeek's engine package: no longer offered (strata_control/retired.py)
@@ -11460,7 +12025,7 @@ def main() -> int:
         return 2
     if a.model and a.model not in MODELS and a.family not in PREVIEW_FAMILIES and a.family not in HY4_FAMILIES and a.family not in INKLING_FAMILIES:
         ap.error(f"--model {a.model} is a size of " + ", ".join(f"--family {f}" for f, d in {**PREVIEW_FAMILIES, **HY4_FAMILIES, **INKLING_FAMILIES}.items()
-                                                              if a.model in d["models"]))
+                                                              if a.model in sizes_of_family(d)))
     if a.source:
         os.environ["STRATA_SOURCE"] = a.source
     if a.prepare_pack:                                 # an Intel Arc card: the model's pack, nothing else (no engine, no download of the model)
@@ -11470,7 +12035,7 @@ def main() -> int:
     if sys.platform == "darwin":
         if a.family in HY4_FAMILIES or (not a.family and a.model in HY4_FAMILIES["hy4-flash"]["models"]):
             return mac_hy4_setup(a)
-        if a.family in INKLING_FAMILIES or (not a.family and a.model in INKLING_FAMILIES["inkling-2-mini"]["models"]):
+        if a.family in INKLING_FAMILIES or (not a.family and a.model in sizes_of_family(INKLING_FAMILIES["inkling-2-mini"])):
             return mac_inkling_setup(a)
         if CONTROL:           # the app on a Mac: model files only; the Metal engine is a component
             return mac_control_setup(a)
@@ -11994,7 +12559,7 @@ def main() -> int:
         warn(_q4)
     if MODELS[model].get("license"):                   # the ready-made packs: each size has its own license
         say(f"  Its license: {MODELS[model]['license']}")
-    tag = fam["tag"] + model                           # names of the pack, config and start script
+    tag = run_tag(a, family, fam, model)               # names of the pack, config and start script (a custom build has its own)
     small = min(x["vram_gb"] for x in chosen)         # each card keeps its layers' KV of the whole context
     rec_ctx = 131072                                   # 128K on every card (owner, 2026-11-01); a card it leaves little room on is warned about below, never lowered
     # #406: the RAM rule is part of the recommendation (the smaller of the two), no longer a cap over the user's choice
@@ -12188,9 +12753,12 @@ def main() -> int:
     pack_now = find_in(roots, f"packs/{tag.lower()}") or data / "packs" / tag.lower()
     pack_bin = ready or ((pack_now / "experts.bin").exists() and (pack_now / "index.txt").exists())   # ready: in the download
     mtp_have = find_in(roots, "mtp/rt/experts.bin") is not None
-    if not ready and (picked := auto_drafter(a, family, fam, model, hip, gpu, mtp_have)):      # P14: the Terminal's Auto rule, not always the 5 GB layer
-        a.drafter, a.drafter_auto = picked, True
     q2_avx = model == "Q2_0" and avx512 and family == "qwen"
+    if not ready and (picked := auto_drafter(a, family, fam, model, hip, gpu, mtp_have, canonical=q2_avx)):      # P14: the Terminal's Auto rule, not always the 5 GB layer
+        a.drafter, a.drafter_auto = picked, True
+    if q2_avx and not ready and getattr(a, "drafter", None) == "dflash2":     # #7090: step 6 builds the canonical pack, which DFlash2 refuses (also when the app or --drafter named it)
+        warn("DFlash2 needs a native pack, and the AVX-512 Q2_0 pack of this CPU is not one: the MTP draft layer is used instead")
+        a.drafter, a.drafter_auto = None, False
     prep_gb = MODELS[model].get("prepare_gb", 0.0) if ready and MODELS[model].get("prepare") and \
         not prepared_done(model, models_dir) else 0.0
     margin = 2 if mtp_have else 8                      # working room: a guess, not bytes that will be written

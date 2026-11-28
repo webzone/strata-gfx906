@@ -42,13 +42,13 @@ class TestInklingUnslothDirectCatalog(unittest.TestCase):
             self.assertTrue(inkling_fit.is_gguf_build(q))
             fname = inkling_family.build_file(q)
             self.assertEqual(fname, f"Inkling-2-Mini-{q}.gguf")
-            size, sha = inkling_family.FILES[fname]
+            size, sha = inkling_family.ALL_FILES[fname]                 # 0.2.23: only UD-Q4_K_XL is offered (FILES); the others are recognised (LEGACY_FILES)
             self.assertGreater(size, 7_000_000_000)
             self.assertEqual(len(sha), 64)
-            self.assertIn(q, inkling_family.BUILD_ABOUT)
+            self.assertTrue(inkling_family.about_of(q), q)            # the offered one has BUILD_ABOUT, the others LEGACY_BUILD_ABOUT
 
         for aux in (inkling_family.DSPARK_GGUF_FILE, inkling_family.MMPROJ_BF16_FILE, inkling_family.MMPROJ_F16_FILE):
-            size, sha = inkling_family.FILES[aux]
+            size, sha = inkling_family.ALL_FILES[aux]                   # recognised, never fetched since 0.2.23
             self.assertGreater(size, 300_000_000)
             self.assertEqual(len(sha), 64)
 
@@ -71,16 +71,12 @@ class TestInklingUnslothDirectCatalog(unittest.TestCase):
             self.assertEqual(inkling_family.sources_for("Inkling-2-Mini-UD-IQ1_S.gguf")[0]["base"], "http://127.0.0.1:19999/mirror")
             self.assertEqual(inkling_family.sources_for("Inkling-2-Mini-SQ-10.strata")[0]["base"], "http://127.0.0.1:19999/mirror")
 
-    def test_files_of_gguf_includes_dspark_and_vision(self):
-        files = inkling_family.files_of("UD-Q2_K_XL", vision=True, dspark=True)
-        self.assertEqual(files, [
-            "Inkling-2-Mini-UD-Q2_K_XL.gguf",
-            inkling_family.DSPARK_GGUF_FILE,
-            inkling_family.VISION_FILE,
-        ])
-        files_novis = inkling_family.files_of("UD-IQ1_S", vision=False, dspark=True)
-        self.assertEqual(files_novis, ["Inkling-2-Mini-UD-IQ1_S.gguf", inkling_family.DSPARK_GGUF_FILE])
-        # .strata builds already embed DSpark
+    def test_files_of_gguf_is_the_model_the_vision_shard_and_the_dflash2_file_never_a_dspark_file(self):
+        files = inkling_family.files_of("UD-Q2_K_XL", vision=True, dspark=True)                  # the old switch is ignored (0.2.23)
+        self.assertEqual(files, ["Inkling-2-Mini-UD-Q2_K_XL.gguf", inkling_family.VISION_FILE])
+        files_novis = inkling_family.files_of("UD-IQ1_S", vision=False, dspark=True, drafter=True)
+        self.assertEqual(files_novis, ["Inkling-2-Mini-UD-IQ1_S.gguf", inkling_family.DFLASH2_FILE])
+        # the .strata builds get the same sidecar
         self.assertEqual(inkling_family.files_of("SQ-15", vision=True), ["Inkling-2-Mini-SQ-15.strata", inkling_family.VISION_FILE])
 
     def test_mcp_catalog_and_tui_rows_expose_strata_and_unsloth_gguf(self):
@@ -97,11 +93,12 @@ class TestInklingUnslothDirectCatalog(unittest.TestCase):
             ink = next((f for f in table if f["family"] == "inkling-2-mini"), None)
             self.assertIsNotNone(ink)
             names = [row["model"] for row in ink["sizes"]]
-            self.assertEqual(names[:3], ["SQ-20", "SQ-15", "SQ-10"])
+            self.assertEqual(names, ["SQ-20", "SQ-15", "SQ-10", "GSQ-RCO-IQ3_S", "UD-Q4_K_XL"])       # 0.2.23: only these are offered, in this order
             for q in EXPECTED_UNSLOTH_QUANTS:
-                self.assertIn(q, names)
-            ud_row = next(r for r in ink["sizes"] if r["model"] == "UD-Q2_K_XL")
-            self.assertEqual(ud_row["id"], "inkling-2-mini-ud-q2_k_xl")
+                if q != "UD-Q4_K_XL":
+                    self.assertNotIn(q, names)
+            ud_row = next(r for r in ink["sizes"] if r["model"] == "GSQ-RCO-IQ3_S")
+            self.assertEqual(ud_row["id"], "inkling-2-mini-gsq-rco-iq3_s")
             self.assertEqual(ud_row["format"], "gguf")
             self.assertEqual(ud_row["on_this_pc"], "fits")
             self.assertEqual(ud_row["inkling"]["placement"]["vram_gb"], 0.0)
@@ -111,9 +108,11 @@ class TestInklingUnslothDirectCatalog(unittest.TestCase):
             with mock.patch.object(cat.strata, "inkling_visible", return_value=True):
                 rows = cat.rows(hw)
             ink_rows = [r for r in rows if r.family == "inkling-2-mini"]
-            self.assertGreaterEqual(len(ink_rows), 13)
-            tui_ud = next(r for r in ink_rows if r.model == "UD-IQ1_S")
+            self.assertEqual([r.model for r in ink_rows], ["SQ-20", "SQ-15", "SQ-10", "GSQ-RCO-IQ3_S", "UD-Q4_K_XL"])
+            tui_ud = next(r for r in ink_rows if r.model == "GSQ-RCO-IQ3_S")
             self.assertEqual(tui_ud.verdict, "fits")
+            self.assertTrue(all(r.offered for r in ink_rows))
+            self.assertEqual(tui_ud.credit, "GSQ + RCO by IST Austria DASLab, Apache-2.0")
 
     def test_setup_direct_download_unsloth_gguf_on_4gb_gpu(self):
         import setup
@@ -130,7 +129,7 @@ class TestInklingUnslothDirectCatalog(unittest.TestCase):
             (eng_dir / inkling_family.EXE).write_bytes(b"exe")
 
             args_ns = argparse.Namespace(
-                model="UD-Q2_K_XL",
+                model="GSQ-RCO-IQ3_S",
                 family="inkling-2-mini",
                 context=32768,
                 vision="yes",
@@ -171,16 +170,19 @@ class TestInklingUnslothDirectCatalog(unittest.TestCase):
                 rc = setup.install_inkling2(args_ns, "inkling-2-mini", gpu_4gb, False, False, None, False, 8080, 16.0, None)
 
             self.assertEqual(rc, 0)
+            # the model, the picture reader, then the DFlash 2 file (0.2.23: the one drafter of every build; no DSpark file, no mtp.safetensors)
             self.assertEqual(fetched, [
-                "Inkling-2-Mini-UD-Q2_K_XL.gguf",
-                inkling_family.DSPARK_GGUF_FILE,
+                "Inkling-2-Mini-GSQ-RCO-IQ3_S.gguf",
                 inkling_family.VISION_FILE,
+                inkling_family.DFLASH2_FILE,
             ])
-            cfg_path = install_dir / "strata-inkling-2-mini-ud-q2_k_xl.json"
+            cfg_path = install_dir / "strata-inkling-2-mini-gsq-rco-iq3_s.json"
             self.assertTrue(cfg_path.is_file())
             cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-            self.assertEqual(cfg["drafting"], "dspark")
-            self.assertIn("--dspark", cfg["args"])
+            # the drafter file is fetched and the run config says "auto": a probe on this card decides at the first start (0221-DSPARK)
+            self.assertEqual(cfg["drafting"], "auto")
+            self.assertNotIn("--dspark", cfg["args"])
+            self.assertNotIn("--draft", cfg["args"])
             self.assertIn("--vision", cfg["args"])
             # 4 GB GPU gets --vram-experts-gb 0.00 so trunk sits in VRAM and experts stream from RAM
             vi = cfg["args"].index("--vram-experts-gb")
@@ -244,6 +246,60 @@ class TestUnlock4GbAndIssue6587(unittest.TestCase):
         # 6. Local import maps Unsloth GGUF filename to its exact catalog build
         self.assertEqual(models._inkling_build_for_bytes(9_138_715_328, "Inkling-2-Mini-UD-Q2_K_XL.gguf"), "UD-Q2_K_XL")
         self.assertEqual(models._inkling_build_for_bytes(7_764_291_776, "Inkling-2-Mini-UD-IQ1_S.gguf"), "UD-IQ1_S")
+
+
+class TestSetupRamExpertsFlag(unittest.TestCase):
+    """strata-inkling reads --ram-experts-gb 0 as GPU + SSD only, so setup writes it only for a plan with a RAM or SSD tier."""
+
+    def _install_args(self, model: str, gpu: dict, ram_gb: float) -> list[str]:
+        import setup
+        from tests.terminal.test_inkling_gguf_import import make_fake_strata, write_fake_o200k_files
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir, install_dir, eng_dir = root / "data", root / "install", root / "eng"
+            for d in (data_dir, install_dir, eng_dir):
+                d.mkdir()
+            (eng_dir / inkling_family.EXE).write_bytes(b"exe")
+            args_ns = argparse.Namespace(
+                model=model, family="inkling-2-mini", context=65536, vision="no", yes=True, no_start=True, gguf_dir=None,
+                models_dir=str(data_dir / "models"), data_dir=str(data_dir), backend=None, gpu=None, host=None, api_key=None,
+                browser=None, port=8080,
+            )
+
+            def fake_fetch(_a, name, folder, _own):
+                folder.mkdir(parents=True, exist_ok=True)
+                p = folder / name
+                p.write_bytes(make_fake_strata())
+                write_fake_o200k_files(folder)
+                return p
+
+            with mock.patch.object(setup, "home", return_value=install_dir), \
+                 mock.patch.object(setup, "data_folder_for", return_value=(data_dir, "explicit")), \
+                 mock.patch.object(setup, "pip_install"), \
+                 mock.patch.object(setup, "free_gb", return_value=500.0), \
+                 mock.patch.object(setup, "inkling_fetch", side_effect=fake_fetch), \
+                 mock.patch.object(setup, "inkling_tokenizer_dir", return_value=root / "tok"), \
+                 mock.patch.object(setup, "engine_step", return_value=(None, eng_dir, {"component": "strata-inkling"}, [], gpu, "none")), \
+                 mock.patch.object(setup, "engine_exe", return_value="component:strata-inkling"), \
+                 mock.patch.object(setup, "write_run_script", return_value=install_dir / "run.bat"):
+                rc = setup.install_inkling2(args_ns, "inkling-2-mini", gpu, False, False, None, False, 8080, ram_gb, None)
+            self.assertEqual(rc, 0)
+            cfg_path = next(install_dir.glob("strata-inkling-2-mini-*.json"))
+            return json.loads(cfg_path.read_text(encoding="utf-8"))["args"]
+
+    def test_full_vram_plan_leaves_ram_experts_out(self):
+        gpu = {"index": 0, "name": "NVIDIA GeForce RTX 3090", "vendor": "nvidia", "vram_gb": 24.0, "count": 1}
+        args = self._install_args("SQ-20", gpu, 64.0)
+        self.assertIn("--vram-experts-gb", args)
+        self.assertNotIn("--ram-experts-gb", args)
+        self.assertNotIn("--ssd-experts", args)
+
+    def test_ram_tier_plan_keeps_ram_experts(self):
+        gpu = {"index": 0, "name": "NVIDIA GeForce RTX 3060", "vendor": "nvidia", "vram_gb": 12.0, "count": 1}
+        args = self._install_args("SQ-15", gpu, 64.0)
+        self.assertIn("--ram-experts-gb", args)
+        self.assertGreater(float(args[args.index("--ram-experts-gb") + 1]), 0.0)
 
 
 if __name__ == "__main__":

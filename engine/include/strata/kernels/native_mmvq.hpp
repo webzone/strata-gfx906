@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>  // int8_t in native_q8_0_packed_lookup; the header reached this only through <cstddef> before
+#include <cstdint>
 
 namespace strata::kernels {
 

@@ -52,8 +52,8 @@ def make_inkling_gguf(
 
 
 def make_fake_strata() -> bytes:
-    # 8-byte magic + 8-byte reserved + 8-byte manifest off + 8-byte manifest len
-    return b"STRATA\x00\x01" + struct.pack("<QQQ", 0, 4096, 16) + b"\x00" * 4096
+    from tests.terminal.strata_fixtures import inkling_strata        # a small valid .strata (header, three sections, a stored-block manifest)
+    return inkling_strata()
 
 
 def write_fake_o200k_files(folder: Path) -> None:
@@ -180,6 +180,7 @@ class InklingGgufImportTests(unittest.TestCase):
         data_dir.mkdir()
 
         args_ns = argparse.Namespace(
+            drafter="dspark",
             model="SQ-15",
             family="inkling-2-mini",
             context=32768,
@@ -200,8 +201,8 @@ class InklingGgufImportTests(unittest.TestCase):
         self.assertIsNotNone(src)
         self.assertEqual(src[0], gguf)
         self.assertTrue(src[2])
-        self.assertEqual(setup.inkling_find_local_vision(folder, data_dir, True), mmproj)
-        self.assertEqual(setup.inkling_find_local_dspark(folder), dspark)
+        self.assertIsNone(setup.inkling_find_local_vision(folder, data_dir, True))      # 0221: the mmproj is llama.cpp's (arch clip); strata-inkling reads only Vision.strata
+        self.assertFalse(hasattr(setup, "inkling_find_local_dspark"))              # 0.2.23: no DSpark file is looked for, passed or fetched
 
         fake_eng = self.root / "eng"
         fake_eng.mkdir()
@@ -213,6 +214,7 @@ class InklingGgufImportTests(unittest.TestCase):
              mock.patch.object(setup, "pip_install"), \
              mock.patch.object(setup, "engine_step", return_value=(None, fake_eng, {"component": "strata-inkling"}, [], gpu, "none")), \
              mock.patch.object(setup, "engine_exe", return_value="component:strata-inkling"), \
+             mock.patch.object(setup, "inkling_fetch", side_effect=lambda a, name, folder, own: ((folder / name).write_bytes(b"v"), folder / name)[1]), \
              mock.patch.object(setup, "write_run_script", return_value=install_dir / "run.bat"):
             rc = setup.install_inkling2(args_ns, "inkling-2-mini", gpu, False, False, None, False, 8080, 32.0, None)
         self.assertEqual(rc, 0)
@@ -221,13 +223,16 @@ class InklingGgufImportTests(unittest.TestCase):
         cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
         self.assertEqual(cfg["exe"], "component:strata-inkling")
         self.assertEqual(cfg["arch"], "inkling2_loop")
-        self.assertEqual(cfg["drafting"], "dspark")
+        self.assertEqual(cfg["drafting"], "off")                                          # DFlash 2 is the only drafter and there is no dflash2.safetensors beside the person's model
+        self.assertEqual(cfg["args"][cfg["args"].index("--draft") + 1], "off")
         self.assertNotIn("reasoning_effort", cfg)
         self.assertIn(str(gguf), cfg["args"])
         self.assertIn("--vision", cfg["args"])
-        self.assertIn(str(mmproj), cfg["args"])
-        self.assertIn("--dspark", cfg["args"])
-        self.assertIn(str(dspark), cfg["args"])
+        self.assertNotIn(str(mmproj), cfg["args"])                                       # the projector the engine cannot read is not handed over
+        vision_arg = cfg["args"][cfg["args"].index("--vision") + 1]                       # the Vision shard was fetched into the data folder
+        self.assertEqual(Path(vision_arg), data_dir / "models" / "inkling-2-mini" / setup.inkling_family.VISION_FILE)
+        self.assertNotIn("--dspark", cfg["args"])                                         # the DSpark file beside the model is not passed any more
+        self.assertNotIn(str(dspark), cfg["args"])
         self.assertTrue((Path(cfg["tokenizer"]) / "vocab.json").is_file())
 
     def test_setup_install_inkling2_gguf_without_dspark_or_vision(self):
@@ -270,12 +275,18 @@ class InklingGgufImportTests(unittest.TestCase):
              mock.patch.object(setup, "pip_install"), \
              mock.patch.object(setup, "engine_step", return_value=(None, fake_eng, {"component": "missing"}, [], gpu, "none")), \
              mock.patch.object(setup, "engine_exe", return_value="component:strata-inkling"), \
+             mock.patch.object(setup, "inkling_fetch", side_effect=SystemExit(1)), \
+             mock.patch.object(setup, "warn") as warned, \
              mock.patch.object(setup, "write_run_script", return_value=install_dir / "run.bat"):
             rc = setup.install_inkling2(args_ns, "inkling-2-mini", gpu, False, False, None, False, 8080, 32.0, None)
         self.assertEqual(rc, 0)
         cfg = json.loads((install_dir / "strata-inkling-2-mini-sq-10.json").read_text(encoding="utf-8"))
         self.assertEqual(cfg["drafting"], "off")
         self.assertNotIn("--vision", cfg["args"])
+        said = " ".join(str(c.args[0]) for c in warned.call_args_list)         # no silent start without a reader: the sentence says how to add it
+        self.assertIn("images will not work", said)
+        self.assertIn(setup.inkling_family.VISION_FILE, said)
+        self.assertIn(str(data_dir / "models" / "inkling-2-mini"), said)
         self.assertNotIn("--dspark", cfg["args"])
         self.assertNotIn("reasoning_effort", cfg)
 
@@ -309,6 +320,33 @@ class InklingGgufImportTests(unittest.TestCase):
         self.assertEqual(cfg["drafting"], "off")
         self.assertIn(str(gguf), cfg["args"])
         self.assertNotIn("reasoning_effort", cfg)
+
+    def test_an_unsloth_mmproj_is_not_handed_to_the_engine_as_its_picture_reader(self):
+        """mmproj-BF16.gguf beside an Inkling GGUF is a llama.cpp file: given as --vision, strata-inkling answers "vision shard: Invalid .strata magic"
+        and --info says images=0 (measured with the rc0 engine on an RTX 5090). The plan leaves --vision out, says why, and uses
+        Inkling-2-Mini-Vision.strata when it is there."""
+        folder = self.root / "adopt-ink-mm"
+        folder.mkdir()
+        gguf = folder / "Inkling-2-Mini-UD-Q4_K_XL.gguf"
+        gguf.write_bytes(make_inkling_gguf(architecture="inkling2", expert_type=12))
+        (folder / "mmproj-BF16.gguf").write_bytes(b"GGUF" + bytes(60))
+        data_dir = self.root / "adopt-data-mm"
+        tok = data_dir / "packs" / "inkling-2-mini-ud-q4_k_xl" / "tokenizer"
+        tok.mkdir(parents=True)
+        (tok / "vocab.json").write_text("{}", encoding="utf-8")
+        kw = dict(family="inkling-2-mini", model="UD-Q4_K_XL", model_dir=folder, data_dir=data_dir, src=ROOT, context=32768, kv=None,
+                  model_name="inkling-2-mini-ud-q4_k_xl", family_def={}, log=self.root / "ink-mm.log", backend="cuda")
+        notes = []
+        cfg, problems = adopt.plan(**kw, notes=notes)
+        self.assertEqual(problems, [])
+        self.assertNotIn("--vision", cfg["args"])
+        self.assertTrue(any("mmproj-BF16.gguf" in n and "Vision" in n and ".strata" in n for n in notes), notes)
+        # the Vision shard, when it is there, is used
+        from strata_control import inkling_family
+        vision = folder / inkling_family.VISION_FILE
+        vision.write_bytes(b"STRATA\x00\x01")
+        cfg, _ = adopt.plan(**kw)
+        self.assertEqual(cfg["args"][cfg["args"].index("--vision") + 1], str(vision))
 
     def test_strata_mcp_install_plan_accepts_inkling_gguf_file(self):
         sys.path.insert(0, str(ROOT / "tools"))

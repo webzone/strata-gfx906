@@ -35,7 +35,9 @@ def is_inkling_exe(exe) -> bool:
     return _base(exe).startswith(EXE_PREFIX)
 
 
-NO_DRAFTER_NOTE = "Inkling-2-Mini: this engine has no DSpark drafter yet, so it starts without it"
+NO_DRAFTER_NOTE = "Inkling-2-Mini: this engine has no drafter it can use here, so it starts without one"
+NO_SIDECAR_NOTE = ("Inkling-2-Mini: no dflash2.safetensors beside the model, so it starts without a drafter (DFlash 2 is the one drafter; "
+                   "Strata's setup and update download the file beside a model they installed)")
 NO_IMAGES_NOTE = "Inkling-2-Mini: this engine does not read images yet, so it starts without the image reader"
 NO_IMAGES_REPLY = "this Inkling-2-Mini engine does not read images yet; update Strata or attach the Vision shard"
 _PROBES: dict = {}
@@ -46,8 +48,33 @@ def wants_drafter(cfg: dict) -> bool:
     raw = cfg.get("drafting")
     if raw is False:
         return False
-    choice = str(raw if raw not in (None, "") else inkling_family.DEFAULT_DRAFTER).strip().lower()
+    choice = str(raw if raw not in (None, "") else inkling_family.default_drafting(cfg.get("backend"))).strip().lower()
+    if choice == "auto":
+        # measured at the first start of this placement (strata_control/inkling_probe.py); no valid probe yet = off, and needs_drafting_probe() says so
+        from strata_control import inkling_probe
+        return inkling_probe.decision_of(cfg) == "on"
     return choice not in ("off", "none", "false", "0")
+
+
+def model_of(cfg_or_args) -> str | None:
+    """The `--native` model path of a run config (or of an args list)."""
+    args = [str(a) for a in ((cfg_or_args.get("args") if isinstance(cfg_or_args, dict) else cfg_or_args) or ())]
+    return next((args[i + 1] for i, a in enumerate(args) if a in ("--native", "--model") and i + 1 < len(args)), None)
+
+
+def needs_drafting_probe(cfg: dict) -> bool:
+    """True when this run config wants the measured drafting choice ("drafting": "auto", or nothing chosen) and
+    has no probe valid for its current placement: the launcher should run strata_control.inkling_probe.probe_run_config before the real start.
+    Without the DFlash 2 file beside the model there is no drafter to measure: no probe, and the start is `--draft off`."""
+    from strata_control import inkling_family, inkling_probe
+    raw = cfg.get("drafting")
+    choice = str(raw if raw not in (None, "") else inkling_family.default_drafting(cfg.get("backend"))).strip().lower()
+    return (raw is not False and choice == "auto"
+            and inkling_family.dflash2_sidecar(model_of(cfg)) is not None
+            and inkling_probe.is_stale(cfg))
+
+
+_NOTE = {"text": ""}   # the probe's sentence for the next engine start's /metrics (drafting_note), set by engine_args
 
 
 def parse_info(text: str) -> dict:
@@ -93,23 +120,73 @@ def probe(exe: str | None, args: list, cfg: dict | None = None, timeout: float =
 
 
 def drafter_args(cfg: dict, info: dict | None = None) -> list[str]:
-    if not wants_drafter(cfg):
+    """Drafting is DFlash 2 and nothing else (0.2.23): on only when dflash2.safetensors is beside the model (or STRATA_INK_DFLASH2 names it); without it, `--draft off`."""
+    from strata_control import inkling_family
+    if not wants_drafter(cfg) or inkling_family.dflash2_sidecar(model_of(cfg)) is None:
         return ["--draft", "off"]
-    return ["--draft", "dspark"] if (info or {}).get("drafter") == "dspark" else []
+    out = ["--draft", inkling_family.DEFAULT_DRAFTER]
+    # an engine that lists spec_opts=1 takes the window shape: one linear chain (the block drafter) unless the run config says otherwise
+    if (info or {}).get("spec_opts") == "1":
+        beam = cfg.get("draft_beam", inkling_family.DRAFT_BEAM)
+        if isinstance(beam, int) and not isinstance(beam, bool) and 1 <= beam <= 8:
+            out += ["--draft-beam", str(beam)]
+        if cfg.get("draft_adapt", inkling_family.DRAFT_ADAPT) is True:
+            out += ["--draft-adapt"]
+    return out
 
 
-def drafting_info(args: list, info: dict | None = None) -> dict[str, str]:
-    """Metrics/status view of Inkling-2-Mini's built-in DSpark drafter (`drafting`: `"dspark"` | `"off"`)."""
+def veto_line(log_text: str | None) -> str:
+    """The engine's own line when it leaves DFlash 2 out to keep the model on the card ("[ink-hip] DFlash 2 not loaded: it would move part of the model off the card (...):
+    decode and prompt reading get slower than the drafter's gain. `--draft on` loads it anyway."), without its bracketed prefix; "" when the start log has none.  The last one wins."""
+    found = ""
+    for line in str(log_text or "").splitlines():
+        at = line.find("DFlash 2 not loaded")
+        if at >= 0:
+            found = line[at:].strip()
+    return found
+
+
+def drafting_info(args: list, info: dict | None = None, log_text: str | None = None) -> dict[str, str]:
+    """Metrics/status view of Inkling-2-Mini's drafter (`drafting`: `"dflash2"` | `"off"`). DFlash 2 is the one drafter; the engine's own INFO line still says `dspark` for "a drafter runs".
+    `log_text`: what this engine start wrote to its log; the engine's own "DFlash 2 not loaded: ..." line (its residency rule, with the way to force it) becomes the note."""
     items = [str(a) for a in (args or ())]
     mode = None
     for i in range(len(items) - 1):
         if items[i] == "--draft":
             mode = items[i + 1].strip().lower()
+    text, _NOTE["text"] = _NOTE["text"], ""
     if mode == "off":
-        return {"drafting": "off", "drafting_note": ""}
-    if mode == "dspark" or (info or {}).get("drafter") == "dspark":
-        return {"drafting": "dspark", "drafting_note": ""}
-    return {"drafting": "off", "drafting_note": ""}
+        return {"drafting": "off", "drafting_note": text}
+    left_out = veto_line(log_text)
+    # #6741: the engine says what it started with (INFO ... drafting=dspark|off). It leaves DSpark off when the CUDA layers are split across
+    # cards (and when it has no drafter or no room for it); the status used to repeat what was asked for and say "dspark" over an engine
+    # that ran without it. An older engine that does not say falls back to the asked mode, as before.
+    said = str((info or {}).get("drafting") or "").strip().lower()
+    if said in ("dspark", "dflash2"):                                    # the engine says a drafter runs (its INFO line still spells that "dspark")
+        return {"drafting": "dflash2", "drafting_note": text}
+    if said == "off":
+        asked = mode in ("dspark", "dflash2", "on") or (info or {}).get("drafter") == "dspark"
+        if left_out:                                                     # the engine said why itself (and how to force it): that sentence, as it wrote it
+            return {"drafting": "off", "drafting_note": left_out}
+        return {"drafting": "off", "drafting_note": _drafting_off_note(items, info) if asked else text}
+    if mode in ("dspark", "dflash2", "on") or (info or {}).get("drafter") == "dspark":
+        return {"drafting": "dflash2", "drafting_note": text}
+    return {"drafting": "off", "drafting_note": left_out or text}
+
+
+DRAFTING_SPLIT_NOTE = ("Drafting is off: the drafter does not run yet when the model's layers are split across several cards (CUDA). "
+                       "On one card, with the rest of the experts in RAM, it does (--gpu N).")
+DRAFTING_NO_DRAFTER_NOTE = "Drafting is off: no DFlash 2 drafter (dflash2.safetensors) was found next to the model."
+DRAFTING_LEFT_OFF_NOTE = "Drafting is off: the engine started without the DFlash 2 drafter (see its log for why, often too little free graphics memory)."
+
+
+def _drafting_off_note(items: list[str], info: dict | None) -> str:
+    """Plain words for 'the drafter was asked for and the engine left it off' (#6741)."""
+    if (info or {}).get("drafter") == "none":
+        return DRAFTING_NO_DRAFTER_NOTE
+    if "--layer-split" in items or str((info or {}).get("backend") or "").endswith("-ls"):
+        return DRAFTING_SPLIT_NOTE
+    return DRAFTING_LEFT_OFF_NOTE
 
 
 def _local_gpu_ordinals(n_gpus: int, max_g: int) -> str:
@@ -133,9 +210,35 @@ def _strip_flag(args: list[str], flag: str) -> list[str]:
     return out
 
 
+def fit_dspark(args: list, info: dict | None, announce: bool = True) -> tuple[list, dict | None]:
+    """The drafter file this engine can read. An engine that does not list dspark_f32_widen=1 in its --info line cannot use the original
+    mtp.safetensors (it drafts nothing the target accepts): the Unsloth Q8_0 file beside it is passed instead, and with none the run starts without a
+    drafter. The file stays on disk, and a newer engine (the GUI engine picker) takes it again at the next start."""
+    from strata_control import inkling_family
+    if not info or "--dspark" not in args:
+        return args, info
+    i = args.index("--dspark")
+    if i + 1 >= len(args):
+        return args, info
+    path = Path(str(args[i + 1]))
+    if path.name.lower() != inkling_family.MTP_FILE or inkling_family.engine_reads_mtp(info):
+        return args, info
+    out = list(args)
+    alt = path.with_name(inkling_family.DSPARK_GGUF_FILE)
+    if alt.is_file():
+        out[i + 1] = str(alt)
+        if announce:
+            print(f"[strata] this engine cannot read {inkling_family.MTP_FILE}; the drafter {alt.name} is used", flush=True)
+        return out, info
+    del out[i:i + 2]
+    if announce:
+        print(f"[strata] this engine cannot read {inkling_family.MTP_FILE} and there is no {alt.name} beside it: starting without the drafter", flush=True)
+    return out, {**info, "drafter": "none"}
+
+
 def engine_args(cfg: dict, exe: str | None = None, *, announce: bool = True) -> list[str]:
     """Build start args for `strata-inkling`, preserving `--parallel 1..64`, `--max-context`, `--vision`,
-    Main-first `--gpus` + `--layer-split`, and `--draft dspark|off`."""
+    Main-first `--gpus` + `--layer-split`, and `--draft dflash2|off`."""
     from strata_control import inkling_family, user_args
     args = list(cfg["args"])
     mine = user_args.capture(cfg)
@@ -187,23 +290,92 @@ def engine_args(cfg: dict, exe: str | None = None, *, announce: bool = True) -> 
             args = _strip_flag(args, "--vram-experts-gb")
         if "--ram-experts-gb" not in mine_flags:
             args = _strip_flag(args, "--ram-experts-gb")
+    # strata-inkling reads --ram-experts-gb 0 as "no RAM tier, GPU + SSD only", but setup used to write 0.00 for a plan with every
+    # expert on the card: drop that 0 (unless the person set it, or the plan streams from the SSD) so experts that do not fit go to RAM
+    if "--ram-experts-gb" in args and "--ram-experts-gb" not in mine_flags and "--ssd-experts" not in args:
+        at = args.index("--ram-experts-gb")
+        try:
+            zero = at + 1 < len(args) and float(args[at + 1]) <= 0.0
+        except ValueError:
+            zero = False
+        if zero:
+            args = _strip_flag(args, "--ram-experts-gb")
     wants_images = "--vision" in args
     want_draft = wants_drafter(cfg)
     need_draft = "--draft" not in args and want_draft
     info = probe(exe, args, cfg) if (exe and (wants_images or need_draft)) else None
+    args, info = fit_dspark(args, info, announce)
     if "--draft" not in args and not want_draft:
         args += ["--draft", "off"]
     elif need_draft:
         add = drafter_args(cfg, info)
         args += add
-        if not add and announce:
-            print(f"[strata] {NO_DRAFTER_NOTE}", flush=True)
+        if add[:2] == ["--draft", "off"] and announce:
+            print(f"[strata] {NO_SIDECAR_NOTE}", flush=True)
+            _NOTE["text"] = NO_SIDECAR_NOTE
+    if announce and isinstance(cfg.get("drafting_probe"), dict):          # why drafting is on or off here, for /metrics and `strata launch --status`
+        from strata_control import inkling_family, inkling_probe
+        text = inkling_probe.note(cfg)
+        _NOTE["text"] = text
     if wants_images and (info or {}).get("images") != "1":
         at = args.index("--vision")
         del args[at:at + 2]
         if announce:
             print(f"[strata] {NO_IMAGES_NOTE}", flush=True)
+    args = fit_vision_reader(args, cfg, info, announce)
     return args
+
+
+def detected_reader(cfg: dict) -> tuple[str | None, float]:
+    """(the picture reader this machine's rule gives (strata_control/vision_reader.py inkling_reader) for a run config that has none, the card's memory in GiB):
+    from the backend and the card's total memory (NVML, the amdgpu files).  (None, 0.0) where it cannot be told: several cards, no reading, the CPU engine;
+    the engine's own rule decides."""
+    from strata_control import vision_reader as VR
+    backend = cfg.get("backend")
+    if backend == "metal":
+        return VR.inkling_reader(None, None, mac=True), 0.0
+    if backend == "sycl":
+        return VR.inkling_reader(None, None, "intel"), 0.0
+    if backend == "cpu":
+        return None, 0.0
+    try:
+        from serve.server_parts.engines import gpu_list
+        from serve.telemetry import gpu_reader
+        cards = gpu_list(cfg)
+        if len(cards) >= 2:
+            return None, 0.0
+        g = gpu_reader(cards[0] if cards else 0, amd=backend == "hip")
+        total = g.read().get("mem_total") if g.ok() else None
+    except Exception:                                   # noqa: BLE001 - a card that cannot be read leaves the decision to the engine
+        return None, 0.0
+    if not isinstance(total, (int, float)) or isinstance(total, bool) or total <= 0:
+        return None, 0.0
+    gib = float(total) / 2**30
+    return VR.inkling_reader(None, gib), gib
+
+
+def fit_vision_reader(args: list, cfg: dict, info: dict | None, announce: bool = True) -> list:
+    """`--vision-reader` for the engine that knows it (`--info` says vision_reader=1), dropped for one that does not (it refuses an option it does not know).
+    A run config with `--vision` and no reader flag (written before the rule, or by the app's Pictures step) gets the reader this machine's rule gives, when the
+    card can be read, so the server (picture size cap and silence allowance) and the engine agree; the person's own flag, in args or user_args, always stays."""
+    from strata_control import vision_reader as VR
+    if "--vision" not in args:
+        return VR.set_reader_arg(args, None)
+    knows = (info or {}).get("vision_reader") == "1"
+    have = VR.reader_arg(args)
+    if have is not None and not knows:
+        if announce:
+            print("[strata] Inkling-2-Mini: this engine does not take --vision-reader (its pictures are read as before); update Strata for the new rule", flush=True)
+        return VR.set_reader_arg(args, None)
+    if have is None and knows:
+        mode, gib = detected_reader(cfg)
+        if mode:
+            if announce:
+                for _warn, text in VR.inkling_lines(None, mode, gib, "intel" if cfg.get("backend") == "sycl" else "", mac=cfg.get("backend") == "metal",
+                                                    backend=str(cfg.get("backend") or "cuda")):
+                    print(f"[strata] {text}", flush=True)
+            return VR.set_reader_arg(args, mode)
+    return args                                          # "auto" (or no flag and no reading): the engine's own rule decides
 
 
 def encode_path(path) -> str:
@@ -212,6 +384,141 @@ def encode_path(path) -> str:
 
 def decode_path(text: str) -> str:
     return str(text).replace("%20", " ").replace("%25", "%")
+
+
+# ---- #7043: the picture reader on the CPU --------------------------------------------------------------------------------------------
+# (Since the owner's decision of 2026-11-26 the reader follows the Qwen rule on every backend, CUDA included: the CPU reader under 24 GB, the card's from 24 GB; picture_reader()
+# below reads which one the engine chose.  The text that follows describes the CPU reader.)
+# strata-inkling reads a picture with its GPU encoder where it has one (HIP, SYCL, Metal) and otherwise, CUDA included, with the CPU one, which has
+# no size limit below 4096 x 4096 pixels: a 4535 x 3004 photo is 27,900 patches with full attention in 23 layers on one CPU thread of control, no
+# progress line and no cancel, minutes in which the engine answers nothing (and the 300 s watchdog ends it).  The engine has no option for the size,
+# so serve scales a picture down before it writes the file the engine reads: where the reader is the CPU (backend cuda or cpu), to at most
+# DEFAULT_MAX_PIXELS, 0.8 MP: where the measured CPU reader takes about a minute (a 1024 x 768 picture is not touched, a 1920 x 1080 screenshot is scaled to about 1190 x 670).  `inkling_image_max_mp` in the run config (or STRATA_INKLING_IMAGE_MAX_MP) sets
+# another size in megapixels, 0 turns the cap off; a value above 0 applies on every backend.
+DEFAULT_MAX_PIXELS = 800_000
+GPU_PICTURE_BACKENDS = ("hip", "sycl", "metal")     # the old rule, kept for a config and an engine that say nothing about the reader (see picture_reader)
+
+
+def picture_reader(cfg: dict | None, info: dict | None = None) -> str | None:
+    """The reader that really reads this engine's pictures, "gpu" or "cpu"; None when nothing says (then the old backend rule applies, cpu_picture_reader).
+    Since the Qwen rule covers Inkling (owner 2026-11-26) the reader is no longer a fact of the backend: the engine's own INFO line says what it chose
+    (`vision_reader=gpu|cpu|off`, the engine that started), else the run config's `--vision-reader gpu|cpu` (Control wrote it for the card; "auto" says nothing)."""
+    said = str((info or {}).get("vision_reader") or "").strip().lower()
+    if said in ("gpu", "cpu"):
+        return said
+    from strata_control import vision_reader as VR
+    asked = VR.reader_arg((cfg or {}).get("args"))
+    return asked if asked in ("gpu", "cpu") else None
+
+
+def cpu_picture_reader(cfg: dict | None, info: dict | None = None) -> bool:
+    """True where the engine reads pictures on the CPU: the reader it chose (picture_reader), else the old rule (CUDA and cpu: the CPU; HIP, SYCL, Metal: the card)."""
+    rd = picture_reader(cfg, info)
+    if rd is not None:
+        return rd == "cpu"
+    return (cfg or {}).get("backend") not in GPU_PICTURE_BACKENDS
+
+
+def image_cap_pixels(cfg: dict | None, environ=None, info: dict | None = None) -> int:
+    """The most pixels a picture may have when it is handed to the engine: 0 = no cap.  ValueError for a setting that is not a number >= 0.
+    The default cap is for the CPU reader only (cpu_picture_reader: the reader the engine chose, `info` is its INFO line)."""
+    environ = os.environ if environ is None else environ
+    cfg = cfg or {}
+    raw = cfg.get("inkling_image_max_mp")
+    if raw is None or raw == "":
+        raw = (environ.get("STRATA_INKLING_IMAGE_MAX_MP") or "").strip() or None
+    if raw is None:
+        return DEFAULT_MAX_PIXELS if cpu_picture_reader(cfg, info) else 0
+    try:
+        mp = float(raw)
+        if isinstance(raw, bool) or mp != mp or mp < 0 or mp > 1e6:
+            raise ValueError
+    except (TypeError, ValueError):
+        raise ValueError(f'"inkling_image_max_mp" must be a number of megapixels, 0 for no cap, not {raw!r}') from None
+    return int(mp * 1_000_000)
+
+
+def cap_picture(data: bytes, max_pixels: int):
+    """(the picture, or a smaller one with the same proportions when it has more than `max_pixels` pixels; a note saying so or None).
+    Needs Pillow (the server already uses it for other formats); without it, or for a picture it cannot read, the picture is passed on as it is."""
+    if not max_pixels or max_pixels < 1:
+        return data, None
+    try:
+        import io
+        from PIL import Image, ImageOps
+    except ImportError:
+        return data, None
+    try:
+        with Image.open(io.BytesIO(data)) as im:
+            w, h = im.size
+            if w * h <= max_pixels:
+                return data, None
+            jpeg = data[:3] == b"\xff\xd8\xff"
+            im.load()
+            im = ImageOps.exif_transpose(im)
+            scale = (max_pixels / float(w * h)) ** 0.5
+            nw, nh = max(1, int(w * scale)), max(1, int(h * scale))
+            while nw * nh > max_pixels and nw > 1:               # (a sliver: one pixel high is the least it can be)
+                nw = max(1, max_pixels // nh)
+            small = im.resize((nw, nh), Image.LANCZOS)
+            out = io.BytesIO()
+            if jpeg:
+                small.convert("RGB").save(out, format="JPEG", quality=95)
+            else:
+                small.save(out, format="PNG")
+    except Exception:  # noqa: BLE001 - a picture Pillow cannot read goes on as it is: the engine says what it thinks of it
+        return data, None
+    note = (f"picture {w}x{h} ({w * h / 1e6:.1f} MP) scaled to {nw}x{nh} ({nw * nh / 1e6:.1f} MP) before the engine reads it "
+            f"(its picture reader runs on the CPU; inkling_image_max_mp in the run config sets the size, 0 turns this off)")
+    return out.getvalue(), note
+
+
+# What the CPU reader costs: one picture, prompt to first token, nothing else using the CPU, owner PC (6 cores / 12 threads, Inkling SQ-10 + Vision, engine 0.1.67; measured
+# 11-24, rel02212/RESULTS-02212.md section 6): (megapixels, seconds).  Between two points the time is read on a log-log line, beyond the last one it grows as the square
+# (the measured exponent from 2 to 3 MP is 2.1).  A request with pictures on that path gets an allowance of ALLOW_MARGIN times the sum of its pictures' times, plus
+# ALLOW_BASE_S, at least the server's own engine_silence_s (the person's value stays when it is larger) and at most ALLOW_MAX_S, so a big picture is slow and answered,
+# never ended by the silence watchdog.  DEFAULT_MAX_PIXELS (0.8 MP) is where the table says about a minute.
+READ_CURVE = ((0.04, 3.1), (0.25, 14.9), (0.499, 32.0), (0.749, 55.0), (0.999, 74.0), (1.499, 159.8), (2.066, 333.9), (2.996, 743.2))
+ALLOW_MARGIN = 3.0
+ALLOW_BASE_S = 60.0
+ALLOW_MAX_S = 3 * 3600.0
+
+
+def picture_pixels(data: bytes) -> int:
+    """The pixels of a picture (0 when Pillow cannot say)."""
+    try:
+        import io
+        from PIL import Image
+        with Image.open(io.BytesIO(data)) as im:
+            return int(im.size[0]) * int(im.size[1])
+    except Exception:  # noqa: BLE001
+        return 0
+
+
+def picture_read_seconds(pixels: int) -> float:
+    """The measured time of the CPU reader for one picture of this many pixels (READ_CURVE)."""
+    import math
+    mp = max(pixels, 0) / 1e6
+    pts = READ_CURVE
+    if mp <= 0:
+        return 0.0
+    if mp <= pts[0][0]:
+        return pts[0][1] * mp / pts[0][0]
+    for (x0, t0), (x1, t1) in zip(pts, pts[1:]):
+        if mp <= x1:
+            k = math.log(t1 / t0) / math.log(x1 / x0)
+            return t0 * (mp / x0) ** k
+    x, t = pts[-1]
+    return t * (mp / x) ** 2.1
+
+
+def picture_allowance_s(pixel_counts, cap: int = 0) -> float:
+    """How long the engine may stay silent while it reads these pictures (the sizes the engine will get).  A picture whose size could not be read
+    counts as the cap in pixels, or 4096 x 4096 (the engine's own limit) when there is no cap."""
+    total = 0.0
+    for px in pixel_counts:
+        total += picture_read_seconds(px if px > 0 else (cap or 4096 * 4096))
+    return min(ALLOW_MAX_S, ALLOW_MARGIN * total + ALLOW_BASE_S) if total > 0 else 0.0
 
 
 def write_images(sources, load, normalize, cancel=None, folder=None) -> list[str]:

@@ -193,6 +193,9 @@ struct InkManifest {
     std::unordered_map<std::string, TInfo> dspark_tensors;
     std::string chat_template;
     std::string tokenizer_json;  // optional in v1.1 (may be empty if external tokenizer.json)
+    // GGUF trunk compacted for a 12 GB card (CUDA, single GPU; see ink_gguf_loader.h): the token embedding is the LAST tensor of Section 1 and stays in
+    // pinned host RAM, the dense attention matrices are Q8_0 (fragment order), the unembed is Q8_ROW. False for every other file.
+    bool embed_host_tail = false;
 
     const TInfo* find_trunk(const std::string& n) const {
         auto it = trunk.find(n);
@@ -510,6 +513,10 @@ struct InkModelFile {
         }
         return true;
     }
+
+    // True only for a real .strata file (never for GGUF or safetensors): a backend may then re-open `path` with the .strata reader
+    // (#6643 / #6597: "Invalid .strata magic" came from handing a GGUF to that reader).
+    bool is_native_strata() const noexcept { return kind == ModelSourceKind::Strata; }
 
     const std::vector<strata::artifact::StrataExpertEntry>& expert_directory() const {
         if (kind == ModelSourceKind::Safetensors && st_adapter) return st_adapter->expert_dir;

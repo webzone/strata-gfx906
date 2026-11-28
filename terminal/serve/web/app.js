@@ -112,20 +112,19 @@ $("api-key").onchange = () => saveApiKey(true);
 
 let health = {model: "strata", family: null, images: false, max_context: 0};
 function thinkingForFamily(v, family = health && health.family) {
-  if (family === "inkling2") return "none";
   if (family === "hy4") {
     if (v === "none" || v === "no_think" || v === "off") return "none";
     if (v === "max" || v === "xhigh") return "max";
     return "high";
   }
+  if (family === "inkling2") return v === "max" ? "high" : (v || "low");     // the model's own levels: none (0), low (0.2), medium (0.7), high (0.9)
   return v === "max" ? "high" : (v || "high");
 }
 function syncThinkingUI() {
   const fam = health && health.family;
   const isHy4 = fam === "hy4";
-  const noThink = fam === "inkling2";
-  if ($("thinking-field")) $("thinking-field").hidden = noThink;
-  if ($("show-thinking-row")) $("show-thinking-row").hidden = noThink;
+  if ($("thinking-field")) $("thinking-field").hidden = false;
+  if ($("show-thinking-row")) $("show-thinking-row").hidden = false;
   const seg = $("s-thinking");
   if (seg) {
     seg.classList.toggle("seg--3", isHy4);
@@ -145,6 +144,8 @@ function renderEmptyChat() {
 async function loadHealth() {
   try {
     health = await (await fetch("health")).json();
+    // Inkling-2-Mini: a page that never saved a thinking level starts at the server's own default level (low), not at the Qwen default (high)
+    if (health.family === "inkling2" && typeof settings !== "undefined" && !(store.get("sampling", {}) || {}).thinking) settings.thinking = "low";
     renderEmptyChat();
     syncThinkingUI();
     $("tab-btn-images").hidden = !health.image_generation;
@@ -214,13 +215,15 @@ function metricsAgree(live, state) {
   if (state === "unloaded") return s === "unloaded";
   return s !== "" && s !== "unloaded";
 }
+// #7063: the 401 messages say where the key comes from, in one more sentence
+const keyFrom = () => tr("toast.keyFrom", "That is the key the server was started with: --api-key, STRATA_API_KEY, the run config's api_key, or the sk-strata- key that strata launch made when sharing beyond this computer.");
 async function poll() {
   const epoch = ++metricsEpoch;
   try {
     const r = await fetch(reqShowAll ? "metrics?requests=all" : "metrics", {headers: headers()});
     if (r.status === 401) {
       setPill("error", tr("pill.keyNeeded", "API key needed"));
-      if (!keyWarned) { keyWarned = true; toast("warn", tr("pill.keyNeeded", "API key needed"), tr("toast.keyAbout", "This server needs a key: add it under About > Settings."), 6000); }
+      if (!keyWarned) { keyWarned = true; toast("warn", tr("pill.keyNeeded", "API key needed"), tr("toast.keyAbout", "This server needs a key: add it under About > Settings.") + " " + keyFrom(), 12000); }
     } else if (r.ok) {
       const m = await r.json();
       if (metricsHold && epoch <= metricsHold.after && !metricsAgree(m.live, metricsHold.state)) {
@@ -338,7 +341,7 @@ $("unload-btn").onclick = async () => {
     try { body = await r.json(); } catch (e) { /* the connection dropped */ }
     const status = body.status || "";
     const msg = (body.error && body.error.message) ||
-                (r.status === 401 ? tr("toast.keyAbout2", "API key needed: add it under About > Settings.") : tr("toast.httpAnswer", "The server answered HTTP {code}.", {code: r.status}));
+                (r.status === 401 ? tr("toast.keyAbout2", "API key needed: add it under About > Settings.") + " " + keyFrom() : tr("toast.httpAnswer", "The server answered HTTP {code}.", {code: r.status}));
     const failTitle = loadingNow ? tr("model.loadFailed", "Load failed") : tr("model.unloadFailed", "Unload failed");
     if (loadingNow) {
       if (r.ok && status === "loaded") {
@@ -1488,7 +1491,7 @@ async function generateReply(opts = {}) {
     if (!r.ok) {
       let msg = `HTTP ${r.status}`;
       try { msg = (await r.json()).error.message || msg; } catch (e) { /* not json */ }
-      if (r.status === 401) msg = tr("toast.keyNeeded", "This server needs an API key: add it under About > Settings.");
+      if (r.status === 401) msg = tr("toast.keyNeeded", "This server needs an API key: add it under About > Settings.") + " " + keyFrom();
       throw new Error(msg);
     }
     const reader = r.body.getReader(), dec = new TextDecoder();
@@ -1736,7 +1739,7 @@ function sharedDefaults(s) {
     ? (s.thinking === "none" || s.thinking === "no_think" || s.thinking === "off" ? "none"
        : (s.thinking === "max" || s.thinking === "xhigh") ? "max" : "high")
     : (s.thinking === "max" ? "high" : s.thinking);
-  const d = fam === "inkling2" ? {} : {reasoning_effort: eff};
+  const d = {reasoning_effort: eff};
   if (!(+s.temperature > 0)) d.temperature = 0;
   else if (!samplingUntouched(s)) Object.assign(d, {temperature: +s.temperature, top_p: +s.top_p, top_k: +s.top_k});
   if (s.seed) d.seed = +s.seed;

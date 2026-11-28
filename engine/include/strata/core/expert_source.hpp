@@ -189,6 +189,13 @@ int64_t append_stage_lend_regions(int64_t n_layers, int64_t n_expert, const std:
                                   const std::vector<std::vector<std::pair<int32_t, int32_t>>>& regions,
                                   std::string& err);
 
+/// #7089 (PR #7091 by @svonolfen): how much of the stages' lend regions (percent of their bytes, counted from the highest slot of each region down, the
+/// slots a short prompt borrows) the RAM budget reserves BEFORE it fills the coldest tail of the complement.  #6583 reserves all of it (100) and that stays
+/// the default on every drive.  The reservation is paid out of the complement, the copy decode reads, so on a RAM-tight 2-GPU layer split it can cost
+/// decode (reporter: 82.6 against 90.1 tok/s) and it buys cold prompt reading (5 to 17% at 18K tokens).  `env` is STRATA_SPLIT_LEND_RESERVE:
+/// "0" none (the complement first, as before #6583), "1".."99" that percent, anything else or unset: all (100).  `why` (optional) says which rule decided.
+int split_lend_reserve_percent(const char* env, std::string* why = nullptr);
+
 }  // namespace detail
 
 
@@ -948,11 +955,15 @@ public:
     /// the GPU cache's fill from the profile and the RAM copy (pin_cache_complement) - go unbuffered (read_direct)
     /// with the view closed meanwhile.  Through the mapping they put the file's pages in the working set beside the
     /// RAM copy, and on a PC short of RAM that pages other memory out.  The bytes and their places are the same.
-    /// end_startup_unbuffered maps the view again and closes the unbuffered handles and the stage buffers, as before
-    /// the startup.  STRATA_STARTUP_UNBUFFERED=0: the mapped copy (A/B).  False (and `why`) when it does not apply.
+    /// end_startup_unbuffered maps the view again and closes the unbuffered handles and (experts.bin only) the stage
+    /// buffers, as before the startup.  Since 0.1.67 it also covers the GGUF shards in place.  STRATA_STARTUP_UNBUFFERED=0:
+    /// the mapped copy (A/B).  False (and `why`) when it does not apply.
     bool begin_startup_unbuffered(std::string& why);
     /// False when the view could not be mapped again: then the file tier stays unbuffered, `why` says so.
     bool end_startup_unbuffered(std::string& why);
+    /// The stage-pool step of end_startup_unbuffered (public so a test runs it on any platform): experts.bin lets go of the
+    /// startup's stage buffers; the GGUF in place keeps its pool, because blob() assembles into it for the rest of the run.
+    void release_startup_stage();
     bool startup_unbuffered() const { return startup_ub_; }
     /// Every expert's bytes (n_layers x n_expert blobs).
     uint64_t expert_bytes() const;

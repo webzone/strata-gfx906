@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from serve.frontend import ChatTemplate, literal_tags, mark_think_literals, unmark_think_literals  # noqa: E402
 from serve.server import (ANSWER_RESERVE_MIN, CTX_SLACK, ByteTokenizer, EngineDied, EngineNonFinite, GpuBusy, MockEngine,  # noqa: E402
                           PP_DONE_TAIL, Service,
-                          StrataEngine, api_key_of, engine_args, key_matches, layer_split_value, prompt_progress,
+                          StrataEngine, Vision, api_key_of, engine_args, key_matches, layer_split_value, prompt_progress,
                           prompt_tokens_seen,
                           request_stats, request_timings, serve, start_failure_hint)
 from types import SimpleNamespace  # noqa: E402
@@ -33,6 +33,44 @@ ROOT = Path(__file__).resolve().parents[1]
 CTX = 4096
 ANSWER = "xy" * 1000                             # longer than the old 1024 fallback: one token per byte (#606: not
 #                                                one token repeated, which the server ends at 256)
+
+
+class VisionDecode(unittest.TestCase):
+    def test_native_decoder_failure_uses_existing_normalization_once(self):
+        for reply, expected_calls in (("ERR cannot read the image crop\nOK 450\n", 2),
+                                      ("ERR the vision encoder failed\n", 1)):
+            with self.subTest(reply=reply), tempfile.TemporaryDirectory() as temp:
+                vision = Vision.__new__(Vision)
+                vision.dir, vision.lock, vision.cache = Path(temp), threading.RLock(), {}
+                vision.cache_batches = 0
+                vision.proc = SimpleNamespace(stdin=io.StringIO(), stdout=io.StringIO(reply))
+                with mock.patch.object(Vision, 'load', return_value=b'original'), \
+                        mock.patch.object(Vision, 'normalize', side_effect=lambda data, force=False:
+                                     b'converted' if force else data) as normalize:
+                    if expected_calls == 2:
+                        encoded, tokens = vision.encode('crop')
+                        encoded.write_bytes(b'fake encoder output')
+                        self.assertEqual(tokens, 450)
+                        self.assertEqual(vision.encode('crop')[1], 450)
+                        self.assertEqual(vision.proc.stdin.getvalue().count('ENC '), 2)
+                        self.assertEqual(normalize.call_args_list[1].kwargs, {'force': True})
+                    else:
+                        with self.assertRaisesRegex(ValueError, 'vision encoder failed'):
+                            vision.encode('crop')
+                        self.assertEqual(normalize.call_count, 1)
+                self.assertFalse(list(Path(temp).glob('*.img')))
+
+    def test_failed_conversion_removes_temporary_image(self):
+        with tempfile.TemporaryDirectory() as temp:
+            vision = Vision.__new__(Vision)
+            vision.dir, vision.lock, vision.cache = Path(temp), threading.RLock(), {}
+            vision.cache_batches = 0
+            vision.proc = SimpleNamespace(stdin=io.StringIO(), stdout=io.StringIO('ERR cannot read the image crop\n'))
+            with mock.patch.object(Vision, 'load', return_value=b'original'), \
+                    mock.patch.object(Vision, 'normalize', side_effect=[b'original', ValueError('bad image')]):
+                with self.assertRaisesRegex(ValueError, 'bad image'):
+                    vision.encode('crop')
+            self.assertFalse(list(Path(temp).glob('*.img')))
 
 
 class RecordingEngine(MockEngine):
@@ -371,6 +409,8 @@ class ImageMarkers(unittest.TestCase):
     """#150: the text "<|image_pad|>" inside a message is text, not an image's place."""
 
     class FakeVision:
+        batch = staticmethod(contextlib.nullcontext)
+
         def __init__(self, d):
             self.dir = Path(d)
             self.rows = self.dir / "img.sve"
@@ -584,6 +624,7 @@ class VisionTempFiles(unittest.TestCase):
         pipe = Pipe()
         v = Vision.__new__(Vision)
         v.dir, v.lock, v.cache = Path(tempfile.mkdtemp(prefix="strata-vision-test-")), threading.Lock(), {}
+        v.cache_batches = 0
         v.proc = mock.Mock(stdin=pipe, stdout=mock.Mock(readline=lambda: "OK 7 1 1 1\n"))
         try:
             with mock.patch.object(Vision, "load", return_value=b""), \
@@ -1942,6 +1983,70 @@ class SharedPrefix(unittest.TestCase):
         self.assertEqual(req, {"temperature": 0})
         self.assertEqual(ids, self.svc.prepare(self.MSGS, None, {}, 16)[0])
 
+    def test_inkling_auto_prefix_requires_opt_in_and_engine_capability(self):
+        svc = Service(MockEngine(self.tok, "ok", max_context=CTX), self.tok,
+                      ChatTemplate(ROOT / "serve/chat_template.jinja"))
+        svc.inkling = True
+        svc.engine.info = {"shared_prefix": 1, "chunk": "8"}
+        with mock.patch.dict(os.environ, {"STRATA_INKLING_SHARED_PREFIX": "0"}):
+            req = {}
+            svc.prepare(self.MSGS, None, {}, 16, req=req)
+            self.assertNotIn("strata_prefix", req)
+        with mock.patch.dict(os.environ, {"STRATA_INKLING_SHARED_PREFIX": "1"}):
+            req = {}
+            first, _, _ = svc.prepare(self.MSGS, None, {}, 16, req=req)
+            n = req["strata_prefix"]["tokens"]
+            self.assertEqual(n % 8, 0)
+            self.assertIn(f"pin={n}", StrataEngine.sampling_keys(req, inkling=True).split())
+            self.assertNotIn(f"pin={n}", StrataEngine.sampling_keys(req, hy4=True).split())
+            exact = svc.resolve_prefix({"messages": 1}, self.MSGS, None, {}, first)["tokens"]
+            self.assertLess(exact - n, 8)
+            changed = [self.MSGS[0], {"role": "user", "content": "A different conversation"}]
+            second, _, _ = svc.prepare(changed, None, {}, 16, req={})
+            self.assertEqual(first[:n], second[:n])
+            svc.engine.info = {}
+            req = {}
+            svc.prepare(self.MSGS, None, {}, 16, req=req)
+            self.assertNotIn("strata_prefix", req)
+
+    def test_inkling_auto_prefix_preserves_explicit_boundary_and_skips_no_system(self):
+        svc = Service(MockEngine(self.tok, "ok", max_context=CTX), self.tok,
+                      ChatTemplate(ROOT / "serve/chat_template.jinja"))
+        svc.inkling = True
+        svc.engine.info = {"shared_prefix": "1"}
+        with mock.patch.dict(os.environ, {"STRATA_INKLING_SHARED_PREFIX": "1"}):
+            req = {"strata_prefix": {"tokens": 5}}
+            svc.prepare(self.MSGS, None, {}, 16, req=req)
+            self.assertEqual(req["strata_prefix"], {"tokens": 5})
+            self.assertIn("pin=5", StrataEngine.sampling_keys(req, inkling=True).split())
+            req = {}
+            svc.prepare(self.MSGS[1:], None, {}, 16, req=req)
+            self.assertNotIn("strata_prefix", req)
+            # Without shared_prefix=1, explicit strata_prefix drops cleanly instead of sending pin=.
+            svc.engine.info = {}
+            req = {"strata_prefix": {"tokens": 5}}
+            with contextlib.redirect_stdout(io.StringIO()):
+                svc.prepare(self.MSGS, None, {}, 16, req=req)
+            self.assertEqual(req["strata_prefix"], {})
+            self.assertFalse([k for k in StrataEngine.sampling_keys(req, inkling=True).split() if k.startswith("pin=")])
+
+    def test_inkling_prefix_skipped_when_request_has_images(self):
+        svc = Service(MockEngine(self.tok, "ok", max_context=CTX), self.tok,
+                      ChatTemplate(ROOT / "serve/chat_template.jinja"))
+        svc.inkling = True
+        svc.engine.info = {"shared_prefix": 1, "chunk": 8, "images": 1}
+        msgs = [self.MSGS[0], {"role": "user", "content": [
+            {"type": "image", "source": "fake.png"}, {"type": "text", "text": "describe"}]}]
+        with mock.patch.dict(os.environ, {"STRATA_INKLING_SHARED_PREFIX": "1"}), \
+                mock.patch("serve.server.inkling_kind.write_images", return_value=["/tmp/fake.png"]):
+            req = {}
+            svc.prepare(msgs, None, {}, 16, req=req)
+            self.assertNotIn("strata_prefix", req)
+            req = {"strata_prefix": {"tokens": 5}}
+            with contextlib.redirect_stdout(io.StringIO()):
+                svc.prepare(msgs, None, {}, 16, req=req)
+            self.assertEqual(req["strata_prefix"], {})
+
 
 class GpuChoice(unittest.TestCase):
     """Issue #51: the config's \"gpu\" reaches the engine as CUDA_VISIBLE_DEVICES, numbered like nvidia-smi."""
@@ -2769,6 +2874,19 @@ class PcieShare(unittest.TestCase):
         self.assertEqual([r["hit_rate"] for r in rows], [0.6, 0.6, 0.6])
         self.assertEqual([r["pcie_share"] for r in rows], [0.2, 0.0, None])
         self.assertIn("expert cache 60.0% hit (+20.0% of the routed experts over PCIe)", out.getvalue())
+
+
+class PromptCacheSpread(unittest.TestCase):
+    def test_only_a_known_unsupported_engine_loses_the_cache_spread_flag(self):
+        cfg = {"backend": "sycl", "args": ["--native", "model.gguf", "--prompt-cache-spread"]}
+        with tempfile.TemporaryDirectory() as folder:
+            old = Path(folder) / "old-strata"
+            old.write_bytes(b"strata --native --serve")
+            new = Path(folder) / "new-strata"
+            new.write_bytes(b"strata --native --serve --prompt-cache-spread")
+            self.assertEqual(engine_args(cfg, str(old), announce=False), ["--native", "model.gguf"])
+            self.assertEqual(engine_args(cfg, str(new), announce=False), cfg["args"])
+            self.assertEqual(engine_args(cfg, announce=False), cfg["args"])
 
 
 class PeerDevice(unittest.TestCase):
@@ -6328,7 +6446,72 @@ class SilentEngine(unittest.TestCase):
             fake.getrlimit.return_value = (-1, -1)               # unlimited: the old RAM hint stays
             self.assertIn("running out of RAM", engine.death_note())
             fake.getrlimit.return_value = (0, 0)
-            engine.proc.poll.return_value = -11                  # another signal: not this cause
+            engine.proc.poll.return_value = -11                  # another signal: not this cause, and not RAM either (#7245: a SIGSEGV is a crash)
+            note = engine.death_note()
+            self.assertNotIn("RLIMIT_RTTIME", note)
+            self.assertNotIn("running out of RAM", note)
+            self.assertIn("SIGSEGV", note)
+
+    def test_a_crash_the_system_reports_is_not_blamed_on_ram(self):
+        # #7245: the 0.1.69 Windows host-copy overrun ended the engine with 0xC0000005 (an access violation); the note told the reporter it was
+        # "running out of RAM" and to close programs. A crash code, a signal that is a crash and an exit nobody can read on Windows are not RAM.
+        import tempfile
+        engine = self.bare(0.3)
+        with tempfile.TemporaryDirectory() as d:
+            engine.log_path = os.path.join(d, "e.log")
+            with open(engine.log_path, "w", encoding="utf-8") as f:
+                f.write("strata prefill: layer-major (layers 0..48): 6440 tokens in 1 super-chunk(s)\n")
+            for rc, words in ((0xC0000005, "access violation"), (0xC0000409, "stack buffer overrun"), (0xC000001D, "illegal instruction"),
+                              (-11, "SIGSEGV"), (-4, "SIGILL")):
+                engine.proc.poll.return_value = rc
+                note = engine.death_note()
+                with self.subTest(rc=rc):
+                    self.assertIn("The engine crashed", note)
+                    self.assertIn(words, note)
+                    self.assertIn("not a lack of memory", note)
+                    self.assertNotIn("running out of RAM", note)
+                    self.assertNotIn("dmesg", note)
+                    self.assertIn("github.com/Niko1221/Strata/issues", note)
+            # a Windows crash code also says where the system keeps the proof
+            engine.proc.poll.return_value = 0xC0000005
+            self.assertIn("Event Viewer", engine.death_note() if sys.platform == "win32" else self._on_windows(engine))
+
+    def _on_windows(self, engine):
+        from unittest import mock
+        with mock.patch.object(sys, "platform", "win32"):
+            return engine.death_note()
+
+    def test_an_exit_nobody_can_read_is_not_called_ram_on_windows(self):
+        # the reporter's text said "status unavailable": nothing points at memory, and Windows does not end programs for it
+        import tempfile
+        engine = self.bare(0.3)
+        with tempfile.TemporaryDirectory() as d:
+            engine.log_path = os.path.join(d, "e.log")
+            open(engine.log_path, "w").close()
+            engine.proc.poll.return_value = None
+            engine.proc.wait.return_value = None                 # the engine's exit status was never read (the report's "status unavailable")
+            engine._last_exit_code = None
+            win = self._on_windows(engine)
+            self.assertIn("not known to be a memory problem", win)
+            self.assertNotIn("running out of RAM", win)
+            self.assertIn("Event Viewer", win)
+            self.assertIn("running out of RAM", engine.death_note() if sys.platform != "win32" else "running out of RAM")   # Linux keeps its hint
+
+    def test_ram_is_still_named_when_the_log_or_the_kill_says_so(self):
+        import tempfile
+        engine = self.bare(0.3)
+        with tempfile.TemporaryDirectory() as d:
+            engine.log_path = os.path.join(d, "e.log")
+            with open(engine.log_path, "w", encoding="utf-8") as f:
+                f.write("terminate called after throwing an instance of 'std::bad_alloc'\n")
+            for rc in (0xC0000005, -11, None):
+                engine.proc.poll.return_value = rc
+                engine.proc.wait.return_value = None
+                engine._last_exit_code = None
+                with self.subTest(rc=rc, windows=True):
+                    self.assertIn("running out of RAM", self._on_windows(engine))        # the engine's own log says bad_alloc
+            open(engine.log_path, "w").close()
+            engine.proc.poll.return_value = -9                                          # the kernel's kill (the OOM killer) stays the RAM story
             self.assertIn("running out of RAM", engine.death_note())
 
     def test_prompt_chunks_set_the_wait(self):
@@ -6993,7 +7176,8 @@ class VisionCacheEviction(unittest.TestCase):
     def make(self, d):
         import serve.server as server
         v = server.Vision.__new__(server.Vision)
-        v.dir, v.cache, v.lock = d, {}, threading.Lock()
+        v.dir, v.cache, v.lock = d, {}, threading.RLock()
+        v.cache_batches = 0
         v.load = lambda src: src
 
         class Pipe:
@@ -7148,6 +7332,10 @@ class VisionShutdown(unittest.TestCase):
 
             class Proc:
                 stdin = io.StringIO()
+                stdout = None
+
+                def poll(self):
+                    return 0
 
                 def wait(self, timeout=None):
                     return 0
@@ -7922,3 +8110,66 @@ class ChatTemplateKwargsShape(unittest.TestCase):
             with self.subTest(chat_template_kwargs=ctk):
                 status, b = self.post({"model": "x", "max_tokens": 8, "messages": msgs, "chat_template_kwargs": ctk})
                 self.assertEqual(status, 200, b)
+
+
+class OpenAIModelOutputLimit(unittest.TestCase):
+    """#6402: /v1/models publishes the answer cap next to the context window.
+
+    Clients that size a request from the model list (OpenCode reads llama-swap's `meta.llamaswap.max_output_tokens`,
+    OpenAI-shaped ones read `limit.output`) had nothing to read here and fell back to their own guess."""
+
+    @classmethod
+    def setUpClass(cls):
+        tok = ByteTokenizer()
+        cls.svc = Service(MockEngine(tok, "ok", max_context=CTX), tok,
+                          ChatTemplate(ROOT / "serve/chat_template.jinja"), model_name="qwen3.8-flash-next-iq3_xxs")
+        cls.svc.set_aliases(["qwen"])
+        cls.httpd = serve(cls.svc, port=0)
+        cls.base = f"http://127.0.0.1:{cls.httpd.server_address[1]}"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+
+    def get(self, path):
+        with urllib.request.urlopen(self.base + path, timeout=30) as r:
+            return json.loads(r.read())
+
+    def tearDown(self):
+        self.svc.shared = {}                # POST /settings would set this; every test starts without it
+
+    def test_output_cap_is_the_context_less_the_engine_margin(self):
+        # the server never lets one answer run past ctx - CTX_SLACK (the same margin prepare() enforces), and a
+        # request with no max_tokens gets that whole room, so it is the largest answer this model can produce
+        m = self.get("/v1/models")["data"][0]
+        self.assertEqual(m["limit"]["context"], CTX)
+        self.assertEqual(m["limit"]["output"], CTX - CTX_SLACK)
+        self.assertEqual(m["meta"]["llamaswap"]["max_output_tokens"], CTX - CTX_SLACK)
+        self.assertEqual(m["meta"]["n_ctx"], CTX)                       # the existing key stays
+
+    def test_aliases_report_the_same_limit(self):
+        data = self.get("/v1/models")["data"]
+        self.assertEqual([m["limit"] for m in data], [{"context": CTX, "output": CTX - CTX_SLACK}] * 2)
+        self.assertEqual([m["meta"]["llamaswap"]["max_output_tokens"] for m in data], [CTX - CTX_SLACK] * 2)
+
+    def test_model_retrieve_carries_it_too(self):
+        for path in ("/v1/models/qwen", "/models/qwen"):
+            m = self.get(path)
+            self.assertEqual(m["limit"]["output"], CTX - CTX_SLACK)
+
+    def test_chat_settings_max_tokens_lowers_it(self):
+        # POST /settings {"max_tokens": 512} caps every request that sends none (see the /v1/messages path), so the
+        # published cap has to follow it down; a setting above the context room cannot raise it
+        self.svc.shared = {"max_tokens": 512}
+        self.assertEqual(self.get("/v1/models")["data"][0]["limit"]["output"], 512)
+        self.svc.shared = {"max_tokens": 100000}
+        self.assertEqual(self.get("/v1/models")["data"][0]["limit"]["output"], CTX - CTX_SLACK)
+
+    def test_it_follows_the_engine_context(self):
+        self.svc.engine.max_context = 8192
+        try:
+            m = self.get("/v1/models")["data"][0]
+            self.assertEqual((m["limit"]["context"], m["limit"]["output"]), (8192, 8192 - CTX_SLACK))
+        finally:
+            self.svc.engine.max_context = CTX

@@ -28,10 +28,14 @@
 
 #include "../ink_json.h"
 #include "strata/artifact/strata_reader.hpp"
+#include "strata/artifact/strata_layout.hpp"
 #include "strata/core/device_error_exit.hpp"
+#include "strata/core/ink_draft_rule.hpp"
 #ifdef INK_SYCL_WITH_MODEL_FILE
 #include "../ink_gguf_transcode.h"
 #endif
+#include "ink_sy_intelarc_cfg.h"
+#include "ink_sy_iq_grids.h"
 
 #define INK_REQD_SG16 [[sycl::reqd_sub_group_size(16)]]
 
@@ -41,6 +45,17 @@ using half = sycl::half;
 
 inline double now_s() {
     return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+// STRATA_SYCL_NO_XMX=1 (or the older name INK_SYCL_NO_XMX=1) turns the oneMKL XMX GEMM path off. On Arc A-series (Alchemist / DG2) that GEMM
+// gives last-bit differences between runs in prompt reading; without it the logits repeat, at about 40% of the prompt speed (docs/INTEL.md).
+inline bool sy_no_xmx_requested() {
+    static const bool v = [] {
+        const char* e = std::getenv("STRATA_SYCL_NO_XMX");
+        if (!e || !e[0]) e = std::getenv("INK_SYCL_NO_XMX");
+        return e && e[0] == '1';
+    }();
+    return v;
 }
 
 inline void sy_setenv(const char* k, const char* v, int overwrite = 1) {
@@ -60,11 +75,23 @@ inline bool seek_abs(FILE* fp, uint64_t off) {
 #endif
 }
 
-// Work around oneAPI 2026.1.1 Level Zero V2 + oneMKL GEMM SIGSEGV (exit 139) on Battlemage (Arc Pro B70 / bmg_g31).
+// Work around oneAPI 2026.1.1 Level Zero V2 + legacy oneMKL GEMM SIGSEGV (exit 139) on Battlemage when OFF.
+// Under STRATA_INK_INTELARC=1 (zero-oneMKL native SG16 joint_matrix XMX), opt into Level Zero V2 + immediate command lists!
 // Preserves any explicit user override of UR_LOADER_USE_LEVEL_ZERO_V2.
 inline void ensure_l0_v1_default() {
     if (!std::getenv("UR_LOADER_USE_LEVEL_ZERO_V2")) {
-        sy_setenv("UR_LOADER_USE_LEVEL_ZERO_V2", "0", 0);
+#ifndef INK_SYCL_USE_ONEMKL
+        // only a zero-oneMKL build may opt into V2: with oneMKL linked, V2 is the SIGSEGV the line above describes (release builds link oneMKL)
+        if (intelarc_env_requested()) {
+            sy_setenv("UR_LOADER_USE_LEVEL_ZERO_V2", "1", 0);
+            if (!std::getenv("SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS")) {
+                sy_setenv("SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS", "1", 0);
+            }
+        } else
+#endif
+        {
+            sy_setenv("UR_LOADER_USE_LEVEL_ZERO_V2", "0", 0);
+        }
     }
 }
 
@@ -181,6 +208,93 @@ inline sycl::queue& Q_copy() {
 
 inline void wait() { Q().wait_and_throw(); }
 
+inline const IntelArcCfg& arc_cfg() {
+    return intelarc_cfg(Q().get_device(), primary_gpu_index());
+}
+
+// Decode step profiler (off by default; every call below is a single bool test when off).
+//   INK_SY_TIMING=1  host submit time vs total time per decode step (no extra waits)
+//   INK_SY_PROF=1    wait() after each phase group: wall time per group, summed over decode steps
+//   INK_SY_PROF=2    the same plus finer marks inside the mix and router groups (fx_*: residual copy, attention-residual mix, controller
+//                    concat, controller down linear, controller apply, norm, gate linear, top-k); each mark costs one wait(), so the
+//                    summary also prints the measured cost of an empty wait() and the number of marks per step
+// Only single-token steps (M == 1) are counted. A summary goes to stderr every 64 steps.
+enum SyProfCat { PF_MIX = 0, PF_QKV, PF_SCONV, PF_ATTN, PF_WO, PF_ROUTER, PF_MOE, PF_TAILV, PF_HEAD,
+                 FX_RES, FX_ARM, FX_CCAT, FX_CLIN, FX_CAPP, FX_NORM, FX_MARM, FX_MCCAT, FX_MCLIN, FX_MCAPP, FX_MNORM, FX_GATE, FX_TOPK, PF_N };
+struct SyProf {
+    bool on = false, timing = false, step = false, fine = false;
+    double last = 0.0, t_enter = 0.0, t_submit = 0.0;
+    double acc[PF_N] = {};
+    long cnt[PF_N] = {};
+    double sum_submit = 0.0, sum_total = 0.0;
+    long steps = 0;
+};
+inline SyProf& sy_prof() {
+    static SyProf p = [] {
+        SyProf q;
+        const char* e = std::getenv("INK_SY_PROF");
+        q.on = e && (e[0] == '1' || e[0] == '2');
+        q.fine = e && e[0] == '2';
+        const char* t = std::getenv("INK_SY_TIMING");
+        q.timing = (t && t[0] == '1') || q.on;
+        return q;
+    }();
+    return p;
+}
+inline void sy_prof_begin(int M) {
+    SyProf& p = sy_prof();
+    p.step = (M == 1) && (p.on || p.timing);
+    if (!p.step) return;
+    if (p.on) wait();
+    p.t_enter = p.last = now_s();
+}
+inline void sy_prof_mark(int cat) {
+    SyProf& p = sy_prof();
+    if (!p.step || !p.on) return;
+    wait();
+    const double t = now_s();
+    p.acc[cat] += t - p.last;
+    ++p.cnt[cat];
+    p.last = t;
+}
+inline void sy_prof_fmark(int cat) {   // a mark of the finer groups: only with INK_SY_PROF=2
+    if (sy_prof().fine) sy_prof_mark(cat);
+}
+inline void sy_prof_before_wait() {
+    SyProf& p = sy_prof();
+    if (!p.step) return;
+    p.t_submit = now_s();
+}
+inline void sy_prof_end() {
+    SyProf& p = sy_prof();
+    if (!p.step) return;
+    const double t = now_s();
+    p.sum_submit += p.t_submit - p.t_enter;
+    p.sum_total += t - p.t_enter;
+    ++p.steps;
+    if (p.steps % 64 == 0) {
+        const double n = (double)p.steps;
+        static const char* kNames[PF_N] = {"mix", "qkv", "sconv", "attn", "wo", "router", "moe", "tailv", "head",
+                                           "fx_res", "fx_armix", "fx_ccat", "fx_clin", "fx_capp", "fx_norm",
+                                           "fx_mlp_armix", "fx_mlp_ccat", "fx_mlp_clin", "fx_mlp_capp", "fx_mlp_norm", "fx_gate", "fx_topk"};
+        std::fprintf(stderr, "[ink_sy_prof] steps=%ld host-submit=%.2f ms total=%.2f ms per step", p.steps,
+                     p.sum_submit / n * 1e3, p.sum_total / n * 1e3);
+        if (p.on) {
+            for (int i = 0; i < PF_N; ++i) {
+                if (i >= FX_RES && p.cnt[i] == 0) continue;
+                std::fprintf(stderr, " | %s=%.2f", kNames[i], p.acc[i] / n * 1e3);
+                if (p.fine && i >= FX_RES) std::fprintf(stderr, "(%.0f marks)", (double)p.cnt[i] / n);
+            }
+            if (p.fine) {
+                const double t0 = now_s();
+                for (int i = 0; i < 200; ++i) wait();
+                std::fprintf(stderr, " | empty_wait=%.1f us", (now_s() - t0) / 200 * 1e6);
+            }
+        }
+        std::fprintf(stderr, "\n");
+    }
+}
+
 struct SyDevCaps {
     std::string name;
     std::string platform;
@@ -207,7 +321,7 @@ inline const SyDevCaps& dev_caps() {
         for (auto s : dev.get_info<sycl::info::device::sub_group_sizes>()) {
             if (s == 16) c.has_sg16 = true;
         }
-        const bool no_xmx = std::getenv("INK_SYCL_NO_XMX") && std::getenv("INK_SYCL_NO_XMX")[0] == '1';
+        const bool no_xmx = sy_no_xmx_requested();
         if (!no_xmx && c.has_sg16) {
             // Xe2 Battlemage (B580 bmg_g21, Arc Pro B60/B70 bmg_g31, Lunar Lake) & PVC natively support SG16 XMX
             if (c.name.find("B5") != std::string::npos || c.name.find("B6") != std::string::npos ||
@@ -254,7 +368,26 @@ inline void dfree(void* p) { if (p) sycl::free(p, Q()); }
 inline void h2d(void* d, const void* h, size_t b) { if (b) Q().memcpy(d, h, b); }
 inline void h2d_sync(void* d, const void* h, size_t b) { if (b) Q().memcpy(d, h, b).wait(); }
 inline void d2h(void* h, const void* d, size_t b) { if (b) Q().memcpy(h, d, b); }
-inline void d2d(void* dst, const void* src, size_t b) { if (b) Q().memcpy(dst, src, b); }
+// INK_SY_D2D_KERNEL=1 copies with a small kernel instead of queue.memcpy (same bytes, experiment for Level Zero copy-engine sync cost).
+inline bool d2d_kernel_mode() {
+    static const bool v = [] { const char* e = std::getenv("INK_SY_D2D_KERNEL"); return e && e[0] == '1'; }();
+    return v;
+}
+inline void d2d(void* dst, const void* src, size_t b) {
+    if (!b) return;
+    if (d2d_kernel_mode() && (b & 3) == 0 && (reinterpret_cast<uintptr_t>(dst) & 3) == 0 &&
+        (reinterpret_cast<uintptr_t>(src) & 3) == 0) {
+        uint32_t* d = static_cast<uint32_t*>(dst);
+        const uint32_t* s = static_cast<const uint32_t*>(src);
+        const size_t n = b >> 2;
+        Q().parallel_for(sycl::nd_range<1>(((n + 255) / 256) * 256, 256), [=](sycl::nd_item<1> it) INK_REQD_SG16 {
+            const size_t i = it.get_global_id(0);
+            if (i < n) d[i] = s[i];
+        });
+        return;
+    }
+    Q().memcpy(dst, src, b);
+}
 inline void dzero(void* d, size_t b) { if (b) Q().memset(d, 0, b); }
 
 inline sycl::nd_range<1> NR(size_t G, size_t B) { return sycl::nd_range<1>(G * B, B); }
@@ -313,6 +446,7 @@ inline float h2f_bits(uint16_t b) {
     return (float)sycl::bit_cast<half>(b);
 }
 
+
 inline float e2m1_lut(uint32_t nib) {
     constexpr float kLut[16] = {
         0.0f,  0.5f,  1.0f,  1.5f,  2.0f,  3.0f,  4.0f,  6.0f,
@@ -366,14 +500,82 @@ inline bool gguf_type_has_sycl_kernel(uint32_t t) noexcept {
         case 12:  // Q4_K
         case 13:  // Q5_K
         case 14:  // Q6_K
+        case 16:  // IQ2_XXS (GSQ-RCO)
+        case 17:  // IQ2_XS  (GSQ-RCO)
         case 18:  // IQ3_XXS
+        case 19:  // IQ1_S   (GSQ-RCO)
         case 20:  // IQ4_NL
+        case 21:  // IQ3_S   (GSQ-RCO)
+        case 22:  // IQ2_S   (GSQ-RCO)
         case 23:  // IQ4_XS
         case 30:  // BF16
         case 39:  // MXFP4
+        case 42:  // Q2_0    (GSQ-RCO)
             return true;
         default:
             return false;
+    }
+}
+
+// One-time global L1/L2-cached 32 KiB device USM codebook table for GGUF IQ types (0 private-memory spills on bmg-g31!)
+inline const InkSyIqGridTable* iq_grid_table_dev() {
+    static InkSyIqGridTable* dev_tab = [] {
+        InkSyIqGridTable host_tab{};
+        fill_iq_grid_table(host_tab);
+        InkSyIqGridTable* p = sycl::malloc_device<InkSyIqGridTable>(1, Q());
+        Q().memcpy(p, &host_tab, sizeof(InkSyIqGridTable)).wait_and_throw();
+        return p;
+    }();
+    return dev_tab;
+}
+
+inline const InkSyIqGridTable* iq_grid_table_dev_q(sycl::queue& q) {
+    if (&q == &Q()) return iq_grid_table_dev();
+    static std::unordered_map<const sycl::queue*, InkSyIqGridTable*> per_q;
+    auto it = per_q.find(&q);
+    if (it != per_q.end()) return it->second;
+    InkSyIqGridTable host_tab{};
+    fill_iq_grid_table(host_tab);
+    InkSyIqGridTable* p = sycl::malloc_device<InkSyIqGridTable>(1, q);
+    q.memcpy(p, &host_tab, sizeof(InkSyIqGridTable)).wait_and_throw();
+    per_q[&q] = p;
+    return p;
+}
+
+// Helper for FAST-mode BF16 -> Q8_ROW dense trunk compaction (saves ~0.69 GiB VRAM & doubles attn trunk BW!)
+inline bool is_compactable_trunk_bf16(const std::string& name) {
+    return name.find(".attn.wq_du.weight") != std::string::npos ||
+           name.find(".attn.wk_dv.weight") != std::string::npos ||
+           name.find(".attn.wv_dv.weight") != std::string::npos ||
+           name.find(".attn.wr_du.weight") != std::string::npos ||
+           name.find(".attn.gate_attn.weight") != std::string::npos ||
+           name.find(".attn.wo_ud.weight") != std::string::npos;
+}
+
+inline void quantize_bf16_tensor_to_q8row(const uint16_t* bf16, int N, int K, std::vector<uint8_t>& out) {
+    out.resize((size_t)N * 4 + (size_t)N * K);
+    float* scales = reinterpret_cast<float*>(out.data());
+    int8_t* qw = reinterpret_cast<int8_t*>(out.data() + (size_t)N * 4);
+    for (int r = 0; r < N; ++r) {
+        const uint16_t* src = bf16 + (size_t)r * K;
+        float amax = 0.0f;
+        for (int k = 0; k < K; ++k) {
+            uint32_t u = (uint32_t)src[k] << 16;
+            float v; std::memcpy(&v, &u, 4);
+            float av = std::fabs(v);
+            if (av > amax) amax = av;
+        }
+        const float sc = (amax > 0.0f) ? (amax / 127.0f) : 0.0f;
+        const float inv = (amax > 0.0f) ? (127.0f / amax) : 0.0f;
+        scales[r] = sc;
+        int8_t* dst = qw + (size_t)r * K;
+        for (int k = 0; k < K; ++k) {
+            uint32_t u = (uint32_t)src[k] << 16;
+            float v; std::memcpy(&v, &u, 4);
+            int q = (int)std::lrint(v * inv);
+            if (q > 127) q = 127; else if (q < -127) q = -127;
+            dst[k] = (int8_t)q;
+        }
     }
 }
 
@@ -621,6 +823,29 @@ struct InkSyclModel {
     float* static_sconv_dev = nullptr;     // [24 * kSconvLayerFloats]
     float* rel_proj_pad_dev = nullptr;     // [24 * 16 * 1025]
 
+    // The one drafter rule (strata/core/ink_draft_rule.hpp, principle 1): the backend sets `draft_probe.bytes` (what DFlash 2 adds to the reserve) before load();
+    // load() asks the rule with the real expert bytes and, when the drafter would move the model off full residency or cut the expert tier by 10% or more, takes its bytes
+    // back out of the reserve and sets `vetoed` (the backend then does not load the drafter and prints `line`).
+    struct DraftProbe { size_t bytes = 0; bool user_on = false; bool vetoed = false; std::string line; } draft_probe;
+    size_t draft_adjust_reserve(size_t reserve, size_t gpu_mem, size_t used, size_t total_expert_bytes, bool budget_overridden) {
+        if (draft_probe.bytes == 0 || budget_overridden || draft_probe.bytes > reserve) return reserve;
+        const size_t with_b = gpu_mem > used + reserve ? gpu_mem - used - reserve : 0;
+        const size_t res_wo = reserve - draft_probe.bytes;
+        const size_t wo_b = gpu_mem > used + res_wo ? gpu_mem - used - res_wo : 0;
+        strata::core::InkDraftLoadIn in;
+        in.full_without = total_expert_bytes <= wo_b;
+        in.full_with = total_expert_bytes <= with_b;
+        in.tier_budget_mib = (double)wo_b / 1048576.0;
+        in.drafter_mib = (double)draft_probe.bytes / 1048576.0;
+        in.user_on = draft_probe.user_on;
+        const auto out = strata::core::ink_draft_load_rule(in);
+        if (out.load) return reserve;
+        draft_probe.vetoed = true;
+        draft_probe.line = strata::core::ink_draft_veto_line("[ink_sycl]", "DFlash 2", (double)total_expert_bytes / 1073741824.0, (double)with_b / 1073741824.0,
+                                                             in.drafter_mib, (double)wo_b / 1073741824.0);
+        return res_wo;
+    }
+
     int n_vram_experts = 0;
     int n_host_experts = 0;
     size_t vram_expert_bytes = 0;
@@ -666,14 +891,14 @@ struct InkSyclModel {
 
         uint8_t frame[4096];
         if (std::fread(frame, 1, 4096, fp) != 4096) { std::fclose(fp); err = "short header"; return false; }
-        static const uint8_t kMagic[8] = {'S', 'T', 'R', 'A', 'T', 'A', 0x00, 0x01};
-        if (std::memcmp(frame, kMagic, 8) != 0) { std::fclose(fp); err = "bad .strata magic"; return false; }
-        uint32_t hdr_flags = 0;
-        std::memcpy(&hdr_flags, frame + 8, 4);
-        format_minor = (uint8_t)(hdr_flags & 0xFFu);
-
-        strata::artifact::StrataSectionEntry secs[6]{};
-        for (int i = 0; i < 6; ++i) std::memcpy(&secs[i], frame + 0x10 + i * 64, 64);
+        // magic, 6 sections, and which header layout (4 KiB or 16 KiB aligned) this file has: strata_layout.hpp
+        strata::artifact::StrataHeader shdr;
+        if (!strata::artifact::strata_parse_header_frame(frame, 4096, strata::artifact::strata_file_size(fp), shdr, err)) {
+            std::fclose(fp);
+            return false;
+        }
+        format_minor = (uint8_t)(shdr.flags & 0xFFu);
+        const strata::artifact::StrataSectionEntry* secs = shdr.sections;
 
         std::string mjson;
         if (!read_section0_zstd(fp, secs[0].file_offset, secs[0].byte_length, mjson, err)) {
@@ -683,46 +908,71 @@ struct InkSyclModel {
         if (!parse_ink_manifest(mjson, man, err)) { std::fclose(fp); return false; }
 
         // 1. Upload Section 1 (Trunk + DSpark) into <= 3.2 GiB device slabs (safe under Arc 4 GiB max_alloc!)
+        const auto& acfg = arc_cfg();
+        const bool compact_q8_trunk = acfg.fast && acfg.use_q8_trunk;
+        size_t q8_trunk_saved_bytes = 0;
         const size_t kMaxSlab = std::min<size_t>(dev_caps().max_alloc ? (dev_caps().max_alloc * 7 / 8) : (3200ull << 20), 3200ull << 20);
         auto upload_tensor_map = [&](std::unordered_map<std::string, InkTensorInfo>& mp,
-                                     std::unordered_map<std::string, std::vector<uint8_t>>& host_copies) -> bool {
+                                     std::unordered_map<std::string, std::vector<uint8_t>>& host_copies,
+                                     bool allow_q8_compact) -> bool {
             // Pack tensors sequentially into device slabs without crossing a slab boundary
             std::vector<InkTensorInfo*> ordered;
             ordered.reserve(mp.size());
             for (auto& kv : mp) ordered.push_back(&kv.second);
             std::sort(ordered.begin(), ordered.end(), [](const InkTensorInfo* a, const InkTensorInfo* b) { return a->off < b->off; });
 
+            auto planned_bytes = [&](const InkTensorInfo* ti) -> size_t {
+                if (allow_q8_compact && ti->fmt == FMT_BF16 && ti->shape.size() == 2 && is_compactable_trunk_bf16(ti->name)) {
+                    const size_t N = (size_t)ti->rows(), K = (size_t)ti->cols();
+                    return N * 4 + N * K;
+                }
+                return (size_t)ti->bytes;
+            };
+
             size_t idx = 0;
             while (idx < ordered.size()) {
                 size_t slab_sz = 0;
                 size_t start = idx;
                 while (idx < ordered.size()) {
-                    size_t tb = ((ordered[idx]->bytes + 63) / 64) * 64;
+                    size_t tb = ((planned_bytes(ordered[idx]) + 63) / 64) * 64;
                     if (slab_sz > 0 && slab_sz + tb > kMaxSlab) break;
                     slab_sz += tb;
                     ++idx;
                 }
                 uint8_t* dev_slab = dalloc<uint8_t>(slab_sz);
                 trunk_slabs.push_back(dev_slab);
-                std::vector<uint8_t> staging;
+                std::vector<uint8_t> staging, q8_buf;
                 size_t cur_off = 0;
                 for (size_t j = start; j < idx; ++j) {
                     InkTensorInfo* ti = ordered[j];
-                    staging.resize(ti->bytes);
-                    if (!seek_abs(fp, secs[1].file_offset + ti->off) || std::fread(staging.data(), 1, ti->bytes, fp) != ti->bytes) {
+                    const size_t orig_b = (size_t)ti->bytes;
+                    staging.resize(orig_b);
+                    if (!seek_abs(fp, secs[1].file_offset + ti->off) || std::fread(staging.data(), 1, orig_b, fp) != orig_b) {
                         err = "short read trunk tensor " + ti->name;
                         return false;
                     }
-                    h2d(dev_slab + cur_off, staging.data(), ti->bytes);
-                    wait();
-                    ti->dev_ptr = dev_slab + cur_off;
-                    // Keep tiny pre-orientation tensors on host temporarily
-                    if (ti->name.find("sconv") != std::string::npos ||
-                        ti->name.find("middle_cycle_cross_pass") != std::string::npos ||
-                        ti->name.find("rel_logits_proj") != std::string::npos) {
-                        host_copies[ti->name] = staging;
+                    if (allow_q8_compact && ti->fmt == FMT_BF16 && ti->shape.size() == 2 && is_compactable_trunk_bf16(ti->name)) {
+                        const int N = (int)ti->rows(), K = (int)ti->cols();
+                        quantize_bf16_tensor_to_q8row(reinterpret_cast<const uint16_t*>(staging.data()), N, K, q8_buf);
+                        h2d(dev_slab + cur_off, q8_buf.data(), q8_buf.size());
+                        wait();
+                        ti->dev_ptr = dev_slab + cur_off;
+                        ti->fmt = FMT_Q8ROW;
+                        if (orig_b > q8_buf.size()) q8_trunk_saved_bytes += (orig_b - q8_buf.size());
+                        ti->bytes = q8_buf.size();
+                        cur_off += ((q8_buf.size() + 63) / 64) * 64;
+                    } else {
+                        h2d(dev_slab + cur_off, staging.data(), orig_b);
+                        wait();
+                        ti->dev_ptr = dev_slab + cur_off;
+                        // Keep tiny pre-orientation tensors on host temporarily
+                        if (ti->name.find("sconv") != std::string::npos ||
+                            ti->name.find("middle_cycle_cross_pass") != std::string::npos ||
+                            ti->name.find("rel_logits_proj") != std::string::npos) {
+                            host_copies[ti->name] = staging;
+                        }
+                        cur_off += ((orig_b + 63) / 64) * 64;
                     }
-                    cur_off += ((ti->bytes + 63) / 64) * 64;
                 }
                 wait();
             }
@@ -730,9 +980,13 @@ struct InkSyclModel {
         };
 
         std::unordered_map<std::string, std::vector<uint8_t>> host_tmp;
-        if (!upload_tensor_map(man.T, host_tmp) || !upload_tensor_map(man.D, host_tmp)) {
+        if (!upload_tensor_map(man.T, host_tmp, compact_q8_trunk) || !upload_tensor_map(man.D, host_tmp, false)) {
             std::fclose(fp);
             return false;
+        }
+        if (q8_trunk_saved_bytes > 0) {
+            fprintf(stderr, "[ink_sycl_intelarc] Q8_ROW dense trunk compaction saved %.1f MiB VRAM\n",
+                    q8_trunk_saved_bytes / (1024.0 * 1024.0));
         }
         prepare_preoriented_tables(host_tmp);
 
@@ -746,7 +1000,13 @@ struct InkSyclModel {
                 std::fclose(fp); err = "short read Section 3"; return false;
             }
             const bool has_order = (secs[3].flags & 1u) != 0;
-            const size_t n_ent = has_order ? (s3.size() / 34) : (s3.size() / 32);
+            // the 16 KiB layout pads Section 3: the entry count is then the manifest's (layers x experts), not length / 34
+            size_t n_ent = 0;
+            if (!strata::artifact::strata_section3_entry_count(shdr, s3.size(), has_order,
+                                                               shdr.layout == strata::artifact::StrataLayout::Page16K ? n_total : 0, n_ent, err)) {
+                std::fclose(fp);
+                return false;
+            }
             const auto* raw_ents = reinterpret_cast<const strata::artifact::StrataExpertEntry*>(s3.data());
             for (size_t i = 0; i < std::min(n_ent, n_total); ++i) {
                 const size_t layer = i / (size_t)man.c.n_experts;
@@ -774,8 +1034,14 @@ struct InkSyclModel {
         const size_t base_reserve = gpu_mem >= (24ull << 30) ? (2560ull << 20)
                                   : gpu_mem >= (11ull << 30) ? (1536ull << 20)
                                                              : (1024ull << 20);
-        const size_t reserve = (extra_reserve_bytes > 0) ? (extra_reserve_bytes + (768ull << 20)) : base_reserve;
+        const size_t pad_mib = acfg.active ? acfg.headroom_reserve_mib : 768ull;
+        size_t reserve = (extra_reserve_bytes > 0) ? (extra_reserve_bytes + (pad_mib << 20)) : base_reserve;
         const size_t used = dev_bytes_allocated();
+        {
+            size_t total_eb = 0;
+            for (uint16_t gid : order) if (gid < n_total) total_eb += ((ents_by_gid[gid].body_bytes + 4095) / 4096) * 4096;
+            reserve = draft_adjust_reserve(reserve, gpu_mem, used, total_eb, vram_experts_gb_override >= 0.0);
+        }
         size_t vram_budget = (gpu_mem > used + reserve) ? (gpu_mem - used - reserve) : 0;
         if (vram_experts_gb_override >= 0.0) {
             vram_budget = (size_t)(vram_experts_gb_override * (1024.0 * 1024.0 * 1024.0));
@@ -785,6 +1051,9 @@ struct InkSyclModel {
         ep2_active = false;
         ep2_gpu0_idx = primary_gpu_index();
         ep2_gpu1_idx = -1;
+        const char* ep_env_raw = std::getenv("IK2_EP_SPLIT");
+        const bool ep_auto = acfg.active && ((req_ep_split <= 0.0 || req_ep_split >= 1.0) ||
+                             (ep_env_raw && to_lower_ascii(ep_env_raw) == "auto"));
         ep2_split = std::clamp(req_ep_split, 0.1, 0.9);
         ep2_p2p = false;
         size_t vram_budget_g1 = 0;
@@ -818,6 +1087,9 @@ struct InkSyclModel {
                         vram_budget_g1 = std::min(vram_budget_g1, (size_t)(vram_experts_gb_override * (1024.0 * 1024.0 * 1024.0)));
                     }
                     if (vram_budget_g1 > 0) {
+                        if (ep_auto && (vram_budget + vram_budget_g1) > 0) {
+                            ep2_split = std::clamp((double)vram_budget_g1 / (double)(vram_budget + vram_budget_g1), 0.1, 0.9);
+                        }
                         ep2_p2p = probe_p2p(Q(), *q_peer);
                         ep2_active = true;
                     } else {
@@ -1068,41 +1340,67 @@ struct InkSyclModel {
         std::vector<uint8_t> sec1;
         if (!mf.read_section1(sec1, err)) return false;
 
+        const auto& acfg = arc_cfg();
+        const bool compact_q8_trunk = acfg.fast && acfg.use_q8_trunk;
+        size_t q8_trunk_saved_bytes = 0;
         const size_t kMaxSlab = std::min<size_t>(dev_caps().max_alloc ? (dev_caps().max_alloc * 7 / 8) : (3200ull << 20), 3200ull << 20);
         auto upload_tensor_map = [&](std::unordered_map<std::string, InkTensorInfo>& mp,
-                                     std::unordered_map<std::string, std::vector<uint8_t>>& host_copies) -> bool {
+                                     std::unordered_map<std::string, std::vector<uint8_t>>& host_copies,
+                                     bool allow_q8_compact) -> bool {
             std::vector<InkTensorInfo*> ordered;
             ordered.reserve(mp.size());
             for (auto& kv : mp) ordered.push_back(&kv.second);
             std::sort(ordered.begin(), ordered.end(), [](const InkTensorInfo* a, const InkTensorInfo* b) { return a->off < b->off; });
 
+            auto planned_bytes = [&](const InkTensorInfo* ti) -> size_t {
+                if (allow_q8_compact && ti->fmt == FMT_BF16 && ti->shape.size() == 2 && is_compactable_trunk_bf16(ti->name)) {
+                    const size_t N = (size_t)ti->rows(), K = (size_t)ti->cols();
+                    return N * 4 + N * K;
+                }
+                return (size_t)ti->bytes;
+            };
+
             size_t idx = 0;
             while (idx < ordered.size()) {
                 size_t slab_sz = 0, start = idx;
                 while (idx < ordered.size()) {
-                    size_t tb = ((ordered[idx]->bytes + 63) / 64) * 64;
+                    size_t tb = ((planned_bytes(ordered[idx]) + 63) / 64) * 64;
                     if (slab_sz > 0 && slab_sz + tb > kMaxSlab) break;
                     slab_sz += tb;
                     ++idx;
                 }
                 uint8_t* dev_slab = dalloc<uint8_t>(slab_sz);
                 trunk_slabs.push_back(dev_slab);
+                std::vector<uint8_t> q8_buf;
                 size_t cur_off = 0;
                 for (size_t j = start; j < idx; ++j) {
                     InkTensorInfo* ti = ordered[j];
-                    if (ti->off + ti->bytes > sec1.size()) {
+                    const size_t orig_b = (size_t)ti->bytes;
+                    if (ti->off + orig_b > sec1.size()) {
                         err = "section1 tensor out of bounds: " + ti->name;
                         return false;
                     }
                     const uint8_t* src = sec1.data() + ti->off;
-                    h2d(dev_slab + cur_off, src, ti->bytes);
-                    ti->dev_ptr = dev_slab + cur_off;
-                    if (ti->name.find("sconv") != std::string::npos ||
-                        ti->name.find("middle_cycle_cross_pass") != std::string::npos ||
-                        ti->name.find("rel_logits_proj") != std::string::npos) {
-                        host_copies[ti->name].assign(src, src + ti->bytes);
+                    if (allow_q8_compact && ti->fmt == FMT_BF16 && ti->shape.size() == 2 && is_compactable_trunk_bf16(ti->name)) {
+                        const int N = (int)ti->rows(), K = (int)ti->cols();
+                        quantize_bf16_tensor_to_q8row(reinterpret_cast<const uint16_t*>(src), N, K, q8_buf);
+                        h2d(dev_slab + cur_off, q8_buf.data(), q8_buf.size());
+                        wait();
+                        ti->dev_ptr = dev_slab + cur_off;
+                        ti->fmt = FMT_Q8ROW;
+                        if (orig_b > q8_buf.size()) q8_trunk_saved_bytes += (orig_b - q8_buf.size());
+                        ti->bytes = q8_buf.size();
+                        cur_off += ((q8_buf.size() + 63) / 64) * 64;
+                    } else {
+                        h2d(dev_slab + cur_off, src, orig_b);
+                        ti->dev_ptr = dev_slab + cur_off;
+                        if (ti->name.find("sconv") != std::string::npos ||
+                            ti->name.find("middle_cycle_cross_pass") != std::string::npos ||
+                            ti->name.find("rel_logits_proj") != std::string::npos) {
+                            host_copies[ti->name].assign(src, src + orig_b);
+                        }
+                        cur_off += ((orig_b + 63) / 64) * 64;
                     }
-                    cur_off += ((ti->bytes + 63) / 64) * 64;
                 }
                 wait();
             }
@@ -1110,7 +1408,11 @@ struct InkSyclModel {
         };
 
         std::unordered_map<std::string, std::vector<uint8_t>> host_tmp;
-        if (!upload_tensor_map(man.T, host_tmp) || !upload_tensor_map(man.D, host_tmp)) return false;
+        if (!upload_tensor_map(man.T, host_tmp, compact_q8_trunk) || !upload_tensor_map(man.D, host_tmp, false)) return false;
+        if (q8_trunk_saved_bytes > 0) {
+            fprintf(stderr, "[ink_sycl_intelarc] Q8_ROW dense trunk compaction saved %.1f MiB VRAM\n",
+                    q8_trunk_saved_bytes / (1024.0 * 1024.0));
+        }
         sec1.clear();
         sec1.shrink_to_fit();
         prepare_preoriented_tables(host_tmp);
@@ -1198,8 +1500,14 @@ struct InkSyclModel {
         const size_t base_reserve = gpu_mem >= (24ull << 30) ? (2560ull << 20)
                                   : gpu_mem >= (11ull << 30) ? (1536ull << 20)
                                                              : (1024ull << 20);
-        const size_t reserve = (extra_reserve_bytes > 0) ? (extra_reserve_bytes + (768ull << 20)) : base_reserve;
+        const size_t pad_mib = acfg.active ? acfg.headroom_reserve_mib : 768ull;
+        size_t reserve = (extra_reserve_bytes > 0) ? (extra_reserve_bytes + (pad_mib << 20)) : base_reserve;
         const size_t used = dev_bytes_allocated();
+        {
+            size_t total_eb = 0;
+            for (uint16_t gid : order) if (gid < n_total && dir_idx_by_gid[gid] != (size_t)-1) total_eb += ents_by_gid[gid].body_bytes;
+            reserve = draft_adjust_reserve(reserve, gpu_mem, used, total_eb, vram_experts_gb_override >= 0.0);
+        }
         size_t vram_budget = (gpu_mem > used + reserve) ? (gpu_mem - used - reserve) : 0;
         if (vram_experts_gb_override >= 0.0) {
             vram_budget = (size_t)(vram_experts_gb_override * (1024.0 * 1024.0 * 1024.0));
@@ -1387,8 +1695,12 @@ struct InkSyclModel {
         if (!fp) { err = "cannot open " + p; return false; }
         uint8_t frame[4096];
         if (std::fread(frame, 1, 4096, fp) != 4096) { std::fclose(fp); err = "short header"; return false; }
-        strata::artifact::StrataSectionEntry s0{};
-        std::memcpy(&s0, frame + 0x10, 64);
+        strata::artifact::StrataHeader shdr;  // either header layout (4 KiB or 16 KiB aligned): strata_layout.hpp
+        if (!strata::artifact::strata_parse_header_frame(frame, 4096, strata::artifact::strata_file_size(fp), shdr, err)) {
+            std::fclose(fp);
+            return false;
+        }
+        const strata::artifact::StrataSectionEntry s0 = shdr.sections[0];
         std::string mjson;
         bool ok = read_section0_zstd(fp, s0.file_offset, s0.byte_length, mjson, err);
         std::fclose(fp);

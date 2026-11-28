@@ -2,6 +2,7 @@
 // Default keeps the existing dispatch. WindowInvariant preserves that dispatch's single-token arithmetic
 // while retaining shared weight decoding where the grouped kernel gives the same result.
 #include "strata/kernels/cpu/native_expert.hpp"
+#include "strata/quant/dot_x4_policy.hpp"
 #include "strata/kernels/cpu/expert.hpp"
 #include "strata/kernels/cpu/iq_avx512.hpp"
 #include "strata/kernels/cpu/iq_avx2.hpp"
@@ -732,9 +733,9 @@ void native_gu_rows_impl(const NativeFmt& f, const uint8_t* blob, const void* co
     }
     const Tr dot = traits(f.gu_type);
 #if defined(STRATA_OWN_CPU_QUANT)
-    static const bool x4_on = std::getenv("STRATA_NO_DOT_X4") == nullptr;
+    static const int x4_mode = strata::quant::dot_x4_mode(std::getenv("STRATA_DOT_X4"), std::getenv("STRATA_NO_DOT_X4"));   // 0.2.23: on from 2 tokens, off for 1 (dot_x4_policy.hpp; #6552, #7075)
     const strata::quant::DotX4Kernel* x4 =
-        (x4_on && (Arithmetic == NativeArithmetic::Default || flavour_avx2()))
+        (strata::quant::dot_x4_enabled(x4_mode, nt) && (Arithmetic == NativeArithmetic::Default || flavour_avx2()))
             ? strata::quant::dot_x4_kernel((strata::quant::Type) f.gu_type, strata::quant::Arith::Avx2)
             : nullptr;
 #endif
@@ -857,9 +858,9 @@ void native_down_rows_impl(const NativeFmt& f, const uint8_t* blob, const void* 
     }
     const Tr dot = traits(f.d_type);
 #if defined(STRATA_OWN_CPU_QUANT)
-    static const bool x4_on = std::getenv("STRATA_NO_DOT_X4") == nullptr;
+    static const int x4_mode = strata::quant::dot_x4_mode(std::getenv("STRATA_DOT_X4"), std::getenv("STRATA_NO_DOT_X4"));   // see native_gu_rows_impl
     const strata::quant::DotX4Kernel* x4 =
-        (x4_on && (Arithmetic == NativeArithmetic::Default || flavour_avx2()))
+        (strata::quant::dot_x4_enabled(x4_mode, nt) && (Arithmetic == NativeArithmetic::Default || flavour_avx2()))
             ? strata::quant::dot_x4_kernel((strata::quant::Type) f.d_type, strata::quant::Arith::Avx2)
             : nullptr;
 #endif
