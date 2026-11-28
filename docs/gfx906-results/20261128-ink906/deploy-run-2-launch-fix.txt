@@ -1,0 +1,22 @@
+=== 1. machine state
+no Strata process
+free disk 83 GiB · MemAvailable 107740 MiB · log /home/chris/dev/strata-gfx906/logs/ink906-deploy-20261128T040728Z
+strata Terminal: 0.1.70
+=== 2. source
+source 85fcbffe3904c3c2c24016abd54cfdb9af599c94 (gfx906: strata launch uses an installed shape engine the feed lacks)
+=== 3. build strata-inkling (HIP plug-in, gfx906)
+built: strata-inkling 0.1.70 · sha256 ae47206c2efa96eb8627ce8f643a58c243d83f968d1682a82608d2167e235f60 · 4828200 B · errors 0
+=== 4. package (local, unsigned) and pin
+package 0.1.70-linux-x86_64-hip-local already holds this build; kept
+pinned 0.1.70-linux-x86_64-hip-local in /home/chris/.local/share/strata/components/shapes/inkling2/.updates/state.json
+=== 4b. Terminal fix: a local shape engine runs when the feed has none for this PC
+patched strata_control/shape_engine.py (backup strata_control/shape_engine.py.orig-20261128T040728Z)
+=== 5. verify with the installed strata Terminal (no start)
+detected backend: ('hip', 'rocminfo') · hip archs here: ['gfx906', 'gfx906']
+component:strata-inkling -> /home/chris/.local/share/strata/components/shapes/inkling2/engine/0.1.70-linux-x86_64-hip-local/strata-inkling
+resolve OK: the saved launch starts the gfx906 build
+launch engine step (reads the feed) -> /home/chris/.local/share/strata/components/shapes/inkling2/engine/0.1.70-linux-x86_64-hip-local/strata-inkling · said: []
+launch engine step OK
+doctor: 
+=== PASS: strata-inkling 0.1.70 (gfx906) installed and pinned; nothing started. Start: strata launch
+exit 0
