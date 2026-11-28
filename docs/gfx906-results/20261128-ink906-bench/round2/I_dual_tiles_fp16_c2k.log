@@ -1,0 +1,5 @@
+[ink-hip] SWA KV ring 3072 positions (window 1024, forward_batch span cap 2048)
+[ink-hip] DFlash 2: needs a wave32 GPU (RDNA): no drafter
+[ink-hip] native lossless GGUF_RAW GPU kernels active for 3072/3072 experts (zero S_K transcode)
+[ink-hip] Dual-GPU EP2 active: GPU1 (AMD Instinct MI60 / MI50, 1509 exp, 4.37 GiB) + GPU0 (AMD Instinct MI60 / MI50, 1563 exp, 4.50 GiB), RAM=0 | split=0.50 p2p=on
+[bench] backend=hip-ep2 format=gguf parallel=1 gpus=2 kv=fp16 prompt=16384 gen=256 | prefill=97.9 ppts (167.34s) | decode=31.6 tps agg (31.6 tps/slot, 8.10s)

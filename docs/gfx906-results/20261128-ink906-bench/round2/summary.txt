@@ -1,0 +1,19 @@
+bench 20261128T050031Z · sha256 ae47206c2efa96eb · model 11425259648 B
+=== stop the server
+stop exit 0: Stopped gsq-rco-iq3_s-256k. 
+idle: GPU[0]		: VRAM Total Used Memory (B): 10866688 GPU[1]		: VRAM Total Used Memory (B): 10866688 
+G_dual_tiles_fp8 exit 0 (192 s): [bench] backend=hip-ep2 format=gguf parallel=1 gpus=2 kv=fp8 prompt=16384 gen=256 | prefill=94.5 ppts (173.43s) | decode=26.8 tps agg (26.8 tps/slot, 9.56s)
+    [ink-hip] Dual-GPU EP2 active: GPU1 (AMD Instinct MI60 / MI50, 1509 exp, 4.37 GiB) + GPU0 (AMD Instinct MI60 / MI50, 1563 exp, 4.50 GiB), RAM=0 | split=0.50 p2p=on
+H_dual_tiles_fp8_c2k exit 0 (210 s): [bench] backend=hip-ep2 format=gguf parallel=1 gpus=2 kv=fp8 prompt=16384 gen=256 | prefill=85.8 ppts (190.97s) | decode=26.8 tps agg (26.8 tps/slot, 9.54s)
+    [ink-hip] Dual-GPU EP2 active: GPU1 (AMD Instinct MI60 / MI50, 1509 exp, 4.37 GiB) + GPU0 (AMD Instinct MI60 / MI50, 1563 exp, 4.50 GiB), RAM=0 | split=0.50 p2p=on
+I_dual_tiles_fp16_c2k exit 0 (184 s): [bench] backend=hip-ep2 format=gguf parallel=1 gpus=2 kv=fp16 prompt=16384 gen=256 | prefill=97.9 ppts (167.34s) | decode=31.6 tps agg (31.6 tps/slot, 8.10s)
+    [ink-hip] Dual-GPU EP2 active: GPU1 (AMD Instinct MI60 / MI50, 1509 exp, 4.37 GiB) + GPU0 (AMD Instinct MI60 / MI50, 1563 exp, 4.50 GiB), RAM=0 | split=0.50 p2p=on
+=== restart the server
+restart exit 0
+  Anthropic apps http://127.0.0.1:8080   (Claude Code: ANTHROPIC_BASE_URL, no /v1 at the end)
+  Engine log     /home/chris/.local/state/strata/launch/gsq-rco-iq3_s-256k.engine.log   (follow it: strata logs --follow)
+[!] Drafting off: a 128-token probe on this card measured 1.00x with drafting (code 1.00x, chat 1.00x) (plain decoding 40 tok/s); it needs 1.10x.
+  Watch it:    strata monitor --url http://127.0.0.1:8080
+  Connect an app:  strata connect opencode      Stop:  strata launch --stop --preset "gsq-rco-iq3_s-256k"
+8080 listening
+=== DONE

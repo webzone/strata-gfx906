@@ -1,0 +1,2 @@
+3170188 /home/chris/.local/share/strata/terminal/0.1.70/python/bin/python3.12 -m serve.server --engine strata --config /home/chris/.local/state/strata/launch/gs
+3170227 /home/chris/.local/share/strata/components/shapes/inkling2/engine/0.1.70-linux-x86_64-hip-local/strata-inkling --serve --native /home/chris/.local/share
