@@ -65,11 +65,14 @@ All project documentation and maintenance notes must be written in English. Pres
 
 ## Upstream navigation
 
-When invoking `omp`, use the `herdr` skill from a Herdr-managed pane, as requested by the owner.
-The primary agent/thread owns only architecture, organization, review, and integration closeout;
-concrete tasks are delegated through `herdr` to fresh omp instances, at most four concurrent, each
-with a disjoint file scope (worktrees allowed as needed). When a task ends, the primary closes that
-round's omp instances and removes only that round's worktrees/branches, never another round's leftovers.
+Development runs through the agent fleet (`agent-fleet` skill, owner decision 2026-11-28; it replaces the
+earlier omp-through-herdr rule). The main thread owns architecture, specs, review, merge, push and deploy;
+fleet workers do the concrete work on Linux worker hosts. Project profile: `~/fleet/projects/strata-gfx906.toml`;
+adapter: `tools/fleet/test-profile.json`. m6 is the only worker host with ROCm (7.2.4) and `hipcc`, so it does
+the gfx906 compile checks. The T5810 is never a worker host: GPU tests there run only through a main-thread
+script, and the owner approves each run first. The T5810 toolchain at `/opt/rocm-10.0/core-10.0` is ROCm 7.10
+(its version file says 10.0.0; older records call it "ROCm 10"). Never download a model to the brain Mac; fleet
+checks block HTTP through `tools/fleet/test.env`.
 
 Upstream's general user workflow is in `docs/AI_SETUP.md` and `docs/MCP_SERVER.md`; for this fork's
 MI50/MI60 installation, use `docs/GFX906.md` and the rules above instead of upstream's RDNA/prebuilt defaults.
@@ -99,3 +102,25 @@ Document measured results with their hardware, workload and validation limits, n
   [docs/COMMUNITY_BENCHMARKS.md](docs/COMMUNITY_BENCHMARKS.md), compare against a same-day run of the build you are
   testing, and say what you did not test.
 - Open test requests and the hardware that is wanted are listed in [docs/TEST_REQUESTS.md](docs/TEST_REQUESTS.md).
+
+<!-- agent-kit:begin -->
+## Subagent Release Restrictions (agent fleet)
+
+- Subagents must not run `git push`.
+- Subagents must not merge branches or modify branch topology, including `git merge`, `git rebase`,
+  `git cherry-pick`, `git reset`, or direct pushes to protected or shared branches (the project's default
+  branch, long-lived integration branches, and any branch the project marks protected).
+- Subagents must not deploy code, restart servers, or run production/staging operational commands.
+- Subagents may inspect code, edit files in their assigned scope, run local tests, and create local commits in their
+  own branch/worktree when explicitly asked.
+- Foreman exceptions (the fleet FOREMAN agent only, never workers):
+  (1) on the agent farm it may merge the wave's task branches into a throwaway LOCAL branch `trial/<wave>` to run
+  the project-declared full suites and a browser walk; it never pushes that branch and deletes it at the end of the wave;
+  (2) it may run the agent-kit copy `scripts/agent-cleanup.sh <task>` (copied onto the host by the fleet install) ONLY
+  for tasks that the main thread listed as merged (`~/agent-tmp/merged-tasks.txt`).
+- Only the main thread may perform final integration actions: `push`, merge into the project's shared or default
+  branches, pull request publication, deployment, server restarts, and other release-affecting operations.
+- If a subagent discovers that a release-affecting action is needed, it must stop at a local commit or a written
+  recommendation and report back to the main thread.
+- If a subagent has already performed a prohibited release-affecting action, it must explicitly report that fact.
+<!-- agent-kit:end -->

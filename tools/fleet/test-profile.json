@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {
+      "name": "python3",
+      "argv": [
+        "python3"
+      ]
+    },
+    {
+      "name": "bash",
+      "argv": [
+        "bash"
+      ]
+    },
+    {
+      "name": "git",
+      "argv": [
+        "git"
+      ]
+    }
+  ],
+  "env_file": "test.env",
+  "allowed_db_hosts": [
+    "127.0.0.1",
+    "localhost"
+  ],
+  "ports": [],
+  "prepare": [
+    [
+      "bash",
+      "tools/fleet/prepare.sh",
+      "{repo}",
+      "{env_dir}"
+    ]
+  ],
+  "checks": {
+    "gfx906_py": {
+      "argv": [
+        "bash",
+        "tools/fleet/py.sh",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "terminal/tests",
+        "-p",
+        "test_gfx906_*.py"
+      ],
+      "timeout_seconds": 300,
+      "inputs": [
+        "terminal/**",
+        "tools/**",
+        "engine/CMakeLists.txt",
+        "engine/cmake/**"
+      ]
+    },
+    "gfx906_build_files": {
+      "argv": [
+        "bash",
+        "tools/fleet/py.sh",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "terminal/tools",
+        "-p",
+        "test_gfx906_*.py"
+      ],
+      "timeout_seconds": 300,
+      "inputs": [
+        "engine/**",
+        "terminal/tools/**"
+      ]
+    },
+    "server": {
+      "argv": [
+        "bash",
+        "tools/fleet/py.sh",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "terminal/serve",
+        "-p",
+        "test_server.py"
+      ],
+      "timeout_seconds": 900,
+      "inputs": [
+        "terminal/serve/**"
+      ]
+    }
+  }
+}
